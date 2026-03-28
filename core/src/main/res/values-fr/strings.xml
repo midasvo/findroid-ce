@@ -65,7 +65,7 @@
     <string name="temp">temp</string>
     <string name="subtitle_chip_text">ST</string>
     <string name="size">Taille</string>
-    <string name="privacy_policy_notice">En utilisant Findroid, vous acceptez la <a href="https://raw.githubusercontent.com/jarnedemeulemeester/findroid/main/PRIVACY">politique de confidentialité</a> qui indique que nous ne collectons aucune donnée</string>
+    <string name="privacy_policy_notice">En utilisant Findroid, vous acceptez la <a href="https://raw.githubusercontent.com/midasvo/findroid-ce/main/PRIVACY">politique de confidentialité</a> qui indique que nous ne collectons aucune donnée</string>
     <string name="episode_name_extended_with_end">S%1$d:E%2$d-%3$d - %4$s</string>
     <string name="episode_name_with_end">%1$d-%2$d. %3$s</string>
     <string name="external">Externe</string>

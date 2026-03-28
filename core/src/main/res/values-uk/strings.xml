@@ -82,7 +82,7 @@
     <string name="select_storage_location">Вибрати місце зберігання</string>
     <string name="preparing_download">Підготовка до завантаження</string>
     <string name="stop_download">Зупинити завантаження</string>
-    <string name="privacy_policy_notice">Використовуючи Findroid, ви погоджуєтеся з <a href="https://raw.githubusercontent.com/jarnedemeulemeester/findroid/main/PRIVACY">Політикою конфіденційності</a>, в якій зазначено, що ми не збираємо жодних даних</string>
+    <string name="privacy_policy_notice">Використовуючи Findroid, ви погоджуєтеся з <a href="https://raw.githubusercontent.com/midasvo/findroid-ce/main/PRIVACY">Політикою конфіденційності</a>, в якій зазначено, що ми не збираємо жодних даних</string>
     <string name="none">Нічого</string>
     <string name="title_settings">Налаштунки</string>
     <string name="title_download">Завантаження</string>

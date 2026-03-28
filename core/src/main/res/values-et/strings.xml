@@ -92,7 +92,7 @@
     <string name="delete_download">Kustuta allalaaditud fail</string>
     <string name="delete_download_message">Kas oled kindel, et soovid selle allalaaditud faili oma seadmest kustutada?</string>
     <string name="stop_download">Peata allalaadimine</string>
-    <string name="privacy_policy_notice">Findroidi kasutades nõustud <a href="https://raw.githubusercontent.com/jarnedemeulemeester/findroid/main/PRIVACY">privaatsuspoliitikaga</a>, mille kohaselt me ei kogu mingeid andmeid</string>
+    <string name="privacy_policy_notice">Findroidi kasutades nõustud <a href="https://raw.githubusercontent.com/midasvo/findroid-ce/main/PRIVACY">privaatsuspoliitikaga</a>, mille kohaselt me ei kogu mingeid andmeid</string>
     <string name="live_tv">Otsesaated</string>
     <string name="play">Esita</string>
     <string name="watch_trailer">Vaata treilerit</string>

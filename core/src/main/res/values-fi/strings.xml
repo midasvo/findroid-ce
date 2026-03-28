@@ -85,7 +85,7 @@
     <string name="cancel_download">Peru lataus</string>
     <string name="cancel_download_message">Haluatko varmasti peruuttaa latauksen?</string>
     <string name="stop_download">Pysäytä lataus</string>
-    <string name="privacy_policy_notice">Kun käytät Findroidia, hyväksyt seuraavat <a href="https://raw.githubusercontent.com/jarnedemeulemeester/findroid/main/PRIVACY">Käyttöehdot</a> , jonka mukaan emme kerää mitään tietoja käyttäjältä</string>
+    <string name="privacy_policy_notice">Kun käytät Findroidia, hyväksyt seuraavat <a href="https://raw.githubusercontent.com/midasvo/findroid-ce/main/PRIVACY">Käyttöehdot</a> , jonka mukaan emme kerää mitään tietoja käyttäjältä</string>
     <string name="live_tv">Suora TV</string>
     <string name="play">Toista</string>
     <string name="watch_trailer">Katso traileri</string>
