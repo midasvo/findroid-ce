@@ -135,7 +135,7 @@ fun AboutScreen(navigateBack: () -> Unit) {
                                     onClick = {
                                         try {
                                             uriHandler.openUri(
-                                                "https://github.com/jarnedemeulemeester/findroid"
+                                                "https://github.com/midasvo/findroid-ce"
                                             )
                                         } catch (e: IllegalArgumentException) {
                                             Toast.makeText(
@@ -149,27 +149,6 @@ fun AboutScreen(navigateBack: () -> Unit) {
                                 ) {
                                     Icon(
                                         painter = painterResource(CoreR.drawable.ic_github),
-                                        contentDescription = null,
-                                    )
-                                }
-                                FilledTonalIconButton(
-                                    onClick = {
-                                        try {
-                                            uriHandler.openUri(
-                                                "https://ko-fi.com/jarnedemeulemeester"
-                                            )
-                                        } catch (e: IllegalArgumentException) {
-                                            Toast.makeText(
-                                                    context,
-                                                    e.localizedMessage,
-                                                    Toast.LENGTH_SHORT,
-                                                )
-                                                .show()
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        painter = painterResource(CoreR.drawable.ic_coffee),
                                         contentDescription = null,
                                     )
                                 }

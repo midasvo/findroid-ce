@@ -93,7 +93,7 @@
     <string name="delete_download">Slett nedlasting</string>
     <string name="delete_download_message">Er du sikker på at du vil slette denne nedlastinga frå eininga di?</string>
     <string name="stop_download">Stopp nedlasting</string>
-    <string name="privacy_policy_notice">Ved å bruke Findroid godtek du &lt;a href=https://raw.githubusercontent.com/jarnedemeulemeester/findroid/main/PRIVACY&gt;personvernerklæringa&lt;/a&gt; som seier at vi ikkje samlar inn noko data</string>
+    <string name="privacy_policy_notice">Ved å bruke Findroid godtek du &lt;a href=https://raw.githubusercontent.com/midasvo/findroid-ce/main/PRIVACY&gt;personvernerklæringa&lt;/a&gt; som seier at vi ikkje samlar inn noko data</string>
     <string name="live_tv">Direkte-TV</string>
     <string name="play">Spel av</string>
     <string name="watch_trailer">Sjå trailer</string>

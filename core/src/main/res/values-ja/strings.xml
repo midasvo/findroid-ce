@@ -91,7 +91,7 @@
     <string name="cancel_download">ダウンロードをキャンセル</string>
     <string name="cancel_download_message">ダウンロードを本当にキャンセルしますか？</string>
     <string name="stop_download">ダウンロードを停止</string>
-    <string name="privacy_policy_notice">Findroid を使用することで、<a href="https://raw.githubusercontent.com/jarnedemeulemeester/findroid/main/PRIVACY">プライバシーポリシー</a> に同意したものとみなされます。当社は一切のデータを収集しないことを明記しています</string>
+    <string name="privacy_policy_notice">Findroid を使用することで、<a href="https://raw.githubusercontent.com/midasvo/findroid-ce/main/PRIVACY">プライバシーポリシー</a> に同意したものとみなされます。当社は一切のデータを収集しないことを明記しています</string>
     <string name="live_tv">ライブテレビ</string>
     <string name="play">再生</string>
     <string name="watch_trailer">予告編を視聴</string>

@@ -88,7 +88,7 @@
     <string name="delete_download">Hapus unduhan</string>
     <string name="delete_download_message">Apakah Anda yakin ingin menghapus unduhan ini ?</string>
     <string name="stop_download">Hentikan unduhan</string>
-    <string name="privacy_policy_notice">Dengan menggunakan Findroid, Anda menyetujui <a href="https://raw.githubusercontent.com/jarnedemeulemeester/findroid/main/PRIVACY">Kebijakan Privasi</a> yang menyatakan bahwa kami tidak mengumpulkan data apa pun</string>
+    <string name="privacy_policy_notice">Dengan menggunakan Findroid, Anda menyetujui <a href="https://raw.githubusercontent.com/midasvo/findroid-ce/main/PRIVACY">Kebijakan Privasi</a> yang menyatakan bahwa kami tidak mengumpulkan data apa pun</string>
     <string name="live_tv">Siaran TV Langsung</string>
     <string name="play">Putar</string>
     <string name="watch_trailer">Tonton cuplikan</string>
