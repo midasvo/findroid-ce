@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin.presentation.film
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,12 +37,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.jdtech.jellyfin.PlayerActivity
+import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadStatus
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloaderState
 import dev.jdtech.jellyfin.core.presentation.dummy.dummySeason
 import dev.jdtech.jellyfin.film.presentation.season.SeasonAction
+import dev.jdtech.jellyfin.film.presentation.season.SeasonEvent
 import dev.jdtech.jellyfin.film.presentation.season.SeasonState
 import dev.jdtech.jellyfin.film.presentation.season.SeasonViewModel
+import dev.jdtech.jellyfin.utils.ObserveAsEvents
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.isDownloaded
 import dev.jdtech.jellyfin.presentation.film.components.Direction
@@ -69,6 +73,36 @@ fun SeasonScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(true) { viewModel.loadSeason(seasonId = seasonId) }
+
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            is SeasonEvent.DownloadResult -> {
+                val message =
+                    when {
+                        event.started == 0 && event.skipped > 0 ->
+                            context.getString(CoreR.string.download_all_already_downloaded)
+                        event.failed > 0 ->
+                            context.getString(
+                                CoreR.string.download_started_with_errors,
+                                event.started,
+                                event.failed,
+                            )
+                        event.skipped > 0 ->
+                            context.getString(
+                                CoreR.string.download_started_with_skipped,
+                                event.started,
+                                event.skipped,
+                            )
+                        else ->
+                            context.getString(
+                                CoreR.string.download_started,
+                                event.started,
+                            )
+                    }
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 
     SeasonScreenLayout(
         state = state,

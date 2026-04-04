@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.dummy.dummySeason
+import dev.jdtech.jellyfin.film.presentation.show.SeasonDownloadInfo
 import dev.jdtech.jellyfin.models.FindroidSeason
 import dev.jdtech.jellyfin.presentation.components.BaseDialog
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
@@ -37,6 +38,7 @@ fun SeasonSelectionDialog(
     onConfirm: (selectedSeasonIds: Set<UUID>) -> Unit,
     onDismiss: () -> Unit,
     initialSelection: Set<UUID> = seasons.map { it.id }.toSet(),
+    seasonDownloadInfo: Map<UUID, SeasonDownloadInfo> = emptyMap(),
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -68,6 +70,7 @@ fun SeasonSelectionDialog(
                 SeasonSelectionDialogItem(
                     season = season,
                     checked = selectedSeasons.contains(season.id),
+                    downloadInfo = seasonDownloadInfo[season.id],
                     onCheckedChange = { id ->
                         selectedSeasons =
                             if (selectedSeasons.contains(id)) {
@@ -89,6 +92,7 @@ fun SeasonSelectionDialog(
 private fun SeasonSelectionDialogItem(
     season: FindroidSeason,
     checked: Boolean,
+    downloadInfo: SeasonDownloadInfo?,
     onCheckedChange: (UUID) -> Unit,
 ) {
     val seasonLabel =
@@ -107,7 +111,23 @@ private fun SeasonSelectionDialogItem(
     ) {
         Checkbox(checked = checked, onCheckedChange = { _ -> onCheckedChange(season.id) })
         Spacer(modifier = Modifier.width(MaterialTheme.spacings.medium))
-        Text(text = seasonLabel, color = MaterialTheme.colorScheme.onSurface)
+        Text(
+            text = seasonLabel,
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        if (downloadInfo != null && downloadInfo.downloadedCount > 0) {
+            Text(
+                text =
+                    stringResource(
+                        CoreR.string.episodes_downloaded_count,
+                        downloadInfo.downloadedCount,
+                        downloadInfo.totalCount,
+                    ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
     }
 }
 

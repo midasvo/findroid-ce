@@ -14,8 +14,10 @@ import dev.jdtech.jellyfin.utils.Downloader
 import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jellyfin.sdk.model.api.PersonKind
@@ -31,6 +33,9 @@ constructor(
     private val _state = MutableStateFlow(ShowState())
     val state = _state.asStateFlow()
 
+    private val eventsChannel = Channel<ShowEvent>()
+    val events = eventsChannel.receiveAsFlow()
+
     lateinit var showId: UUID
 
     fun loadShow(showId: UUID) {
@@ -43,17 +48,25 @@ constructor(
                 val actors = getActors(show)
                 val director = getDirector(show)
                 val writers = getWriters(show)
-                val hasDownloads =
-                    seasons.any { season ->
-                        repository
-                            .getEpisodes(seriesId = showId, seasonId = season.id)
-                            .any { it.isDownloaded() }
-                    }
+                val seasonDownloadInfo = mutableMapOf<UUID, SeasonDownloadInfo>()
+                var hasDownloads = false
+                for (season in seasons) {
+                    val episodes =
+                        repository.getEpisodes(seriesId = showId, seasonId = season.id)
+                    val downloadedCount = episodes.count { it.isDownloaded() }
+                    if (downloadedCount > 0) hasDownloads = true
+                    seasonDownloadInfo[season.id] =
+                        SeasonDownloadInfo(
+                            downloadedCount = downloadedCount,
+                            totalCount = episodes.size,
+                        )
+                }
                 _state.emit(
                     _state.value.copy(
                         show = show,
                         nextUp = nextUp,
                         seasons = seasons,
+                        seasonDownloadInfo = seasonDownloadInfo,
                         actors = actors,
                         director = director,
                         writers = writers,
@@ -70,18 +83,31 @@ constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val storageIndex =
                 appPreferences.getValue(appPreferences.downloadStorageIndex)?.toIntOrNull() ?: 0
+            var started = 0
+            var skipped = 0
+            var failed = 0
             for (seasonId in seasonIds) {
                 val episodes = repository.getEpisodes(seriesId = showId, seasonId = seasonId)
                 for (episode in episodes) {
-                    if (episode.canDownload && !episode.isDownloaded()) {
+                    if (!episode.canDownload || episode.isDownloaded()) {
+                        if (episode.isDownloaded()) skipped++
+                        continue
+                    }
+                    val (downloadId, _) =
                         downloader.downloadItem(
                             item = episode,
                             sourceId = episode.sources.first().id,
                             storageIndex = storageIndex,
                         )
+                    if (downloadId != -1L) {
+                        started++
+                    } else {
+                        failed++
                     }
                 }
             }
+            eventsChannel.send(ShowEvent.DownloadResult(started, skipped, failed))
+            loadShow(showId)
         }
     }
 

@@ -18,8 +18,10 @@ import dev.jdtech.jellyfin.utils.Downloader
 import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.jellyfin.sdk.model.api.ItemFields
 
@@ -33,6 +35,9 @@ constructor(
 ) : ViewModel() {
     private val _state = MutableStateFlow(SeasonState())
     val state = _state.asStateFlow()
+
+    private val eventsChannel = Channel<SeasonEvent>()
+    val events = eventsChannel.receiveAsFlow()
 
     lateinit var seasonId: UUID
 
@@ -68,15 +73,27 @@ constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val storageIndex =
                 appPreferences.getValue(appPreferences.downloadStorageIndex)?.toIntOrNull() ?: 0
+            var started = 0
+            var skipped = 0
+            var failed = 0
             for (episode in _state.value.episodes) {
-                if (episode.canDownload && !episode.isDownloaded()) {
+                if (!episode.canDownload || episode.isDownloaded()) {
+                    if (episode.isDownloaded()) skipped++
+                    continue
+                }
+                val (downloadId, _) =
                     downloader.downloadItem(
                         item = episode,
                         sourceId = episode.sources.first().id,
                         storageIndex = storageIndex,
                     )
+                if (downloadId != -1L) {
+                    started++
+                } else {
+                    failed++
                 }
             }
+            eventsChannel.send(SeasonEvent.DownloadResult(started, skipped, failed))
             // Reload episodes to pick up new LOCAL sources, then start polling
             loadSeason(seasonId)
         }

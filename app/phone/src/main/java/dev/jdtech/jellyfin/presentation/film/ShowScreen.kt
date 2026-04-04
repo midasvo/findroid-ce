@@ -48,8 +48,10 @@ import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloaderState
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyShow
 import dev.jdtech.jellyfin.film.presentation.show.ShowAction
+import dev.jdtech.jellyfin.film.presentation.show.ShowEvent
 import dev.jdtech.jellyfin.film.presentation.show.ShowState
 import dev.jdtech.jellyfin.film.presentation.show.ShowViewModel
+import dev.jdtech.jellyfin.utils.ObserveAsEvents
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.presentation.film.components.ActorsRow
 import dev.jdtech.jellyfin.presentation.film.components.Direction
@@ -83,6 +85,36 @@ fun ShowScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(true) { viewModel.loadShow(showId = showId) }
+
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            is ShowEvent.DownloadResult -> {
+                val message =
+                    when {
+                        event.started == 0 && event.skipped > 0 ->
+                            context.getString(CoreR.string.download_all_already_downloaded)
+                        event.failed > 0 ->
+                            context.getString(
+                                CoreR.string.download_started_with_errors,
+                                event.started,
+                                event.failed,
+                            )
+                        event.skipped > 0 ->
+                            context.getString(
+                                CoreR.string.download_started_with_skipped,
+                                event.started,
+                                event.skipped,
+                            )
+                        else ->
+                            context.getString(
+                                CoreR.string.download_started,
+                                event.started,
+                            )
+                    }
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 
     ShowScreenLayout(
         state = state,
@@ -325,6 +357,7 @@ private fun ShowScreenLayout(
                     seasonSelectionDialogOpen = false
                 },
                 onDismiss = { seasonSelectionDialogOpen = false },
+                seasonDownloadInfo = state.seasonDownloadInfo,
             )
         }
     }

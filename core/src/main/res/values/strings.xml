@@ -116,4 +116,9 @@
     <string name="storage_usage">%1$s used · %2$s free</string>
     <string name="storage_usage_location">%1$s · %2$s used · %3$s free</string>
     <string name="no_downloads_hint">Downloaded movies and shows will appear here</string>
+    <string name="download_started">Started downloading %1$d episodes</string>
+    <string name="download_started_with_skipped">Started downloading %1$d episodes, %2$d already downloaded</string>
+    <string name="download_started_with_errors">Started %1$d downloads, %2$d failed</string>
+    <string name="download_all_already_downloaded">All episodes are already downloaded</string>
+    <string name="episodes_downloaded_count">%1$d/%2$d downloaded</string>
 </resources>
