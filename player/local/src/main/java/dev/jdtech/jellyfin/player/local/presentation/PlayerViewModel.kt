@@ -31,11 +31,8 @@ import dev.jdtech.jellyfin.settings.domain.Constants
 import java.util.UUID
 import javax.inject.Inject
 import kotlin.math.ceil
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -240,26 +237,10 @@ constructor(
         return mediaItem
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private fun releasePlayer() {
         val mediaId = player.currentMediaItem?.mediaId
         val position = player.currentPosition
         val duration = player.duration
-        GlobalScope.launch {
-            delay(200L)
-            try {
-                if (mediaId != null && duration != C.TIME_UNSET) {
-                    Timber.d("Sending playback stop")
-                    repository.postPlaybackStop(
-                        UUID.fromString(mediaId),
-                        position.times(10000),
-                        position.div(duration.toFloat()).times(100).toInt(),
-                    )
-                }
-            } catch (e: Exception) {
-                Timber.e(e)
-            }
-        }
 
         _uiState.update { it.copy(currentTrickplay = null) }
         playWhenReady = false
@@ -267,6 +248,21 @@ constructor(
         currentMediaItemIndex = 0
         player.removeListener(this)
         player.release()
+
+        if (mediaId != null && duration != C.TIME_UNSET) {
+            viewModelScope.launch {
+                try {
+                    Timber.d("Sending playback stop")
+                    repository.postPlaybackStop(
+                        UUID.fromString(mediaId),
+                        position.times(10000),
+                        position.div(duration.toFloat()).times(100).toInt(),
+                    )
+                } catch (e: Exception) {
+                    Timber.e(e)
+                }
+            }
+        }
     }
 
     fun updatePlaybackProgress() {
