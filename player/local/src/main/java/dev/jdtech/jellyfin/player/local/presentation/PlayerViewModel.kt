@@ -507,22 +507,26 @@ constructor(
             for (i in 0..maxIndex) {
                 repository.getTrickplayData(item.itemId, trickplayInfo.width, i)?.let { byteArray ->
                     val fullBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-                    for (offsetY in
-                        0..<trickplayInfo.height * trickplayInfo.tileHeight step
-                            trickplayInfo.height) {
-                        for (offsetX in
-                            0..<trickplayInfo.width * trickplayInfo.tileWidth step
-                                trickplayInfo.width) {
-                            val bitmap =
-                                Bitmap.createBitmap(
-                                    fullBitmap,
-                                    offsetX,
-                                    offsetY,
-                                    trickplayInfo.width,
-                                    trickplayInfo.height,
-                                )
-                            bitmaps.add(bitmap)
+                    try {
+                        for (offsetY in
+                            0..<trickplayInfo.height * trickplayInfo.tileHeight step
+                                trickplayInfo.height) {
+                            for (offsetX in
+                                0..<trickplayInfo.width * trickplayInfo.tileWidth step
+                                    trickplayInfo.width) {
+                                val bitmap =
+                                    Bitmap.createBitmap(
+                                        fullBitmap,
+                                        offsetX,
+                                        offsetY,
+                                        trickplayInfo.width,
+                                        trickplayInfo.height,
+                                    )
+                                bitmaps.add(bitmap)
+                            }
                         }
+                    } finally {
+                        fullBitmap.recycle()
                     }
                 }
             }
