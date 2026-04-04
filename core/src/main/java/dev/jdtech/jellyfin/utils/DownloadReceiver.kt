@@ -36,17 +36,14 @@ class DownloadReceiver : BroadcastReceiver() {
                 val downloadManager = context.getSystemService(DownloadManager::class.java)
                 val query = DownloadManager.Query().setFilterById(id)
                 val cursor = downloadManager.query(query)
-                val downloadStatus = if (cursor.moveToFirst()) {
-                    cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-                } else {
-                    DownloadManager.STATUS_FAILED
+                var downloadStatus = DownloadManager.STATUS_FAILED
+                var downloadReason = -1
+                cursor.use {
+                    if (it.moveToFirst()) {
+                        downloadStatus = it.getInt(it.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+                        downloadReason = it.getInt(it.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON))
+                    }
                 }
-                val downloadReason = if (cursor.moveToFirst()) {
-                    cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON))
-                } else {
-                    -1
-                }
-                cursor.close()
 
                 val source = database.getSourceByDownloadId(id)
                 if (source != null) {
