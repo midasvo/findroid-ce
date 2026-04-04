@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude
+            domain="database"
+            path="servers" />
+        <exclude
+            domain="database"
+            path="servers-wal" />
+        <exclude
+            domain="database"
+            path="servers-shm" />
+        <exclude
+            domain="sharedpref"
+            path="." />
+    </cloud-backup>
+</data-extraction-rules>

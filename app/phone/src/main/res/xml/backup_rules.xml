@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Exclude databases containing auth tokens and server credentials -->
+    <exclude
+        domain="database"
+        path="servers" />
+    <exclude
+        domain="database"
+        path="servers-wal" />
+    <exclude
+        domain="database"
+        path="servers-shm" />
+    <!-- Exclude shared preferences with sensitive data -->
+    <exclude
+        domain="sharedpref"
+        path="." />
+</full-backup-content>
