@@ -2,8 +2,11 @@ package dev.jdtech.jellyfin.presentation.theme
 
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.ui.graphics.Color
 import dev.jdtech.jellyfin.core.presentation.theme.ColorDark
 import dev.jdtech.jellyfin.core.presentation.theme.ColorLight
+
+val StarRatingYellow = Color(0xFFF2C94C)
 
 val lightScheme =
     lightColorScheme(

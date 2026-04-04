@@ -10,9 +10,9 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
@@ -41,30 +41,31 @@ fun ItemTopBar(
         if (hasBackButton) {
             IconButton(
                 onClick = onBackClick,
-                modifier = Modifier.alpha(0.7f),
                 colors =
                     IconButtonDefaults.iconButtonColors(
-                        containerColor = Color.Black,
+                        containerColor = Color.Black.copy(alpha = 0.5f),
                         contentColor = Color.White,
                     ),
             ) {
                 Icon(
                     painter = painterResource(CoreR.drawable.ic_arrow_left),
-                    contentDescription = null,
+                    contentDescription = stringResource(CoreR.string.navigate_back),
                 )
             }
         }
         if (hasHomeButton) {
             IconButton(
                 onClick = onHomeClick,
-                modifier = Modifier.alpha(0.7f),
                 colors =
                     IconButtonDefaults.iconButtonColors(
-                        containerColor = Color.Black,
+                        containerColor = Color.Black.copy(alpha = 0.5f),
                         contentColor = Color.White,
                     ),
             ) {
-                Icon(painter = painterResource(CoreR.drawable.ic_home), contentDescription = null)
+                Icon(
+                    painter = painterResource(CoreR.drawable.ic_home),
+                    contentDescription = stringResource(CoreR.string.title_home),
+                )
             }
         }
         content()

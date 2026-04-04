@@ -192,7 +192,7 @@ constructor(
                         _state.emit(_state.value.copy(activeDownloads = activeDownloads))
 
                         if (hasActive) {
-                            handler.postDelayed(self, 1000L)
+                            handler.postDelayed(self, Constants.DOWNLOAD_POLL_INTERVAL_MS)
                         } else {
                             isPolling = false
                             // Reload everything to refresh completed sections

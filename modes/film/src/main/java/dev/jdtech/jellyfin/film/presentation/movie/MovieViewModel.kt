@@ -13,6 +13,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import timber.log.Timber
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jellyfin.sdk.model.api.PersonKind
@@ -78,25 +79,41 @@ constructor(
         when (action) {
             is MovieAction.MarkAsPlayed -> {
                 viewModelScope.launch {
-                    repository.markAsPlayed(movieId)
+                    try {
+                        repository.markAsPlayed(movieId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to mark as played")
+                    }
                     loadMovie(movieId)
                 }
             }
             is MovieAction.UnmarkAsPlayed -> {
                 viewModelScope.launch {
-                    repository.markAsUnplayed(movieId)
+                    try {
+                        repository.markAsUnplayed(movieId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to unmark as played")
+                    }
                     loadMovie(movieId)
                 }
             }
             is MovieAction.MarkAsFavorite -> {
                 viewModelScope.launch {
-                    repository.markAsFavorite(movieId)
+                    try {
+                        repository.markAsFavorite(movieId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to mark as favorite")
+                    }
                     loadMovie(movieId)
                 }
             }
             is MovieAction.UnmarkAsFavorite -> {
                 viewModelScope.launch {
-                    repository.unmarkAsFavorite(movieId)
+                    try {
+                        repository.unmarkAsFavorite(movieId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to unmark as favorite")
+                    }
                     loadMovie(movieId)
                 }
             }

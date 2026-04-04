@@ -13,6 +13,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import timber.log.Timber
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jellyfin.sdk.model.api.PersonKind
@@ -62,25 +63,41 @@ constructor(
         when (action) {
             is EpisodeAction.MarkAsPlayed -> {
                 viewModelScope.launch {
-                    repository.markAsPlayed(episodeId)
+                    try {
+                        repository.markAsPlayed(episodeId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to mark as played")
+                    }
                     loadEpisode(episodeId)
                 }
             }
             is EpisodeAction.UnmarkAsPlayed -> {
                 viewModelScope.launch {
-                    repository.markAsUnplayed(episodeId)
+                    try {
+                        repository.markAsUnplayed(episodeId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to unmark as played")
+                    }
                     loadEpisode(episodeId)
                 }
             }
             is EpisodeAction.MarkAsFavorite -> {
                 viewModelScope.launch {
-                    repository.markAsFavorite(episodeId)
+                    try {
+                        repository.markAsFavorite(episodeId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to mark as favorite")
+                    }
                     loadEpisode(episodeId)
                 }
             }
             is EpisodeAction.UnmarkAsFavorite -> {
                 viewModelScope.launch {
-                    repository.unmarkAsFavorite(episodeId)
+                    try {
+                        repository.unmarkAsFavorite(episodeId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to unmark as favorite")
+                    }
                     loadEpisode(episodeId)
                 }
             }

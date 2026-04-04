@@ -8,7 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import coil3.compose.AsyncImage
+import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidMovie
@@ -45,7 +47,7 @@ fun ItemPoster(item: FindroidItem, direction: Direction, modifier: Modifier = Mo
 
     AsyncImage(
         model = imageUri,
-        contentDescription = null,
+        contentDescription = stringResource(CoreR.string.image_description_poster, item.name),
         contentScale = ContentScale.Crop,
         modifier =
             modifier

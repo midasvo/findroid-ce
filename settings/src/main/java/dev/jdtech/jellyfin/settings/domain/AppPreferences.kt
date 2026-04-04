@@ -145,7 +145,7 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
             is Float -> editor.putFloat(preference.backendName, value as Float)
             is String? -> editor.putString(preference.backendName, value as String?)
             is Set<*> -> editor.putStringSet(preference.backendName, value as Set<String>)
-            else -> throw Exception()
+            else -> throw IllegalArgumentException("Unsupported preference type: ${preference.defaultValue}")
         }
         editor.apply()
     }

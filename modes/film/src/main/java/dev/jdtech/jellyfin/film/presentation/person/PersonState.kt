@@ -8,5 +8,6 @@ data class PersonState(
     val person: FindroidPerson? = null,
     val starredInMovies: List<FindroidMovie> = emptyList(),
     val starredInShows: List<FindroidShow> = emptyList(),
+    val isLoading: Boolean = false,
     val error: Exception? = null,
 )

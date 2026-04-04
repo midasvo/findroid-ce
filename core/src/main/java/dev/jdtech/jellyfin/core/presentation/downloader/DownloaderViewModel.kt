@@ -6,6 +6,7 @@ import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.jdtech.jellyfin.core.Constants
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidSourceType
 import dev.jdtech.jellyfin.models.isDownloading
@@ -111,7 +112,7 @@ class DownloaderViewModel @Inject constructor(
                     }
 
                     if (_state.value.isDownloading) {
-                        handler.postDelayed(this, 1000L)
+                        handler.postDelayed(this, Constants.DOWNLOAD_POLL_INTERVAL_MS)
                     }
                 }
             }
@@ -129,5 +130,6 @@ class DownloaderViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         handler.removeCallbacksAndMessages(null)
+        eventsChannel.close()
     }
 }

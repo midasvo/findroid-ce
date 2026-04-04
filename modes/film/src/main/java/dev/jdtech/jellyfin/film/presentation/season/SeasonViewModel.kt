@@ -6,6 +6,7 @@ import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.jdtech.jellyfin.core.Constants
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadProgress
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadStatus
 import dev.jdtech.jellyfin.models.FindroidEpisode
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.jellyfin.sdk.model.api.ItemFields
+import timber.log.Timber
 
 @HiltViewModel
 class SeasonViewModel
@@ -251,7 +253,7 @@ constructor(
                         )
 
                         if (hasActive || downloadQueue.isNotEmpty()) {
-                            handler.postDelayed(self, 1000L)
+                            handler.postDelayed(self, Constants.DOWNLOAD_POLL_INTERVAL_MS)
                         } else {
                             isPolling = false
                             activeDownloadCount = 0
@@ -283,25 +285,41 @@ constructor(
         when (action) {
             is SeasonAction.MarkAsPlayed -> {
                 viewModelScope.launch {
-                    repository.markAsPlayed(seasonId)
+                    try {
+                        repository.markAsPlayed(seasonId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to mark as played")
+                    }
                     loadSeason(seasonId)
                 }
             }
             is SeasonAction.UnmarkAsPlayed -> {
                 viewModelScope.launch {
-                    repository.markAsUnplayed(seasonId)
+                    try {
+                        repository.markAsUnplayed(seasonId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to unmark as played")
+                    }
                     loadSeason(seasonId)
                 }
             }
             is SeasonAction.MarkAsFavorite -> {
                 viewModelScope.launch {
-                    repository.markAsFavorite(seasonId)
+                    try {
+                        repository.markAsFavorite(seasonId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to mark as favorite")
+                    }
                     loadSeason(seasonId)
                 }
             }
             is SeasonAction.UnmarkAsFavorite -> {
                 viewModelScope.launch {
-                    repository.unmarkAsFavorite(seasonId)
+                    try {
+                        repository.unmarkAsFavorite(seasonId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to unmark as favorite")
+                    }
                     loadSeason(seasonId)
                 }
             }
@@ -332,5 +350,6 @@ constructor(
     override fun onCleared() {
         super.onCleared()
         handler.removeCallbacksAndMessages(null)
+        eventsChannel.close()
     }
 }

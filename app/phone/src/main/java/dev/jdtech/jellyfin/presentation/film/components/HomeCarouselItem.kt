@@ -22,7 +22,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import coil3.compose.AsyncImage
+import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyMovie
 import dev.jdtech.jellyfin.film.presentation.home.HomeAction
 import dev.jdtech.jellyfin.models.FindroidItem
@@ -49,7 +51,7 @@ fun HomeCarouselItem(item: FindroidItem, onAction: (HomeAction) -> Unit) {
         AsyncImage(
             model = item.images.backdrop,
             placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceContainer),
-            contentDescription = null,
+            contentDescription = stringResource(CoreR.string.image_description_backdrop, item.name),
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxWidth(),
         )

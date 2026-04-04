@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.jdtech.jellyfin.core.R as CoreR
@@ -23,7 +24,7 @@ fun DownloadedBadge(modifier: Modifier = Modifier) {
     BaseBadge(modifier = modifier) {
         Icon(
             painter = painterResource(CoreR.drawable.ic_download),
-            contentDescription = "",
+            contentDescription = stringResource(CoreR.string.downloaded_indicator),
             tint = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.size(16.dp).align(Alignment.Center),
         )
@@ -41,7 +42,7 @@ fun DownloadFailedBadge(modifier: Modifier = Modifier) {
     ) {
         Icon(
             painter = painterResource(CoreR.drawable.ic_alert_circle),
-            contentDescription = "",
+            contentDescription = stringResource(CoreR.string.download_failed_indicator),
             tint = MaterialTheme.colorScheme.onError,
             modifier = Modifier.size(16.dp).align(Alignment.Center),
         )
@@ -59,7 +60,7 @@ fun DownloadingBadge(modifier: Modifier = Modifier) {
     ) {
         Icon(
             painter = painterResource(CoreR.drawable.ic_download),
-            contentDescription = "",
+            contentDescription = stringResource(CoreR.string.downloading_indicator),
             tint = MaterialTheme.colorScheme.onTertiary,
             modifier = Modifier.size(16.dp).align(Alignment.Center),
         )

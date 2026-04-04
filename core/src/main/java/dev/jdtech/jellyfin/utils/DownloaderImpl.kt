@@ -165,8 +165,8 @@ class DownloaderImpl(
             Timber.e(e)
             return@coroutineScope Pair(
                 -1,
-                if (e.message != null) UiText.DynamicString(e.message!!)
-                else UiText.StringResource(CoreR.string.unknown_error),
+                e.message?.let { UiText.DynamicString(it) }
+                    ?: UiText.StringResource(CoreR.string.unknown_error),
             )
         }
     }
@@ -174,9 +174,7 @@ class DownloaderImpl(
     override suspend fun cancelDownload(item: FindroidItem, downloadId: Long) {
         val source =
             database.getSourceByDownloadId(downloadId)?.toFindroidSource(database) ?: return
-        if (source.downloadId != null) {
-            downloadManager.remove(source.downloadId!!)
-        }
+        source.downloadId?.let { downloadManager.remove(it) }
         deleteItem(item, source)
     }
 
@@ -277,8 +275,9 @@ class DownloaderImpl(
             database.insertMediaStream(
                 mediaStream.toFindroidMediaStreamDto(id, source.id, streamPath.path.orEmpty())
             )
+            val mediaStreamPath = mediaStream.path ?: continue
             val request =
-                DownloadManager.Request(mediaStream.path!!.toUri())
+                DownloadManager.Request(mediaStreamPath.toUri())
                     .setTitle(mediaStream.title)
                     .setAllowedOverMetered(
                         appPreferences.getValue(appPreferences.downloadOverMobileData)

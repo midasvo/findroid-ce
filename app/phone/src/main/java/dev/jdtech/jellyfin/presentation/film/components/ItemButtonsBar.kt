@@ -22,12 +22,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
+import dev.jdtech.jellyfin.core.Constants
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloaderState
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyEpisode
@@ -72,7 +73,7 @@ fun ItemButtonsBar(
     var cancelDownloadDialogOpen by remember { mutableStateOf(false) }
     var deleteDownloadDialogOpen by remember { mutableStateOf(false) }
 
-    var storageLocations = remember { context.getExternalFilesDirs(null) }
+    val storageLocations = remember { context.getExternalFilesDirs(null) }
 
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
         Column(
@@ -91,11 +92,11 @@ fun ItemButtonsBar(
                         modifier = Modifier.weight(weight = 1f, fill = true),
                         enabled = item.canPlay && canPlay,
                     )
-                    if (item.playbackPositionTicks.div(600000000) > 0) {
+                    if (item.playbackPositionTicks.div(Constants.TICKS_PER_MINUTE) > 0) {
                         FilledTonalIconButton(onClick = { onPlayClick(true) }) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_rotate_ccw),
-                                contentDescription = null,
+                                contentDescription = stringResource(CoreR.string.play_from_beginning),
                             )
                         }
                     }
@@ -112,11 +113,11 @@ fun ItemButtonsBar(
                         onClick = { onPlayClick(false) },
                         enabled = item.canPlay && canPlay,
                     )
-                    if (item.playbackPositionTicks.div(600000000) > 0) {
+                    if (item.playbackPositionTicks.div(Constants.TICKS_PER_MINUTE) > 0) {
                         FilledTonalIconButton(onClick = { onPlayClick(true) }) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_rotate_ccw),
-                                contentDescription = null,
+                                contentDescription = stringResource(CoreR.string.play_from_beginning),
                             )
                         }
                     }
@@ -125,15 +126,15 @@ fun ItemButtonsBar(
                     FilledTonalIconButton(onClick = { onTrailerClick(uri) }) {
                         Icon(
                             painter = painterResource(CoreR.drawable.ic_film),
-                            contentDescription = null,
+                            contentDescription = stringResource(CoreR.string.trailer_button_description),
                         )
                     }
                 }
                 FilledTonalIconButton(onClick = onMarkAsPlayedClick) {
                     Icon(
                         painter = painterResource(CoreR.drawable.ic_check),
-                        contentDescription = null,
-                        tint = if (item.played) Color.Red else LocalContentColor.current,
+                        contentDescription = stringResource(CoreR.string.check_button_description),
+                        tint = if (item.played) MaterialTheme.colorScheme.error else LocalContentColor.current,
                     )
                 }
                 FilledTonalIconButton(onClick = onMarkAsFavoriteClick) {
@@ -141,14 +142,14 @@ fun ItemButtonsBar(
                         true -> {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_heart_filled),
-                                contentDescription = null,
-                                tint = Color.Red,
+                                contentDescription = stringResource(CoreR.string.favorite_button_description),
+                                tint = MaterialTheme.colorScheme.error,
                             )
                         }
                         false -> {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_heart),
-                                contentDescription = null,
+                                contentDescription = stringResource(CoreR.string.favorite_button_description),
                             )
                         }
                     }
@@ -158,14 +159,14 @@ fun ItemButtonsBar(
                         FilledTonalIconButton(onClick = { deleteDownloadDialogOpen = true }) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_trash),
-                                contentDescription = null,
+                                contentDescription = stringResource(CoreR.string.delete_download),
                             )
                         }
                     } else if (canDownload) {
                         FilledTonalIconButton(onClick = onDownloadClick) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_download),
-                                contentDescription = null,
+                                contentDescription = stringResource(CoreR.string.download_button_description),
                             )
                         }
                     }

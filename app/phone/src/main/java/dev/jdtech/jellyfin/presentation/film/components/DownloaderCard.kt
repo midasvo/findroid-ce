@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,7 +42,7 @@ fun DownloaderCard(state: DownloaderState, onCancelClick: () -> Unit, onRetryCli
 
     val textColor =
         when (state.status) {
-            DownloadManager.STATUS_PAUSED -> Color.Yellow
+            DownloadManager.STATUS_PAUSED -> MaterialTheme.colorScheme.tertiary
             DownloadManager.STATUS_FAILED -> MaterialTheme.colorScheme.error
             else -> MaterialTheme.colorScheme.onSurface
         }
@@ -58,8 +57,8 @@ fun DownloaderCard(state: DownloaderState, onCancelClick: () -> Unit, onRetryCli
 
     val progressIndicatorColor =
         when (state.status) {
-            DownloadManager.STATUS_PAUSED -> Color.Yellow
-            DownloadManager.STATUS_SUCCESSFUL -> Color.Green
+            DownloadManager.STATUS_PAUSED -> MaterialTheme.colorScheme.tertiary
+            DownloadManager.STATUS_SUCCESSFUL -> MaterialTheme.colorScheme.primary
             DownloadManager.STATUS_FAILED -> MaterialTheme.colorScheme.error
             else -> ProgressIndicatorDefaults.linearColor
         }
@@ -106,9 +105,9 @@ fun DownloaderCard(state: DownloaderState, onCancelClick: () -> Unit, onRetryCli
                     }
                 }
                 Spacer(Modifier.height(MaterialTheme.spacings.small))
-                if (state.errorText != null) {
+                state.errorText?.let { errorText ->
                     Text(
-                        text = state.errorText!!.asString(),
+                        text = errorText.asString(),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -121,7 +120,7 @@ fun DownloaderCard(state: DownloaderState, onCancelClick: () -> Unit, onRetryCli
                         FilledTonalIconButton(onClick = onCancelClick) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_x),
-                                contentDescription = null,
+                                contentDescription = stringResource(CoreR.string.cancel_download_button),
                             )
                         }
                     }
@@ -129,7 +128,7 @@ fun DownloaderCard(state: DownloaderState, onCancelClick: () -> Unit, onRetryCli
                         FilledTonalIconButton(onClick = onRetryClick) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_rotate_ccw),
-                                contentDescription = null,
+                                contentDescription = stringResource(CoreR.string.retry),
                             )
                         }
                     }

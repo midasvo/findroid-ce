@@ -278,14 +278,13 @@ private fun SeasonScreenLayout(
             onBackClick = { onAction(SeasonAction.OnBackClick) },
             onHomeClick = { onAction(SeasonAction.OnHomeClick) },
         ) {
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(MaterialTheme.spacings.extraSmall))
             state.season?.let { season ->
                 Button(
                     onClick = { onAction(SeasonAction.NavigateToSeries(season.seriesId)) },
-                    modifier = Modifier.alpha(0.7f),
                     colors =
                         ButtonDefaults.buttonColors(
-                            containerColor = Color.Black,
+                            containerColor = Color.Black.copy(alpha = 0.5f),
                             contentColor = Color.White,
                         ),
                 ) {

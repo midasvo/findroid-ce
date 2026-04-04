@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jellyfin.sdk.model.api.PersonKind
+import timber.log.Timber
 
 @HiltViewModel
 class ShowViewModel
@@ -200,29 +201,50 @@ constructor(
         when (action) {
             is ShowAction.MarkAsPlayed -> {
                 viewModelScope.launch {
-                    repository.markAsPlayed(showId)
+                    try {
+                        repository.markAsPlayed(showId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to mark as played")
+                    }
                     loadShow(showId)
                 }
             }
             is ShowAction.UnmarkAsPlayed -> {
                 viewModelScope.launch {
-                    repository.markAsUnplayed(showId)
+                    try {
+                        repository.markAsUnplayed(showId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to unmark as played")
+                    }
                     loadShow(showId)
                 }
             }
             is ShowAction.MarkAsFavorite -> {
                 viewModelScope.launch {
-                    repository.markAsFavorite(showId)
+                    try {
+                        repository.markAsFavorite(showId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to mark as favorite")
+                    }
                     loadShow(showId)
                 }
             }
             is ShowAction.UnmarkAsFavorite -> {
                 viewModelScope.launch {
-                    repository.unmarkAsFavorite(showId)
+                    try {
+                        repository.unmarkAsFavorite(showId)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to unmark as favorite")
+                    }
                     loadShow(showId)
                 }
             }
             else -> Unit
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        eventsChannel.close()
     }
 }
