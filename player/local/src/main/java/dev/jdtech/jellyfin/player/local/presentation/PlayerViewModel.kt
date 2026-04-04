@@ -11,6 +11,7 @@ import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.exoplayer.DefaultRenderersFactory
@@ -423,6 +424,11 @@ constructor(
         }
     }
 
+    override fun onPlayerError(error: PlaybackException) {
+        Timber.e(error, "Player error: ${error.errorCodeName}")
+        eventsChannel.trySend(PlayerEvents.PlayerError(error))
+    }
+
     override fun onPlaybackStateChanged(state: Int) {
         var stateString = "UNKNOWN_STATE             -"
         when (state) {
@@ -676,4 +682,6 @@ sealed interface PlayerEvents {
     data object NavigateBack : PlayerEvents
 
     data class IsPlayingChanged(val isPlaying: Boolean) : PlayerEvents
+
+    data class PlayerError(val error: PlaybackException) : PlayerEvents
 }
