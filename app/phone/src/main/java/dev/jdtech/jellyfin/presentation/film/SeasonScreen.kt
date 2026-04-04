@@ -29,12 +29,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.jdtech.jellyfin.PlayerActivity
+import dev.jdtech.jellyfin.core.presentation.downloader.DownloadStatus
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloaderState
 import dev.jdtech.jellyfin.core.presentation.dummy.dummySeason
 import dev.jdtech.jellyfin.film.presentation.season.SeasonAction
@@ -181,11 +183,50 @@ private fun SeasonScreenLayout(
                         isDownloaded = hasDownloads,
                     )
                 }
+                // Download summary
+                val downloadedCount =
+                    state.episodeDownloadProgress.values.count {
+                        it.status == DownloadStatus.COMPLETED
+                    }
+                val downloadingCount =
+                    state.episodeDownloadProgress.values.count {
+                        it.status == DownloadStatus.DOWNLOADING ||
+                            it.status == DownloadStatus.PENDING
+                    }
+                val totalCount = state.episodes.size
+
+                if (downloadedCount > 0 || downloadingCount > 0) {
+                    item {
+                        val summaryText =
+                            if (downloadingCount > 0) {
+                                stringResource(
+                                    dev.jdtech.jellyfin.core.R.string.download_summary_downloading,
+                                    downloadedCount + downloadingCount,
+                                    totalCount,
+                                )
+                            } else {
+                                stringResource(
+                                    dev.jdtech.jellyfin.core.R.string.download_summary_downloaded,
+                                    downloadedCount,
+                                    totalCount,
+                                )
+                            }
+                        Text(
+                            text = summaryText,
+                            modifier =
+                                Modifier.padding(start = paddingStart, end = paddingEnd)
+                                    .alpha(0.7f),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
+
                 items(items = state.episodes, key = { episode -> episode.id }) { episode ->
                     EpisodeCard(
                         episode = episode,
                         onClick = { onAction(SeasonAction.NavigateToItem(episode)) },
                         modifier = Modifier.padding(start = paddingStart, end = paddingEnd),
+                        downloadProgress = state.episodeDownloadProgress[episode.id],
                     )
                 }
             }

@@ -1,10 +1,17 @@
 package dev.jdtech.jellyfin.film.presentation.season
 
+import android.app.DownloadManager
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.jdtech.jellyfin.core.presentation.downloader.DownloadProgress
+import dev.jdtech.jellyfin.core.presentation.downloader.DownloadStatus
+import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidSourceType
 import dev.jdtech.jellyfin.models.isDownloaded
+import dev.jdtech.jellyfin.models.isDownloading
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.Downloader
@@ -29,6 +36,9 @@ constructor(
 
     lateinit var seasonId: UUID
 
+    private val handler = Handler(Looper.getMainLooper())
+    private var isPolling = false
+
     fun loadSeason(seasonId: UUID) {
         this.seasonId = seasonId
         viewModelScope.launch {
@@ -40,7 +50,14 @@ constructor(
                         seasonId = seasonId,
                         fields = listOf(ItemFields.OVERVIEW),
                     )
-                _state.emit(_state.value.copy(season = season, episodes = episodes))
+                _state.emit(
+                    _state.value.copy(
+                        season = season,
+                        episodes = episodes,
+                        episodeDownloadProgress = buildDownloadProgressMap(episodes),
+                    )
+                )
+                startProgressPollingIfNeeded()
             } catch (e: Exception) {
                 _state.emit(_state.value.copy(error = e))
             }
@@ -60,6 +77,8 @@ constructor(
                     )
                 }
             }
+            // Reload episodes to pick up new LOCAL sources, then start polling
+            loadSeason(seasonId)
         }
     }
 
@@ -74,6 +93,101 @@ constructor(
             }
             loadSeason(seasonId)
         }
+    }
+
+    private fun buildDownloadProgressMap(
+        episodes: List<FindroidEpisode>,
+    ): Map<UUID, DownloadProgress> {
+        return episodes.associate { episode ->
+            episode.id to
+                when {
+                    episode.isDownloaded() ->
+                        DownloadProgress(status = DownloadStatus.COMPLETED, progress = 1f)
+                    episode.isDownloading() ->
+                        DownloadProgress(status = DownloadStatus.PENDING)
+                    else -> DownloadProgress()
+                }
+        }
+    }
+
+    private fun startProgressPollingIfNeeded() {
+        val hasActiveDownloads =
+            _state.value.episodes.any { it.isDownloading() }
+        if (hasActiveDownloads && !isPolling) {
+            isPolling = true
+            pollDownloadProgress()
+        }
+    }
+
+    private fun pollDownloadProgress() {
+        handler.removeCallbacksAndMessages(null)
+        val runnable =
+            object : Runnable {
+                override fun run() {
+                    val self = this
+                    viewModelScope.launch {
+                        val episodes = _state.value.episodes
+                        val progressMap = _state.value.episodeDownloadProgress.toMutableMap()
+                        var hasActive = false
+
+                        for (episode in episodes) {
+                            val localSource =
+                                episode.sources.firstOrNull {
+                                    it.type == FindroidSourceType.LOCAL
+                                }
+                            if (localSource == null) continue
+
+                            if (localSource.path.endsWith(".download")) {
+                                // Active download — poll progress
+                                val (status, progress) =
+                                    downloader.getProgress(localSource.downloadId)
+                                val downloadStatus =
+                                    when (status) {
+                                        DownloadManager.STATUS_PENDING -> DownloadStatus.PENDING
+                                        DownloadManager.STATUS_RUNNING -> DownloadStatus.DOWNLOADING
+                                        DownloadManager.STATUS_SUCCESSFUL -> {
+                                            // Will be picked up as COMPLETED after reload
+                                            DownloadStatus.COMPLETED
+                                        }
+                                        DownloadManager.STATUS_FAILED -> DownloadStatus.FAILED
+                                        else -> DownloadStatus.PENDING
+                                    }
+                                progressMap[episode.id] =
+                                    DownloadProgress(
+                                        status = downloadStatus,
+                                        progress = progress.coerceAtLeast(0) / 100f,
+                                    )
+                                if (
+                                    downloadStatus == DownloadStatus.PENDING ||
+                                    downloadStatus == DownloadStatus.DOWNLOADING
+                                ) {
+                                    hasActive = true
+                                }
+                            } else {
+                                // Completed download
+                                progressMap[episode.id] =
+                                    DownloadProgress(
+                                        status = DownloadStatus.COMPLETED,
+                                        progress = 1f,
+                                    )
+                            }
+                        }
+
+                        _state.emit(
+                            _state.value.copy(episodeDownloadProgress = progressMap)
+                        )
+
+                        if (hasActive) {
+                            handler.postDelayed(self, 1000L)
+                        } else {
+                            isPolling = false
+                            // Reload to get final state (renamed files etc.)
+                            loadSeason(seasonId)
+                        }
+                    }
+                }
+            }
+        handler.post(runnable)
     }
 
     fun onAction(action: SeasonAction) {
@@ -104,5 +218,10 @@ constructor(
             }
             else -> Unit
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        handler.removeCallbacksAndMessages(null)
     }
 }

@@ -1,5 +1,6 @@
 package dev.jdtech.jellyfin.presentation.film.components
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,9 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -25,6 +29,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import dev.jdtech.jellyfin.core.presentation.downloader.DownloadProgress
+import dev.jdtech.jellyfin.core.presentation.downloader.DownloadStatus
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyEpisode
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.isDownloaded
@@ -32,8 +38,16 @@ import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 
 @Composable
-fun EpisodeCard(episode: FindroidEpisode, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun EpisodeCard(
+    episode: FindroidEpisode,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    downloadProgress: DownloadProgress? = null,
+) {
     val backgroundColor = MaterialTheme.colorScheme.background
+    val effectiveStatus = downloadProgress?.status ?: DownloadStatus.NONE
+    val isDownloaded =
+        effectiveStatus == DownloadStatus.COMPLETED || episode.isDownloaded()
 
     Row(
         modifier =
@@ -49,12 +63,47 @@ fun EpisodeCard(episode: FindroidEpisode, onClick: () -> Unit, modifier: Modifie
                 direction = Direction.HORIZONTAL,
                 modifier = Modifier.clip(MaterialTheme.shapes.small),
             )
+            // Badges top-right
             Row(
                 modifier = Modifier.align(Alignment.TopEnd).padding(MaterialTheme.spacings.small),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.small),
             ) {
-                if (episode.isDownloaded()) DownloadedBadge()
+                when (effectiveStatus) {
+                    DownloadStatus.FAILED -> DownloadFailedBadge()
+                    DownloadStatus.COMPLETED -> DownloadedBadge()
+                    DownloadStatus.DOWNLOADING, DownloadStatus.PENDING -> DownloadingBadge()
+                    else -> {
+                        if (isDownloaded) DownloadedBadge()
+                    }
+                }
                 if (episode.played) PlayedBadge()
+            }
+            // Progress bar at bottom of thumbnail
+            if (
+                effectiveStatus == DownloadStatus.DOWNLOADING ||
+                effectiveStatus == DownloadStatus.PENDING
+            ) {
+                val animatedProgress by
+                    animateFloatAsState(
+                        targetValue = downloadProgress?.progress ?: 0f,
+                        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
+                    )
+                if (effectiveStatus == DownloadStatus.PENDING) {
+                    LinearProgressIndicator(
+                        modifier =
+                            Modifier.align(Alignment.BottomStart)
+                                .fillMaxWidth()
+                                .height(3.dp),
+                    )
+                } else {
+                    LinearProgressIndicator(
+                        progress = { animatedProgress },
+                        modifier =
+                            Modifier.align(Alignment.BottomStart)
+                                .fillMaxWidth()
+                                .height(3.dp),
+                    )
+                }
             }
         }
         Spacer(Modifier.width(MaterialTheme.spacings.default / 2))
@@ -101,4 +150,28 @@ fun EpisodeCard(episode: FindroidEpisode, onClick: () -> Unit, modifier: Modifie
 @Composable
 private fun EpisodeCardPreview() {
     FindroidTheme { EpisodeCard(episode = dummyEpisode, onClick = {}) }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EpisodeCardDownloadingPreview() {
+    FindroidTheme {
+        EpisodeCard(
+            episode = dummyEpisode,
+            onClick = {},
+            downloadProgress = DownloadProgress(status = DownloadStatus.DOWNLOADING, progress = 0.4f),
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EpisodeCardDownloadedPreview() {
+    FindroidTheme {
+        EpisodeCard(
+            episode = dummyEpisode,
+            onClick = {},
+            downloadProgress = DownloadProgress(status = DownloadStatus.COMPLETED, progress = 1f),
+        )
+    }
 }
