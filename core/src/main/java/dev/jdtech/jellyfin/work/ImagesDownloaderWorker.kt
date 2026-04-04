@@ -24,6 +24,7 @@ constructor(
     @Assisted private val params: WorkerParameters,
     private val repository: JellyfinRepository,
 ) : CoroutineWorker(appContext, params) {
+    private val client = OkHttpClient()
     override suspend fun doWork(): Result {
         val itemId = UUID.fromString(params.inputData.getString(KEY_ITEM_ID))
         downloadImages(itemId = itemId)
@@ -41,7 +42,6 @@ constructor(
             // Do not download images if they are already present
             if (baseDir.exists()) return@withContext
 
-            val client = OkHttpClient()
             val uris = mapOf("primary" to item.images.primary, "backdrop" to item.images.backdrop)
 
             try {
