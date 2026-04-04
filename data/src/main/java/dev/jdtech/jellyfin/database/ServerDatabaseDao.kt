@@ -105,6 +105,12 @@ interface ServerDatabaseDao {
     @Query("SELECT * FROM sources WHERE downloadId = :downloadId")
     fun getSourceByDownloadId(downloadId: Long): FindroidSourceDto?
 
+    @Query("SELECT * FROM sources WHERE type = 'LOCAL' AND path LIKE '%.download'")
+    fun getActiveDownloadSources(): List<FindroidSourceDto>
+
+    @Query("SELECT * FROM sources WHERE type = 'LOCAL' AND path NOT LIKE '%.download'")
+    fun getCompletedDownloadSources(): List<FindroidSourceDto>
+
     @Query("UPDATE sources SET downloadId = :downloadId WHERE id = :id")
     fun setSourceDownloadId(id: String, downloadId: Long)
 
