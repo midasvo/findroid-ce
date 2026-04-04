@@ -32,7 +32,9 @@ import dev.jdtech.jellyfin.settings.domain.Constants
 import java.util.UUID
 import javax.inject.Inject
 import kotlin.math.ceil
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -251,7 +253,8 @@ constructor(
         player.release()
 
         if (mediaId != null && duration != C.TIME_UNSET) {
-            viewModelScope.launch {
+            @OptIn(DelicateCoroutinesApi::class)
+            GlobalScope.launch(Dispatchers.IO) {
                 try {
                     Timber.d("Sending playback stop")
                     repository.postPlaybackStop(
