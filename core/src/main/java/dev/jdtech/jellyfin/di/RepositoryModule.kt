@@ -25,7 +25,7 @@ object RepositoryModule {
         serverDatabase: ServerDatabaseDao,
         appPreferences: AppPreferences,
     ): JellyfinRepositoryImpl {
-        println("Creating new jellyfinRepositoryImpl")
+
         return JellyfinRepositoryImpl(application, jellyfinApi, serverDatabase, appPreferences)
     }
 
@@ -37,7 +37,7 @@ object RepositoryModule {
         serverDatabase: ServerDatabaseDao,
         appPreferences: AppPreferences,
     ): JellyfinRepositoryOfflineImpl {
-        println("Creating new jellyfinRepositoryOfflineImpl")
+
         return JellyfinRepositoryOfflineImpl(
             application,
             jellyfinApi,
@@ -52,7 +52,7 @@ object RepositoryModule {
         jellyfinRepositoryOfflineImpl: JellyfinRepositoryOfflineImpl,
         appPreferences: AppPreferences,
     ): JellyfinRepository {
-        println("Creating new JellyfinRepository")
+
         return when (appPreferences.getValue(appPreferences.offlineMode)) {
             true -> jellyfinRepositoryOfflineImpl
             false -> jellyfinRepositoryImpl
