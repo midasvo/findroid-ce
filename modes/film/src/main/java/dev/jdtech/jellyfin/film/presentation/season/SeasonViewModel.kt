@@ -305,6 +305,26 @@ constructor(
                     loadSeason(seasonId)
                 }
             }
+            is SeasonAction.DownloadEpisode -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val episode = action.episode
+                    if (episode is FindroidEpisode) {
+                        startEpisodeDownload(episode)
+                        loadSeason(seasonId)
+                    }
+                }
+            }
+            is SeasonAction.DeleteEpisodeDownload -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val item = action.episode
+                    val localSource =
+                        item.sources.firstOrNull { it.type == FindroidSourceType.LOCAL }
+                    if (localSource != null) {
+                        downloader.deleteItem(item = item, source = localSource)
+                    }
+                    loadSeason(seasonId)
+                }
+            }
             else -> Unit
         }
     }

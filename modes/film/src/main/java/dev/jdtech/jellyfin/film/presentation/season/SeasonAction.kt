@@ -21,4 +21,8 @@ sealed interface SeasonAction {
     data class NavigateToItem(val item: FindroidItem) : SeasonAction
 
     data class NavigateToSeries(val seriesId: UUID) : SeasonAction
+
+    data class DownloadEpisode(val episode: FindroidItem) : SeasonAction
+
+    data class DeleteEpisodeDownload(val episode: FindroidItem) : SeasonAction
 }
