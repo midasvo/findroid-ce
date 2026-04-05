@@ -38,14 +38,16 @@ constructor(
     val events = eventsChannel.receiveAsFlow()
 
     lateinit var showId: UUID
+    private var downloadsOnly: Boolean = false
 
-    fun loadShow(showId: UUID) {
+    fun loadShow(showId: UUID, downloadsOnly: Boolean = this.downloadsOnly) {
         this.showId = showId
+        this.downloadsOnly = downloadsOnly
         viewModelScope.launch {
             try {
                 val show = repository.getShow(showId)
-                val nextUp = getNextUp(showId)
-                val seasons = repository.getSeasons(showId)
+                val nextUp = if (downloadsOnly) null else getNextUp(showId)
+                val seasons = repository.getSeasons(showId, offline = downloadsOnly)
                 val actors = getActors(show)
                 val director = getDirector(show)
                 val writers = getWriters(show)
@@ -53,7 +55,11 @@ constructor(
                 var hasDownloads = false
                 for (season in seasons) {
                     val episodes =
-                        repository.getEpisodes(seriesId = showId, seasonId = season.id)
+                        repository.getEpisodes(
+                            seriesId = showId,
+                            seasonId = season.id,
+                            offline = downloadsOnly,
+                        )
                     val downloadedCount = episodes.count { it.isDownloaded() }
                     if (downloadedCount > 0) hasDownloads = true
                     seasonDownloadInfo[season.id] =
@@ -99,7 +105,12 @@ constructor(
     fun deleteShowDownloads() {
         viewModelScope.launch(Dispatchers.IO) {
             for (season in _state.value.seasons) {
-                val episodes = repository.getEpisodes(seriesId = showId, seasonId = season.id)
+                val episodes =
+                    repository.getEpisodes(
+                        seriesId = showId,
+                        seasonId = season.id,
+                        offline = true,
+                    )
                 for (episode in episodes) {
                     val localSource =
                         episode.sources.firstOrNull { it.type == FindroidSourceType.LOCAL }

@@ -67,12 +67,15 @@ fun SeasonScreen(
     navigateHome: () -> Unit,
     navigateToItem: (item: FindroidItem) -> Unit,
     navigateToSeries: (seriesId: UUID) -> Unit,
+    downloadsOnly: Boolean = false,
     viewModel: SeasonViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(true) { viewModel.loadSeason(seasonId = seasonId) }
+    LaunchedEffect(true) {
+        viewModel.loadSeason(seasonId = seasonId, downloadsOnly = downloadsOnly)
+    }
 
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {

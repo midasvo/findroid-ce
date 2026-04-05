@@ -94,11 +94,13 @@ data class LibraryRoute(
 
 @Serializable data class MovieRoute(val movieId: String)
 
-@Serializable data class ShowRoute(val showId: String)
+@Serializable
+data class ShowRoute(val showId: String, val downloadsOnly: Boolean = false)
 
 @Serializable data class EpisodeRoute(val episodeId: String)
 
-@Serializable data class SeasonRoute(val seasonId: String)
+@Serializable
+data class SeasonRoute(val seasonId: String, val downloadsOnly: Boolean = false)
 
 @Serializable data class PersonRoute(val personId: String)
 
@@ -328,7 +330,11 @@ fun NavigationRoot(
             composable<DownloadsRoute> {
                 DownloadsScreen(
                     onItemClick = { item ->
-                        navigateToItem(navController = navController, item = item)
+                        navigateToItem(
+                            navController = navController,
+                            item = item,
+                            downloadsOnly = true,
+                        )
                     }
                 )
             }
@@ -378,10 +384,15 @@ fun NavigationRoot(
                 val route: ShowRoute = backStackEntry.toRoute()
                 ShowScreen(
                     showId = UUID.fromString(route.showId),
+                    downloadsOnly = route.downloadsOnly,
                     navigateBack = { navController.safePopBackStack() },
                     navigateHome = { navigateHome(navController) },
                     navigateToItem = { item ->
-                        navigateToItem(navController = navController, item = item)
+                        navigateToItem(
+                            navController = navController,
+                            item = item,
+                            downloadsOnly = route.downloadsOnly,
+                        )
                     },
                     navigateToPerson = { personId ->
                         navController.safeNavigate(PersonRoute(personId.toString()))
@@ -392,14 +403,24 @@ fun NavigationRoot(
                 val route: SeasonRoute = backStackEntry.toRoute()
                 SeasonScreen(
                     seasonId = UUID.fromString(route.seasonId),
+                    downloadsOnly = route.downloadsOnly,
                     navigateBack = { navController.safePopBackStack() },
                     navigateHome = { navigateHome(navController) },
                     navigateToItem = { item ->
-                        navigateToItem(navController = navController, item = item)
+                        navigateToItem(
+                            navController = navController,
+                            item = item,
+                            downloadsOnly = route.downloadsOnly,
+                        )
                     },
                     navigateToSeries = { seriesId ->
-                        navController.safeNavigate(ShowRoute(showId = seriesId.toString())) {
-                            popUpTo(ShowRoute(showId = seriesId.toString()))
+                        val showRoute =
+                            ShowRoute(
+                                showId = seriesId.toString(),
+                                downloadsOnly = route.downloadsOnly,
+                            )
+                        navController.safeNavigate(showRoute) {
+                            popUpTo(showRoute)
                             launchSingleTop = true
                         }
                     },
@@ -460,15 +481,25 @@ private fun navigateHome(navController: NavHostController) {
     }
 }
 
-private fun navigateToItem(navController: NavHostController, item: FindroidItem) {
+private fun navigateToItem(
+    navController: NavHostController,
+    item: FindroidItem,
+    downloadsOnly: Boolean = false,
+) {
     when (item) {
         is FindroidBoxSet ->
             navController.safeNavigate(
                 CollectionRoute(collectionId = item.id.toString(), collectionName = item.name)
             )
         is FindroidMovie -> navController.safeNavigate(MovieRoute(movieId = item.id.toString()))
-        is FindroidShow -> navController.safeNavigate(ShowRoute(showId = item.id.toString()))
-        is FindroidSeason -> navController.safeNavigate(SeasonRoute(seasonId = item.id.toString()))
+        is FindroidShow ->
+            navController.safeNavigate(
+                ShowRoute(showId = item.id.toString(), downloadsOnly = downloadsOnly)
+            )
+        is FindroidSeason ->
+            navController.safeNavigate(
+                SeasonRoute(seasonId = item.id.toString(), downloadsOnly = downloadsOnly)
+            )
         is FindroidEpisode ->
             navController.safeNavigate(EpisodeRoute(episodeId = item.id.toString()))
         is FindroidCollection ->

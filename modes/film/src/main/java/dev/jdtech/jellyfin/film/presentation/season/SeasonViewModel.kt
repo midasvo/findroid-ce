@@ -37,6 +37,7 @@ constructor(
     val events = eventsChannel.receiveAsFlow()
 
     lateinit var seasonId: UUID
+    private var downloadsOnly: Boolean = false
 
     private var wasBusy = false
 
@@ -71,8 +72,9 @@ constructor(
         }
     }
 
-    fun loadSeason(seasonId: UUID) {
+    fun loadSeason(seasonId: UUID, downloadsOnly: Boolean = this.downloadsOnly) {
         this.seasonId = seasonId
+        this.downloadsOnly = downloadsOnly
         viewModelScope.launch {
             try {
                 val season = repository.getSeason(seasonId)
@@ -81,6 +83,7 @@ constructor(
                         seriesId = season.seriesId,
                         seasonId = seasonId,
                         fields = listOf(ItemFields.OVERVIEW),
+                        offline = downloadsOnly,
                     )
                 _state.emit(
                     _state.value.copy(

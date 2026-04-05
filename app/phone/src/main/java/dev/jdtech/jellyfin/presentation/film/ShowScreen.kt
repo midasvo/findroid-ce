@@ -77,6 +77,7 @@ fun ShowScreen(
     navigateHome: () -> Unit,
     navigateToItem: (item: FindroidItem) -> Unit,
     navigateToPerson: (personId: UUID) -> Unit,
+    downloadsOnly: Boolean = false,
     viewModel: ShowViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -84,7 +85,7 @@ fun ShowScreen(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(showId) { viewModel.loadShow(showId = showId) }
+    LaunchedEffect(showId) { viewModel.loadShow(showId = showId, downloadsOnly = downloadsOnly) }
 
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
