@@ -27,61 +27,75 @@ constructor(
     private val client = OkHttpClient()
     override suspend fun doWork(): Result {
         val itemId = UUID.fromString(params.inputData.getString(KEY_ITEM_ID))
-        downloadImages(itemId = itemId)
-        return Result.success()
+        return downloadImages(itemId = itemId)
     }
 
-    private suspend fun downloadImages(itemId: UUID) {
+    private suspend fun downloadImages(itemId: UUID): Result =
         withContext(Dispatchers.IO) {
-            val item = repository.getItem(itemId) ?: return@withContext
+            val item = repository.getItem(itemId) ?: return@withContext Result.success()
 
             val basePath = "images/${item.id}"
-
             val baseDir = File(appContext.filesDir, basePath)
 
-            // Do not download images if they are already present
-            if (baseDir.exists()) return@withContext
+            val uris =
+                listOfNotNull(
+                    item.images.primary?.let { "primary" to it },
+                    item.images.backdrop?.let { "backdrop" to it },
+                )
+            if (uris.isEmpty()) return@withContext Result.success()
 
-            val uris = mapOf("primary" to item.images.primary, "backdrop" to item.images.backdrop)
+            // Skip only if every expected file already exists and is non-empty.
+            // A bare directory from a previous failed run would otherwise mask
+            // the missing images forever.
+            val allPresent = uris.all { (name, _) ->
+                val file = File(baseDir, name)
+                file.exists() && file.length() > 0
+            }
+            if (allPresent) return@withContext Result.success()
 
             try {
                 baseDir.mkdirs()
             } catch (e: IOException) {
-                Timber.e(e)
-                return@withContext
+                Timber.e(e, "Failed to create image dir $basePath")
+                return@withContext Result.retry()
             }
 
+            var transientFailure = false
             for ((name, uri) in uris) {
-                if (uri == null) {
-                    continue
-                }
+                val file = File(baseDir, name)
+                if (file.exists() && file.length() > 0) continue
 
                 val request = Request.Builder().url(uri.toString()).build()
-
                 val imageBytes =
                     try {
                         client.newCall(request).execute().use { response ->
                             if (!response.isSuccessful) {
-                                Timber.e("Failed to download image: ${response.code}")
-                                continue
+                                Timber.e("Failed to download image $uri: ${response.code}")
+                                // 5xx / 408 are transient; 4xx are not.
+                                if (response.code >= 500 || response.code == 408) {
+                                    transientFailure = true
+                                }
+                                return@use null
                             }
-
                             response.body.bytes()
                         }
                     } catch (e: IOException) {
-                        Timber.e(e)
-                        continue
+                        Timber.e(e, "IO error downloading $uri")
+                        transientFailure = true
+                        null
                     }
 
+                if (imageBytes == null || imageBytes.isEmpty()) continue
                 try {
-                    val file = File(appContext.filesDir, "$basePath/$name")
                     file.writeBytes(imageBytes)
                 } catch (e: IOException) {
-                    Timber.e(e)
+                    Timber.e(e, "Failed to write image $file")
+                    transientFailure = true
                 }
             }
+
+            if (transientFailure) Result.retry() else Result.success()
         }
-    }
 
     companion object {
         const val KEY_ITEM_ID = "KEY_ITEM_ID"

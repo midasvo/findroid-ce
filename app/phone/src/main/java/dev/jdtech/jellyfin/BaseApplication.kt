@@ -19,6 +19,7 @@ import com.google.android.material.color.DynamicColors
 import dagger.hilt.android.HiltAndroidApp
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadQueue
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
+import dev.jdtech.jellyfin.utils.Downloader
 import javax.inject.Inject
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.CoroutineScope
@@ -35,6 +36,8 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
     @Inject lateinit var workerFactory: HiltWorkerFactory
 
     @Inject lateinit var downloadQueue: DownloadQueue
+
+    @Inject lateinit var downloader: Downloader
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
@@ -64,6 +67,13 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
         // Re-attach any downloads left in-flight by a previous process (survives
         // process death because Android DownloadManager is a system service).
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            try {
+                // Drop DB rows and files left behind by crashes / external deletions
+                // before we re-attach to live DownloadManager jobs.
+                downloader.sweepOrphans()
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to sweep orphan downloads")
+            }
             try {
                 downloadQueue.restoreAll()
             } catch (e: Exception) {

@@ -333,9 +333,18 @@ constructor(
             if (active.isNotEmpty()) {
                 val updates = mutableMapOf<UUID, Entry>()
                 val now = System.currentTimeMillis()
+                val dlIds = active.mapNotNull { it.downloadId }
+                val snapshots = downloader.getProgress(dlIds)
                 for (entry in active) {
                     val dlId = entry.downloadId ?: continue
-                    val snapshot = downloader.getProgress(dlId)
+                    val snapshot =
+                        snapshots[dlId]
+                            ?: Downloader.Progress(
+                                DownloadManager.STATUS_FAILED,
+                                0,
+                                -1L,
+                                -1L,
+                            )
                     val newState: EntryState? =
                         when (snapshot.status) {
                             DownloadManager.STATUS_PENDING,

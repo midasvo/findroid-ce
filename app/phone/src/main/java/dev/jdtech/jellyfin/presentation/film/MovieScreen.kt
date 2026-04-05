@@ -93,6 +93,11 @@ fun MovieScreen(
                     viewModel.loadMovie(movieId = movieId)
                 }
             }
+            is DownloaderEvent.Failed -> {
+                val message = event.errorText?.asString(context.resources)
+                    ?: context.getString(CoreR.string.download_failed)
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            }
         }
     }
 

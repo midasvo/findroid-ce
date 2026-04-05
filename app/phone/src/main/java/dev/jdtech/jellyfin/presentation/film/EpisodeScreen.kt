@@ -60,6 +60,7 @@ import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
 import dev.jdtech.jellyfin.utils.ObserveAsEvents
 import dev.jdtech.jellyfin.utils.format
+import android.widget.Toast
 import java.util.UUID
 import org.jellyfin.sdk.model.api.BaseItemKind
 
@@ -96,6 +97,11 @@ fun EpisodeScreen(
                 } else {
                     viewModel.loadEpisode(episodeId = episodeId)
                 }
+            }
+            is DownloaderEvent.Failed -> {
+                val message = event.errorText?.asString(context.resources)
+                    ?: context.getString(CoreR.string.download_failed)
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
             }
         }
     }

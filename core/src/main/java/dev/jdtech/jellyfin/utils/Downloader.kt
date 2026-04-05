@@ -39,6 +39,12 @@ interface Downloader {
     suspend fun getProgress(downloadId: Long?): Progress
 
     /**
+     * Batched progress lookup — one DownloadManager query covers every id.
+     * Missing ids are returned with a FAILED status (the DM entry disappeared).
+     */
+    suspend fun getProgress(downloadIds: List<Long>): Map<Long, Progress>
+
+    /**
      * Returns every in-flight download known to the DB as (item, downloadId) pairs.
      * Used on app startup to re-attach the queue to Android DownloadManager
      * jobs that survived process death.
@@ -57,4 +63,14 @@ interface Downloader {
      * (server unreachable, item deleted) are logged and skipped.
      */
     suspend fun getPendingDownloads(): List<Pair<FindroidItem, Long>>
+
+    /**
+     * Drops DB rows and on-disk files whose state no longer matches reality:
+     *   - completed sources whose file has been deleted externally
+     *   - active .download sources whose DownloadManager job is gone and file is missing
+     *   - orphan .download files not referenced by any DB source row
+     *
+     * Run on app startup before restoring active downloads.
+     */
+    suspend fun sweepOrphans()
 }

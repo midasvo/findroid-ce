@@ -12,6 +12,7 @@ import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadProgress
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadQueue
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadStatus
+import dev.jdtech.jellyfin.database.ServerDatabaseDao
 import dev.jdtech.jellyfin.models.CollectionSection
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidMovie
@@ -35,6 +36,7 @@ constructor(
     private val repository: JellyfinRepository,
     private val appPreferences: AppPreferences,
     private val downloadQueue: DownloadQueue,
+    private val database: ServerDatabaseDao,
 ) : ViewModel() {
     private val _state = MutableStateFlow(DownloadsState())
     val state = _state.asStateFlow()
@@ -133,22 +135,39 @@ constructor(
     private suspend fun buildCompletedSections(
         items: List<FindroidItem>,
     ): List<CollectionSection> =
-        withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) {
+            // Sort by file mtime of the downloaded source(s) so the most recently
+            // downloaded items show first. Falls back to 0 (pushed to the end) when
+            // the file is missing, which also keeps the existing name-order tiebreak.
+            val sortedMovies =
+                items
+                    .filterIsInstance<FindroidMovie>()
+                    .sortedByDescending { movie -> maxSourceMtime(movie.id) }
+            val sortedShows =
+                items
+                    .filterIsInstance<FindroidShow>()
+                    .sortedByDescending { show ->
+                        database.getEpisodesByShowId(show.id)
+                            .maxOfOrNull { maxSourceMtime(it.id) } ?: 0L
+                    }
             val sections = mutableListOf<CollectionSection>()
             CollectionSection(
                 Constants.FAVORITE_TYPE_MOVIES,
                 UiText.StringResource(CoreR.string.movies_label),
-                items.filterIsInstance<FindroidMovie>(),
+                sortedMovies,
             )
                 .let { if (it.items.isNotEmpty()) sections.add(it) }
             CollectionSection(
                 Constants.FAVORITE_TYPE_SHOWS,
                 UiText.StringResource(CoreR.string.shows_label),
-                items.filterIsInstance<FindroidShow>(),
+                sortedShows,
             )
                 .let { if (it.items.isNotEmpty()) sections.add(it) }
             sections
         }
+
+    private fun maxSourceMtime(itemId: java.util.UUID): Long =
+        database.getSources(itemId).maxOfOrNull { File(it.path).lastModified() } ?: 0L
 
     private suspend fun calculateStorageInfo(): Triple<Long, Long, Boolean> =
         withContext(Dispatchers.IO) {

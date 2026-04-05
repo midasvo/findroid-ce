@@ -33,11 +33,13 @@ constructor(
     private var trackedItemId: UUID? = null
     private var observerJob: Job? = null
     private var wasCompleted = false
+    private var wasFailed = false
 
     fun update(item: FindroidItem) {
         if (trackedItemId == item.id && observerJob?.isActive == true) return
         trackedItemId = item.id
         wasCompleted = false
+        wasFailed = false
 
         // Restore if in-flight from a previous session
         if (item.isDownloading()) {
@@ -84,6 +86,21 @@ constructor(
                         wasCompleted = true
                         eventsChannel.trySend(DownloaderEvent.Successful)
                     }
+                    // Only fire the Failed event on an actual transition — otherwise
+                    // revisiting a screen with an already-failed item would re-toast
+                    // every time.
+                    val prevStatus = _state.value.status
+                    val wasInFlight =
+                        prevStatus == DownloadManager.STATUS_RUNNING ||
+                            prevStatus == DownloadManager.STATUS_PENDING
+                    if (
+                        newState.status == DownloadManager.STATUS_FAILED &&
+                            !wasFailed &&
+                            wasInFlight
+                    ) {
+                        wasFailed = true
+                        eventsChannel.trySend(DownloaderEvent.Failed(newState.errorText))
+                    }
                     _state.emit(newState)
                 }
             }
@@ -92,6 +109,7 @@ constructor(
     private fun download(item: FindroidItem) {
         trackedItemId = item.id
         wasCompleted = false
+        wasFailed = false
         viewModelScope.launch { downloadQueue.enqueue(item) }
         startObserving(item.id)
     }
