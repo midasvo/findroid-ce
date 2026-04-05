@@ -95,6 +95,10 @@ class DownloaderImpl(
             )
             val destFile = File(storageLocation, "downloads/${item.id}.${source.id}.download")
             destFile.parentFile?.mkdirs()
+            // DownloadManager refuses to enqueue if the destination exists. A leftover
+            // .download file from a previous failed/cancelled attempt would block the
+            // retry, so drop it before enqueuing.
+            if (destFile.exists()) destFile.delete()
             val path = Uri.fromFile(destFile)
             val stats = StatFs(storageLocation.path)
             if (stats.availableBytes < source.size) {
