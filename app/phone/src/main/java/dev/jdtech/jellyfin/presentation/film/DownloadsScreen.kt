@@ -123,10 +123,21 @@ private fun DownloadsScreenLayout(
         contentWindowInsets = WindowInsets.statusBars.union(WindowInsets.displayCutout),
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
-            // Segmented button row
+            // Segmented button row — show the active/pending count on the
+            // Queue tab so the user can see at a glance that downloads are
+            // running without switching tabs.
+            val activeCount =
+                state.queueItems.count {
+                    it.progress.status == DownloadStatus.QUEUED ||
+                        it.progress.status == DownloadStatus.PENDING ||
+                        it.progress.status == DownloadStatus.DOWNLOADING
+                }
+            val queueLabel = stringResource(CoreR.string.download_queue).let { base ->
+                if (activeCount > 0) "$base ($activeCount)" else base
+            }
             val tabLabels = listOf(
                 stringResource(CoreR.string.downloads_tab_library),
-                stringResource(CoreR.string.download_queue),
+                queueLabel,
             )
             SingleChoiceSegmentedButtonRow(
                 modifier =
