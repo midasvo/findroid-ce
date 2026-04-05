@@ -136,16 +136,21 @@ constructor(
         items: List<FindroidItem>,
     ): List<CollectionSection> =
         withContext(Dispatchers.IO) {
-            // Sort by file mtime of the downloaded source(s) so the most recently
-            // downloaded items show first. Falls back to 0 (pushed to the end) when
-            // the file is missing, which also keeps the existing name-order tiebreak.
+            // A movie/show with ONLY a .download source is still being downloaded
+            // and belongs in the Queue tab, not the Library tab. Filter by
+            // completed-source presence before sorting.
             val sortedMovies =
                 items
                     .filterIsInstance<FindroidMovie>()
+                    .filter { hasCompletedSource(it.id) }
                     .sortedByDescending { movie -> maxSourceMtime(movie.id) }
             val sortedShows =
                 items
                     .filterIsInstance<FindroidShow>()
+                    .filter { show ->
+                        database.getEpisodesByShowId(show.id)
+                            .any { hasCompletedSource(it.id) }
+                    }
                     .sortedByDescending { show ->
                         database.getEpisodesByShowId(show.id)
                             .maxOfOrNull { maxSourceMtime(it.id) } ?: 0L
@@ -168,6 +173,9 @@ constructor(
 
     private fun maxSourceMtime(itemId: java.util.UUID): Long =
         database.getSources(itemId).maxOfOrNull { File(it.path).lastModified() } ?: 0L
+
+    private fun hasCompletedSource(itemId: java.util.UUID): Boolean =
+        database.getSources(itemId).any { !it.path.endsWith(".download") }
 
     private suspend fun calculateStorageInfo(): Triple<Long, Long, Boolean> =
         withContext(Dispatchers.IO) {
