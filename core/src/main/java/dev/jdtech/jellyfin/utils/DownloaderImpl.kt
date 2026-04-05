@@ -186,7 +186,7 @@ class DownloaderImpl(
             )
         }
         val sourceId = sources.firstOrNull()?.id
-            ?: return Pair(-1, UiText.StringResource(CoreR.string.unknown_error))
+            ?: return Pair(-1, UiText.StringResource(CoreR.string.downloading_error))
         return downloadItem(item = item, sourceId = sourceId, storageIndex = storageIndex)
     }
 

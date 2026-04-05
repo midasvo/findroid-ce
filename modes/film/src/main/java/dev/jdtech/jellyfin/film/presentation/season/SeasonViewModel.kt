@@ -38,7 +38,8 @@ constructor(
 
     lateinit var seasonId: UUID
 
-    private val lastEntryStates = mutableMapOf<UUID, DownloadQueue.EntryState>()
+    private var hadPendingCompletions = false
+    private var wasBusy = false
 
     init {
         // Observe queue entries and merge into per-episode progress map.
@@ -51,23 +52,23 @@ constructor(
                         episodeDownloadProgress = buildDownloadProgressMap(episodes, entries)
                     )
                 )
-                // Refresh season data when an episode transitions to Completed,
-                // so isDownloaded() reflects the new DB state.
+                // Only refresh season data once everything for this season has settled,
+                // instead of per-episode completion (avoids N network roundtrips).
                 val episodeIds = episodes.map { it.id }.toSet()
-                val byId = entries.associateBy { it.id }
-                var hadNewCompletion = false
-                for (id in episodeIds) {
-                    val current = byId[id]?.state
-                    val prev = lastEntryStates[id]
-                    if (
-                        current is DownloadQueue.EntryState.Completed &&
-                        prev !is DownloadQueue.EntryState.Completed
-                    ) {
-                        hadNewCompletion = true
+                val relevant = entries.filter { it.id in episodeIds }
+                val isBusy =
+                    relevant.any {
+                        it.state is DownloadQueue.EntryState.Downloading ||
+                            it.state is DownloadQueue.EntryState.Pending
                     }
-                    if (current != null) lastEntryStates[id] = current
-                }
-                if (hadNewCompletion && ::seasonId.isInitialized) {
+                val hasCompleted =
+                    relevant.any { it.state is DownloadQueue.EntryState.Completed }
+                if (isBusy) {
+                    wasBusy = true
+                    if (hasCompleted) hadPendingCompletions = true
+                } else if (wasBusy && hadPendingCompletions && ::seasonId.isInitialized) {
+                    wasBusy = false
+                    hadPendingCompletions = false
                     loadSeason(seasonId)
                 }
             }

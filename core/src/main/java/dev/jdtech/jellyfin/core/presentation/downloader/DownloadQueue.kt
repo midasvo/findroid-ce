@@ -258,14 +258,24 @@ constructor(
                 }
             }
 
-            // 3. Decide whether to keep pumping
-            val snap = _entries.value
-            val hasWork =
-                snap.any { it.state is EntryState.Downloading || it.state is EntryState.Pending }
-            if (!hasWork) {
-                pumpJob = null
-                return
-            }
+            // 3. Decide whether to keep pumping (under mutex to avoid starvation race
+            //    with enqueue calling ensurePump between our check and our nulling of
+            //    pumpJob).
+            val shouldExit =
+                mutex.withLock {
+                    val snap = _entries.value
+                    val hasWork =
+                        snap.any {
+                            it.state is EntryState.Downloading || it.state is EntryState.Pending
+                        }
+                    if (!hasWork) {
+                        pumpJob = null
+                        true
+                    } else {
+                        false
+                    }
+                }
+            if (shouldExit) return
             delay(1000L)
         }
     }
@@ -281,7 +291,16 @@ constructor(
                 Pair(-1L, null)
             }
 
+        var orphaned = false
         mutex.withLock {
+            val stillPresent = _entries.value.any { it.id == entry.id }
+            if (!stillPresent) {
+                // Entry was removed (user cancelled) while we were starting the
+                // download. Android DM is running it but we no longer track it —
+                // cancel to avoid leaking.
+                orphaned = downloadId != -1L
+                return@withLock
+            }
             _entries.value =
                 sort(
                     _entries.value.map { e ->
@@ -298,6 +317,13 @@ constructor(
                         }
                     }
                 )
+        }
+        if (orphaned) {
+            try {
+                downloader.cancelDownload(entry.item, downloadId)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to clean up orphaned download ${entry.item.name}")
+            }
         }
     }
 }
