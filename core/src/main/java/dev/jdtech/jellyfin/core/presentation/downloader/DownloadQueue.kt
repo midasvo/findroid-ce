@@ -62,6 +62,7 @@ constructor(
     private var pumpJob: Job? = null
 
     suspend fun enqueue(item: FindroidItem) {
+        var persisted = false
         mutex.withLock {
             if (_entries.value.any { it.id == item.id && it.state !is EntryState.Failed && it.state !is EntryState.Completed }) {
                 return@withLock
@@ -76,6 +77,14 @@ constructor(
                     state = EntryState.Pending,
                 )
             _entries.value = sort(filtered + newEntry)
+            persisted = true
+        }
+        if (persisted) {
+            try {
+                downloader.savePendingDownload(item)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to persist pending download ${item.name}")
+            }
         }
         ensurePump()
     }
@@ -114,13 +123,20 @@ constructor(
                 downloader.getActiveDownloads()
             } catch (e: Exception) {
                 Timber.e(e, "Failed to query active downloads for restore")
-                return
+                emptyList()
             }
-        if (active.isEmpty()) return
+        val pending =
+            try {
+                downloader.getPendingDownloads()
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to query pending downloads for restore")
+                emptyList()
+            }
+        if (active.isEmpty() && pending.isEmpty()) return
         mutex.withLock {
             val known = _entries.value.map { it.id }.toSet()
             val now = System.currentTimeMillis()
-            val added =
+            val addedActive =
                 active.filter { (item, _) -> item.id !in known }.map { (item, downloadId) ->
                     Entry(
                         id = item.id,
@@ -131,6 +147,20 @@ constructor(
                         startedAt = now,
                     )
                 }
+            // Pending items entered after active downloads so they don't cut in line.
+            val activeIds = addedActive.map { it.id }.toSet()
+            val addedPending =
+                pending
+                    .filter { it.id !in known && it.id !in activeIds }
+                    .mapIndexed { idx, item ->
+                        Entry(
+                            id = item.id,
+                            item = item,
+                            addedAt = now + idx,
+                            state = EntryState.Pending,
+                        )
+                    }
+            val added = addedActive + addedPending
             if (added.isEmpty()) return@withLock
             _entries.value = sort(_entries.value + added)
         }
@@ -138,6 +168,7 @@ constructor(
     }
 
     suspend fun enqueueAll(items: List<FindroidItem>) {
+        val persistedItems = mutableListOf<FindroidItem>()
         mutex.withLock {
             val existingIds =
                 _entries.value
@@ -160,6 +191,14 @@ constructor(
             val newIds = newEntries.map { it.id }.toSet()
             val kept = _entries.value.filter { it.id !in newIds }
             _entries.value = sort(kept + newEntries)
+            persistedItems.addAll(newEntries.map { it.item })
+        }
+        for (item in persistedItems) {
+            try {
+                downloader.savePendingDownload(item)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to persist pending download ${item.name}")
+            }
         }
         ensurePump()
     }
@@ -174,6 +213,11 @@ constructor(
                     cancelEntry = target
                 }
                 _entries.value = _entries.value.filter { it.id != id }
+            }
+            try {
+                downloader.removePendingDownload(id)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to drop persisted pending row for $id")
             }
             cancelEntry?.let { entry ->
                 entry.downloadId?.let { dlId ->
@@ -191,11 +235,13 @@ constructor(
     /** Re-queues a failed entry. */
     fun retry(id: UUID) {
         scope.launch {
+            var retried: FindroidItem? = null
             mutex.withLock {
                 _entries.value =
                     sort(
                         _entries.value.map { entry ->
                             if (entry.id == id && entry.state is EntryState.Failed) {
+                                retried = entry.item
                                 entry.copy(
                                     state = EntryState.Pending,
                                     addedAt = System.currentTimeMillis(),
@@ -208,6 +254,13 @@ constructor(
                             }
                         }
                     )
+            }
+            retried?.let { item ->
+                try {
+                    downloader.savePendingDownload(item)
+                } catch (e: Exception) {
+                    Timber.e(e, "Failed to persist retried download ${item.name}")
+                }
             }
             ensurePump()
         }
@@ -325,6 +378,15 @@ constructor(
                 Timber.e(e, "downloadItem threw for ${entry.item.name}")
                 Pair(-1L, null)
             }
+
+        // At this point the download has either started or failed. Either way the
+        // pending-persistence row is no longer useful: the source is now tracked
+        // via the `sources` table (.download path) or the user sees a Failed entry.
+        try {
+            downloader.removePendingDownload(entry.id)
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to drop persisted pending row for ${entry.item.name}")
+        }
 
         var orphaned = false
         mutex.withLock {

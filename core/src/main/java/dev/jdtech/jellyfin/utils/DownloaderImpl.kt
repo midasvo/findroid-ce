@@ -351,6 +351,51 @@ class DownloaderImpl(
         }
     }
 
+    override suspend fun savePendingDownload(item: FindroidItem) {
+        val kind =
+            when (item) {
+                is FindroidMovie -> "MOVIE"
+                is FindroidEpisode -> "EPISODE"
+                else -> return
+            }
+        database.insertPendingDownload(
+            dev.jdtech.jellyfin.models.PendingDownloadDto(
+                itemId = item.id,
+                itemKind = kind,
+                addedAt = System.currentTimeMillis(),
+            ),
+        )
+    }
+
+    override suspend fun removePendingDownload(itemId: UUID) {
+        database.deletePendingDownload(itemId)
+    }
+
+    override suspend fun getPendingDownloads(): List<FindroidItem> {
+        val pending = database.getPendingDownloads()
+        val result = mutableListOf<FindroidItem>()
+        for (row in pending) {
+            val resolved: FindroidItem? =
+                try {
+                    when (row.itemKind) {
+                        "MOVIE" -> jellyfinRepository.getMovie(row.itemId)
+                        "EPISODE" -> jellyfinRepository.getEpisode(row.itemId)
+                        else -> null
+                    }
+                } catch (e: Exception) {
+                    Timber.w(e, "Failed to resolve pending download ${row.itemId}; dropping")
+                    null
+                }
+            if (resolved != null) {
+                result.add(resolved)
+            } else {
+                // Drop the row so we don't keep retrying a dead reference.
+                database.deletePendingDownload(row.itemId)
+            }
+        }
+        return result
+    }
+
     override suspend fun getActiveDownloads(): List<Pair<FindroidItem, Long>> {
         val userId = jellyfinRepository.getUserId()
         val sources = database.getActiveDownloadSources()

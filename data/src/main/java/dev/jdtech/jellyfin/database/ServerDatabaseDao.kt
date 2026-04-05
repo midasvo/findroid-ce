@@ -15,6 +15,7 @@ import dev.jdtech.jellyfin.models.FindroidShowDto
 import dev.jdtech.jellyfin.models.FindroidSourceDto
 import dev.jdtech.jellyfin.models.FindroidTrickplayInfoDto
 import dev.jdtech.jellyfin.models.FindroidUserDataDto
+import dev.jdtech.jellyfin.models.PendingDownloadDto
 import dev.jdtech.jellyfin.models.Server
 import dev.jdtech.jellyfin.models.ServerAddress
 import dev.jdtech.jellyfin.models.ServerWithAddressAndUser
@@ -118,6 +119,15 @@ interface ServerDatabaseDao {
     fun setSourcePath(id: String, path: String)
 
     @Query("DELETE FROM sources WHERE id = :id") fun deleteSource(id: String)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertPendingDownload(pendingDownload: PendingDownloadDto)
+
+    @Query("DELETE FROM pending_downloads WHERE itemId = :itemId")
+    fun deletePendingDownload(itemId: UUID)
+
+    @Query("SELECT * FROM pending_downloads ORDER BY addedAt ASC")
+    fun getPendingDownloads(): List<PendingDownloadDto>
 
     @Query("DELETE FROM movies WHERE id = :id") fun deleteMovie(id: UUID)
 

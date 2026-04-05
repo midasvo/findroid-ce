@@ -32,4 +32,16 @@ interface Downloader {
      * jobs that survived process death.
      */
     suspend fun getActiveDownloads(): List<Pair<FindroidItem, Long>>
+
+    /** Persists a pending queue entry so it can be re-queued after process death. */
+    suspend fun savePendingDownload(item: FindroidItem)
+
+    /** Removes a persisted pending entry (on start/remove/retry). */
+    suspend fun removePendingDownload(itemId: java.util.UUID)
+
+    /**
+     * Returns previously queued but not-yet-started items. Items that can no longer be
+     * resolved (server unreachable, item deleted) are logged and skipped.
+     */
+    suspend fun getPendingDownloads(): List<FindroidItem>
 }
