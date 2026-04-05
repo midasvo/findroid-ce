@@ -1,6 +1,8 @@
 package dev.jdtech.jellyfin.core.presentation.downloader
 
 import android.app.DownloadManager
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.UiText
@@ -33,6 +35,7 @@ class DownloadQueue
 constructor(
     private val downloader: Downloader,
     private val appPreferences: AppPreferences,
+    @ApplicationContext private val context: Context,
 ) {
     sealed interface EntryState {
         data object Pending : EntryState
@@ -314,6 +317,9 @@ constructor(
 
     private fun ensurePump() {
         if (pumpJob?.isActive == true) return
+        // Keep the app process alive while we have work to pump. The service
+        // stops itself when the queue drains.
+        DownloadPumpService.start(context)
         pumpJob =
             scope.launch {
                 try {

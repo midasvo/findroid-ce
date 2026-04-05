@@ -140,4 +140,10 @@
     <string name="download_failed_indicator">Download failed</string>
     <string name="downloading_indicator">Downloading</string>
     <string name="person_image_description">Photo of %1$s</string>
+    <string name="downloads_channel_name">Downloads</string>
+    <string name="downloads_channel_description">Ongoing download activity</string>
+    <plurals name="downloads_in_progress_title">
+        <item quantity="one">Downloading %d item</item>
+        <item quantity="other">Downloading %d items</item>
+    </plurals>
 </resources>
