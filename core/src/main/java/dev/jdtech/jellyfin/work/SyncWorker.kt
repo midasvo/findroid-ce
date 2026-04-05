@@ -39,6 +39,7 @@ constructor(
 
         return withContext(Dispatchers.IO) {
             val servers = database.getAllServersSync()
+            var hadFailures = false
 
             for (server in servers) {
                 val serverWithAddressesAndUsers =
@@ -61,12 +62,12 @@ constructor(
                             it.toFindroidEpisode(database, user.id)
                         }
 
-                    syncUserData(jellyfinApi, user, movies)
-                    syncUserData(jellyfinApi, user, episodes)
+                    if (!syncUserData(jellyfinApi, user, movies)) hadFailures = true
+                    if (!syncUserData(jellyfinApi, user, episodes)) hadFailures = true
                 }
             }
 
-            Result.success()
+            if (hadFailures) Result.retry() else Result.success()
         }
     }
 
@@ -74,7 +75,8 @@ constructor(
         jellyfinApi: JellyfinApi,
         user: User,
         items: List<FindroidItem>,
-    ) {
+    ): Boolean {
+        var allOk = true
         for (item in items) {
             val userData = database.getUserDataToBeSynced(user.id, item.id) ?: continue
 
@@ -91,7 +93,11 @@ constructor(
                 )
 
                 database.setUserDataToBeSynced(user.id, item.id, false)
-            } catch (e: Exception) { Timber.e(e, "Failed to sync user data") }
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to sync user data")
+                allOk = false
+            }
         }
+        return allOk
     }
 }
