@@ -38,7 +38,6 @@ constructor(
 
     lateinit var seasonId: UUID
 
-    private var hadPendingCompletions = false
     private var wasBusy = false
 
     init {
@@ -52,23 +51,20 @@ constructor(
                         episodeDownloadProgress = buildDownloadProgressMap(episodes, entries)
                     )
                 )
-                // Only refresh season data once everything for this season has settled,
-                // instead of per-episode completion (avoids N network roundtrips).
+                // Refresh season data once all of this season's downloads have settled,
+                // so episode.sources gets the new LOCAL entry. Firing per-episode would
+                // cause N network roundtrips.
                 val episodeIds = episodes.map { it.id }.toSet()
-                val relevant = entries.filter { it.id in episodeIds }
                 val isBusy =
-                    relevant.any {
-                        it.state is DownloadQueue.EntryState.Downloading ||
-                            it.state is DownloadQueue.EntryState.Pending
+                    entries.any {
+                        it.id in episodeIds &&
+                            (it.state is DownloadQueue.EntryState.Downloading ||
+                                it.state is DownloadQueue.EntryState.Pending)
                     }
-                val hasCompleted =
-                    relevant.any { it.state is DownloadQueue.EntryState.Completed }
                 if (isBusy) {
                     wasBusy = true
-                    if (hasCompleted) hadPendingCompletions = true
-                } else if (wasBusy && hadPendingCompletions && ::seasonId.isInitialized) {
+                } else if (wasBusy && ::seasonId.isInitialized) {
                     wasBusy = false
-                    hadPendingCompletions = false
                     loadSeason(seasonId)
                 }
             }

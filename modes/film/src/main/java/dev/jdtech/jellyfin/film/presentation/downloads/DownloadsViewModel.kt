@@ -39,6 +39,8 @@ constructor(
     private val _state = MutableStateFlow(DownloadsState())
     val state = _state.asStateFlow()
 
+    private var wasBusy = false
+
     init {
         // Observe queue entries -> queueItems
         viewModelScope.launch {
@@ -47,6 +49,19 @@ constructor(
                 val hasCompleted =
                     entries.any { it.state is DownloadQueue.EntryState.Completed }
                 _state.emit(_state.value.copy(queueItems = items, hasCompleted = hasCompleted))
+                // When downloads finish (busy -> not busy), reload sections so newly
+                // completed items appear and removed shows disappear.
+                val isBusy =
+                    entries.any {
+                        it.state is DownloadQueue.EntryState.Downloading ||
+                            it.state is DownloadQueue.EntryState.Pending
+                    }
+                if (isBusy) {
+                    wasBusy = true
+                } else if (wasBusy) {
+                    wasBusy = false
+                    loadItems()
+                }
             }
         }
     }

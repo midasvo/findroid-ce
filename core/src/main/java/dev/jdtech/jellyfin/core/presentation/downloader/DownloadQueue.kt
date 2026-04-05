@@ -102,6 +102,41 @@ constructor(
         ensurePump()
     }
 
+    /**
+     * Re-attaches every in-flight download from the DB. Call on app startup to
+     * recover queue state after process death. Android DownloadManager runs
+     * independently, so completion broadcasts still update the DB; this just
+     * reattaches the UI-facing queue so the user can see/cancel those downloads.
+     */
+    suspend fun restoreAll() {
+        val active =
+            try {
+                downloader.getActiveDownloads()
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to query active downloads for restore")
+                return
+            }
+        if (active.isEmpty()) return
+        mutex.withLock {
+            val known = _entries.value.map { it.id }.toSet()
+            val now = System.currentTimeMillis()
+            val added =
+                active.filter { (item, _) -> item.id !in known }.map { (item, downloadId) ->
+                    Entry(
+                        id = item.id,
+                        item = item,
+                        addedAt = now,
+                        state = EntryState.Downloading,
+                        downloadId = downloadId,
+                        startedAt = now,
+                    )
+                }
+            if (added.isEmpty()) return@withLock
+            _entries.value = sort(_entries.value + added)
+        }
+        ensurePump()
+    }
+
     suspend fun enqueueAll(items: List<FindroidItem>) {
         mutex.withLock {
             val existingIds =

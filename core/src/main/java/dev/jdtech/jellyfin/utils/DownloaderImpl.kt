@@ -19,8 +19,10 @@ import dev.jdtech.jellyfin.models.FindroidSource
 import dev.jdtech.jellyfin.models.FindroidSources
 import dev.jdtech.jellyfin.models.FindroidTrickplayInfo
 import dev.jdtech.jellyfin.models.UiText
+import dev.jdtech.jellyfin.models.toFindroidEpisode
 import dev.jdtech.jellyfin.models.toFindroidEpisodeDto
 import dev.jdtech.jellyfin.models.toFindroidMediaStreamDto
+import dev.jdtech.jellyfin.models.toFindroidMovie
 import dev.jdtech.jellyfin.models.toFindroidMovieDto
 import dev.jdtech.jellyfin.models.toFindroidSeasonDto
 import dev.jdtech.jellyfin.models.toFindroidSegmentsDto
@@ -347,6 +349,27 @@ class DownloaderImpl(
             val file = File(context.filesDir, "$basePath/$i")
             file.writeBytes(byteArray)
         }
+    }
+
+    override suspend fun getActiveDownloads(): List<Pair<FindroidItem, Long>> {
+        val userId = jellyfinRepository.getUserId()
+        val sources = database.getActiveDownloadSources()
+        val result = mutableListOf<Pair<FindroidItem, Long>>()
+        for (source in sources) {
+            val downloadId = source.downloadId ?: continue
+            val item: FindroidItem? =
+                try {
+                    database.getMovie(source.itemId).toFindroidMovie(database, userId)
+                } catch (_: Exception) {
+                    try {
+                        database.getEpisode(source.itemId).toFindroidEpisode(database, userId)
+                    } catch (_: Exception) {
+                        null
+                    }
+                }
+            if (item != null) result.add(item to downloadId)
+        }
+        return result
     }
 
     private fun startImagesDownloader(item: FindroidItem) {

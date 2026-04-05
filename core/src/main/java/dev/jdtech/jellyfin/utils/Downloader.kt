@@ -25,4 +25,11 @@ interface Downloader {
     suspend fun deleteItem(item: FindroidItem, source: FindroidSource)
 
     suspend fun getProgress(downloadId: Long?): Pair<Int, Int>
+
+    /**
+     * Returns every in-flight download known to the DB as (item, downloadId) pairs.
+     * Used on app startup to re-attach the queue to Android DownloadManager
+     * jobs that survived process death.
+     */
+    suspend fun getActiveDownloads(): List<Pair<FindroidItem, Long>>
 }

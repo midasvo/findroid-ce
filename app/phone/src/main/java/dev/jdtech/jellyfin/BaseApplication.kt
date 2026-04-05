@@ -17,9 +17,14 @@ import coil3.request.crossfade
 import coil3.svg.SvgDecoder
 import com.google.android.material.color.DynamicColors
 import dagger.hilt.android.HiltAndroidApp
+import dev.jdtech.jellyfin.core.presentation.downloader.DownloadQueue
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import javax.inject.Inject
 import kotlin.time.ExperimentalTime
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import okio.Path.Companion.toOkioPath
 import timber.log.Timber
 
@@ -28,6 +33,8 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
     @Inject lateinit var appPreferences: AppPreferences
 
     @Inject lateinit var workerFactory: HiltWorkerFactory
+
+    @Inject lateinit var downloadQueue: DownloadQueue
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
@@ -52,6 +59,16 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
 
         if (appPreferences.getValue(appPreferences.dynamicColors)) {
             DynamicColors.applyToActivitiesIfAvailable(this)
+        }
+
+        // Re-attach any downloads left in-flight by a previous process (survives
+        // process death because Android DownloadManager is a system service).
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            try {
+                downloadQueue.restoreAll()
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to restore active downloads")
+            }
         }
     }
 
