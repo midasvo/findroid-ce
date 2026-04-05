@@ -25,10 +25,18 @@ import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 
 @Composable
-fun PersonItem(person: FindroidItemPerson, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun PersonItem(
+    person: FindroidItemPerson,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
     Column(
         modifier =
-            modifier.width(110.dp).clip(MaterialTheme.shapes.small).clickable(onClick = onClick)
+            modifier
+                .width(110.dp)
+                .clip(MaterialTheme.shapes.small)
+                .clickable(enabled = enabled, onClick = onClick)
     ) {
         AsyncImage(
             model = person.image.uri,

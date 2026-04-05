@@ -124,7 +124,7 @@ fun ItemButtonsBar(
                         }
                     }
                 }
-                trailerUri?.let { uri ->
+                trailerUri?.takeIf { !isOfflineMode }?.let { uri ->
                     FilledTonalIconButton(onClick = { onTrailerClick(uri) }) {
                         Icon(
                             painter = painterResource(CoreR.drawable.ic_film),
