@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin.core.presentation.downloader
 
 import android.app.DownloadManager
+import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.UiText
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
@@ -468,7 +469,10 @@ constructor(
                 downloader.downloadItem(item = entry.item, storageIndex = storageIndex)
             } catch (e: Exception) {
                 Timber.e(e, "downloadItem threw for ${entry.item.name}")
-                Pair(-1L, null)
+                // Surface something to the Queue UI instead of a blank error — the
+                // raw exception message could leak URLs/stack info, so pick a
+                // generic localized string.
+                Pair(-1L, UiText.StringResource(CoreR.string.downloading_error))
             }
 
         // At this point the download has either started or failed. Either way the
