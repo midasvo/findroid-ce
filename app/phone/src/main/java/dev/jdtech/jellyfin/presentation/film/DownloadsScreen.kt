@@ -15,10 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.recalculateWindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -62,8 +64,7 @@ import dev.jdtech.jellyfin.presentation.film.components.ItemCard
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 
-private const val TAB_DOWNLOADS = 0
-private const val TAB_QUEUE = 1
+private enum class DownloadsTab { LIBRARY, QUEUE }
 
 @Composable
 fun DownloadsScreen(
@@ -105,7 +106,7 @@ private fun DownloadsScreenLayout(
 ) {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    var selectedTab by rememberSaveable { mutableIntStateOf(TAB_DOWNLOADS) }
+    var selectedTab by rememberSaveable { mutableIntStateOf(DownloadsTab.LIBRARY.ordinal) }
 
     Scaffold(
         modifier =
@@ -124,7 +125,7 @@ private fun DownloadsScreenLayout(
         Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
             // Segmented button row
             val tabLabels = listOf(
-                stringResource(CoreR.string.title_download),
+                stringResource(CoreR.string.downloads_tab_library),
                 stringResource(CoreR.string.download_queue),
             )
             SingleChoiceSegmentedButtonRow(
@@ -153,13 +154,13 @@ private fun DownloadsScreenLayout(
                 }
             }
 
-            when (selectedTab) {
-                TAB_DOWNLOADS -> DownloadsTabContent(
+            when (DownloadsTab.entries.getOrNull(selectedTab) ?: DownloadsTab.LIBRARY) {
+                DownloadsTab.LIBRARY -> DownloadsTabContent(
                     state = state,
                     onItemClick = onItemClick,
                     context = context,
                 )
-                TAB_QUEUE -> QueueTabContent(
+                DownloadsTab.QUEUE -> QueueTabContent(
                     state = state,
                     onCancelDownload = onCancelDownload,
                     onDismissDownload = onDismissDownload,
@@ -214,7 +215,7 @@ private fun DownloadsTabContent(
                         style = MaterialTheme.typography.titleMedium,
                     )
                 }
-                items(items = section.items, key = { it.id }) { item ->
+                gridItems(items = section.items, key = { it.id }) { item ->
                     ItemCard(
                         item = item,
                         direction =
@@ -264,21 +265,30 @@ private fun QueueTabContent(
 
     if (allItems.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = stringResource(CoreR.string.no_downloads),
-                style = MaterialTheme.typography.bodyMedium,
+            Column(
                 modifier = Modifier.align(Alignment.Center),
-            )
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = stringResource(CoreR.string.no_queue_items),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Spacer(Modifier.height(MaterialTheme.spacings.small))
+                Text(
+                    text = stringResource(CoreR.string.no_queue_items_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     } else {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(1),
+        LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(all = MaterialTheme.spacings.default),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
         ) {
             if (state.hasCompleted) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
+                item {
                     androidx.compose.material3.TextButton(
                         onClick = onClearCompleted,
                         modifier = Modifier.fillMaxWidth(),

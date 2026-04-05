@@ -17,11 +17,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
+import android.text.format.Formatter
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -53,7 +55,8 @@ fun ActiveDownloadCard(
             animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
         )
 
-    val statusText =
+    val context = LocalContext.current
+    val baseStatusText =
         when (progress.status) {
             DownloadStatus.QUEUED -> stringResource(CoreR.string.download_queued)
             DownloadStatus.PENDING -> stringResource(CoreR.string.download_pending)
@@ -61,6 +64,28 @@ fun ActiveDownloadCard(
             DownloadStatus.FAILED -> stringResource(CoreR.string.download_failed)
             DownloadStatus.COMPLETED -> stringResource(CoreR.string.download_completed)
             else -> ""
+        }
+    // "12.3 MB / 234 MB · 4.2 MB/s" when we have the data, else just the status.
+    val statusText =
+        when (progress.status) {
+            DownloadStatus.DOWNLOADING -> {
+                val parts = mutableListOf<String>()
+                if (activeDownload.bytesDownloaded >= 0 && activeDownload.totalBytes > 0) {
+                    parts.add(
+                        "${Formatter.formatShortFileSize(context, activeDownload.bytesDownloaded)}" +
+                            " / ${Formatter.formatShortFileSize(context, activeDownload.totalBytes)}",
+                    )
+                }
+                if (activeDownload.bytesPerSecond > 0) {
+                    parts.add(
+                        "${Formatter.formatShortFileSize(context, activeDownload.bytesPerSecond)}/s",
+                    )
+                }
+                if (parts.isEmpty()) baseStatusText else parts.joinToString(" · ")
+            }
+            DownloadStatus.FAILED ->
+                activeDownload.errorText?.asString() ?: baseStatusText
+            else -> baseStatusText
         }
 
     val progressColor =

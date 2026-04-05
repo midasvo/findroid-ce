@@ -52,6 +52,12 @@ constructor(
         val startedAt: Long? = null,
         /** 0..100 */
         val progress: Int = 0,
+        /** Bytes downloaded so far, -1 if unknown. */
+        val bytesDownloaded: Long = -1L,
+        /** Total bytes, -1 if unknown. */
+        val totalBytes: Long = -1L,
+        /** Moving-average bytes/sec, or 0 if not computed yet. */
+        val bytesPerSecond: Long = 0L,
     )
 
     private val _entries = MutableStateFlow<List<Entry>>(emptyList())
@@ -60,6 +66,9 @@ constructor(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val mutex = Mutex()
     private var pumpJob: Job? = null
+
+    /** Previous bytes + wall-clock (ms) sample per downloadId, for speed calc. */
+    private val lastSamples = mutableMapOf<Long, Pair<Long, Long>>()
 
     suspend fun enqueue(item: FindroidItem) {
         var persisted = false
@@ -96,7 +105,18 @@ constructor(
      */
     suspend fun restore(item: FindroidItem, downloadId: Long) {
         mutex.withLock {
-            if (_entries.value.any { it.id == item.id }) return@withLock
+            val existing = _entries.value.firstOrNull { it.id == item.id }
+            // If it's already live (pending/downloading), leave it alone.
+            if (
+                existing != null &&
+                    existing.state !is EntryState.Failed &&
+                    existing.state !is EntryState.Completed
+            ) {
+                return@withLock
+            }
+            // Replace stale Failed/Completed entry so the UI reflects the
+            // in-flight download instead of the old terminal state.
+            val filtered = _entries.value.filter { it.id != item.id }
             val entry =
                 Entry(
                     id = item.id,
@@ -106,7 +126,7 @@ constructor(
                     downloadId = downloadId,
                     startedAt = System.currentTimeMillis(),
                 )
-            _entries.value = sort(_entries.value + entry)
+            _entries.value = sort(filtered + entry)
         }
         ensurePump()
     }
@@ -151,12 +171,12 @@ constructor(
             val activeIds = addedActive.map { it.id }.toSet()
             val addedPending =
                 pending
-                    .filter { it.id !in known && it.id !in activeIds }
-                    .mapIndexed { idx, item ->
+                    .filter { (item, _) -> item.id !in known && item.id !in activeIds }
+                    .map { (item, addedAt) ->
                         Entry(
                             id = item.id,
                             item = item,
-                            addedAt = now + idx,
+                            addedAt = addedAt,
                             state = EntryState.Pending,
                         )
                     }
@@ -304,26 +324,66 @@ constructor(
         while (true) {
             // 1. Poll active downloads and transition completed/failed
             val active = _entries.value.filter { it.state is EntryState.Downloading }
+            // Prune speed samples for download ids no longer active (removed,
+            // completed, or failed).
+            if (lastSamples.isNotEmpty()) {
+                val activeDlIds = active.mapNotNull { it.downloadId }.toSet()
+                lastSamples.keys.retainAll(activeDlIds)
+            }
             if (active.isNotEmpty()) {
                 val updates = mutableMapOf<UUID, Entry>()
+                val now = System.currentTimeMillis()
                 for (entry in active) {
                     val dlId = entry.downloadId ?: continue
-                    val (status, progress) = downloader.getProgress(dlId)
+                    val snapshot = downloader.getProgress(dlId)
                     val newState: EntryState? =
-                        when (status) {
+                        when (snapshot.status) {
                             DownloadManager.STATUS_PENDING,
                             DownloadManager.STATUS_RUNNING,
                             DownloadManager.STATUS_PAUSED -> null // still running
                             DownloadManager.STATUS_SUCCESSFUL -> EntryState.Completed
                             DownloadManager.STATUS_FAILED -> EntryState.Failed(null)
-                            else -> EntryState.Completed
+                            // Unknown/unhandled status (e.g. DM entry disappeared between
+                            // process death and restore). Treat as failed rather than silently
+                            // claiming success.
+                            else -> EntryState.Failed(null)
                         }
-                    val newProgress = progress.coerceAtLeast(0).coerceAtMost(100)
-                    if (newState != null || newProgress != entry.progress) {
+                    val newProgress = snapshot.progress.coerceAtLeast(0).coerceAtMost(100)
+                    val prevSample = lastSamples[dlId]
+                    val speed =
+                        if (prevSample != null && snapshot.bytesDownloaded >= 0) {
+                            val (prevBytes, prevAt) = prevSample
+                            val elapsedMs = now - prevAt
+                            if (elapsedMs > 0) {
+                                ((snapshot.bytesDownloaded - prevBytes) * 1000L / elapsedMs)
+                                    .coerceAtLeast(0L)
+                            } else {
+                                entry.bytesPerSecond
+                            }
+                        } else {
+                            0L
+                        }
+                    if (snapshot.bytesDownloaded >= 0) {
+                        lastSamples[dlId] = snapshot.bytesDownloaded to now
+                    }
+                    val bytesChanged =
+                        snapshot.bytesDownloaded != entry.bytesDownloaded ||
+                            snapshot.totalBytes != entry.totalBytes
+                    val speedChanged = speed != entry.bytesPerSecond
+                    if (
+                        newState != null ||
+                            newProgress != entry.progress ||
+                            bytesChanged ||
+                            speedChanged
+                    ) {
                         updates[entry.id] =
                             entry.copy(
                                 state = newState ?: entry.state,
                                 progress = if (newState == EntryState.Completed) 100 else newProgress,
+                                bytesDownloaded = snapshot.bytesDownloaded,
+                                totalBytes = snapshot.totalBytes,
+                                // Clear speed once terminal; stale numbers confuse the UI.
+                                bytesPerSecond = if (newState != null) 0L else speed,
                             )
                     }
                 }
@@ -332,6 +392,29 @@ constructor(
                         _entries.value =
                             sort(_entries.value.map { updates[it.id] ?: it })
                     }
+                    // Any entry that transitioned to Failed has an orphaned .download
+                    // file + source row on disk/DB. Clean them up so retry creates a
+                    // fresh download and restoreAll() on next launch doesn't resurrect
+                    // a dead DownloadManager id.
+                    val failedEntries =
+                        updates.values.filter { it.state is EntryState.Failed }
+                    for (failed in failedEntries) {
+                        val dlId = failed.downloadId ?: continue
+                        lastSamples.remove(dlId)
+                        try {
+                            downloader.cancelDownload(failed.item, dlId)
+                        } catch (e: Exception) {
+                            Timber.e(
+                                e,
+                                "Failed to clean up orphaned download for ${failed.item.name}",
+                            )
+                        }
+                    }
+                    val completedIds =
+                        updates.values
+                            .filter { it.state is EntryState.Completed }
+                            .mapNotNull { it.downloadId }
+                    for (id in completedIds) lastSamples.remove(id)
                 }
             }
 

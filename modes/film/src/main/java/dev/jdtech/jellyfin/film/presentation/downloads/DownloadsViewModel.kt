@@ -93,9 +93,10 @@ constructor(
     }
 
     fun dismissCompletedDownload(activeDownload: ActiveDownload) {
-        // Remove from queue and refresh completed sections
+        // Removing the queue entry emits a new queueItems list via the observer;
+        // no need to reload completed sections (the completed item was already
+        // present in sections once it finished downloading).
         downloadQueue.remove(activeDownload.item.id)
-        loadItems()
     }
 
     fun retryDownload(activeDownload: ActiveDownload) {
@@ -103,8 +104,9 @@ constructor(
     }
 
     fun clearCompleted() {
+        // Sections in the Downloads tab are keyed off repository.getDownloads(),
+        // not queue state, so clearing completed queue entries doesn't affect them.
         downloadQueue.clearCompleted()
-        loadItems()
     }
 
     private fun DownloadQueue.Entry.toActiveDownload(): ActiveDownload {
@@ -115,11 +117,16 @@ constructor(
                 is DownloadQueue.EntryState.Completed -> DownloadStatus.COMPLETED
                 is DownloadQueue.EntryState.Failed -> DownloadStatus.FAILED
             }
+        val failureText = (state as? DownloadQueue.EntryState.Failed)?.error
         return ActiveDownload(
             item = item,
             progress =
                 DownloadProgress(status = downloadStatus, progress = progress / 100f),
             downloadId = downloadId,
+            bytesDownloaded = bytesDownloaded,
+            totalBytes = totalBytes,
+            bytesPerSecond = bytesPerSecond,
+            errorText = failureText,
         )
     }
 
@@ -156,16 +163,33 @@ constructor(
             if (storageDir == null) return@withContext Triple(0L, 0L, false)
 
             val isExternal = Environment.isExternalStorageRemovable(storageDir)
-            val downloadsDir = File(storageDir, "downloads")
-            val usedBytes =
-                if (downloadsDir.exists()) {
-                    downloadsDir.listFiles()?.sumOf { it.length() } ?: 0L
-                } else {
-                    0L
-                }
+            // Media files live in external storage, but trickplay tiles and
+            // cached images live under the app's internal filesDir. Count both
+            // so the reported usage matches what the user is actually storing.
+            val videoBytes = File(storageDir, "downloads").sizeBytesRecursive()
+            val trickplayBytes = File(context.filesDir, "trickplay").sizeBytesRecursive()
+            val imagesBytes = File(context.filesDir, "images").sizeBytesRecursive()
+            val usedBytes = videoBytes + trickplayBytes + imagesBytes
+
             val stats = StatFs(storageDir.path)
             val freeBytes = stats.availableBytes
 
             Triple(usedBytes, freeBytes, isExternal)
         }
+
+    private fun File.sizeBytesRecursive(): Long {
+        if (!exists()) return 0L
+        if (isFile) return length()
+        var total = 0L
+        val stack = ArrayDeque<File>()
+        stack.addLast(this)
+        while (stack.isNotEmpty()) {
+            val current = stack.removeLast()
+            val children = current.listFiles() ?: continue
+            for (child in children) {
+                if (child.isDirectory) stack.addLast(child) else total += child.length()
+            }
+        }
+        return total
+    }
 }

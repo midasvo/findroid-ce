@@ -240,43 +240,43 @@ class DownloaderImpl(
         File(context.filesDir, "images/${item.id}").deleteRecursively()
     }
 
-    override suspend fun getProgress(downloadId: Long?): Pair<Int, Int> {
-        var downloadStatus = -1
-        var progress = -1
+    override suspend fun getProgress(downloadId: Long?): Downloader.Progress {
         if (downloadId == null) {
-            return Pair(downloadStatus, progress)
+            return Downloader.Progress(DownloadManager.STATUS_FAILED, 0, -1L, -1L)
         }
+        var downloadStatus = DownloadManager.STATUS_FAILED
+        var progress = -1
+        var bytesDownloaded = -1L
+        var totalBytes = -1L
         val query = DownloadManager.Query().setFilterById(downloadId)
-        val cursor = downloadManager.query(query)
-        cursor.use {
-            if (it.moveToFirst()) {
+        downloadManager.query(query).use { cursor ->
+            if (cursor.moveToFirst()) {
                 downloadStatus =
-                    it.getInt(it.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-                when (downloadStatus) {
-                    DownloadManager.STATUS_RUNNING -> {
-                        val totalBytes =
-                            it.getLong(
-                                it.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
-                            )
-                        if (totalBytes > 0) {
-                            val downloadedBytes =
-                                it.getLong(
-                                    it.getColumnIndexOrThrow(
-                                        DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR
-                                    )
-                                )
-                            progress = downloadedBytes.times(100).div(totalBytes).toInt()
-                        }
+                    cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+                totalBytes =
+                    cursor.getLong(
+                        cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES),
+                    )
+                bytesDownloaded =
+                    cursor.getLong(
+                        cursor.getColumnIndexOrThrow(
+                            DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR,
+                        ),
+                    )
+                progress =
+                    when (downloadStatus) {
+                        DownloadManager.STATUS_SUCCESSFUL -> 100
+                        DownloadManager.STATUS_RUNNING ->
+                            if (totalBytes > 0) {
+                                bytesDownloaded.times(100).div(totalBytes).toInt()
+                            } else {
+                                -1
+                            }
+                        else -> -1
                     }
-                    DownloadManager.STATUS_SUCCESSFUL -> {
-                        progress = 100
-                    }
-                }
-            } else {
-                downloadStatus = DownloadManager.STATUS_FAILED
             }
         }
-        return Pair(downloadStatus, progress)
+        return Downloader.Progress(downloadStatus, progress, bytesDownloaded, totalBytes)
     }
 
     private fun downloadExternalMediaStreams(
@@ -373,9 +373,9 @@ class DownloaderImpl(
         database.deletePendingDownload(itemId)
     }
 
-    override suspend fun getPendingDownloads(): List<FindroidItem> = withContext(Dispatchers.IO) {
+    override suspend fun getPendingDownloads(): List<Pair<FindroidItem, Long>> = withContext(Dispatchers.IO) {
         val pending = database.getPendingDownloads()
-        val result = mutableListOf<FindroidItem>()
+        val result = mutableListOf<Pair<FindroidItem, Long>>()
         for (row in pending) {
             val resolved: FindroidItem? =
                 try {
@@ -389,7 +389,7 @@ class DownloaderImpl(
                     null
                 }
             if (resolved != null) {
-                result.add(resolved)
+                result.add(resolved to row.addedAt)
             } else {
                 // Drop the row so we don't keep retrying a dead reference.
                 database.deletePendingDownload(row.itemId)

@@ -24,7 +24,19 @@ interface Downloader {
 
     suspend fun deleteItem(item: FindroidItem, source: FindroidSource)
 
-    suspend fun getProgress(downloadId: Long?): Pair<Int, Int>
+    /** Snapshot from the Android DownloadManager for a single download id. */
+    data class Progress(
+        /** DownloadManager.STATUS_* */
+        val status: Int,
+        /** Progress percentage 0..100, or -1 if unknown. */
+        val progress: Int,
+        /** Bytes downloaded so far, or -1 if unknown. */
+        val bytesDownloaded: Long,
+        /** Total bytes for the download, or -1 if unknown. */
+        val totalBytes: Long,
+    )
+
+    suspend fun getProgress(downloadId: Long?): Progress
 
     /**
      * Returns every in-flight download known to the DB as (item, downloadId) pairs.
@@ -40,8 +52,9 @@ interface Downloader {
     suspend fun removePendingDownload(itemId: java.util.UUID)
 
     /**
-     * Returns previously queued but not-yet-started items. Items that can no longer be
-     * resolved (server unreachable, item deleted) are logged and skipped.
+     * Returns previously queued but not-yet-started items paired with the timestamp
+     * they were originally added (ms since epoch). Items that can no longer be resolved
+     * (server unreachable, item deleted) are logged and skipped.
      */
-    suspend fun getPendingDownloads(): List<FindroidItem>
+    suspend fun getPendingDownloads(): List<Pair<FindroidItem, Long>>
 }
