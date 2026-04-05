@@ -174,7 +174,8 @@ private fun EpisodeDownloadButton(
                 )
             }
         }
-        DownloadStatus.DOWNLOADING -> {
+        DownloadStatus.DOWNLOADING,
+        DownloadStatus.PAUSED -> {
             // Downloading — circular progress around download icon
             Box(
                 modifier = Modifier.size(40.dp),

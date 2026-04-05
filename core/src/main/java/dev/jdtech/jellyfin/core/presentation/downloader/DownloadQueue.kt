@@ -39,6 +39,8 @@ constructor(
 
         data object Downloading : EntryState
 
+        data object Paused : EntryState
+
         data object Completed : EntryState
 
         data class Failed(val error: UiText?) : EntryState
@@ -300,6 +302,7 @@ constructor(
         fun priority(state: EntryState): Int =
             when (state) {
                 is EntryState.Downloading -> 0
+                is EntryState.Paused -> 0
                 is EntryState.Pending -> 1
                 is EntryState.Failed -> 2
                 is EntryState.Completed -> 3
@@ -323,8 +326,13 @@ constructor(
 
     private suspend fun pump() {
         while (true) {
-            // 1. Poll active downloads and transition completed/failed
-            val active = _entries.value.filter { it.state is EntryState.Downloading }
+            // 1. Poll active downloads and transition completed/failed. Paused entries
+            //    keep their DownloadManager job attached, so poll them too so we can
+            //    flip back to Downloading when DM resumes (e.g. wifi reconnects).
+            val active =
+                _entries.value.filter {
+                    it.state is EntryState.Downloading || it.state is EntryState.Paused
+                }
             // Prune speed samples for download ids no longer active (removed,
             // completed, or failed).
             if (lastSamples.isNotEmpty()) {
@@ -349,8 +357,14 @@ constructor(
                     val newState: EntryState? =
                         when (snapshot.status) {
                             DownloadManager.STATUS_PENDING,
-                            DownloadManager.STATUS_RUNNING,
-                            DownloadManager.STATUS_PAUSED -> null // still running
+                            DownloadManager.STATUS_RUNNING ->
+                                // If we were Paused and DM is running again, flip back
+                                // to Downloading so the user sees progress resume.
+                                if (entry.state is EntryState.Paused) EntryState.Downloading
+                                else null
+                            DownloadManager.STATUS_PAUSED ->
+                                if (entry.state is EntryState.Paused) null
+                                else EntryState.Paused
                             DownloadManager.STATUS_SUCCESSFUL -> EntryState.Completed
                             DownloadManager.STATUS_FAILED -> EntryState.Failed(null)
                             // Unknown/unhandled status (e.g. DM entry disappeared between
@@ -430,7 +444,10 @@ constructor(
 
             // 2. Fill free slots from Pending queue
             val maxConcurrent = appPreferences.getValue(appPreferences.maxConcurrentDownloads)
-            val currentlyActive = _entries.value.count { it.state is EntryState.Downloading }
+            val currentlyActive =
+                _entries.value.count {
+                    it.state is EntryState.Downloading || it.state is EntryState.Paused
+                }
             val freeSlots = (maxConcurrent - currentlyActive).coerceAtLeast(0)
             if (freeSlots > 0) {
                 val pending = _entries.value.filter { it.state is EntryState.Pending }.take(freeSlots)
@@ -447,7 +464,9 @@ constructor(
                     val snap = _entries.value
                     val hasWork =
                         snap.any {
-                            it.state is EntryState.Downloading || it.state is EntryState.Pending
+                            it.state is EntryState.Downloading ||
+                                it.state is EntryState.Pending ||
+                                it.state is EntryState.Paused
                         }
                     if (!hasWork) {
                         pumpJob = null

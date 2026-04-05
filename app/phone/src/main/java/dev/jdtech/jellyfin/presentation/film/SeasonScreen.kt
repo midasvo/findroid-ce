@@ -228,7 +228,9 @@ private fun SeasonScreenLayout(
                 val downloadingCount =
                     state.episodeDownloadProgress.values.count {
                         it.status == DownloadStatus.DOWNLOADING ||
-                            it.status == DownloadStatus.PENDING
+                            it.status == DownloadStatus.PENDING ||
+                            it.status == DownloadStatus.QUEUED ||
+                            it.status == DownloadStatus.PAUSED
                     }
                 val totalCount = state.episodes.size
 

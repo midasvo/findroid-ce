@@ -153,6 +153,11 @@ constructor(
                         )
                     is DownloadQueue.EntryState.Pending ->
                         DownloadProgress(status = DownloadStatus.QUEUED)
+                    is DownloadQueue.EntryState.Paused ->
+                        DownloadProgress(
+                            status = DownloadStatus.PAUSED,
+                            progress = entry.progress / 100f,
+                        )
                     is DownloadQueue.EntryState.Failed -> DownloadProgress(status = DownloadStatus.FAILED)
                     is DownloadQueue.EntryState.Completed ->
                         DownloadProgress(status = DownloadStatus.COMPLETED, progress = 1f)

@@ -5,6 +5,7 @@ enum class DownloadStatus {
     QUEUED,
     PENDING,
     DOWNLOADING,
+    PAUSED,
     COMPLETED,
     FAILED,
 }

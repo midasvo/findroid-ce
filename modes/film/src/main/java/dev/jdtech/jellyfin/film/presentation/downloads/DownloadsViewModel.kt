@@ -56,7 +56,8 @@ constructor(
                 val isBusy =
                     entries.any {
                         it.state is DownloadQueue.EntryState.Downloading ||
-                            it.state is DownloadQueue.EntryState.Pending
+                            it.state is DownloadQueue.EntryState.Pending ||
+                            it.state is DownloadQueue.EntryState.Paused
                     }
                 if (isBusy) {
                     wasBusy = true
@@ -116,6 +117,7 @@ constructor(
             when (state) {
                 is DownloadQueue.EntryState.Pending -> DownloadStatus.QUEUED
                 is DownloadQueue.EntryState.Downloading -> DownloadStatus.DOWNLOADING
+                is DownloadQueue.EntryState.Paused -> DownloadStatus.PAUSED
                 is DownloadQueue.EntryState.Completed -> DownloadStatus.COMPLETED
                 is DownloadQueue.EntryState.Failed -> DownloadStatus.FAILED
             }

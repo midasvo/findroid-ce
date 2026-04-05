@@ -61,6 +61,7 @@ fun ActiveDownloadCard(
             DownloadStatus.QUEUED -> stringResource(CoreR.string.download_queued)
             DownloadStatus.PENDING -> stringResource(CoreR.string.download_pending)
             DownloadStatus.DOWNLOADING -> stringResource(CoreR.string.download_downloading)
+            DownloadStatus.PAUSED -> stringResource(CoreR.string.download_paused)
             DownloadStatus.FAILED -> stringResource(CoreR.string.download_failed)
             DownloadStatus.COMPLETED -> stringResource(CoreR.string.download_completed)
             else -> ""

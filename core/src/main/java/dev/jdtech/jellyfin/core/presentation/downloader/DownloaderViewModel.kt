@@ -68,6 +68,11 @@ constructor(
                                     status = DownloadManager.STATUS_RUNNING,
                                     progress = entry.progress / 100f,
                                 )
+                            is DownloadQueue.EntryState.Paused ->
+                                DownloaderState(
+                                    status = DownloadManager.STATUS_PAUSED,
+                                    progress = entry.progress / 100f,
+                                )
                             is DownloadQueue.EntryState.Completed ->
                                 DownloaderState(
                                     status = DownloadManager.STATUS_SUCCESSFUL,

@@ -130,7 +130,8 @@ private fun DownloadsScreenLayout(
                 state.queueItems.count {
                     it.progress.status == DownloadStatus.QUEUED ||
                         it.progress.status == DownloadStatus.PENDING ||
-                        it.progress.status == DownloadStatus.DOWNLOADING
+                        it.progress.status == DownloadStatus.DOWNLOADING ||
+                        it.progress.status == DownloadStatus.PAUSED
                 }
             val queueLabel = stringResource(CoreR.string.download_queue).let { base ->
                 if (activeCount > 0) "$base ($activeCount)" else base
