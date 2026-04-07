@@ -20,9 +20,12 @@ data class ActiveDownload(
     val errorText: UiText? = null,
 )
 
+enum class DownloadSortOrder { NAME, DATE, SIZE }
+
 data class DownloadsState(
     val queueItems: List<ActiveDownload> = emptyList(),
     val hasCompleted: Boolean = false,
+    val sortOrder: DownloadSortOrder = DownloadSortOrder.DATE,
     val sections: List<CollectionSection> = emptyList(),
     val itemSizes: Map<UUID, Long> = emptyMap(),
     val storageUsedBytes: Long = 0L,

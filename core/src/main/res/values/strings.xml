@@ -126,6 +126,9 @@
     <string name="clear_completed">Clear completed</string>
     <string name="dismiss_download">Dismiss download</string>
     <string name="retry_download">Retry download</string>
+    <string name="sort_name">Name</string>
+    <string name="sort_date">Date</string>
+    <string name="sort_size">Size</string>
     <string name="remove_download">Remove download</string>
     <string name="remove_download_message">Remove the downloaded file for \"%1$s\"?</string>
     <string name="storage_usage">%1$s used · %2$s free</string>

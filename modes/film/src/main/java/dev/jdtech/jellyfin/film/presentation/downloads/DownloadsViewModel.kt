@@ -85,8 +85,8 @@ constructor(
             _state.emit(_state.value.copy(isLoading = true, error = null))
             try {
                 val items = repository.getDownloads()
-                val sections = buildCompletedSections(items)
                 val itemSizes = computeItemSizes(items)
+                val sections = buildCompletedSections(items, itemSizes)
                 val storageInfo = calculateStorageInfo()
                 _state.emit(
                     _state.value.copy(
@@ -127,6 +127,13 @@ constructor(
         downloadQueue.retry(activeDownload.item.id)
     }
 
+
+    fun setSortOrder(order: DownloadSortOrder) {
+        viewModelScope.launch {
+            _state.emit(_state.value.copy(sortOrder = order))
+            loadItems()
+        }
+    }
 
     fun deleteDownloadedItem(item: FindroidItem) {
         viewModelScope.launch {
@@ -170,27 +177,38 @@ constructor(
 
     private suspend fun buildCompletedSections(
         items: List<FindroidItem>,
+        itemSizes: Map<java.util.UUID, Long>,
     ): List<CollectionSection> =
         withContext(Dispatchers.IO) {
+            val sortOrder = _state.value.sortOrder
             // A movie/show with ONLY a .download source is still being downloaded
             // and belongs in the Queue tab, not the Library tab. Filter by
             // completed-source presence before sorting.
-            val sortedMovies =
-                items
-                    .filterIsInstance<FindroidMovie>()
-                    .filter { hasCompletedSource(it.id) }
-                    .sortedByDescending { movie -> maxSourceMtime(movie.id) }
-            val sortedShows =
-                items
-                    .filterIsInstance<FindroidShow>()
-                    .filter { show ->
-                        database.getEpisodesByShowId(show.id)
-                            .any { hasCompletedSource(it.id) }
-                    }
-                    .sortedByDescending { show ->
-                        database.getEpisodesByShowId(show.id)
-                            .maxOfOrNull { maxSourceMtime(it.id) } ?: 0L
-                    }
+            val filteredMovies = items
+                .filterIsInstance<FindroidMovie>()
+                .filter { hasCompletedSource(it.id) }
+            val sortedMovies = when (sortOrder) {
+                DownloadSortOrder.NAME -> filteredMovies.sortedBy { it.name.lowercase() }
+                DownloadSortOrder.DATE -> filteredMovies.sortedByDescending { maxSourceMtime(it.id) }
+                DownloadSortOrder.SIZE -> filteredMovies.sortedByDescending { itemSizes[it.id] ?: 0L }
+            }
+            val filteredShows = items
+                .filterIsInstance<FindroidShow>()
+                .filter { show ->
+                    database.getEpisodesByShowId(show.id)
+                        .any { hasCompletedSource(it.id) }
+                }
+            val sortedShows = when (sortOrder) {
+                DownloadSortOrder.NAME -> filteredShows.sortedBy { it.name.lowercase() }
+                DownloadSortOrder.DATE -> filteredShows.sortedByDescending { show ->
+                    database.getEpisodesByShowId(show.id)
+                        .maxOfOrNull { maxSourceMtime(it.id) } ?: 0L
+                }
+                DownloadSortOrder.SIZE -> filteredShows.sortedByDescending { show ->
+                    database.getEpisodesByShowId(show.id)
+                        .sumOf { ep -> itemSizes[ep.id] ?: 0L }
+                }
+            }
             val sections = mutableListOf<CollectionSection>()
             CollectionSection(
                 Constants.FAVORITE_TYPE_MOVIES,

@@ -60,6 +60,7 @@ import dev.jdtech.jellyfin.core.presentation.downloader.DownloadProgress
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadStatus
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyMovies
 import dev.jdtech.jellyfin.film.presentation.downloads.ActiveDownload
+import dev.jdtech.jellyfin.film.presentation.downloads.DownloadSortOrder
 import dev.jdtech.jellyfin.film.presentation.downloads.DownloadsState
 import dev.jdtech.jellyfin.film.presentation.downloads.DownloadsViewModel
 import dev.jdtech.jellyfin.models.CollectionSection
@@ -96,6 +97,7 @@ fun DownloadsScreen(
         state = state,
         onItemClick = onItemClick,
         onItemDelete = { viewModel.deleteDownloadedItem(it) },
+        onSortOrderChange = { viewModel.setSortOrder(it) },
         onCancelDownload = { viewModel.cancelDownload(it) },
         onDismissDownload = { viewModel.dismissCompletedDownload(it) },
         onRetryDownload = { viewModel.retryDownload(it) },
@@ -109,6 +111,7 @@ private fun DownloadsScreenLayout(
     state: DownloadsState,
     onItemClick: (FindroidItem) -> Unit,
     onItemDelete: (FindroidItem) -> Unit,
+    onSortOrderChange: (DownloadSortOrder) -> Unit,
     onCancelDownload: (ActiveDownload) -> Unit,
     onDismissDownload: (ActiveDownload) -> Unit,
     onRetryDownload: (ActiveDownload) -> Unit,
@@ -181,6 +184,7 @@ private fun DownloadsScreenLayout(
                     state = state,
                     onItemClick = onItemClick,
                     onItemDelete = onItemDelete,
+                    onSortOrderChange = onSortOrderChange,
                     context = context,
                 )
                 DownloadsTab.QUEUE -> QueueTabContent(
@@ -200,6 +204,7 @@ private fun DownloadsTabContent(
     state: DownloadsState,
     onItemClick: (FindroidItem) -> Unit,
     onItemDelete: (FindroidItem) -> Unit,
+    onSortOrderChange: (DownloadSortOrder) -> Unit,
     context: android.content.Context,
 ) {
     val hasContent = state.sections.isNotEmpty()
@@ -232,6 +237,32 @@ private fun DownloadsTabContent(
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
         ) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    DownloadSortOrder.entries.forEachIndexed { index, order ->
+                        SegmentedButton(
+                            selected = state.sortOrder == order,
+                            onClick = { onSortOrderChange(order) },
+                            shape = SegmentedButtonDefaults.itemShape(
+                                index = index,
+                                count = DownloadSortOrder.entries.size,
+                            ),
+                            colors = SegmentedButtonDefaults.colors(
+                                inactiveContainerColor = Color.Transparent,
+                            ),
+                            label = {
+                                Text(
+                                    when (order) {
+                                        DownloadSortOrder.NAME -> stringResource(CoreR.string.sort_name)
+                                        DownloadSortOrder.DATE -> stringResource(CoreR.string.sort_date)
+                                        DownloadSortOrder.SIZE -> stringResource(CoreR.string.sort_size)
+                                    }
+                                )
+                            },
+                        )
+                    }
+                }
+            }
             for (section in state.sections) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     Text(
@@ -402,6 +433,7 @@ private fun DownloadsScreenLayoutPreview() {
                 ),
             onItemClick = {},
             onItemDelete = {},
+            onSortOrderChange = {},
             onCancelDownload = {},
             onDismissDownload = {},
             onRetryDownload = {},
@@ -418,6 +450,7 @@ private fun DownloadsScreenLayoutEmptyPreview() {
             state = DownloadsState(),
             onItemClick = {},
             onItemDelete = {},
+            onSortOrderChange = {},
             onCancelDownload = {},
             onDismissDownload = {},
             onRetryDownload = {},
