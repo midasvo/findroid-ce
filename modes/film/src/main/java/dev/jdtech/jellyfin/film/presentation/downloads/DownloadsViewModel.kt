@@ -51,6 +51,9 @@ constructor(
     private var delayedReloadJob: Job? = null
 
     init {
+        // Load library sections on first open.
+        loadItems()
+
         // Observe queue entries -> queueItems
         viewModelScope.launch {
             downloadQueue.entries.collect { entries ->
