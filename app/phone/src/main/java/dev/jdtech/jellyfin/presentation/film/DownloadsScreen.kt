@@ -29,7 +29,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -37,12 +40,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.background
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -401,12 +406,43 @@ private fun QueueTabContent(
                 items = allItems,
                 key = { it.item.id },
             ) { activeDownload ->
-                ActiveDownloadCard(
-                    activeDownload = activeDownload,
-                    onCancelClick = { onCancelDownload(activeDownload) },
-                    onDismissClick = { onDismissDownload(activeDownload) },
-                    onRetryClick = { onRetryDownload(activeDownload) },
-                )
+                val dismissState = rememberSwipeToDismissBoxState()
+                LaunchedEffect(dismissState.currentValue) {
+                    if (dismissState.currentValue != SwipeToDismissBoxValue.Settled) {
+                        if (activeDownload.progress.status == DownloadStatus.COMPLETED ||
+                            activeDownload.progress.status == DownloadStatus.FAILED
+                        ) {
+                            onDismissDownload(activeDownload)
+                        } else {
+                            onCancelDownload(activeDownload)
+                        }
+                    }
+                }
+                SwipeToDismissBox(
+                    state = dismissState,
+                    backgroundContent = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.errorContainer),
+                            contentAlignment = Alignment.CenterEnd,
+                        ) {
+                            Icon(
+                                painter = painterResource(CoreR.drawable.ic_x),
+                                contentDescription = null,
+                                modifier = Modifier.padding(horizontal = MaterialTheme.spacings.default),
+                                tint = MaterialTheme.colorScheme.onErrorContainer,
+                            )
+                        }
+                    },
+                ) {
+                    ActiveDownloadCard(
+                        activeDownload = activeDownload,
+                        onCancelClick = { onCancelDownload(activeDownload) },
+                        onDismissClick = { onDismissDownload(activeDownload) },
+                        onRetryClick = { onRetryDownload(activeDownload) },
+                    )
+                }
             }
         }
     }
