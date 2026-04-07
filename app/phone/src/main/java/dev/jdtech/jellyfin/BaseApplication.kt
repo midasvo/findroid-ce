@@ -5,6 +5,11 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import dev.jdtech.jellyfin.work.OrphanSweepWorker
+import java.util.concurrent.TimeUnit
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -63,6 +68,13 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
         if (appPreferences.getValue(appPreferences.dynamicColors)) {
             DynamicColors.applyToActivitiesIfAvailable(this)
         }
+
+        // Schedule daily orphan sweep to clean up stale downloads.
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "orphan-sweep",
+            ExistingPeriodicWorkPolicy.KEEP,
+            PeriodicWorkRequestBuilder<OrphanSweepWorker>(1, TimeUnit.DAYS).build(),
+        )
 
         // Re-attach any downloads left in-flight by a previous process (survives
         // process death because Android DownloadManager is a system service).
