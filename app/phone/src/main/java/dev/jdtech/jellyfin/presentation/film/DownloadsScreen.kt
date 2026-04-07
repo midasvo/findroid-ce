@@ -21,9 +21,15 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items as gridItems
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -33,8 +39,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -87,6 +95,7 @@ fun DownloadsScreen(
     DownloadsScreenLayout(
         state = state,
         onItemClick = onItemClick,
+        onItemDelete = { viewModel.deleteDownloadedItem(it) },
         onCancelDownload = { viewModel.cancelDownload(it) },
         onDismissDownload = { viewModel.dismissCompletedDownload(it) },
         onRetryDownload = { viewModel.retryDownload(it) },
@@ -99,6 +108,7 @@ fun DownloadsScreen(
 private fun DownloadsScreenLayout(
     state: DownloadsState,
     onItemClick: (FindroidItem) -> Unit,
+    onItemDelete: (FindroidItem) -> Unit,
     onCancelDownload: (ActiveDownload) -> Unit,
     onDismissDownload: (ActiveDownload) -> Unit,
     onRetryDownload: (ActiveDownload) -> Unit,
@@ -170,6 +180,7 @@ private fun DownloadsScreenLayout(
                 DownloadsTab.LIBRARY -> DownloadsTabContent(
                     state = state,
                     onItemClick = onItemClick,
+                    onItemDelete = onItemDelete,
                     context = context,
                 )
                 DownloadsTab.QUEUE -> QueueTabContent(
@@ -188,6 +199,7 @@ private fun DownloadsScreenLayout(
 private fun DownloadsTabContent(
     state: DownloadsState,
     onItemClick: (FindroidItem) -> Unit,
+    onItemDelete: (FindroidItem) -> Unit,
     context: android.content.Context,
 ) {
     val hasContent = state.sections.isNotEmpty()
@@ -236,12 +248,48 @@ private fun DownloadsTabContent(
                                 else Direction.VERTICAL,
                             onClick = { onItemClick(item) },
                         )
-                        state.itemSizes[item.id]?.let { sizeBytes ->
-                            Text(
-                                text = Formatter.formatShortFileSize(context, sizeBytes),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            state.itemSizes[item.id]?.let { sizeBytes ->
+                                Text(
+                                    text = Formatter.formatShortFileSize(context, sizeBytes),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            } ?: Spacer(Modifier)
+                            var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
+                            IconButton(
+                                onClick = { showDeleteDialog = true },
+                                modifier = Modifier.size(28.dp),
+                            ) {
+                                Icon(
+                                    painter = painterResource(CoreR.drawable.ic_trash),
+                                    contentDescription = stringResource(CoreR.string.remove_download),
+                                    modifier = Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            if (showDeleteDialog) {
+                                AlertDialog(
+                                    onDismissRequest = { showDeleteDialog = false },
+                                    confirmButton = {
+                                        TextButton(onClick = {
+                                            showDeleteDialog = false
+                                            onItemDelete(item)
+                                        }) { Text(stringResource(CoreR.string.remove)) }
+                                    },
+                                    dismissButton = {
+                                        TextButton(onClick = { showDeleteDialog = false }) {
+                                            Text(stringResource(CoreR.string.cancel))
+                                        }
+                                    },
+                                    title = { Text(stringResource(CoreR.string.remove_download)) },
+                                    text = { Text(stringResource(CoreR.string.remove_download_message, item.name)) },
+                                )
+                            }
                         }
                     }
                 }
@@ -353,6 +401,7 @@ private fun DownloadsScreenLayoutPreview() {
                     storageIsExternal = true,
                 ),
             onItemClick = {},
+            onItemDelete = {},
             onCancelDownload = {},
             onDismissDownload = {},
             onRetryDownload = {},
@@ -368,6 +417,7 @@ private fun DownloadsScreenLayoutEmptyPreview() {
         DownloadsScreenLayout(
             state = DownloadsState(),
             onItemClick = {},
+            onItemDelete = {},
             onCancelDownload = {},
             onDismissDownload = {},
             onRetryDownload = {},

@@ -17,9 +17,11 @@ import dev.jdtech.jellyfin.models.CollectionSection
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidMovie
 import dev.jdtech.jellyfin.models.FindroidShow
+import dev.jdtech.jellyfin.models.FindroidSourceType
 import dev.jdtech.jellyfin.models.UiText
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
+import dev.jdtech.jellyfin.utils.Downloader
 import java.io.File
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -38,6 +40,7 @@ constructor(
     private val repository: JellyfinRepository,
     private val appPreferences: AppPreferences,
     private val downloadQueue: DownloadQueue,
+    private val downloader: Downloader,
     private val database: ServerDatabaseDao,
 ) : ViewModel() {
     private val _state = MutableStateFlow(DownloadsState())
@@ -124,6 +127,18 @@ constructor(
         downloadQueue.retry(activeDownload.item.id)
     }
 
+
+    fun deleteDownloadedItem(item: FindroidItem) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                downloadQueue.remove(item.id)
+                val source = item.sources.firstOrNull { it.type == FindroidSourceType.LOCAL }
+                    ?: return@withContext
+                downloader.deleteItem(item, source)
+            }
+            loadItems()
+        }
+    }
 
     fun clearCompleted() {
         // Sections in the Downloads tab are keyed off repository.getDownloads(),

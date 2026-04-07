@@ -126,6 +126,8 @@
     <string name="clear_completed">Clear completed</string>
     <string name="dismiss_download">Dismiss download</string>
     <string name="retry_download">Retry download</string>
+    <string name="remove_download">Remove download</string>
+    <string name="remove_download_message">Remove the downloaded file for \"%1$s\"?</string>
     <string name="storage_usage">%1$s used · %2$s free</string>
     <string name="storage_usage_location">%1$s · %2$s used · %3$s free</string>
     <string name="no_downloads_hint">Downloaded movies and shows will appear here</string>
