@@ -142,6 +142,7 @@
     <string name="person_image_description">Photo of %1$s</string>
     <string name="downloads_channel_name">Downloads</string>
     <string name="downloads_channel_description">Ongoing download activity</string>
+    <string name="download_failures_channel_name">Download failures</string>
     <plurals name="downloads_in_progress_title">
         <item quantity="one">Downloading %d item</item>
         <item quantity="other">Downloading %d items</item>

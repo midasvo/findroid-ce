@@ -1,9 +1,15 @@
 package dev.jdtech.jellyfin.core.presentation.downloader
 
 import android.app.DownloadManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
+import androidx.core.app.NotificationCompat
+import androidx.core.content.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.jdtech.jellyfin.core.R as CoreR
+import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.UiText
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
@@ -429,6 +435,9 @@ constructor(
                     val failedEntries =
                         updates.values.filter { it.state is EntryState.Failed }
                     for (failed in failedEntries) {
+                        notifyFailure(failed.item)
+                    }
+                    for (failed in failedEntries) {
                         val dlId = failed.downloadId ?: continue
                         lastSamples.remove(dlId)
                         try {
@@ -543,5 +552,36 @@ constructor(
                 Timber.e(e, "Failed to clean up orphaned download ${entry.item.name}")
             }
         }
+    }
+
+    private fun notifyFailure(item: FindroidItem) {
+        val nm = context.getSystemService<NotificationManager>() ?: return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && nm.getNotificationChannel(FAILURE_CHANNEL_ID) == null) {
+            nm.createNotificationChannel(
+                NotificationChannel(
+                    FAILURE_CHANNEL_ID,
+                    context.getString(CoreR.string.download_failures_channel_name),
+                    NotificationManager.IMPORTANCE_DEFAULT,
+                )
+            )
+        }
+        val title = if (item is FindroidEpisode) {
+            "${item.seriesName} · S%02dE%02d".format(item.parentIndexNumber, item.indexNumber)
+        } else {
+            item.name
+        }
+        val notification = NotificationCompat.Builder(context, FAILURE_CHANNEL_ID)
+            .setSmallIcon(CoreR.drawable.ic_x)
+            .setContentTitle(context.getString(CoreR.string.download_failed))
+            .setContentText(title)
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+        // Use item hashCode as id so each failed item gets its own notification.
+        nm.notify(item.id.hashCode(), notification)
+    }
+
+    companion object {
+        private const val FAILURE_CHANNEL_ID = "download_failures"
     }
 }
