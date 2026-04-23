@@ -1,0 +1,121 @@
+name: Sync with upstream
+
+# Runs nightly at 01:00 UTC (03:00 in Amsterdam during summer / 02:00 in winter).
+# Also triggerable manually from the Actions tab.
+on:
+  schedule:
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      UPSTREAM_REPO: jarnedemeulemeester/findroid
+      UPSTREAM_URL: https://github.com/jarnedemeulemeester/findroid.git
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Checkout fork (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ github.token }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Determine upstream default branch
+        id: branch
+        run: |
+          set -euo pipefail
+          BRANCH=$(gh api "/repos/$UPSTREAM_REPO" --jq '.default_branch')
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "Upstream default branch: $BRANCH"
+
+      - name: Add upstream remote and fetch
+        run: |
+          set -euo pipefail
+          git remote add upstream "$UPSTREAM_URL"
+          git fetch --tags upstream
+          echo "behind upstream by: $(git rev-list --count HEAD..upstream/${{ steps.branch.outputs.branch }}) commits"
+          echo "ahead of upstream by: $(git rev-list --count upstream/${{ steps.branch.outputs.branch }}..HEAD) commits"
+
+      - name: Merge upstream into fork
+        id: merge
+        run: |
+          set -uo pipefail
+          BRANCH='${{ steps.branch.outputs.branch }}'
+
+          # If we're already up to date, nothing to do
+          BEHIND=$(git rev-list --count "HEAD..upstream/$BRANCH")
+          if [ "$BEHIND" = "0" ]; then
+            echo "result=up-to-date" >> "$GITHUB_OUTPUT"
+            echo "Fork is up to date with upstream/$BRANCH."
+            exit 0
+          fi
+
+          # Attempt auto-merge. --no-edit uses default message; no rewriting of
+          # your own patches on main. On conflict we abort and fail the job so
+          # GitHub emails you.
+          if git merge --no-edit --no-ff \
+               -m "chore: merge upstream/$BRANCH ($(git rev-parse --short upstream/$BRANCH))" \
+               "upstream/$BRANCH"; then
+            git push origin "HEAD:$BRANCH"
+            echo "result=merged" >> "$GITHUB_OUTPUT"
+            echo "Merged upstream/$BRANCH into $BRANCH and pushed."
+          else
+            echo "result=conflict" >> "$GITHUB_OUTPUT"
+            echo "::error::Merge conflict. Resolve locally: git fetch upstream && git merge upstream/$BRANCH"
+            git merge --abort || true
+            exit 1
+          fi
+
+      - name: Mirror new upstream tags as vX.Y.Z-midasvo.1
+        if: always() && steps.merge.outputs.result != 'conflict'
+        run: |
+          set -euo pipefail
+          FORK='${{ github.repository }}'
+
+          mapfile -t UP < <(gh api --paginate "/repos/$UPSTREAM_REPO/tags" \
+                              --jq '.[] | "\(.name) \(.commit.sha)"')
+          mapfile -t FORK_TAGS < <(gh api --paginate "/repos/$FORK/tags" --jq '.[].name')
+          FORK_JOINED=$(printf '%s\n' "${FORK_TAGS[@]}")
+
+          CREATED=()
+          SKIPPED=()
+
+          for entry in "${UP[@]}"; do
+            TAG="${entry% *}"
+            SHA="${entry#* }"
+            NEW_TAG="${TAG}-midasvo.1"
+
+            # Already mirrored under some -midasvo.N ? skip.
+            ESCAPED=$(printf '%s' "$TAG" | sed 's/[.[\*^$/]/\\&/g')
+            if printf '%s\n' "$FORK_JOINED" | grep -qE "^${ESCAPED}-midasvo\.[0-9]+$"; then
+              continue
+            fi
+
+            # Commit must be reachable in the fork
+            if ! gh api "/repos/$FORK/commits/$SHA" --silent >/dev/null 2>&1; then
+              SKIPPED+=("$TAG")
+              continue
+            fi
+
+            echo "Creating tag $NEW_TAG -> $SHA"
+            gh api -X POST "/repos/$FORK/git/refs" \
+              -f "ref=refs/tags/$NEW_TAG" \
+              -f "sha=$SHA" >/dev/null
+            CREATED+=("$NEW_TAG")
+          done
+
+          echo "Created ${#CREATED[@]} tag(s)"
+          for t in "${CREATED[@]:-}"; do [ -n "$t" ] && echo " - $t"; done
+          if [ "${#SKIPPED[@]}" -gt 0 ]; then
+            echo "::warning::Skipped tags (commit not reachable in fork): ${SKIPPED[*]}"
+          fi
