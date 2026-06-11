@@ -146,6 +146,15 @@ class DownloadPumpService : Service() {
         }
     }
 
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        // Android 15+ caps dataSync FGS at ~6h/day. Stop cleanly instead of letting
+        // the system crash the process. Active DownloadManager transfers continue;
+        // pending items resume next time the app is opened (restoreAll + ensurePump).
+        Timber.w("DownloadPumpService hit the dataSync time limit; stopping")
+        stopForegroundCompat()
+        stopSelf()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         scope.cancel()
