@@ -59,8 +59,12 @@ interface Downloader {
 
     /**
      * Returns previously queued but not-yet-started items paired with the timestamp
-     * they were originally added (ms since epoch). Items that can no longer be resolved
-     * (server unreachable, item deleted) are logged and skipped.
+     * they were originally added (ms since epoch).
+     *
+     * If an item cannot be resolved (server unreachable, offline mode, item deleted),
+     * the row is **kept** for retry on the next app start. Rows are only deleted when
+     * their [itemKind] is unrecognized, or when the row is older than 30 days and still
+     * cannot be resolved (indicating the item was likely permanently deleted server-side).
      */
     suspend fun getPendingDownloads(): List<Pair<FindroidItem, Long>>
 
