@@ -264,7 +264,7 @@ constructor(
             var cancelEntry: Entry? = null
             mutex.withLock {
                 val target = _entries.value.firstOrNull { it.id == id } ?: return@withLock
-                if (target.state is EntryState.Downloading) {
+                if (target.state is EntryState.Downloading || target.state is EntryState.Paused) {
                     cancelEntry = target
                 }
                 _entries.value = _entries.value.filter { it.id != id }
@@ -303,6 +303,8 @@ constructor(
                                     downloadId = null,
                                     startedAt = null,
                                     progress = 0,
+                                    retryCount = 0,
+                                    retryAt = null,
                                 )
                             } else {
                                 entry
@@ -354,19 +356,21 @@ constructor(
         )
     }
 
-    private fun ensurePump() {
-        if (pumpJob?.isActive == true) return
-        // Keep the app process alive while we have work to pump. The service
-        // stops itself when the queue drains.
-        DownloadPumpService.start(context)
-        pumpJob =
-            scope.launch {
-                try {
-                    pump()
-                } catch (e: Exception) {
-                    Timber.e(e, "DownloadQueue pump crashed")
+    private suspend fun ensurePump() {
+        mutex.withLock {
+            if (pumpJob?.isActive == true) return
+            // Keep the app process alive while we have work to pump. The service
+            // stops itself when the queue drains.
+            DownloadPumpService.start(context)
+            pumpJob =
+                scope.launch {
+                    try {
+                        pump()
+                    } catch (e: Exception) {
+                        Timber.e(e, "DownloadQueue pump crashed")
+                    }
                 }
-            }
+        }
     }
 
     private suspend fun pump() {
@@ -529,6 +533,11 @@ constructor(
                                 retryAt = System.currentTimeMillis() + backoffMs,
                             )
                             Timber.i("Auto-retry #${failed.retryCount + 1} for ${failed.item.name} in ${backoffMs / 1000}s")
+                            try {
+                                downloader.savePendingDownload(failed.item)
+                            } catch (e: Exception) {
+                                Timber.e(e, "Failed to re-persist auto-retried download ${failed.item.name}")
+                            }
                         } else {
                             notifyFailure(failed.item)
                         }
