@@ -51,6 +51,32 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
+/**
+ * Returns true if [path] should be deleted as an orphaned `.download` file:
+ * not tracked by any DB source row AND not actively being written by DownloadManager.
+ *
+ * Only `.download`-suffixed files are candidates — finalized files are never deleted
+ * by the sweep.
+ */
+internal fun shouldDeleteOrphanFile(
+    path: String,
+    knownPaths: Set<String>,
+    liveDmPaths: Set<String>,
+): Boolean {
+    if (!path.endsWith(".download")) return false
+    if (path in knownPaths) return false
+    if (path in liveDmPaths) return false
+    return true
+}
+
+/**
+ * Returns true if [path] starts with one of the [mountedRoots] paths, meaning it is on
+ * an accessible volume. Paths on unmounted/ejected volumes cannot be judged for
+ * existence — we must not make sweep decisions about them.
+ */
+internal fun isUnderMountedRoot(path: String, mountedRoots: List<String>): Boolean =
+    mountedRoots.any { path.startsWith("$it/") }
+
 class DownloaderImpl(
     private val context: Context,
     private val database: ServerDatabaseDao,
@@ -58,6 +84,10 @@ class DownloaderImpl(
     private val appPreferences: AppPreferences,
     private val workManager: WorkManager,
 ) : Downloader {
+
+    companion object {
+        private const val PENDING_DOWNLOAD_MAX_AGE_MS = 30L * 24 * 60 * 60 * 1000
+    }
     // Resolved per use, never captured: which repository is active (online vs offline) can
     // change at runtime without this @Singleton being recreated. Capturing a fixed instance
     // here goes stale after an offline -> online switch.
@@ -492,23 +522,32 @@ class DownloaderImpl(
     override suspend fun getPendingDownloads(): List<Pair<FindroidItem, Long>> = withContext(Dispatchers.IO) {
         val pending = database.getPendingDownloads()
         val result = mutableListOf<Pair<FindroidItem, Long>>()
+        val cutoff = System.currentTimeMillis() - PENDING_DOWNLOAD_MAX_AGE_MS
         for (row in pending) {
+            if (row.itemKind != "MOVIE" && row.itemKind != "EPISODE") {
+                database.deletePendingDownload(row.itemId)
+                continue
+            }
             val resolved: FindroidItem? =
                 try {
                     when (row.itemKind) {
                         "MOVIE" -> jellyfinRepository.getMovie(row.itemId)
-                        "EPISODE" -> jellyfinRepository.getEpisode(row.itemId)
-                        else -> null
+                        else -> jellyfinRepository.getEpisode(row.itemId)
                     }
                 } catch (e: Exception) {
-                    Timber.w(e, "Failed to resolve pending download ${row.itemId}; dropping")
+                    // Transient (offline, server down) or permanent (item deleted) —
+                    // we can't tell which. Keep the row and retry next launch, unless
+                    // it has been failing for so long it's clearly dead.
+                    Timber.w(e, "Failed to resolve pending download ${row.itemId}; keeping for retry")
                     null
                 }
-            if (resolved != null) {
-                result.add(resolved to row.addedAt)
-            } else {
-                // Drop the row so we don't keep retrying a dead reference.
-                database.deletePendingDownload(row.itemId)
+            when {
+                resolved != null -> result.add(resolved to row.addedAt)
+                row.addedAt < cutoff -> {
+                    Timber.i("Dropping stale pending download ${row.itemId} (>30 days unresolvable)")
+                    database.deletePendingDownload(row.itemId)
+                }
+                // else: keep the row; it will be retried on the next restoreAll().
             }
         }
         result
@@ -552,8 +591,10 @@ class DownloaderImpl(
     override suspend fun sweepOrphans() = withContext(Dispatchers.IO) {
         val userId = jellyfinRepository.getUserId()
 
-        // Collect known in-flight downloadIds from DM so we know what's still valid.
+        // Live DM jobs: ids (to decide whether an active source is dead) and
+        // destination paths (so we never delete a file DM is still writing).
         val liveDmIds = mutableSetOf<Long>()
+        val liveDmPaths = mutableSetOf<String>()
         try {
             val query = DownloadManager.Query()
                 .setFilterByStatus(
@@ -564,51 +605,67 @@ class DownloaderImpl(
                 )
             downloadManager.query(query).use { cursor ->
                 val idIdx = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_ID)
-                while (cursor.moveToNext()) liveDmIds.add(cursor.getLong(idIdx))
+                val uriIdx = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_LOCAL_URI)
+                while (cursor.moveToNext()) {
+                    liveDmIds.add(cursor.getLong(idIdx))
+                    cursor.getString(uriIdx)?.toUri()?.path?.let { liveDmPaths.add(it) }
+                }
             }
         } catch (e: Exception) {
             Timber.w(e, "Could not enumerate DownloadManager; skipping orphan sweep")
             return@withContext
         }
 
-        val knownPaths = mutableSetOf<String>()
+        // Download roots that are actually reachable right now. A source whose path
+        // is NOT under one of these is on an ejected/unmounted volume — we cannot
+        // tell whether its file exists, so we must not judge it.
+        val mountedRoots = context.getExternalFilesDirs(null)
+            .filterNotNull()
+            .filter { Environment.getExternalStorageState(it) == Environment.MEDIA_MOUNTED }
+            .map { File(it, "downloads").absolutePath }
 
-        // Completed sources: file must still exist on disk.
-        for (source in database.getCompletedDownloadSources()) {
+        val knownPaths = mutableSetOf<String>()
+        fun remember(source: FindroidSourceDto) {
             knownPaths.add(source.path)
+            for (stream in database.getMediaStreamsBySourceId(source.id)) {
+                knownPaths.add(stream.path)
+            }
+        }
+
+        for (source in database.getCompletedDownloadSources()) {
+            remember(source)
+            if (!isUnderMountedRoot(source.path, mountedRoots)) continue
             if (File(source.path).exists()) continue
             Timber.i("Sweeping completed source with missing file: ${source.path}")
             cleanupOrphanSource(source.itemId, userId)
         }
 
-        // Active (.download) sources: file missing AND DM job gone → orphan.
         for (source in database.getActiveDownloadSources()) {
-            knownPaths.add(source.path)
-            val dlId = source.downloadId
-            val dmAlive = dlId != null && dlId in liveDmIds
-            val fileExists = File(source.path).exists()
-            if (!dmAlive && !fileExists) {
+            remember(source)
+            if (!isUnderMountedRoot(source.path, mountedRoots)) continue
+            val dmAlive = source.downloadId != null && source.downloadId in liveDmIds
+            if (!dmAlive && !File(source.path).exists()) {
                 Timber.i("Sweeping dead active source: ${source.path}")
                 cleanupOrphanSource(source.itemId, userId)
             }
         }
 
-        // Orphan .download files on disk: not tracked by any DB source row.
-        for (storageDir in context.getExternalFilesDirs(null)) {
-            if (storageDir == null) continue
-            if (Environment.getExternalStorageState(storageDir) != Environment.MEDIA_MOUNTED) continue
-            val downloadsDir = File(storageDir, "downloads")
-            val files = downloadsDir.listFiles() ?: continue
-            for (file in files) {
-                if (!file.isFile) continue
-                if (file.absolutePath in knownPaths) continue
-                Timber.i("Deleting orphan download file: ${file.absolutePath}")
-                try {
-                    file.delete()
-                } catch (e: Exception) {
-                    Timber.w(e, "Failed to delete orphan ${file.absolutePath}")
+        // Untracked .download files anywhere under a mounted downloads root.
+        for (root in mountedRoots) {
+            val downloadsDir = File(root)
+            if (!downloadsDir.isDirectory) continue
+            downloadsDir.walkTopDown()
+                .filter { it.isFile && it.name.endsWith(".download") }
+                .filter { shouldDeleteOrphanFile(it.absolutePath, knownPaths, liveDmPaths) }
+                .forEach { file ->
+                    Timber.i("Deleting orphan download file: ${file.absolutePath}")
+                    try {
+                        file.delete()
+                        pruneEmptyParents(file)
+                    } catch (e: Exception) {
+                        Timber.w(e, "Failed to delete orphan ${file.absolutePath}")
+                    }
                 }
-            }
         }
     }
 
