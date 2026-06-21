@@ -1,7 +1,6 @@
 package dev.jdtech.jellyfin.presentation.film.components
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +31,7 @@ import dev.jdtech.jellyfin.models.FindroidMovie
 import dev.jdtech.jellyfin.models.FindroidShow
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
+import dev.jdtech.jellyfin.utils.copyOnLongClick
 
 @Composable
 fun HomeCarouselItem(item: FindroidItem, onAction: (HomeAction) -> Unit) {
@@ -44,9 +44,13 @@ fun HomeCarouselItem(item: FindroidItem, onAction: (HomeAction) -> Unit) {
 
     Box(
         modifier =
-            Modifier.aspectRatio(1.77f).clip(MaterialTheme.shapes.large).clickable {
-                onAction(HomeAction.OnItemClick(item))
-            }
+            Modifier
+                .aspectRatio(1.77f)
+                .clip(MaterialTheme.shapes.large)
+                .copyOnLongClick(
+                    text = item.name,
+                    onClick = { onAction(HomeAction.OnItemClick(item)) }
+                )
     ) {
         AsyncImage(
             model = item.images.backdrop,
