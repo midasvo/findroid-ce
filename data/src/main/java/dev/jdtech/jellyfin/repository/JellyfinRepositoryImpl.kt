@@ -124,6 +124,7 @@ class JellyfinRepositoryImpl(
         recursive: Boolean,
         sortBy: SortBy,
         sortOrder: SortOrder,
+        filters: List<ItemFilter>?,
         startIndex: Int?,
         limit: Int?,
     ): List<FindroidItem> =
@@ -136,6 +137,7 @@ class JellyfinRepositoryImpl(
                     recursive = recursive,
                     sortBy = listOf(ItemSortBy.fromName(sortBy.sortString)),
                     sortOrder = listOf(ItemSortOrder.fromName(sortOrder.sortString)),
+                    filters = filters,
                     startIndex = startIndex,
                     limit = limit,
                 )
@@ -150,11 +152,12 @@ class JellyfinRepositoryImpl(
         recursive: Boolean,
         sortBy: SortBy,
         sortOrder: SortOrder,
+        filters: List<ItemFilter>?,
     ): Flow<PagingData<FindroidItem>> {
         return Pager(
                 config = PagingConfig(pageSize = 10, enablePlaceholders = false),
                 pagingSourceFactory = {
-                    ItemsPagingSource(this, parentId, includeTypes, recursive, sortBy, sortOrder)
+                    ItemsPagingSource(this, parentId, includeTypes, recursive, sortBy, sortOrder,filters)
                 },
             )
             .flow
