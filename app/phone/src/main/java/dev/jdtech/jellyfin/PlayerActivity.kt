@@ -472,6 +472,20 @@ class PlayerActivity : BasePlayerActivity() {
         } catch (_: IllegalArgumentException) {}
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (binding.playerView.player == null) {
+            binding.playerView.player = viewModel.player
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (viewModel.isBackgroundAudioEnabled && viewModel.player.isPlaying) {
+            binding.playerView.player = null
+        }
+    }
+
     override fun onDestroy() {
         // Cancel both trickplay MainScopes so any in-flight tile fetches don't outlive the
         // activity. onDestroy is the right hook here: previewScrubListener and

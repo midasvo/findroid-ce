@@ -7,6 +7,8 @@ object Constants {
         const val PIP = "pip"
     }
 
+    const val PREF_PLAYER_BACKGROUND_AUDIO = "pref_player_background_audio"
+
     // Player - Subtitle styling
     // Defaults match the platform "white-on-translucent-black" closed-caption look —
     // matches CaptionStyleCompat.DEFAULT but with an outlined edge for readability over
