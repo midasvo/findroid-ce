@@ -1,6 +1,5 @@
 package dev.jdtech.jellyfin.core.presentation.downloader
 
-import android.app.DownloadManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -8,6 +7,7 @@ import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidSourceType
 import dev.jdtech.jellyfin.models.isDownloading
 import dev.jdtech.jellyfin.utils.Downloader
+import dev.jdtech.jellyfin.utils.download.DownloadStatus
 import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -62,31 +62,31 @@ constructor(
                     val newState =
                         when (val s = entry?.state) {
                             is DownloadQueue.EntryState.Pending ->
-                                DownloaderState(status = DownloadManager.STATUS_PENDING)
+                                DownloaderState(status = DownloadStatus.PENDING)
                             is DownloadQueue.EntryState.Downloading ->
                                 DownloaderState(
-                                    status = DownloadManager.STATUS_RUNNING,
+                                    status = DownloadStatus.RUNNING,
                                     progress = entry.progress / 100f,
                                 )
                             is DownloadQueue.EntryState.Paused ->
                                 DownloaderState(
-                                    status = DownloadManager.STATUS_PAUSED,
+                                    status = DownloadStatus.PAUSED,
                                     progress = entry.progress / 100f,
                                 )
                             is DownloadQueue.EntryState.Completed ->
                                 DownloaderState(
-                                    status = DownloadManager.STATUS_SUCCESSFUL,
+                                    status = DownloadStatus.SUCCESSFUL,
                                     progress = 1f,
                                 )
                             is DownloadQueue.EntryState.Failed ->
                                 DownloaderState(
-                                    status = DownloadManager.STATUS_FAILED,
+                                    status = DownloadStatus.FAILED,
                                     errorText = s.error,
                                 )
                             null -> DownloaderState()
                         }
                     if (
-                        newState.status == DownloadManager.STATUS_SUCCESSFUL && !wasCompleted
+                        newState.status == DownloadStatus.SUCCESSFUL && !wasCompleted
                     ) {
                         wasCompleted = true
                         eventsChannel.trySend(DownloaderEvent.Successful)
@@ -96,10 +96,10 @@ constructor(
                     // every time.
                     val prevStatus = _state.value.status
                     val wasInFlight =
-                        prevStatus == DownloadManager.STATUS_RUNNING ||
-                            prevStatus == DownloadManager.STATUS_PENDING
+                        prevStatus == DownloadStatus.RUNNING ||
+                            prevStatus == DownloadStatus.PENDING
                     if (
-                        newState.status == DownloadManager.STATUS_FAILED &&
+                        newState.status == DownloadStatus.FAILED &&
                             !wasFailed &&
                             wasInFlight
                     ) {

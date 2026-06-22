@@ -1,6 +1,5 @@
 package dev.jdtech.jellyfin.core.presentation.downloader
 
-import android.app.DownloadManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -17,6 +16,7 @@ import dev.jdtech.jellyfin.models.UiText
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.Downloader
+import dev.jdtech.jellyfin.utils.download.DownloadStatus
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Provider
@@ -81,7 +81,7 @@ constructor(
         val totalBytes: Long = -1L,
         /**
          * True when [totalBytes] is an estimate rather than a figure from
-         * DownloadManager — happens for transcodes, whose length is not known
+         * the download engine — happens for transcodes, whose length is not known
          * up front so we fall back to the item's original file size.
          */
         val totalBytesEstimated: Boolean = false,
@@ -135,8 +135,7 @@ constructor(
 
     /**
      * Re-attaches an in-flight download started in a previous app session. No-op if
-     * the item is already tracked. Does not call Downloader — Android's DownloadManager
-     * is already running this downloadId.
+     * the item is already tracked.
      */
     suspend fun restore(item: FindroidItem, downloadId: Long) {
         mutex.withLock {
@@ -168,9 +167,13 @@ constructor(
 
     /**
      * Re-attaches every in-flight download from the DB. Call on app startup to
-     * recover queue state after process death. Android DownloadManager runs
-     * independently, so completion broadcasts still update the DB; this just
-     * reattaches the UI-facing queue so the user can see/cancel those downloads.
+     * recover queue state after process death. Unlike the old DownloadManager model
+     * (where DM continued running independently), the OkHttp engine is in-process and
+     * does NOT survive process death. So restored active partials are added as
+     * [EntryState.Pending] rather than Downloading, causing the pump to call
+     * startDownload -> downloadItem, which detects the existing source row and resumes
+     * from the partial file via Range. Ordering: restored actives sort before fresh
+     * pendings via their addedAt timestamp.
      */
     suspend fun restoreAll() {
         val active =
@@ -191,15 +194,16 @@ constructor(
         mutex.withLock {
             val known = _entries.value.map { it.id }.toSet()
             val now = System.currentTimeMillis()
+            // Restored active partials re-enter as Pending so the pump drives the resume
+            // through downloadItem (which detects the existing source row and does Range resume).
+            // Use addedAt = now - 1 so they sort before brand-new pending entries.
             val addedActive =
-                active.filter { (item, _) -> item.id !in known }.map { (item, downloadId) ->
+                active.filter { (item, _) -> item.id !in known }.map { (item, _) ->
                     Entry(
                         id = item.id,
                         item = item,
-                        addedAt = now,
-                        state = EntryState.Downloading,
-                        downloadId = downloadId,
-                        startedAt = now,
+                        addedAt = now - 1,
+                        state = EntryState.Pending,
                     )
                 }
             // Pending items entered after active downloads so they don't cut in line.
@@ -376,8 +380,8 @@ constructor(
     private suspend fun pump() {
         while (true) {
             // 1. Poll active downloads and transition completed/failed. Paused entries
-            //    keep their DownloadManager job attached, so poll them too so we can
-            //    flip back to Downloading when DM resumes (e.g. wifi reconnects).
+            //    keep their engine task active, so poll them too so we can
+            //    flip back to Downloading when the engine resumes (e.g. wifi reconnects).
             val active =
                 _entries.value.filter {
                     it.state is EntryState.Downloading || it.state is EntryState.Paused
@@ -398,31 +402,30 @@ constructor(
                     val snapshot =
                         snapshots[dlId]
                             ?: Downloader.Progress(
-                                DownloadManager.STATUS_FAILED,
+                                DownloadStatus.FAILED,
                                 0,
                                 -1L,
                                 -1L,
                             )
                     val newState: EntryState? =
                         when (snapshot.status) {
-                            DownloadManager.STATUS_PENDING,
-                            DownloadManager.STATUS_RUNNING ->
-                                // If we were Paused and DM is running again, flip back
+                            DownloadStatus.PENDING,
+                            DownloadStatus.RUNNING ->
+                                // If we were Paused and the engine is running again, flip back
                                 // to Downloading so the user sees progress resume.
                                 if (entry.state is EntryState.Paused) EntryState.Downloading
                                 else null
-                            DownloadManager.STATUS_PAUSED ->
+                            DownloadStatus.PAUSED ->
                                 if (entry.state is EntryState.Paused) null
                                 else EntryState.Paused
-                            DownloadManager.STATUS_SUCCESSFUL -> EntryState.Completed
-                            DownloadManager.STATUS_FAILED -> EntryState.Failed(null)
-                            // Unknown/unhandled status (e.g. DM entry disappeared between
-                            // process death and restore). Treat as failed rather than silently
-                            // claiming success.
+                            DownloadStatus.SUCCESSFUL -> EntryState.Completed
+                            DownloadStatus.FAILED -> EntryState.Failed(null)
+                            // Unknown/unhandled status (e.g. engine entry disappeared).
+                            // Treat as failed rather than silently claiming success.
                             else -> EntryState.Failed(null)
                         }
                     // A server-side transcode (e.g. a Dolby Vision download) streams
-                    // output of unknown length, so DownloadManager reports no total.
+                    // output of unknown length, so the engine reports totalBytes=-1.
                     // Fall back to the item's original file size as an estimate, so the
                     // UI can show an approximate %/ETA instead of a frozen 0%.
                     val originalSize =
@@ -500,24 +503,14 @@ constructor(
                         _entries.value =
                             sort(_entries.value.map { updates[it.id] ?: it })
                     }
-                    // Any entry that transitioned to Failed has an orphaned .download
-                    // file + source row on disk/DB. Clean them up so retry creates a
-                    // fresh download and restoreAll() on next launch doesn't resurrect
-                    // a dead DownloadManager id.
+                    // A failed entry keeps its partial .download file and source row so
+                    // the next attempt (auto-retry or manual retry) can resume from where
+                    // it left off via Range. We only clear the speed sample — no file/row cleanup.
                     val failedEntries =
                         updates.values.filter { it.state is EntryState.Failed }
-                    // Clean up DM jobs for failed entries first.
                     for (failed in failedEntries) {
                         val dlId = failed.downloadId ?: continue
                         lastSamples.remove(dlId)
-                        try {
-                            downloader.cancelDownload(failed.item, dlId)
-                        } catch (e: Exception) {
-                            Timber.e(
-                                e,
-                                "Failed to clean up orphaned download for ${failed.item.name}",
-                            )
-                        }
                     }
                     // Schedule auto-retry for eligible entries; notify for permanent failures.
                     val retryUpdates = mutableMapOf<UUID, Entry>()
@@ -613,7 +606,7 @@ constructor(
                 entry.item.hasDolbyVision()
         // Drop the pending row *before* running setup. If the process dies
         // mid-setup, restoreAll() on next launch would otherwise resurrect the
-        // pending entry and enqueue a duplicate DM job + duplicate source row
+        // pending entry and start a duplicate engine task + duplicate source row
         // on top of whatever partial state setup left behind.
         try {
             downloader.removePendingDownload(entry.id)
@@ -636,7 +629,7 @@ constructor(
             val stillPresent = _entries.value.any { it.id == entry.id }
             if (!stillPresent) {
                 // Entry was removed (user cancelled) while we were starting the
-                // download. Android DM is running it but we no longer track it —
+                // download. The engine task is running but we no longer track it —
                 // cancel to avoid leaking.
                 orphaned = downloadId != -1L
                 return@withLock

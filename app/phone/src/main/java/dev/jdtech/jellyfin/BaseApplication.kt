@@ -88,12 +88,12 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
             PeriodicWorkRequestBuilder<OrphanSweepWorker>(1, TimeUnit.DAYS).build(),
         )
 
-        // Re-attach any downloads left in-flight by a previous process (survives
-        // process death because Android DownloadManager is a system service).
+        // Re-attach any downloads that were in-flight before process death. The OkHttp
+        // engine is in-process and does not survive, so partials are resumed via Range.
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
                 // Drop DB rows and files left behind by crashes / external deletions
-                // before we re-attach to live DownloadManager jobs.
+                // before restoring active downloads.
                 downloader.sweepOrphans()
             } catch (e: Exception) {
                 Timber.e(e, "Failed to sweep orphan downloads")
