@@ -61,7 +61,9 @@ import dev.jdtech.jellyfin.presentation.setup.servers.ServersScreen
 import dev.jdtech.jellyfin.presentation.setup.users.UsersScreen
 import dev.jdtech.jellyfin.presentation.setup.welcome.WelcomeScreen
 import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
+import dev.jdtech.jellyfin.viewmodels.MainViewModel
 import java.util.UUID
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable data object WelcomeRoute
@@ -139,8 +141,22 @@ fun NavigationRoot(
     hasServers: Boolean,
     hasCurrentServer: Boolean,
     hasCurrentUser: Boolean,
+    deepLinkItemId: UUID? = null,
+    onDeepLinkHandled: () -> Unit = {},
+    viewModel: MainViewModel = hiltViewModel(),
 ) {
     val isOfflineMode = LocalOfflineMode.current
+
+    val isAuthenticated = hasServers && hasCurrentServer && hasCurrentUser
+    LaunchedEffect(deepLinkItemId, isAuthenticated) {
+        if (isAuthenticated && deepLinkItemId != null) {
+            val item = viewModel.getItem(deepLinkItemId)
+            onDeepLinkHandled()
+            if (item != null) {
+                navigateToItem(navController = navController, item = item)
+            }
+        }
+    }
 
     val startDestination =
         when {
