@@ -24,6 +24,16 @@
         <item>opensles</item>
         <item>aaudio</item>
     </string-array>
+    <string-array name="player_gestures_hold">
+        <item>@string/player_gestures_hold_chapter</item>
+        <item>@string/player_gestures_hold_speed</item>
+        <item>@string/player_gestures_hold_disabled</item>
+    </string-array>
+    <string-array name="player_gestures_hold_values">
+        <item>chapter</item>
+        <item>speed</item>
+        <item>disabled</item>
+    </string-array>
     <string-array name="media_segments_auto_skip">
         <item>@string/media_segments_auto_skip_pip</item>
         <item>@string/media_segments_auto_skip_always</item>

@@ -419,17 +419,16 @@ class SettingsViewModel @Inject constructor(
                                                     backendPreference =
                                                         appPreferences.playerGesturesZoom,
                                                 ),
-                                                PreferenceSwitch(
+                                                PreferenceSelect(
                                                     nameStringResource =
-                                                        R.string.player_gestures_chapter_skip,
-                                                    descriptionStringRes =
-                                                        R.string
-                                                            .player_gestures_chapter_skip_summary,
+                                                        R.string.player_gestures_hold,
                                                     dependencies =
                                                         listOf(appPreferences.playerGestures),
                                                     supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
-                                                        appPreferences.playerGesturesChapterSkip,
+                                                        appPreferences.playerGesturesHold,
+                                                    options = R.array.player_gestures_hold,
+                                                    optionValues = R.array.player_gestures_hold_values,
                                                 ),
                                                 PreferenceSwitch(
                                                     nameStringResource =
