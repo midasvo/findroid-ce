@@ -1,8 +1,8 @@
 # Upstream Sync & CE Release Playbook
 
 When the user says **"sync with upstream"** (with or without "and do a release"), follow this
-procedure. The goal: pull compatible changes from upstream findroid, verify the build, push, and
-cut a new `-ce.N` tag.
+procedure. The goal: pull compatible changes from upstream findroid, verify the build, push, update
+the changelog, and cut + publish a new `-ce.N` release.
 
 ## Background
 
@@ -73,7 +73,26 @@ The merge itself is a commit. If conflict resolution or build fixes added change
 git push origin main
 ```
 
-### 6. Tag the CE release
+### 6. Update the changelog
+
+Add a section to `CHANGELOG.md` for the new release — newest-first, keyed by the `v<base>-ce.<N>`
+tag. Reconstruct it from the commits in this release range:
+
+```bash
+git log --no-merges --format='- %s' v<base>-ce.<N-1>..HEAD
+```
+
+Group into **Added / Changed / Fixed**, and collapse routine dependency bumps and translations under
+**Maintenance** to keep the signal high. Commit and push to `main` **before tagging**, so the tag
+includes the changelog entry:
+
+```bash
+git add CHANGELOG.md
+git commit -m "docs: changelog for v<base>-ce.<N>"
+git push origin main
+```
+
+### 7. Tag the CE release
 
 Determine the next tag:
 - Compare upstream `APP_NAME` to the base in the latest `v*-ce.*` tag.
@@ -84,10 +103,19 @@ git tag -a v<base>-ce.<N> -m "CE release v<base>-ce.<N>: <one-line summary of wh
 git push origin v<base>-ce.<N>
 ```
 
-### 7. Report
+### 8. Publish the GitHub release
 
-Summarize to the user: what was pulled, how conflicts (if any) were resolved, build result, and
-the new tag.
+Reuse the changelog section as the release notes:
+
+```bash
+gh release create v<base>-ce.<N> --repo midasvo/findroid-ce \
+  --title "v<base>-ce.<N>" --notes "<the CHANGELOG.md section for this release>"
+```
+
+### 9. Report
+
+Summarize to the user: what was pulled, how conflicts (if any) were resolved, build result, the new
+tag, and the published release.
 
 ## Notes
 
