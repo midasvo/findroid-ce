@@ -24,9 +24,9 @@ interface Downloader {
 
     suspend fun deleteItem(item: FindroidItem, source: FindroidSource)
 
-    /** Snapshot from the Android DownloadManager for a single download id. */
+    /** Snapshot from the OkHttp download engine for a single download id. */
     data class Progress(
-        /** DownloadManager.STATUS_* */
+        /** DownloadStatus.* integer constant (PENDING=1, RUNNING=2, PAUSED=4, SUCCESSFUL=8, FAILED=16). */
         val status: Int,
         /** Progress percentage 0..100, or -1 if unknown. */
         val progress: Int,
@@ -39,15 +39,16 @@ interface Downloader {
     suspend fun getProgress(downloadId: Long?): Progress
 
     /**
-     * Batched progress lookup — one DownloadManager query covers every id.
-     * Missing ids are returned with a FAILED status (the DM entry disappeared).
+     * Batched progress lookup from the OkHttp download engine.
+     * Missing ids are returned with a FAILED status (the engine has no record for them).
      */
     suspend fun getProgress(downloadIds: List<Long>): Map<Long, Progress>
 
     /**
      * Returns every in-flight download known to the DB as (item, downloadId) pairs.
-     * Used on app startup to re-attach the queue to Android DownloadManager
-     * jobs that survived process death.
+     * Used on app startup to re-attach the queue to partial downloads that survived
+     * process death. The engine (OkHttp) does not persist across processes, so these
+     * entries are restored as Pending and resumed via Range request on the next pump cycle.
      */
     suspend fun getActiveDownloads(): List<Pair<FindroidItem, Long>>
 
@@ -71,7 +72,7 @@ interface Downloader {
     /**
      * Drops DB rows and on-disk files whose state no longer matches reality:
      *   - completed sources whose file has been deleted externally
-     *   - active .download sources whose DownloadManager job is gone and file is missing
+     *   - active .download sources whose engine task is gone and file is missing
      *   - orphan .download files not referenced by any DB source row
      *
      * Run on app startup before restoring active downloads.

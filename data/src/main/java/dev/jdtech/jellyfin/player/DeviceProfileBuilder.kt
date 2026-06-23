@@ -401,9 +401,9 @@ class DeviceProfileBuilder {
          * transcode while leaving every other file as a direct-play original.
          *
          * The transcoding profile uses HTTP — a single continuous `.ts` stream —
-         * rather than HLS, because `DownloadManager` downloads one URL and cannot
-         * reassemble HLS segments. `.ts` is also safe to write progressively (no
-         * trailing index to patch in, unlike `.mp4`).
+         * rather than HLS, because the app's single-URL OkHttp downloader writes one
+         * contiguous file and cannot reassemble HLS segments. `.ts` is also safe to
+         * write progressively (no trailing index to patch in, unlike `.mp4`).
          */
         internal fun buildDownloadTranscodeProfile(): DeviceProfile = DeviceProfile(
             name = "Findroid Download Profile",

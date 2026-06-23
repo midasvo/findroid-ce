@@ -1,12 +1,9 @@
 package dev.jdtech.jellyfin.utils
 
-import android.app.DownloadManager
 import android.content.Context
-import android.net.Uri
 import android.os.Environment
 import android.os.StatFs
 import android.text.format.Formatter
-import androidx.core.net.toUri
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -36,6 +33,8 @@ import dev.jdtech.jellyfin.models.toFindroidTrickplayInfoDto
 import dev.jdtech.jellyfin.models.toFindroidUserDataDto
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
+import dev.jdtech.jellyfin.utils.download.DownloadStatus
+import dev.jdtech.jellyfin.utils.download.MediaDownloadEngine
 import dev.jdtech.jellyfin.work.ImagesDownloaderWorker
 import java.io.File
 import java.io.IOException
@@ -43,6 +42,7 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Provider
 import kotlin.Exception
 import kotlin.math.ceil
@@ -53,7 +53,7 @@ import timber.log.Timber
 
 /**
  * Returns true if [path] should be deleted as an orphaned `.download` file:
- * not tracked by any DB source row AND not actively being written by DownloadManager.
+ * not tracked by any DB source row AND not actively being written by the engine.
  *
  * Only `.download`-suffixed files are candidates — finalized files are never deleted
  * by the sweep.
@@ -83,18 +83,26 @@ class DownloaderImpl(
     private val jellyfinRepositoryProvider: Provider<JellyfinRepository>,
     private val appPreferences: AppPreferences,
     private val workManager: WorkManager,
+    private val engine: MediaDownloadEngine,
 ) : Downloader {
 
     companion object {
         private const val PENDING_DOWNLOAD_MAX_AGE_MS = 30L * 24 * 60 * 60 * 1000
     }
+
     // Resolved per use, never captured: which repository is active (online vs offline) can
     // change at runtime without this @Singleton being recreated. Capturing a fixed instance
     // here goes stale after an offline -> online switch.
     private val jellyfinRepository: JellyfinRepository
         get() = jellyfinRepositoryProvider.get()
 
-    private val downloadManager = context.getSystemService(DownloadManager::class.java)
+    /**
+     * Monotonically-increasing download id counter. Seeded at System.currentTimeMillis() so
+     * that fresh ids never collide with ids from a previous app session (time is monotone
+     * across restarts). Each new download calls incrementAndGet() so concurrent starts in the
+     * same millisecond each get a distinct id.
+     */
+    private val idCounter = AtomicLong(System.currentTimeMillis())
 
     // TODO: We should probably move most (if not all) code to a worker.
     //  At this moment it is possible that some things are not downloaded due to the user leaving
@@ -104,13 +112,65 @@ class DownloaderImpl(
         sourceId: String,
         storageIndex: Int,
     ): Pair<Long, UiText?> = coroutineScope {
-        // Track the DM enqueue id so we can cancel it if anything after enqueue throws
-        // (e.g. DB insert fails). Without this the DM job would keep running with no
+        val transcodeDolbyVision =
+            appPreferences.getValue(appPreferences.downloadTranscodeDolbyVision)
+        val allowMetered = appPreferences.getValue(appPreferences.downloadOverMobileData)
+        val allowRoaming = appPreferences.getValue(appPreferences.downloadWhenRoaming)
+
+        // ---- RESUME BRANCH -------------------------------------------------------
+        // Match the first in-progress .download source row for this item, regardless of
+        // the requested sourceId. The queue dedups by item.id so there is at most one
+        // active source per item; constraining on sourceId here would miss the resume for
+        // multi-source items (the 2-arg overload derives sourceId from the server's first
+        // source, which may differ from the one originally downloaded) and would start a
+        // duplicate fresh download.
+        val existingSource = try {
+            database.getSources(item.id).firstOrNull { source ->
+                source.path.endsWith(".download") && source.downloadId != null
+            }
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to query existing source for resume check")
+            null
+        }
+
+        val existingDownloadId = existingSource?.downloadId
+        if (existingSource != null && existingDownloadId != null) {
+            return@coroutineScope try {
+                // Re-resolve the URL from the server (not persisted). Prefer the existing
+                // row's own source id so we resume the same source that was started; fall
+                // back to the first available source if it is no longer offered.
+                val sources = jellyfinRepository
+                    .getMediaSources(item.id, true, transcodeDolbyVision)
+                val source = sources.firstOrNull { it.id == existingSource.id }
+                    ?: sources.firstOrNull()
+                    ?: throw IllegalStateException("No media sources for ${item.name} on resume")
+                engine.start(
+                    MediaDownloadEngine.Request(
+                        id = existingDownloadId,
+                        url = source.path,
+                        destFile = File(existingSource.path),
+                        allowMetered = allowMetered,
+                        allowRoaming = allowRoaming,
+                    )
+                )
+                // Resume external streams: restart any still-in-progress subtitle transfers.
+                val resolvedSource = existingSource.toFindroidSource(database)
+                resumeExternalMediaStreams(item, resolvedSource, source, allowMetered, allowRoaming)
+                Pair(existingDownloadId, null)
+            } catch (e: Exception) {
+                // On ANY exception in the RESUME branch: do NOT delete the item.
+                // Keep the partial so the next attempt can resume from where it left off.
+                Timber.e(e, "Failed to resume download for ${item.name}")
+                Pair(-1L, mapDownloadError(e))
+            }
+        }
+
+        // ---- FRESH BRANCH --------------------------------------------------------
+        // Track the minted id so we can cancel the engine task if anything after start() throws
+        // (e.g. DB insert fails). Without this the engine task would keep running with no
         // DB row, writing to disk and consuming bandwidth indefinitely.
-        var enqueuedDownloadId: Long? = null
+        var mintedDownloadId: Long? = null
         try {
-            val transcodeDolbyVision =
-                appPreferences.getValue(appPreferences.downloadTranscodeDolbyVision)
             val source =
                 jellyfinRepository
                     .getMediaSources(item.id, true, transcodeDolbyVision)
@@ -144,11 +204,9 @@ class DownloaderImpl(
             val relativePath = buildDownloadPath(item, source.id, extension)
             val destFile = File(storageLocation, "downloads/$relativePath.download")
             destFile.parentFile?.mkdirs()
-            // DownloadManager refuses to enqueue if the destination exists. A leftover
-            // .download file from a previous failed/cancelled attempt would block the
-            // retry, so drop it before enqueuing.
+            // A leftover .download file from a previous failed/cancelled attempt with no DB
+            // row is an orphan. Drop it before starting so the engine starts at byte 0.
             if (destFile.exists()) destFile.delete()
-            val path = Uri.fromFile(destFile)
             val stats = StatFs(storageLocation.path)
             if (stats.availableBytes < source.size) {
                 return@coroutineScope Pair(
@@ -160,34 +218,18 @@ class DownloaderImpl(
                     ),
                 )
             }
-            // For episodes the bare "name" is just the episode title — in the
-            // system notification that's ambiguous ("Pilot") across shows. Prefix
-            // with series + SxxExx so the user can tell downloads apart.
-            val notificationTitle =
-                if (item is FindroidEpisode) {
-                    val series = item.seriesName.takeIf { it.isNotBlank() }
-                    val code = "S%02dE%02d".format(item.parentIndexNumber, item.indexNumber)
-                    buildString {
-                        if (series != null) append(series).append(" · ")
-                        append(code).append(" · ").append(item.name)
-                    }
-                } else {
-                    item.name
-                }
-            val request =
-                DownloadManager.Request(source.path.toUri())
-                    .setTitle(notificationTitle)
-                    .setAllowedOverMetered(
-                        appPreferences.getValue(appPreferences.downloadOverMobileData)
-                    )
-                    .setAllowedOverRoaming(
-                        appPreferences.getValue(appPreferences.downloadWhenRoaming)
-                    )
-                    .setNotificationVisibility(
-                        DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
-                    )
-                    .setDestinationUri(path)
-            val downloadId = downloadManager.enqueue(request).also { enqueuedDownloadId = it }
+
+            // Mint a new id and start the engine transfer.
+            val downloadId = idCounter.incrementAndGet().also { mintedDownloadId = it }
+            engine.start(
+                MediaDownloadEngine.Request(
+                    id = downloadId,
+                    url = source.path,
+                    destFile = destFile,
+                    allowMetered = allowMetered,
+                    allowRoaming = allowRoaming,
+                )
+            )
 
             when (item) {
                 is FindroidMovie -> {
@@ -217,13 +259,13 @@ class DownloaderImpl(
                 }
             }
 
-            val sourceDto = source.toFindroidSourceDto(item.id, path.path.orEmpty())
+            val sourceDto = source.toFindroidSourceDto(item.id, destFile.absolutePath)
 
             database.insertSource(sourceDto.copy(downloadId = downloadId))
             database.insertUserData(item.toFindroidUserDataDto(jellyfinRepository.getUserId()))
 
             val resolvedStorageIndex = dirs.indexOf(storageLocation)
-            downloadExternalMediaStreams(item, source, resolvedStorageIndex)
+            downloadExternalMediaStreams(item, source, resolvedStorageIndex, allowMetered, allowRoaming)
 
             segments.forEach { database.insertSegment(it.toFindroidSegmentsDto(item.id)) }
 
@@ -234,13 +276,13 @@ class DownloaderImpl(
             startImagesDownloader(item)
             return@coroutineScope Pair(downloadId, null)
         } catch (e: Exception) {
-            // Cancel the DM job first — deleteItem() only removes rows/files via the
+            // Cancel the engine task first — deleteItem() only removes rows/files via the
             // source DB row, which may not have been inserted yet.
-            enqueuedDownloadId?.let {
+            mintedDownloadId?.let {
                 try {
-                    downloadManager.remove(it)
-                } catch (removeError: Exception) {
-                    Timber.e(removeError, "Failed to remove leaked DM job $it")
+                    engine.cancel(it)
+                } catch (cancelError: Exception) {
+                    Timber.e(cancelError, "Failed to cancel leaked engine task $it")
                 }
             }
             try {
@@ -275,7 +317,7 @@ class DownloaderImpl(
     override suspend fun cancelDownload(item: FindroidItem, downloadId: Long) {
         val source =
             database.getSourceByDownloadId(downloadId)?.toFindroidSource(database) ?: return
-        source.downloadId?.let { downloadManager.remove(it) }
+        source.downloadId?.let { engine.cancel(it) }
         deleteItem(item, source)
     }
 
@@ -310,9 +352,9 @@ class DownloaderImpl(
 
         val mediaStreams = database.getMediaStreamsBySourceId(source.id)
         for (mediaStream in mediaStreams) {
-            // Cancel any still-running DM job for this external stream before
+            // Cancel any still-running engine task for this external stream before
             // removing the DB row, otherwise we leak in-flight downloads.
-            mediaStream.downloadId?.let { downloadManager.remove(it) }
+            mediaStream.downloadId?.let { engine.cancel(it) }
             File(mediaStream.path).delete()
         }
         database.deleteMediaStreamsBySourceId(source.id)
@@ -337,72 +379,43 @@ class DownloaderImpl(
 
     override suspend fun getProgress(downloadId: Long?): Downloader.Progress {
         if (downloadId == null) {
-            return Downloader.Progress(DownloadManager.STATUS_FAILED, 0, -1L, -1L)
+            return Downloader.Progress(DownloadStatus.FAILED, 0, -1L, -1L)
         }
-        var downloadStatus = DownloadManager.STATUS_FAILED
-        var progress = -1
-        var bytesDownloaded = -1L
-        var totalBytes = -1L
-        val query = DownloadManager.Query().setFilterById(downloadId)
-        downloadManager.query(query).use { cursor ->
-            if (cursor.moveToFirst()) {
-                downloadStatus =
-                    cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-                totalBytes =
-                    cursor.getLong(
-                        cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES),
-                    )
-                bytesDownloaded =
-                    cursor.getLong(
-                        cursor.getColumnIndexOrThrow(
-                            DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR,
-                        ),
-                    )
-                progress =
-                    when (downloadStatus) {
-                        DownloadManager.STATUS_SUCCESSFUL -> 100
-                        DownloadManager.STATUS_RUNNING ->
-                            if (totalBytes > 0) {
-                                bytesDownloaded.times(100).div(totalBytes).toInt()
-                            } else {
-                                -1
-                            }
-                        else -> -1
-                    }
-            }
+        val snapshot = engine.snapshot(downloadId)
+            ?: return Downloader.Progress(DownloadStatus.FAILED, 0, -1L, -1L)
+        val progress = when (snapshot.status) {
+            DownloadStatus.SUCCESSFUL -> 100
+            DownloadStatus.RUNNING ->
+                if (snapshot.totalBytes > 0) {
+                    snapshot.bytesDownloaded.times(100).div(snapshot.totalBytes).toInt()
+                } else {
+                    -1
+                }
+            else -> -1
         }
-        return Downloader.Progress(downloadStatus, progress, bytesDownloaded, totalBytes)
+        return Downloader.Progress(snapshot.status, progress, snapshot.bytesDownloaded, snapshot.totalBytes)
     }
 
     override suspend fun getProgress(downloadIds: List<Long>): Map<Long, Downloader.Progress> {
         if (downloadIds.isEmpty()) return emptyMap()
+        val snapshots = engine.snapshots(downloadIds)
         val result = mutableMapOf<Long, Downloader.Progress>()
-        val query = DownloadManager.Query().setFilterById(*downloadIds.toLongArray())
-        downloadManager.query(query).use { cursor ->
-            val statusIdx = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS)
-            val totalIdx = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
-            val doneIdx =
-                cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
-            val idIdx = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_ID)
-            while (cursor.moveToNext()) {
-                val id = cursor.getLong(idIdx)
-                val status = cursor.getInt(statusIdx)
-                val total = cursor.getLong(totalIdx)
-                val done = cursor.getLong(doneIdx)
-                val progress =
-                    when (status) {
-                        DownloadManager.STATUS_SUCCESSFUL -> 100
-                        DownloadManager.STATUS_RUNNING ->
-                            if (total > 0) done.times(100).div(total).toInt() else -1
-                        else -> -1
-                    }
-                result[id] = Downloader.Progress(status, progress, done, total)
-            }
-        }
-        // Any id not returned by DM is gone; surface as failed.
         for (id in downloadIds) {
-            if (id !in result) {
-                result[id] = Downloader.Progress(DownloadManager.STATUS_FAILED, 0, -1L, -1L)
+            val snapshot = snapshots[id]
+            if (snapshot == null) {
+                result[id] = Downloader.Progress(DownloadStatus.FAILED, 0, -1L, -1L)
+            } else {
+                val progress = when (snapshot.status) {
+                    DownloadStatus.SUCCESSFUL -> 100
+                    DownloadStatus.RUNNING ->
+                        if (snapshot.totalBytes > 0) {
+                            snapshot.bytesDownloaded.times(100).div(snapshot.totalBytes).toInt()
+                        } else {
+                            -1
+                        }
+                    else -> -1
+                }
+                result[id] = Downloader.Progress(snapshot.status, progress, snapshot.bytesDownloaded, snapshot.totalBytes)
             }
         }
         return result
@@ -412,6 +425,8 @@ class DownloaderImpl(
         item: FindroidItem,
         source: FindroidSource,
         storageIndex: Int = 0,
+        allowMetered: Boolean = false,
+        allowRoaming: Boolean = false,
     ) {
         val dirs = context.getExternalFilesDirs(null)
         val storageLocation = dirs.getOrNull(storageIndex)
@@ -420,39 +435,40 @@ class DownloaderImpl(
             ?: return
         val downloadsDir = File(storageLocation, "downloads")
         downloadsDir.mkdirs()
+
+        // Fresh pass only: this is reached when no in-progress source row exists for the
+        // item, so no external-stream rows exist yet. Resume of in-progress streams is
+        // handled separately by resumeExternalMediaStreams().
         for (mediaStream in source.mediaStreams.filter { it.isExternal }) {
             val id = UUID.randomUUID()
-            val streamExt = mediaStream.path?.substringAfterLast('.', "")
-                ?.takeIf { it.length in 1..5 } ?: "sub"
-            val streamPath =
-                Uri.fromFile(
-                    File(downloadsDir, "${sanitize(item.name)}.${source.id}.$id.$streamExt.download")
-                )
             try {
-                database.insertMediaStream(
-                    mediaStream.toFindroidMediaStreamDto(id, source.id, streamPath.path.orEmpty())
-                )
                 val mediaStreamPath = mediaStream.path ?: continue
-                val request =
-                    DownloadManager.Request(mediaStreamPath.toUri())
-                        .setTitle(mediaStream.title)
-                        .setAllowedOverMetered(
-                            appPreferences.getValue(appPreferences.downloadOverMobileData)
-                        )
-                        .setAllowedOverRoaming(
-                            appPreferences.getValue(appPreferences.downloadWhenRoaming)
-                        )
-                        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
-                        .setDestinationUri(streamPath)
-                val downloadId = downloadManager.enqueue(request)
+                val streamExt = mediaStreamPath.substringAfterLast('.', "")
+                    .takeIf { it.length in 1..5 } ?: "sub"
+                val streamPath =
+                    File(downloadsDir, "${sanitize(item.name)}.${source.id}.$id.$streamExt.download")
+                        .absolutePath
+                database.insertMediaStream(
+                    mediaStream.toFindroidMediaStreamDto(id, source.id, streamPath)
+                )
+                val downloadId = idCounter.incrementAndGet()
+                engine.start(
+                    MediaDownloadEngine.Request(
+                        id = downloadId,
+                        url = mediaStreamPath,
+                        destFile = File(streamPath),
+                        allowMetered = allowMetered,
+                        allowRoaming = allowRoaming,
+                    )
+                )
                 database.setMediaStreamDownloadId(id, downloadId)
             } catch (e: Exception) {
-                // One bad external stream (malformed URL, DM rejects request)
+                // One bad external stream (malformed URL, engine rejects request)
                 // shouldn't kill the whole download. Drop the orphan DB row and
                 // keep going with the remaining streams.
                 Timber.e(
                     e,
-                    "Failed to enqueue external stream ${mediaStream.title} for ${item.name}",
+                    "Failed to start external stream ${mediaStream.title} for ${item.name}",
                 )
                 try {
                     database.deleteMediaStream(id)
@@ -460,6 +476,62 @@ class DownloaderImpl(
                     // swallow — nothing more we can do
                 }
             }
+        }
+    }
+
+    /**
+     * Resumes external subtitle/media-stream downloads when an item is being resumed after
+     * process death. The DB rows already exist (created on the original fresh pass), so this
+     * does NOT create rows — it only (re)starts the engine for rows still in progress
+     * (`.download`), recovering the remote URL by matching the row back to the server's
+     * external stream list. Finalized rows (no `.download` suffix) are left untouched.
+     *
+     * No stable id links a stored row to a server stream, so we match on
+     * type/language/codec/title — unique enough for real content. Subtitle files are tiny;
+     * a row whose server match cannot be found is simply dropped (its partial discarded).
+     */
+    private fun resumeExternalMediaStreams(
+        item: FindroidItem,
+        dbSource: FindroidSource,
+        serverSource: FindroidSource,
+        allowMetered: Boolean,
+        allowRoaming: Boolean,
+    ) {
+        val rows = try {
+            database.getMediaStreamsBySourceId(dbSource.id)
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to load media streams for resume of ${item.name}")
+            return
+        }
+        val serverExternal = serverSource.mediaStreams.filter { it.isExternal }
+        for (row in rows) {
+            if (!row.path.endsWith(".download")) continue // already finalized
+            val downloadId = row.downloadId ?: continue
+            val url = serverExternal.firstOrNull { s ->
+                s.type == row.type &&
+                    s.language == row.language &&
+                    s.codec == row.codec &&
+                    s.title == row.title
+            }?.path
+            if (url == null) {
+                Timber.w("No server match for in-progress subtitle '${row.title}'; dropping stale row")
+                engine.cancel(downloadId)
+                File(row.path).delete()
+                try {
+                    database.deleteMediaStream(row.id)
+                } catch (_: Exception) {
+                }
+                continue
+            }
+            engine.start(
+                MediaDownloadEngine.Request(
+                    id = downloadId,
+                    url = url,
+                    destFile = File(row.path),
+                    allowMetered = allowMetered,
+                    allowRoaming = allowRoaming,
+                )
+            )
         }
     }
 
@@ -591,30 +663,12 @@ class DownloaderImpl(
     override suspend fun sweepOrphans() = withContext(Dispatchers.IO) {
         val userId = jellyfinRepository.getUserId()
 
-        // Live DM jobs: ids (to decide whether an active source is dead) and
-        // destination paths (so we never delete a file DM is still writing).
-        val liveDmIds = mutableSetOf<Long>()
-        val liveDmPaths = mutableSetOf<String>()
-        try {
-            val query = DownloadManager.Query()
-                .setFilterByStatus(
-                    DownloadManager.STATUS_PENDING or
-                        DownloadManager.STATUS_RUNNING or
-                        DownloadManager.STATUS_PAUSED or
-                        DownloadManager.STATUS_SUCCESSFUL,
-                )
-            downloadManager.query(query).use { cursor ->
-                val idIdx = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_ID)
-                val uriIdx = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_LOCAL_URI)
-                while (cursor.moveToNext()) {
-                    liveDmIds.add(cursor.getLong(idIdx))
-                    cursor.getString(uriIdx)?.toUri()?.path?.let { liveDmPaths.add(it) }
-                }
-            }
-        } catch (e: Exception) {
-            Timber.w(e, "Could not enumerate DownloadManager; skipping orphan sweep")
-            return@withContext
-        }
+        // Live engine tasks: ids (to decide whether an active source is dead) and
+        // destination paths (so we never delete a file the engine is still writing).
+        // At startup these are empty — but partial files are protected by knownPaths
+        // from the DB rows, so that is fine.
+        val liveTaskIds = engine.liveTaskIds()
+        val liveTaskPaths = engine.liveTaskPaths()
 
         // Download roots that are actually reachable right now. A source whose path
         // is NOT under one of these is on an ejected/unmounted volume — we cannot
@@ -643,8 +697,8 @@ class DownloaderImpl(
         for (source in database.getActiveDownloadSources()) {
             remember(source)
             if (!isUnderMountedRoot(source.path, mountedRoots)) continue
-            val dmAlive = source.downloadId != null && source.downloadId in liveDmIds
-            if (!dmAlive && !File(source.path).exists()) {
+            val engineAlive = source.downloadId != null && source.downloadId in liveTaskIds
+            if (!engineAlive && !File(source.path).exists()) {
                 Timber.i("Sweeping dead active source: ${source.path}")
                 cleanupOrphanSource(source.itemId, userId)
             }
@@ -656,7 +710,7 @@ class DownloaderImpl(
             if (!downloadsDir.isDirectory) continue
             downloadsDir.walkTopDown()
                 .filter { it.isFile && it.name.endsWith(".download") }
-                .filter { shouldDeleteOrphanFile(it.absolutePath, knownPaths, liveDmPaths) }
+                .filter { shouldDeleteOrphanFile(it.absolutePath, knownPaths, liveTaskPaths) }
                 .forEach { file ->
                     Timber.i("Deleting orphan download file: ${file.absolutePath}")
                     try {
@@ -678,7 +732,7 @@ class DownloaderImpl(
         if (mediaStream != null) {
             return@withContext finalizeMediaStream(mediaStream)
         }
-        // Neither source nor mediaStream found — DM may have outlived the DB row
+        // Neither source nor mediaStream found — the engine entry may have outlived the DB row
         // (deleted item, sweep). Nothing to do.
         false
     }
@@ -689,8 +743,8 @@ class DownloaderImpl(
         val downloadFile = File(source.path)
         val finalFile = File(finalPath)
 
-        // If the rename already happened on disk (earlier finalize, broadcast
-        // receiver, manual recovery), just sync the DB and exit.
+        // If the rename already happened on disk (earlier finalize, manual recovery),
+        // just sync the DB and exit.
         if (finalFile.exists() && finalFile.length() > 0 && !downloadFile.exists()) {
             database.setSourcePath(source.id, finalPath)
             return true
@@ -704,6 +758,8 @@ class DownloaderImpl(
             return false
         }
         database.setSourcePath(source.id, finalPath)
+        // Drop the terminal task from the engine registry after successful finalize.
+        source.downloadId?.let { engine.cancel(it) }
         Timber.d("Finalized download at: $finalPath")
         return true
     }
@@ -727,20 +783,14 @@ class DownloaderImpl(
             return false
         }
         database.setMediaStreamPath(mediaStream.id, finalPath)
+        // Drop the terminal task from the engine registry after successful finalize.
+        mediaStream.downloadId?.let { engine.cancel(it) }
         return true
     }
 
     private fun isDownloadSuccessful(downloadId: Long?): Boolean {
         if (downloadId == null) return false
-        val query = DownloadManager.Query().setFilterById(downloadId)
-        downloadManager.query(query).use { cursor ->
-            if (cursor.moveToFirst()) {
-                val status =
-                    cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-                return status == DownloadManager.STATUS_SUCCESSFUL
-            }
-        }
-        return false
+        return engine.snapshot(downloadId)?.status == DownloadStatus.SUCCESSFUL
     }
 
     /**

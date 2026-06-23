@@ -61,6 +61,8 @@ class OfflineModeResolutionTest {
     private fun connectivity(online: Boolean): NetworkConnectivity =
         object : NetworkConnectivity {
             override fun isOnline() = online
+            override fun isMetered() = false
+            override fun isRoaming() = false
         }
 
     /** Real AppPreferences backed by a fake SharedPreferences with a fixed offlineMode value. */

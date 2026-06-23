@@ -26,10 +26,9 @@ import timber.log.Timber
 
 /**
  * Foreground service that keeps the app process alive while the DownloadQueue has
- * work to do. Android's DownloadManager runs downloads independently, but the
- * in-app pump (which moves items from Pending to DownloadManager as slots free up)
- * lives in the app process. Without this service, closing the app would stall any
- * Pending items until the user reopens the app.
+ * work to do. The OkHttp download engine runs in-process, so closing the app would
+ * stall any active or pending transfers until the user reopens the app. This service
+ * keeps the process alive while work remains.
  */
 @AndroidEntryPoint
 class DownloadPumpService : Service() {
@@ -148,8 +147,8 @@ class DownloadPumpService : Service() {
 
     override fun onTimeout(startId: Int, fgsType: Int) {
         // Android 15+ caps dataSync FGS at ~6h/day. Stop cleanly instead of letting
-        // the system crash the process. Active DownloadManager transfers continue;
-        // pending items resume next time the app is opened (restoreAll + ensurePump).
+        // the system crash the process. In-flight OkHttp transfers will be interrupted;
+        // partial files are kept and resumed next time the app opens (restoreAll + ensurePump).
         Timber.w("DownloadPumpService hit the dataSync time limit; stopping")
         stopForegroundCompat()
         stopSelf()
