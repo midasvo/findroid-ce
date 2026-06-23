@@ -157,7 +157,7 @@ class JellyfinRepositoryImpl(
         return Pager(
                 config = PagingConfig(pageSize = 10, enablePlaceholders = false),
                 pagingSourceFactory = {
-                    ItemsPagingSource(this, parentId, includeTypes, recursive, sortBy, sortOrder,filters)
+                    ItemsPagingSource(this, parentId, includeTypes, recursive, sortBy, sortOrder, filters)
                 },
             )
             .flow
