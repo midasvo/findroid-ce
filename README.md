@@ -3,25 +3,25 @@
 # Findroid CE (Community Edition)
 
 A community-driven fork of [Findroid](https://github.com/jarnedemeulemeester/findroid) — the native
-Jellyfin client for Android — that ships the features you've been waiting for.
+Jellyfin client for Android. Think of it as a **bleeding-edge channel**: a place to move a little
+faster, try out community contributions, and experiment with new features.
 
 ## Why Findroid CE?
 
-Findroid is a great app, but it's maintained by one person in their spare time, so useful community
-pull requests can sit unmerged for a long time and releases are infrequent.
+Findroid is a fantastic app and the foundation for everything here. CE isn't trying to replace it —
+it's a faster-moving companion for people who want the latest community work sooner.
 
-**Findroid CE picks up where that leaves off:**
-
-- 🚀 **Merges good community PRs** that haven't made it into upstream yet.
+- 🚀 **Moves faster** — merges community PRs and ships new features without waiting on the upstream release cadence.
 - 🔧 **Adds CE-only enhancements** — a rewritten download engine, Dolby Vision playback, richer
   subtitle support, and more (see below).
 - 📦 **Stays current** — dependencies and the Jellyfin SDK are kept up to date via Renovate.
-- 🤝 **Tracks upstream** — improvements from Findroid are merged in regularly, so you don't fall behind.
+- 🤝 **Two-way street** — we sync improvements *from* upstream regularly, and upstream is welcome to
+  take anything from here. It's all GPLv3.
 - 📲 **Installs side-by-side** — a separate app ID (`nl.midasvo.findroid.ce`) means you can run it
-  next to the original without conflicts.
+  next to the original and switch back any time.
 
-If you already use and like Findroid, CE is the same app with the rough edges sanded down and the
-backlog of community work actually shipped.
+If you like living a bit closer to the edge, CE gets community features into your hands sooner. If you
+prefer rock-solid stability, stick with upstream — and know that the good stuff here can flow back to it.
 
 ## What you get over stock Findroid
 
@@ -74,12 +74,6 @@ Grab the latest APK from the [Releases](https://github.com/midasvo/findroid-ce/r
 
 > Findroid CE uses its own application ID (`nl.midasvo.findroid.ce`), so it installs alongside the
 > original Findroid rather than replacing it.
-
-## Screenshots
-
-| Home | Library | Movie | Season | Episode |
-|------|---------|-------|--------|---------|
-| ![Home](fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.png) | ![Library](fastlane/metadata/android/en-US/images/phoneScreenshots/2_en-US.png) | ![Movie](fastlane/metadata/android/en-US/images/phoneScreenshots/3_en-US.png) | ![Season](fastlane/metadata/android/en-US/images/phoneScreenshots/4_en-US.png) | ![Episode](fastlane/metadata/android/en-US/images/phoneScreenshots/5_en-US.png) |
 
 ## Built on Findroid
 
