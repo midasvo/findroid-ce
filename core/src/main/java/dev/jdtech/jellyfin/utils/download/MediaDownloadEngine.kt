@@ -225,19 +225,22 @@ class MediaDownloadEngine @Inject constructor(
 
     // Transfer loop ------------------------------------------------------------
 
+    /** True when the current network state means the transfer for [req] must wait. */
+    private fun pausedForNetwork(req: Request): Boolean =
+        shouldPauseTransfer(
+            isOnline = connectivity.isOnline(),
+            isMetered = connectivity.isMetered(),
+            isRoaming = connectivity.isRoaming(),
+            allowMetered = req.allowMetered,
+            allowRoaming = req.allowRoaming,
+        )
+
     private suspend fun runTask(state: TaskState) {
         state.status = DownloadStatus.PENDING
         val req = state.request
 
         while (true) {
-            if (shouldPauseTransfer(
-                    isOnline = connectivity.isOnline(),
-                    isMetered = connectivity.isMetered(),
-                    isRoaming = connectivity.isRoaming(),
-                    allowMetered = req.allowMetered,
-                    allowRoaming = req.allowRoaming,
-                )
-            ) {
+            if (pausedForNetwork(req)) {
                 state.status = DownloadStatus.PAUSED
                 delay(2_000)
                 continue
@@ -254,6 +257,25 @@ class MediaDownloadEngine @Inject constructor(
                 // Network became metered/roaming mid-transfer; loop back to top to re-evaluate.
                 continue
             } catch (e: IOException) {
+                // Connectivity dropping (or turning metered/roaming-disallowed) under an
+                // active read surfaces here as an IOException before any mid-transfer
+                // checkpoint is hit. That is NOT a real failure — DownloadManager used to
+                // auto-pause on network loss. Pause and loop so we hold (alive) until the
+                // network returns, then resume from the partial via Range, instead of dying
+                // and falling to the queue's slow 30s/2m/10m backoff retry.
+                if (pausedForNetwork(req)) {
+                    Timber.i("Download id=${req.id} interrupted by connectivity loss; pausing to resume")
+                    continue
+                }
+                // The socket error can race ahead of ConnectivityManager updating its state,
+                // so isOnline() may still report true for a moment after Wi-Fi drops. Give it
+                // a brief grace window and re-check before treating this as a real failure.
+                state.status = DownloadStatus.PAUSED
+                delay(1_500)
+                if (pausedForNetwork(req)) {
+                    Timber.i("Download id=${req.id} paused after connectivity dropped; will resume")
+                    continue
+                }
                 Timber.w(e, "Download failed for id=${req.id}; partial file kept for resume")
                 state.status = DownloadStatus.FAILED
                 return
@@ -343,14 +365,7 @@ class MediaDownloadEngine @Inject constructor(
 
                     if (bytesSinceLastMeteredCheck >= meteredCheckInterval) {
                         bytesSinceLastMeteredCheck = 0L
-                        if (shouldPauseTransfer(
-                                isOnline = connectivity.isOnline(),
-                                isMetered = connectivity.isMetered(),
-                                isRoaming = connectivity.isRoaming(),
-                                allowMetered = req.allowMetered,
-                                allowRoaming = req.allowRoaming,
-                            )
-                        ) {
+                        if (pausedForNetwork(req)) {
                             // Keep partial; outer loop will re-evaluate and set PAUSED.
                             throw PausedMidTransfer()
                         }
