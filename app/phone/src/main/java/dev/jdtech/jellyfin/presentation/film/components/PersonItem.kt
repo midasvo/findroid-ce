@@ -36,7 +36,7 @@ fun PersonItem(
             modifier
                 .width(110.dp)
                 .clip(MaterialTheme.shapes.small)
-                .copyOnLongClick(person.name, onClick = onClick)
+                .copyOnLongClick(person.name, enabled = enabled, onClick = onClick)
     ) {
         AsyncImage(
             model = person.image.uri,
