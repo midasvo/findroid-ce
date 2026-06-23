@@ -49,20 +49,46 @@ Findroid CE uses a different application ID (`nl.midasvo.findroid.ce`) so it can
 
 ## What's different from upstream?
 
-Findroid CE adds the following on top of upstream Findroid:
+Findroid CE adds a lot on top of upstream Findroid. Highlights, grouped by area:
 
-- **Per-episode download progress** — see real-time download status (pending, downloading, completed, failed) directly in the season episode list, no need to open each episode
-- **Interactive download buttons per episode** — tap to download or delete individual episodes inline, Netflix/Disney+ style
+### Downloads
+
+- **OkHttp resumable download engine** — replaces Android's `DownloadManager` for reliable, resumable downloads (including SD card support)
+- **Per-episode download progress & inline buttons** — real-time status (pending, downloading, completed, failed) and tap-to-download/delete right in the season episode list, Netflix/Disney+ style
 - **Bulk season & series download** — download an entire season or series with one tap, with queued concurrent downloading
-- **Configurable max concurrent downloads** — limit how many episodes download simultaneously (default: 2), configurable in settings
-- **Download feedback** — toast messages summarizing bulk download results (started, skipped, failed)
-- **Season download status on show screen** — see "3/10 downloaded" per season in the season selection dialog
-- **Redesigned downloads screen** — active downloads with progress at the top, completed items below, storage usage info at the bottom
-- **Dependency updates** — kept up to date via Renovate
+- **Configurable max concurrent downloads** — limit how many episodes download at once (default: 2)
+- **Season download status on the show screen** — see "3/10 downloaded" per season in the season selection dialog
+- **Redesigned downloads screen** — active downloads with progress on top, completed items below, storage usage at the bottom
+- **Download feedback** — toast messages summarizing bulk results (started, skipped, failed)
+
+### Playback & player
+
+- **Dolby Vision transcoding** — DV content plays everywhere via device-profile-aware transcoding
+- **Wider subtitle delivery** — PGS, VobSub, and DVB subtitles delivered without transcoding
+- **Configurable subtitle styling** — colors, outline, font, and size
+- **Media segments** — per-type skip / ask / ignore actions
+- **Chapters in the player UI**
+- **"Are you still watching?"** inactivity prompt
+- **Trickplay** loader behind a developer toggle
+
+### Library & UI
+
+- **Hide-watched filter** in the library view — persisted and shared across libraries
+- **Long-press to copy text** on the movie/show/episode/season/person detail screens
+- **Auto offline mode** — automatically enabled when there is no connectivity
+
+### Diagnostics & maintenance
+
+- **Export device profile** from the About screen — useful for debugging playback/transcoding
+- **Stability fixes** across startup/offline crashes, picture-in-picture, and player edge cases
+- **Dependencies** kept current via Renovate
+
+For a full release-by-release history, see [CHANGELOG.md](CHANGELOG.md).
 
 ## Upstream sync
 
-This fork is periodically synced with upstream.
+This fork is synced with upstream manually (automatic syncing is disabled). See
+[docs/upstream-sync.md](docs/upstream-sync.md) for the procedure.
 
 ## License
 
