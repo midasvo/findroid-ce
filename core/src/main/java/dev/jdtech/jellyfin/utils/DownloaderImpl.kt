@@ -118,12 +118,15 @@ class DownloaderImpl(
         val allowRoaming = appPreferences.getValue(appPreferences.downloadWhenRoaming)
 
         // ---- RESUME BRANCH -------------------------------------------------------
-        // Check for an existing source row with a .download path and a downloadId.
-        // If found, this is a resume (e.g. after process death) rather than a fresh start.
+        // Match the first in-progress .download source row for this item, regardless of
+        // the requested sourceId. The queue dedups by item.id so there is at most one
+        // active source per item; constraining on sourceId here would miss the resume for
+        // multi-source items (the 2-arg overload derives sourceId from the server's first
+        // source, which may differ from the one originally downloaded) and would start a
+        // duplicate fresh download.
         val existingSource = try {
             database.getSources(item.id).firstOrNull { source ->
                 source.path.endsWith(".download") && source.downloadId != null
-                    && sourceMatchesId(source, sourceId)
             }
         } catch (e: Exception) {
             Timber.w(e, "Failed to query existing source for resume check")
@@ -133,10 +136,14 @@ class DownloaderImpl(
         val existingDownloadId = existingSource?.downloadId
         if (existingSource != null && existingDownloadId != null) {
             return@coroutineScope try {
-                // Re-resolve the URL from the server (not persisted).
-                val source = jellyfinRepository
+                // Re-resolve the URL from the server (not persisted). Prefer the existing
+                // row's own source id so we resume the same source that was started; fall
+                // back to the first available source if it is no longer offered.
+                val sources = jellyfinRepository
                     .getMediaSources(item.id, true, transcodeDolbyVision)
-                    .first { it.id == sourceId }
+                val source = sources.firstOrNull { it.id == existingSource.id }
+                    ?: sources.firstOrNull()
+                    ?: throw IllegalStateException("No media sources for ${item.name} on resume")
                 engine.start(
                     MediaDownloadEngine.Request(
                         id = existingDownloadId,
@@ -146,9 +153,9 @@ class DownloaderImpl(
                         allowRoaming = allowRoaming,
                     )
                 )
-                // Resume external streams for this source.
+                // Resume external streams: restart any still-in-progress subtitle transfers.
                 val resolvedSource = existingSource.toFindroidSource(database)
-                downloadExternalMediaStreams(item, resolvedSource, storageIndex, allowMetered, allowRoaming)
+                resumeExternalMediaStreams(item, resolvedSource, source, allowMetered, allowRoaming)
                 Pair(existingDownloadId, null)
             } catch (e: Exception) {
                 // On ANY exception in the RESUME branch: do NOT delete the item.
@@ -286,14 +293,6 @@ class DownloaderImpl(
             return@coroutineScope Pair(-1, mapDownloadError(e))
         }
     }
-
-    /**
-     * Returns true if [source] corresponds to [sourceId]. [FindroidSourceDto.id] stores the
-     * Jellyfin media-source id string directly (set by [toFindroidSourceDto]), so a direct
-     * string comparison is sufficient.
-     */
-    private fun sourceMatchesId(source: FindroidSourceDto, sourceId: String): Boolean =
-        source.id == sourceId
 
     override suspend fun downloadItem(
         item: FindroidItem,
@@ -437,56 +436,18 @@ class DownloaderImpl(
         val downloadsDir = File(storageLocation, "downloads")
         downloadsDir.mkdirs()
 
-        // Build a map of existing mediastream rows for this source, keyed by their DB id.
-        // Used to detect resume: if a row already exists we re-start the engine on its
-        // existing .download path rather than inserting a duplicate.
-        val existingStreams = try {
-            database.getMediaStreamsBySourceId(source.id).associateBy { it.id }
-        } catch (e: Exception) {
-            emptyMap()
-        }
-
+        // Fresh pass only: this is reached when no in-progress source row exists for the
+        // item, so no external-stream rows exist yet. Resume of in-progress streams is
+        // handled separately by resumeExternalMediaStreams().
         for (mediaStream in source.mediaStreams.filter { it.isExternal }) {
+            val id = UUID.randomUUID()
             try {
-                val streamExt = mediaStream.path?.substringAfterLast('.', "")
-                    ?.takeIf { it.length in 1..5 } ?: "sub"
                 val mediaStreamPath = mediaStream.path ?: continue
-
-                // Check if final file already exists (already downloaded on a prior pass).
-                // A mediastream row might have a finalized path (no .download suffix).
-                val existingFinalized = existingStreams.values.firstOrNull { row ->
-                    !row.path.endsWith(".download") && File(row.path).exists()
-                }
-                if (existingFinalized != null) {
-                    // Already fully downloaded — skip.
-                    continue
-                }
-
-                // Check for an existing in-progress row for this stream.
-                // Match by comparing the stored path pattern (contains the mediaStream's extension).
-                val existingRow = existingStreams.values.firstOrNull { row ->
-                    row.path.endsWith(".$streamExt.download")
-                }
-
-                val existingRowDownloadId = existingRow?.downloadId
-                if (existingRow != null && existingRowDownloadId != null) {
-                    // RESUME: re-start engine on the existing .download path.
-                    engine.start(
-                        MediaDownloadEngine.Request(
-                            id = existingRowDownloadId,
-                            url = mediaStreamPath,
-                            destFile = File(existingRow.path),
-                            allowMetered = allowMetered,
-                            allowRoaming = allowRoaming,
-                        )
-                    )
-                    continue
-                }
-
-                // FRESH: mint a new id, insert a row, start the engine.
-                val id = UUID.randomUUID()
-                val streamPath = File(downloadsDir, "${sanitize(item.name)}.${source.id}.$id.$streamExt.download")
-                    .absolutePath
+                val streamExt = mediaStreamPath.substringAfterLast('.', "")
+                    .takeIf { it.length in 1..5 } ?: "sub"
+                val streamPath =
+                    File(downloadsDir, "${sanitize(item.name)}.${source.id}.$id.$streamExt.download")
+                        .absolutePath
                 database.insertMediaStream(
                     mediaStream.toFindroidMediaStreamDto(id, source.id, streamPath)
                 )
@@ -507,9 +468,70 @@ class DownloaderImpl(
                 // keep going with the remaining streams.
                 Timber.e(
                     e,
-                    "Failed to enqueue external stream ${mediaStream.title} for ${item.name}",
+                    "Failed to start external stream ${mediaStream.title} for ${item.name}",
                 )
+                try {
+                    database.deleteMediaStream(id)
+                } catch (_: Exception) {
+                    // swallow — nothing more we can do
+                }
             }
+        }
+    }
+
+    /**
+     * Resumes external subtitle/media-stream downloads when an item is being resumed after
+     * process death. The DB rows already exist (created on the original fresh pass), so this
+     * does NOT create rows — it only (re)starts the engine for rows still in progress
+     * (`.download`), recovering the remote URL by matching the row back to the server's
+     * external stream list. Finalized rows (no `.download` suffix) are left untouched.
+     *
+     * No stable id links a stored row to a server stream, so we match on
+     * type/language/codec/title — unique enough for real content. Subtitle files are tiny;
+     * a row whose server match cannot be found is simply dropped (its partial discarded).
+     */
+    private fun resumeExternalMediaStreams(
+        item: FindroidItem,
+        dbSource: FindroidSource,
+        serverSource: FindroidSource,
+        allowMetered: Boolean,
+        allowRoaming: Boolean,
+    ) {
+        val rows = try {
+            database.getMediaStreamsBySourceId(dbSource.id)
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to load media streams for resume of ${item.name}")
+            return
+        }
+        val serverExternal = serverSource.mediaStreams.filter { it.isExternal }
+        for (row in rows) {
+            if (!row.path.endsWith(".download")) continue // already finalized
+            val downloadId = row.downloadId ?: continue
+            val url = serverExternal.firstOrNull { s ->
+                s.type == row.type &&
+                    s.language == row.language &&
+                    s.codec == row.codec &&
+                    s.title == row.title
+            }?.path
+            if (url == null) {
+                Timber.w("No server match for in-progress subtitle '${row.title}'; dropping stale row")
+                engine.cancel(downloadId)
+                File(row.path).delete()
+                try {
+                    database.deleteMediaStream(row.id)
+                } catch (_: Exception) {
+                }
+                continue
+            }
+            engine.start(
+                MediaDownloadEngine.Request(
+                    id = downloadId,
+                    url = url,
+                    destFile = File(row.path),
+                    allowMetered = allowMetered,
+                    allowRoaming = allowRoaming,
+                )
+            )
         }
     }
 
