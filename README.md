@@ -2,54 +2,28 @@
 
 # Findroid CE (Community Edition)
 
-A maintained fork of [Findroid](https://github.com/jarnedemeulemeester/findroid), the native Jellyfin Android client.
+A community-driven fork of [Findroid](https://github.com/jarnedemeulemeester/findroid) — the native
+Jellyfin client for Android — that ships the features you've been waiting for.
 
-## Why this fork?
+## Why Findroid CE?
 
-The original Findroid is an excellent Jellyfin client, but many community PRs with useful features aren't being merged. Findroid CE merges select community contributions and keeps dependencies up to date.
+Findroid is a great app, but it's maintained by one person in their spare time, so useful community
+pull requests can sit unmerged for a long time and releases are infrequent.
 
-## Installing
+**Findroid CE picks up where that leaves off:**
 
-### Via Obtainium (recommended)
+- 🚀 **Merges good community PRs** that haven't made it into upstream yet.
+- 🔧 **Adds CE-only enhancements** — a rewritten download engine, Dolby Vision playback, richer
+  subtitle support, and more (see below).
+- 📦 **Stays current** — dependencies and the Jellyfin SDK are kept up to date via Renovate.
+- 🤝 **Tracks upstream** — improvements from Findroid are merged in regularly, so you don't fall behind.
+- 📲 **Installs side-by-side** — a separate app ID (`nl.midasvo.findroid.ce`) means you can run it
+  next to the original without conflicts.
 
-Add this repo URL in [Obtainium](https://github.com/ImranR98/Obtainium): `https://github.com/midasvo/findroid-ce`
+If you already use and like Findroid, CE is the same app with the rough edges sanded down and the
+backlog of community work actually shipped.
 
-Obtainium will automatically check for new releases and notify you of updates.
-
-### Manual
-
-Download the latest APK from the [Releases](https://github.com/midasvo/findroid-ce/releases) page.
-
-Findroid CE uses a different application ID (`nl.midasvo.findroid.ce`) so it can be installed alongside the original Findroid.
-
-## Screenshots
-
-| Home | Library | Movie | Season | Episode |
-|------|---------|-------|--------|---------|
-| ![Home](fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.png) | ![Library](fastlane/metadata/android/en-US/images/phoneScreenshots/2_en-US.png) | ![Movie](fastlane/metadata/android/en-US/images/phoneScreenshots/3_en-US.png) | ![Season](fastlane/metadata/android/en-US/images/phoneScreenshots/4_en-US.png) | ![Episode](fastlane/metadata/android/en-US/images/phoneScreenshots/5_en-US.png) |
-
-## Features
-
-- Completely native interface
-- Supported media: movies, series, seasons, episodes (direct play, no transcoding)
-- Offline playback / downloads (including SD card support)
-- ExoPlayer
-  - Video: H.263, H.264, H.265, VP8, VP9, AV1
-  - Audio: Vorbis, Opus, FLAC, ALAC, PCM, MP3, AAC, AC-3, E-AC-3, DTS, DTS-HD, TrueHD
-  - Subtitles: SRT, VTT, SSA/ASS, PGSSUB
-- mpv
-  - Containers: mkv, mov, mp4, avi
-  - Video: H.264, H.265, H.266, VP8, VP9, AV1
-  - Audio: Opus, FLAC, MP3, AAC, AC-3, E-AC-3, TrueHD, DTS, DTS-HD
-  - Subtitles: SRT, VTT, SSA/ASS, DVDSUB
-- Picture-in-picture mode
-- Media chapters (timeline markers, chapter navigation)
-- Trickplay (requires Jellyfin 10.9+)
-- Media segments with skip button and auto-skip (requires Jellyfin 10.10+)
-
-## What's different from upstream?
-
-Findroid CE adds a lot on top of upstream Findroid. Highlights, grouped by area:
+## What you get over stock Findroid
 
 ### Downloads
 
@@ -59,7 +33,6 @@ Findroid CE adds a lot on top of upstream Findroid. Highlights, grouped by area:
 - **Configurable max concurrent downloads** — limit how many episodes download at once (default: 2)
 - **Season download status on the show screen** — see "3/10 downloaded" per season in the season selection dialog
 - **Redesigned downloads screen** — active downloads with progress on top, completed items below, storage usage at the bottom
-- **Download feedback** — toast messages summarizing bulk results (started, skipped, failed)
 
 ### Playback & player
 
@@ -77,25 +50,51 @@ Findroid CE adds a lot on top of upstream Findroid. Highlights, grouped by area:
 - **Long-press to copy text** on the movie/show/episode/season/person detail screens
 - **Auto offline mode** — automatically enabled when there is no connectivity
 
-### Diagnostics & maintenance
+### Diagnostics
 
-- **Export device profile** from the About screen — useful for debugging playback/transcoding
-- **Stability fixes** across startup/offline crashes, picture-in-picture, and player edge cases
-- **Dependencies** kept current via Renovate
+- **Export device profile** from the About screen — handy for debugging playback/transcoding
 
-For a full release-by-release history, see [CHANGELOG.md](CHANGELOG.md).
+See the [changelog](CHANGELOG.md) for the full release-by-release history.
 
-## Upstream sync
+## Install
 
-This fork is synced with upstream manually (automatic syncing is disabled). See
-[docs/upstream-sync.md](docs/upstream-sync.md) for the procedure.
+### Via Obtainium (recommended)
+
+Add this repo URL in [Obtainium](https://github.com/ImranR98/Obtainium):
+
+```
+https://github.com/midasvo/findroid-ce
+```
+
+Obtainium then checks for new releases automatically and notifies you of updates.
+
+### Manual
+
+Grab the latest APK from the [Releases](https://github.com/midasvo/findroid-ce/releases) page.
+
+> Findroid CE uses its own application ID (`nl.midasvo.findroid.ce`), so it installs alongside the
+> original Findroid rather than replacing it.
+
+## Screenshots
+
+| Home | Library | Movie | Season | Episode |
+|------|---------|-------|--------|---------|
+| ![Home](fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.png) | ![Library](fastlane/metadata/android/en-US/images/phoneScreenshots/2_en-US.png) | ![Movie](fastlane/metadata/android/en-US/images/phoneScreenshots/3_en-US.png) | ![Season](fastlane/metadata/android/en-US/images/phoneScreenshots/4_en-US.png) | ![Episode](fastlane/metadata/android/en-US/images/phoneScreenshots/5_en-US.png) |
+
+## Built on Findroid
+
+Findroid CE is a fork — all the core functionality (the native UI, ExoPlayer & mpv playback, offline
+downloads, picture-in-picture, etc.) comes from upstream Findroid. We sync with it regularly; the
+process is documented in [docs/upstream-sync.md](docs/upstream-sync.md).
+
+**All credit** to [Jarne Demeulemeester](https://github.com/jarnedemeulemeester) and the
+[Findroid contributors](https://github.com/jarnedemeulemeester/findroid/graphs/contributors) for
+building the app this fork stands on.
 
 ## License
 
 GPLv3 — same as upstream. See [LICENSE](LICENSE).
 
-The logo is a combination of the Jellyfin logo and the Android robot. The Android robot is reproduced or modified from work created and shared by Google and used according to terms described in the Creative Commons 3.0 Attribution License.
-
-## Credits
-
-All credit to [Jarne Demeulemeester](https://github.com/jarnedemeulemeester) and the [Findroid contributors](https://github.com/jarnedemeulemeester/findroid/graphs/contributors).
+The logo is a combination of the Jellyfin logo and the Android robot. The Android robot is reproduced
+or modified from work created and shared by Google and used according to terms described in the
+Creative Commons 3.0 Attribution License.
