@@ -181,7 +181,13 @@ class MediaDownloadEngine @Inject constructor(
     /**
      * Abort the in-flight transfer for [id] and remove it from the registry.
      * Does NOT delete the partial file on disk. Safe to call on an unknown or terminal id.
+     *
+     * `@Synchronized` (same monitor as [start] and the call-publish block in [httpTransfer])
+     * so a cancel cannot interleave with task construction: it always observes a fully
+     * assigned `job`, and either sees the published `call` (and cancels it) or removes the
+     * task before [httpTransfer] publishes the call (which then bails before `execute()`).
      */
+    @Synchronized
     fun cancel(id: Long) {
         val state = registry.remove(id)
         // Cancel the OkHttp call first so a blocking read unblocks immediately, then the job.
@@ -279,7 +285,16 @@ class MediaDownloadEngine @Inject constructor(
             .build()
 
         val call = client.newCall(httpRequest)
-        state.call = call
+        // Publish the call atomically against cancel() (same monitor). If cancel() already
+        // removed this task, bail before the blocking execute() — otherwise execute() would
+        // run an uninterruptible network transfer to completion as an orphan. If we publish
+        // first, a later cancel() sees the call and cancels it.
+        synchronized(this) {
+            if (!registry.containsKey(req.id)) {
+                throw CancellationException("Download ${req.id} was cancelled before start")
+            }
+            state.call = call
+        }
         val response = call.execute()
         try {
             val code = response.code
