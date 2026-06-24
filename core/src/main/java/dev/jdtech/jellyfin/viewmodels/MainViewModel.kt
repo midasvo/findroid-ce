@@ -13,6 +13,7 @@ import dev.jdtech.jellyfin.utils.NetworkConnectivity
 import dev.jdtech.jellyfin.utils.isOfflineModeActive
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -97,6 +98,8 @@ constructor(
     suspend fun getItem(itemId: UUID): FindroidItem? {
         return try {
             jellyfinRepository.getItem(itemId)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             null
         }

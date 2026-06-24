@@ -53,6 +53,7 @@ class MainActivity : AppCompatActivity() {
                             hasCurrentUser = state.hasCurrentUser,
                             deepLinkItemId = state.deepLinkItemId,
                             onDeepLinkHandled = { viewModel.clearDeepLink() },
+                            onResolveDeepLinkItem = viewModel::getItem,
                         )
                     }
                 }
