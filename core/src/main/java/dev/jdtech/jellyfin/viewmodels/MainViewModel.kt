@@ -4,12 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
+import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.Server
 import dev.jdtech.jellyfin.models.User
+import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.NetworkConnectivity
 import dev.jdtech.jellyfin.utils.isOfflineModeActive
+import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -21,6 +25,7 @@ constructor(
     private val appPreferences: AppPreferences,
     private val database: ServerDatabaseDao,
     private val networkConnectivity: NetworkConnectivity,
+    private val jellyfinRepository: JellyfinRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(MainState())
     val state = _state.asStateFlow()
@@ -40,9 +45,9 @@ constructor(
 
     private fun check() {
         viewModelScope.launch {
-            _state.emit(MainState(isLoading = true))
+            _state.emit(_state.value.copy(isLoading = true))
             val mainState =
-                MainState(
+                _state.value.copy(
                     isLoading = false,
                     isDynamicColors = checkIsDynamicColors(),
                     hasServers = checkHasServers(),
@@ -89,6 +94,24 @@ constructor(
     private fun checkIsOfflineMode(): Boolean {
         return isOfflineModeActive(appPreferences, networkConnectivity)
     }
+
+    suspend fun getItem(itemId: UUID): FindroidItem? {
+        return try {
+            jellyfinRepository.getItem(itemId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun setDeepLinkItemId(id: UUID?) {
+        _state.value = _state.value.copy(deepLinkItemId = id)
+    }
+
+    fun clearDeepLink() {
+        _state.value = _state.value.copy(deepLinkItemId = null)
+    }
 }
 
 data class MainState(
@@ -98,4 +121,5 @@ data class MainState(
     val hasCurrentServer: Boolean = false,
     val hasCurrentUser: Boolean = false,
     val isOfflineMode: Boolean = false,
+    val deepLinkItemId: UUID? = null,
 )

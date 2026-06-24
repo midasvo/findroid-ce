@@ -1,5 +1,6 @@
 package dev.jdtech.jellyfin
 
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.core.tween
@@ -18,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
@@ -139,8 +141,29 @@ fun NavigationRoot(
     hasServers: Boolean,
     hasCurrentServer: Boolean,
     hasCurrentUser: Boolean,
+    deepLinkItemId: UUID? = null,
+    onDeepLinkHandled: () -> Unit = {},
+    onResolveDeepLinkItem: suspend (UUID) -> FindroidItem? = { null },
 ) {
     val isOfflineMode = LocalOfflineMode.current
+    val context = LocalContext.current
+
+    val isAuthenticated = hasServers && hasCurrentServer && hasCurrentUser
+    LaunchedEffect(deepLinkItemId, isAuthenticated) {
+        if (isAuthenticated && deepLinkItemId != null) {
+            val item = onResolveDeepLinkItem(deepLinkItemId)
+            onDeepLinkHandled()
+            if (item != null) {
+                navigateToItem(navController = navController, item = item)
+            } else {
+                Toast.makeText(
+                    context,
+                    context.getString(CoreR.string.deep_link_item_not_found),
+                    Toast.LENGTH_LONG,
+                ).show()
+            }
+        }
+    }
 
     val startDestination =
         when {
