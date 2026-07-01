@@ -348,7 +348,7 @@ class JellyfinRepositoryImpl(
             // mpv software-decodes practically everything, so keep it on the permissive
             // direct-play profile. ExoPlayer gets the honest, hardware-probed profile so
             // the server transcodes anything it cannot direct-play — notably Dolby Vision.
-            val useDirectPlay = appPreferences.getValue(appPreferences.playerMpv)
+            val useDirectPlay = appPreferences.getValue(appPreferences.playerBackend) == "mpv"
             val deviceProfile =
                 if (useDirectPlay) {
                     deviceProfileBuilder.getDirectPlayProfile()

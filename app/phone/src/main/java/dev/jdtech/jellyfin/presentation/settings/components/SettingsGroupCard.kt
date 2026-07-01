@@ -23,6 +23,7 @@ import dev.jdtech.jellyfin.settings.domain.models.Preference
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceAppLanguage
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceCategory
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceDynamicSelect
+import dev.jdtech.jellyfin.settings.presentation.models.PreferenceFileEdit
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceGroup
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceIntInput
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceLongInput
@@ -116,6 +117,11 @@ fun SettingsGroupCard(
                         )
                     is PreferenceAppLanguage ->
                         SettingsAppLanguageCard(
+                            preference = preference,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    is PreferenceFileEdit ->
+                        SettingsFileEditCard(
                             preference = preference,
                             modifier = Modifier.fillMaxWidth(),
                         )

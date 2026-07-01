@@ -52,6 +52,7 @@ import dev.jdtech.jellyfin.presentation.film.PersonScreen
 import dev.jdtech.jellyfin.presentation.film.SeasonScreen
 import dev.jdtech.jellyfin.presentation.film.ShowScreen
 import dev.jdtech.jellyfin.presentation.settings.AboutScreen
+import dev.jdtech.jellyfin.presentation.settings.SettingsFileEditScreen
 import dev.jdtech.jellyfin.presentation.settings.SettingsScreen
 import dev.jdtech.jellyfin.presentation.settings.SubtitleStyleScreen
 import dev.jdtech.jellyfin.presentation.setup.addresses.ServerAddressesScreen
@@ -108,6 +109,10 @@ data class SeasonRoute(val seasonId: String, val downloadsOnly: Boolean = false)
 @Serializable data class SettingsRoute(val indexes: IntArray)
 
 @Serializable data object SubtitleStyleRoute
+
+@Serializable data class SettingsFileEditRoute(
+    val filePath: String,
+)
 
 @Serializable data object AboutRoute
 
@@ -464,6 +469,9 @@ fun NavigationRoot(
                     navigateToSettings = { indexes ->
                         navController.safeNavigate(SettingsRoute(indexes = indexes))
                     },
+                    navigateToSettingsFileEdit = { filePath ->
+                        navController.safeNavigate(SettingsFileEditRoute(filePath = filePath))
+                    },
                     navigateToServers = { navController.safeNavigate(ServersRoute) },
                     navigateToUsers = { navController.safeNavigate(UsersRoute) },
                     navigateToAbout = { navController.safeNavigate(AboutRoute) },
@@ -475,6 +483,12 @@ fun NavigationRoot(
             }
             composable<SubtitleStyleRoute> {
                 SubtitleStyleScreen(navigateBack = { navController.safePopBackStack() })
+            }
+            composable<SettingsFileEditRoute> { backStackEntry ->
+                val route: SettingsFileEditRoute = backStackEntry.toRoute()
+                SettingsFileEditScreen(
+                    filePath = route.filePath,
+                    navigateBack = { navController.safePopBackStack() })
             }
             composable<AboutRoute> {
                 AboutScreen(navigateBack = { navController.safePopBackStack() })
