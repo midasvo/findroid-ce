@@ -10,6 +10,19 @@ _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.0.2-ce.34] — 2026-07-01
+
+### Added
+- mpv `input.conf` editor and a dedicated mpv config editor, with mpv options split out into their own settings section (ported from upstream #1232).
+- Configurable long-press player gesture — choose Chapter, 2× speed, or Disabled (#50).
+
+### Fixed
+- Kept the CE device-profile direct-play logic working after upstream removed the `playerMpv` boolean in favor of a `playerBackend` preference.
+
+### Maintenance
+- Synced with upstream findroid up to `07ac8919`.
+- Updated Gradle (9.6.1) and Jetpack Compose (1.11.3); routine dependency bumps (#45) and translation updates.
+
 ## [v1.0.2-ce.33] — 2026-06-23
 
 ### Added
