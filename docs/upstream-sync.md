@@ -22,11 +22,19 @@ the changelog, and cut + publish a new `-ce.N` release.
 ### 1. Fetch and assess
 
 ```bash
+git fetch origin                                         # FIRST — local main is often stale
 git fetch upstream --tags
+git checkout main && git reset --hard origin/main        # start from the true fork tip
 git rev-list --left-right --count upstream/main...HEAD   # "<behind>  <ahead>"
 git log --oneline $(git merge-base main upstream/main)..upstream/main   # what's new upstream
 git diff --stat $(git merge-base main upstream/main) upstream/main      # files upstream touches
 ```
+
+> **Always `git fetch origin` and reset `main` to `origin/main` before merging.** Other work
+> (PRs, docs, renovate) lands on `origin/main` between syncs, so the local `main` is routinely
+> behind. Merging onto a stale base makes `git push origin main` get rejected as non-fast-forward,
+> forcing a redo of the whole merge. Do not force-push to recover — reset to `origin/main` and
+> re-merge.
 
 > Use `merge-base..upstream/main`, **not** `main..upstream/main` — the latter compares full trees
 > and reports all our ahead-commits as reverse changes, producing a huge misleading diff.
