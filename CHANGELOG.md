@@ -10,6 +10,12 @@ _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.0.2-ce.35] — 2026-07-08
+
+### Maintenance
+- Synced with upstream findroid up to `1088a203` (Russian translation updates).
+- Formalized the upstream-sync/release playbook as a Claude Code skill.
+
 ## [v1.0.2-ce.34] — 2026-07-01
 
 ### Added
