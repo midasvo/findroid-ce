@@ -10,6 +10,11 @@ _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.0.2-ce.36] — 2026-07-12
+
+### Maintenance
+- Synced with upstream findroid (German translation updates).
+
 ## [v1.0.2-ce.35] — 2026-07-08
 
 ### Maintenance
@@ -128,6 +133,9 @@ Initial CE fork off findroid `1.0.2`. These rapid early iterations established t
 `nl.midasvo.findroid.ce` application ID, downloads and SD-card storage improvements, and ongoing
 tracking of upstream. See the git history between the corresponding tags for commit-level detail.
 
+[v1.0.2-ce.36]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.36
+[v1.0.2-ce.35]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.35
+[v1.0.2-ce.34]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.34
 [v1.0.2-ce.33]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.33
 [v1.0.2-ce.32]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.32
 [v1.0.2-ce.31]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.31
