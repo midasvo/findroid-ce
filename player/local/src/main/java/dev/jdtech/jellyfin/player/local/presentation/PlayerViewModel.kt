@@ -15,9 +15,12 @@ import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
+import android.content.Intent
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.session.MediaSession
+import dev.jdtech.jellyfin.player.local.PlaybackService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.jdtech.jellyfin.models.FindroidSegment
 import dev.jdtech.jellyfin.models.FindroidSegmentType
@@ -62,6 +65,11 @@ constructor(
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel(), Player.Listener {
     val player: Player
+
+    private var mediaSession: MediaSession? = null
+
+    val isBackgroundAudioEnabled: Boolean
+        get() = appPreferences.getValue(appPreferences.playerBackgroundAudio)
 
     private val _uiState =
         MutableStateFlow(
@@ -241,6 +249,11 @@ constructor(
 
             else -> throw RuntimeException("$playerBackend is not a valid player backend")
         }
+
+        mediaSession = MediaSession.Builder(application, player).build()
+        PlaybackService.mediaSession = mediaSession
+        val intent = Intent(application, PlaybackService::class.java)
+        application.startService(intent)
     }
 
     fun initializePlayer(itemId: UUID, itemKind: String, startFromBeginning: Boolean) {
@@ -333,6 +346,16 @@ constructor(
         currentMediaItemIndex = 0
         player.removeListener(this)
         player.release()
+
+        mediaSession?.release()
+        mediaSession = null
+        PlaybackService.mediaSession = null
+        try {
+            val intent = Intent(application, PlaybackService::class.java)
+            application.stopService(intent)
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
 
         if (mediaId != null && duration != C.TIME_UNSET) {
             @OptIn(DelicateCoroutinesApi::class)

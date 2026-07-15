@@ -70,6 +70,9 @@
     <string name="picture_in_picture">Picture-in-picture</string>
     <string name="picture_in_picture_gesture">Picture-in-picture home gesture</string>
     <string name="picture_in_picture_gesture_summary">Use home button or gesture to enter picture-in-picture while the video is playing</string>
+    <string name="pref_player_background_audio">Background audio</string>
+    <string name="pref_player_background_audio_summary">Continue playback when the screen is off or the app is backgrounded</string>
+
     <string name="offline_mode">Offline Mode</string>
     <string name="offline_mode_summary">Watch movies and series without a connection to the server</string>
     <string name="theme">Theme</string>
