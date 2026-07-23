@@ -334,7 +334,7 @@ constructor(
         player.removeListener(this)
         player.release()
 
-        if (mediaId != null && duration != C.TIME_UNSET) {
+        if (mediaId != null && duration != C.TIME_UNSET && duration > 0) {
             @OptIn(DelicateCoroutinesApi::class)
             GlobalScope.launch(Dispatchers.IO) {
                 try {
