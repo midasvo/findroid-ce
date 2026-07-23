@@ -1,10 +1,11 @@
 package dev.jdtech.jellyfin.models
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.util.UUID
 
-@Entity(tableName = "sources")
+@Entity(tableName = "sources", indices = [Index("itemId")])
 data class FindroidSourceDto(
     @PrimaryKey val id: String,
     val itemId: UUID,
