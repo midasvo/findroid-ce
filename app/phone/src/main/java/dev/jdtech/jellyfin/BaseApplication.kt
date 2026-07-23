@@ -79,7 +79,10 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
         val workManager = WorkManager.getInstance(applicationContext)
 
         scheduleUserDataSync(workManager)
-        scheduleMpvCleanup(workManager)
+
+        if (!appPreferences.getValue(appPreferences.mpvMigrated)) {
+            scheduleMpvCleanup(workManager)
+        }
 
         // Schedule daily orphan sweep to clean up stale downloads.
         workManager.enqueueUniquePeriodicWork(
@@ -149,14 +152,8 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
     }
 
     private fun scheduleMpvCleanup(workManager: WorkManager) {
-        val constraints = Constraints.Builder()
-            .setRequiresDeviceIdle(true)
-            .setRequiresBatteryNotLow(true)
-            .build()
-
         val cleanupRequest =
             OneTimeWorkRequestBuilder<MpvCleanupWorker>()
-                .setConstraints(constraints)
                 .build()
 
         workManager.enqueueUniqueWork(

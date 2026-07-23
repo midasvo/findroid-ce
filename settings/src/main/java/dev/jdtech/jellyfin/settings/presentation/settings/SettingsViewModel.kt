@@ -349,12 +349,6 @@ class SettingsViewModel @Inject constructor(
                                                     options = R.array.player_backends,
                                                     optionValues = R.array.player_backends
                                                 ),
-
-                                            )
-                                    ),
-                                    PreferenceGroup(
-                                        preferences =
-                                            listOf(
                                                 PreferenceCategory(
                                                     nameStringResource = R.string.mpv_options,
                                                     onClick = {
