@@ -2,10 +2,13 @@ package dev.jdtech.jellyfin.settings.presentation.settings
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 
@@ -23,20 +26,24 @@ constructor(
     fun loadFile(filePath: String) {
         this.filePath = filePath
 
-        val file = File(application.filesDir, filePath)
-        val text = if (file.exists()) {
-            file.readText()
-        } else ""
-        _state.update { it.copy(initialText = text) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val file = File(application.filesDir, filePath)
+            val text = if (file.exists()) {
+                file.readText()
+            } else ""
+            _state.update { it.copy(initialText = text) }
+        }
     }
 
     fun onAction(action: SettingsFileEditAction) {
         when (action) {
             is SettingsFileEditAction.OnSave -> {
-                val file = File(application.filesDir, filePath)
-                file.parentFile?.mkdirs()
-                file.writeText(action.text)
-                _state.update { it.copy(initialText = action.text) }
+                viewModelScope.launch(Dispatchers.IO) {
+                    val file = File(application.filesDir, filePath)
+                    file.parentFile?.mkdirs()
+                    file.writeText(action.text)
+                    _state.update { it.copy(initialText = action.text) }
+                }
             }
             else -> Unit
         }
