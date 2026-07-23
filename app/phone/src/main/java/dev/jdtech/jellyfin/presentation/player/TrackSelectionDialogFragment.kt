@@ -6,6 +6,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import androidx.media3.common.C
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.jdtech.jellyfin.player.local.R
@@ -13,10 +14,11 @@ import dev.jdtech.jellyfin.player.local.domain.getTrackNames
 import dev.jdtech.jellyfin.player.local.presentation.PlayerViewModel
 import java.lang.IllegalStateException
 
-class TrackSelectionDialogFragment(
-    private val type: @C.TrackType Int,
-    private val viewModel: PlayerViewModel,
-) : DialogFragment() {
+class TrackSelectionDialogFragment : DialogFragment() {
+    private val viewModel: PlayerViewModel by activityViewModels()
+    private val type: @C.TrackType Int
+        get() = requireArguments().getInt(ARG_TYPE)
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val titleResource =
             when (type) {
@@ -55,5 +57,14 @@ class TrackSelectionDialogFragment(
                 hide(WindowInsetsCompat.Type.systemBars())
             }
         }
+    }
+
+    companion object {
+        private const val ARG_TYPE = "type"
+
+        fun newInstance(type: @C.TrackType Int): TrackSelectionDialogFragment =
+            TrackSelectionDialogFragment().apply {
+                arguments = Bundle().apply { putInt(ARG_TYPE, type) }
+            }
     }
 }

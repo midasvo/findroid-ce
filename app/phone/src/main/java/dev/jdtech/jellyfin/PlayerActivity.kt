@@ -233,7 +233,7 @@ class PlayerActivity : BasePlayerActivity() {
                             // ViewModel. The ViewModel is the source of truth for the timeout;
                             // the dialog is purely a render of the state.
                             if (showStillWatching && stillWatchingDialog == null) {
-                                val dialog = StillWatchingDialogFragment(viewModel)
+                                val dialog = StillWatchingDialogFragment()
                                 stillWatchingDialog = dialog
                                 dialog.show(supportFragmentManager, "stillwatchingdialog")
                             } else if (!showStillWatching && stillWatchingDialog != null) {
@@ -310,7 +310,7 @@ class PlayerActivity : BasePlayerActivity() {
         }
 
         audioButton.setOnClickListener {
-            TrackSelectionDialogFragment(C.TRACK_TYPE_AUDIO, viewModel)
+            TrackSelectionDialogFragment.newInstance(C.TRACK_TYPE_AUDIO)
                 .show(supportFragmentManager, "trackselectiondialog")
         }
 
@@ -332,17 +332,17 @@ class PlayerActivity : BasePlayerActivity() {
         }
 
         subtitleButton.setOnClickListener {
-            TrackSelectionDialogFragment(C.TRACK_TYPE_TEXT, viewModel)
+            TrackSelectionDialogFragment.newInstance(C.TRACK_TYPE_TEXT)
                 .show(supportFragmentManager, "trackselectiondialog")
         }
 
         speedButton.setOnClickListener {
-            SpeedSelectionDialogFragment(viewModel)
+            SpeedSelectionDialogFragment()
                 .show(supportFragmentManager, "speedselectiondialog")
         }
 
         chaptersButton.setOnClickListener {
-            ChapterListDialogFragment(viewModel)
+            ChapterListDialogFragment()
                 .show(supportFragmentManager, "chapterlistdialog")
         }
 
