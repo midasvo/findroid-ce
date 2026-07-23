@@ -139,6 +139,7 @@ dependencies {
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
 
     implementation(libs.androidx.core)
+    implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.hilt.work)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.media3.ui)
