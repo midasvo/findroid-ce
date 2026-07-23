@@ -8,9 +8,8 @@ import dev.jdtech.jellyfin.models.CollectionType
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.View
 import java.nio.charset.StandardCharsets
-import java.text.DateFormat
-import java.time.ZoneOffset
-import java.util.Date
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import org.jellyfin.sdk.model.DateTime
 import org.jellyfin.sdk.model.api.BaseItemDto
 
@@ -40,7 +39,5 @@ fun ByteArray.toBase64Str(): String {
 }
 
 fun DateTime.format(): String {
-    val instant = this.toInstant(ZoneOffset.UTC)
-    val date = Date.from(instant)
-    return DateFormat.getDateInstance(DateFormat.SHORT).format(date)
+    return DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).format(this.toLocalDate())
 }
