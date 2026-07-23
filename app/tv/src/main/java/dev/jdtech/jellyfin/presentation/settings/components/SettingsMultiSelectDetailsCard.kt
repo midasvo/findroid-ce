@@ -48,7 +48,7 @@ fun SettingsMultiSelectDetailsCard(
 
     val options = remember(preference.nameStringResource) { optionValues.zip(optionNames) }
 
-    var selectedOptions by remember { mutableStateOf(preference.value) }
+    var selectedOptions by remember(preference.nameStringResource) { mutableStateOf(preference.value) }
 
     Surface(modifier = modifier) {
         Column(
