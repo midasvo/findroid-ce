@@ -215,20 +215,22 @@ constructor(
                 DownloadSortOrder.DATE -> filteredMovies.sortedByDescending { maxSourceMtime(it.id) }
                 DownloadSortOrder.SIZE -> filteredMovies.sortedByDescending { itemSizes[it.id] ?: 0L }
             }
-            val filteredShows = items
-                .filterIsInstance<FindroidShow>()
+            val shows = items.filterIsInstance<FindroidShow>()
+            // Fetch each show's episode list once and reuse it for both the
+            // filter and sort passes below, instead of re-querying the DB.
+            val episodesByShow = shows.associateWith { database.getEpisodesByShowId(it.id) }
+            val filteredShows = shows
                 .filter { show ->
-                    database.getEpisodesByShowId(show.id)
-                        .any { hasCompletedSource(it.id) }
+                    episodesByShow.getValue(show).any { hasCompletedSource(it.id) }
                 }
             val sortedShows = when (sortOrder) {
                 DownloadSortOrder.NAME -> filteredShows.sortedBy { it.name.lowercase() }
                 DownloadSortOrder.DATE -> filteredShows.sortedByDescending { show ->
-                    database.getEpisodesByShowId(show.id)
+                    episodesByShow.getValue(show)
                         .maxOfOrNull { maxSourceMtime(it.id) } ?: 0L
                 }
                 DownloadSortOrder.SIZE -> filteredShows.sortedByDescending { show ->
-                    database.getEpisodesByShowId(show.id)
+                    episodesByShow.getValue(show)
                         .sumOf { ep -> itemSizes[ep.id] ?: 0L }
                 }
             }

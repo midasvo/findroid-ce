@@ -12,7 +12,6 @@ data class PreferenceIntInput(
     override val enabled: Boolean = true,
     override val dependencies: List<PreferenceBackend<Boolean>> = emptyList(),
     override val supportedDeviceTypes: List<DeviceType> = listOf(DeviceType.PHONE, DeviceType.TV),
-    val onClick: (Preference) -> Unit = {},
     val backendPreference: PreferenceBackend<Int>,
     @param:StringRes val prefixRes: Int? = null,
     @param:StringRes val suffixRes: Int? = null,

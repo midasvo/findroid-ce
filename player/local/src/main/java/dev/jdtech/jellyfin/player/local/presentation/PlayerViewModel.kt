@@ -137,6 +137,16 @@ constructor(
     private val stillWatchingPromptTimeoutSeconds: Int
     private var stillWatchingTimeoutJob: Job? = null
 
+    // Armed immediately before an app-initiated seekToNextMediaItem() (auto-advance). Because
+    // pauseAtEndOfMediaItems is on, the app performs that transition as an explicit seek, which
+    // surfaces in onPositionDiscontinuity as DISCONTINUITY_REASON_SEEK — indistinguishable from a
+    // user seek without this hint. onPositionDiscontinuity checks and clears the flag so it does
+    // not treat our own advance as a user interaction (which would reset the still-watching
+    // counter and refresh the inactivity timer). The seek→discontinuity callback is delivered
+    // asynchronously on the main looper for both ExoPlayer and MPVPlayer, so the flag must persist
+    // until the callback fires rather than being cleared right after the seek call.
+    private var pendingAutoAdvanceSeek = false
+
     init {
         val episodes = appPreferences.getValue(appPreferences.stillWatchingAfterEpisodes)
         val minutes = appPreferences.getValue(appPreferences.stillWatchingAfterMinutes)
@@ -334,7 +344,7 @@ constructor(
         player.removeListener(this)
         player.release()
 
-        if (mediaId != null && duration != C.TIME_UNSET) {
+        if (mediaId != null && duration != C.TIME_UNSET && duration > 0) {
             @OptIn(DelicateCoroutinesApi::class)
             GlobalScope.launch(Dispatchers.IO) {
                 try {
@@ -576,10 +586,24 @@ constructor(
                     showStillWatchingPrompt()
                     return@launch
                 }
-                player.seekToNextMediaItem()
-                player.play()
+                autoAdvanceToNextItem()
             }
         }
+    }
+
+    /**
+     * Advance to the next item as part of automatic playback (end-of-item auto-advance or a
+     * confirmed still-watching prompt). Arms [pendingAutoAdvanceSeek] so the resulting
+     * DISCONTINUITY_REASON_SEEK is not mistaken for a user interaction. The flag is only set when
+     * a next item actually exists — otherwise seekToNextMediaItem() is a no-op that fires no
+     * discontinuity, and the flag would leak onto the next genuine user seek.
+     */
+    private fun autoAdvanceToNextItem() {
+        if (player.hasNextMediaItem()) {
+            pendingAutoAdvanceSeek = true
+        }
+        player.seekToNextMediaItem()
+        player.play()
     }
 
     private fun showStillWatchingPrompt() {
@@ -604,8 +628,7 @@ constructor(
         stillWatchingTracker.onUserInteraction(nowMs = System.currentTimeMillis())
         _uiState.update { it.copy(showStillWatching = false) }
         if (player.hasNextMediaItem()) {
-            player.seekToNextMediaItem()
-            player.play()
+            autoAdvanceToNextItem()
         }
     }
 
@@ -933,11 +956,19 @@ constructor(
         reason: Int,
     ) {
         super.onPositionDiscontinuity(oldPosition, newPosition, reason)
-        // Player.DISCONTINUITY_REASON_SEEK fires for user-driven seeks (controls + gestures
-        // both end up here). Auto-transitions go through onMediaItemTransition with a separate
-        // reason, so we don't accidentally pick those up.
+        // Player.DISCONTINUITY_REASON_SEEK fires for user-driven seeks (controls + gestures both
+        // end up here). It ALSO fires for our own auto-advance: with pauseAtEndOfMediaItems the
+        // app performs the transition to the next item via an explicit seekToNextMediaItem(), which
+        // the player reports as a seek, not as an AUTO_TRANSITION. autoAdvanceToNextItem() arms
+        // pendingAutoAdvanceSeek before that call so we can tell the two apart here — a programmatic
+        // advance must not count as a user interaction (that would reset the still-watching counter
+        // and refresh the inactivity timer, so the prompt could never fire).
         if (reason == Player.DISCONTINUITY_REASON_SEEK) {
-            markUserInteraction()
+            if (pendingAutoAdvanceSeek) {
+                pendingAutoAdvanceSeek = false
+            } else {
+                markUserInteraction()
+            }
         }
     }
 }

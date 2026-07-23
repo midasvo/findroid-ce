@@ -20,6 +20,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -49,7 +50,7 @@ constructor(
     fun loadData() {
         Timber.i("Loading data")
         viewModelScope.launch(Dispatchers.Default) {
-            _state.emit(_state.value.copy(isLoading = true, error = null))
+            _state.update { it.copy(isLoading = true, error = null) }
             try {
                 appPreferences.getValue(appPreferences.currentServer)?.let { serverId ->
                     loadServerName(serverId)
@@ -68,23 +69,23 @@ constructor(
                     )
                 }
             } catch (e: Exception) {
-                _state.emit(_state.value.copy(error = e))
+                _state.update { it.copy(error = e) }
             }
-            _state.emit(_state.value.copy(isLoading = false))
+            _state.update { it.copy(isLoading = false) }
         }
     }
 
     private suspend fun loadServerName(serverId: String) {
         val server = database.get(serverId)
         if (server != null) {
-            _state.emit(_state.value.copy(server = server))
+            _state.update { it.copy(server = server) }
         }
     }
 
     private suspend fun loadSuggestions() {
         Timber.i("Loading suggestions")
         if (!appPreferences.getValue(appPreferences.homeSuggestions)) {
-            _state.emit(_state.value.copy(suggestionsSection = null))
+            _state.update { it.copy(suggestionsSection = null) }
             return
         }
 
@@ -97,13 +98,13 @@ constructor(
                 HomeItem.Suggestions(id = UUID_SUGGESTIONS, items = items)
             }
 
-        _state.emit(_state.value.copy(suggestionsSection = section))
+        _state.update { it.copy(suggestionsSection = section) }
     }
 
     private suspend fun loadResumeItems() {
         Timber.i("Loading resume items")
         if (!appPreferences.getValue(appPreferences.homeContinueWatching)) {
-            _state.emit(_state.value.copy(resumeSection = null))
+            _state.update { it.copy(resumeSection = null) }
             return
         }
 
@@ -118,13 +119,13 @@ constructor(
                 )
             }
 
-        _state.emit(_state.value.copy(resumeSection = section))
+        _state.update { it.copy(resumeSection = section) }
     }
 
     private suspend fun loadNextUpItems() {
         Timber.i("Loading next up items")
         if (!appPreferences.getValue(appPreferences.homeNextUp)) {
-            _state.emit(_state.value.copy(nextUpSection = null))
+            _state.update { it.copy(nextUpSection = null) }
             return
         }
 
@@ -137,20 +138,26 @@ constructor(
                 HomeItem.Section(HomeSection(UUID_NEXT_UP, uiTextNextUp, nextUpItems))
             }
 
-        _state.emit(_state.value.copy(nextUpSection = section))
+        _state.update { it.copy(nextUpSection = section) }
     }
 
     private suspend fun loadViews() {
         Timber.i("Loading views")
         val items =
             if (appPreferences.getValue(appPreferences.homeLatest)) {
-                repository
-                    .getUserViews()
-                    .filter { view ->
-                        CollectionType.fromString(view.collectionType?.serialName) in
-                            CollectionType.supported
-                    }
-                    .map { view -> view to repository.getLatestMedia(view.id) }
+                val views =
+                    repository
+                        .getUserViews()
+                        .filter { view ->
+                            CollectionType.fromString(view.collectionType?.serialName) in
+                                CollectionType.supported
+                        }
+
+                coroutineScope {
+                    views
+                        .map { view -> async { view to repository.getLatestMedia(view.id) } }
+                        .awaitAll()
+                }
                     .filter { (_, latest) -> latest.isNotEmpty() }
                     .map { (view, latest) -> view.toView(latest) }
                     .map { HomeItem.ViewItem(it) }
@@ -158,7 +165,7 @@ constructor(
                 emptyList()
             }
 
-        _state.emit(_state.value.copy(views = items))
+        _state.update { it.copy(views = items) }
     }
 
     fun onAction(action: HomeAction) {

@@ -37,11 +37,11 @@ fun ItemPoster(item: FindroidItem, direction: Direction, modifier: Modifier = Mo
     }
 
     // Ugly workaround to append the files directory when loading local images
-    if (imageUri?.scheme == null) {
+    if (imageUri != null && imageUri.scheme == null) {
         imageUri =
             Uri.Builder()
                 .appendEncodedPath("${context.filesDir}")
-                .appendEncodedPath(imageUri?.path)
+                .appendEncodedPath(imageUri.path)
                 .build()
     }
 

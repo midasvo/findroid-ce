@@ -7,6 +7,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -27,7 +28,8 @@ import kotlinx.coroutines.launch
  * the activity dismisses us. The dialog is non-cancelable for the back button /
  * outside-touch so the only paths out are the two explicit buttons or that timeout.
  */
-class StillWatchingDialogFragment(private val viewModel: PlayerViewModel) : DialogFragment() {
+class StillWatchingDialogFragment : DialogFragment() {
+    private val viewModel: PlayerViewModel by activityViewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         isCancelable = false

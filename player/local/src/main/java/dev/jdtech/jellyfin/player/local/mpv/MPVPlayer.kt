@@ -730,13 +730,13 @@ class MPVPlayer(
      */
     override fun addMediaItems(index: Int, mediaItems: MutableList<MediaItem>) {
         internalMediaItems.addAll(index, mediaItems)
-        mediaItems.forEach { mediaItem ->
+        mediaItems.forEachIndexed { offset, mediaItem ->
             mpvLib.command(
                 arrayOf(
                     "loadfile",
                     "${mediaItem.localConfiguration?.uri}",
                     "insert-at",
-                    index.toString(),
+                    (index + offset).toString(),
                 )
             )
         }
@@ -1597,7 +1597,7 @@ class MPVPlayer(
                             .setWidth(json.optInt("demux-w", Format.NO_VALUE))
                             .setHeight(json.optInt("demux-h", Format.NO_VALUE))
                             .setFrameRate(
-                                (json.optNullableDouble("demux-w") ?: Format.NO_VALUE).toFloat()
+                                (json.optNullableDouble("demux-fps") ?: Format.NO_VALUE).toFloat()
                             )
                             .build()
                     }

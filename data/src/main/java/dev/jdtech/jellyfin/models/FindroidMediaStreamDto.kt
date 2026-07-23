@@ -1,11 +1,12 @@
 package dev.jdtech.jellyfin.models
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.util.UUID
 import org.jellyfin.sdk.model.api.MediaStreamType
 
-@Entity(tableName = "mediastreams")
+@Entity(tableName = "mediastreams", indices = [Index("sourceId")])
 data class FindroidMediaStreamDto(
     @PrimaryKey val id: UUID,
     val sourceId: String,

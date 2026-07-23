@@ -11,6 +11,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil3.load
@@ -33,9 +34,9 @@ import dev.jdtech.jellyfin.player.local.presentation.PlayerViewModel
  * existing [TrackSelectionDialogFragment] and [SpeedSelectionDialogFragment] in this module, which
  * are wired through the same `supportFragmentManager` mechanism.
  */
-class ChapterListDialogFragment(
-    private val viewModel: PlayerViewModel,
-) : DialogFragment() {
+class ChapterListDialogFragment : DialogFragment() {
+    private val viewModel: PlayerViewModel by activityViewModels()
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val activity = requireActivity()
         val chapters = viewModel.uiState.value.currentChapters

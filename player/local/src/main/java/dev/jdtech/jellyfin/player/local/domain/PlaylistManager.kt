@@ -227,7 +227,7 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
                         mediaStream.path!!.toUri(),
                         when (mediaStream.codec) {
                             "subrip" -> MimeTypes.APPLICATION_SUBRIP
-                            "webvtt" -> MimeTypes.APPLICATION_SUBRIP
+                            "webvtt" -> MimeTypes.TEXT_VTT
                             "ass" -> MimeTypes.TEXT_SSA
                             // Image-based subtitle sidecars. media3 ships native parsers
                             // for these, so advertising the correct MIME lets the renderer
