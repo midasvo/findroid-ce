@@ -14,7 +14,10 @@ import dev.jdtech.jellyfin.utils.Downloader
 import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -53,16 +56,22 @@ constructor(
                 val writers = getWriters(show)
                 val seasonDownloadInfo = mutableMapOf<UUID, SeasonDownloadInfo>()
                 var hasDownloads = false
-                for (season in seasons) {
-                    val episodes =
-                        repository.getEpisodes(
-                            seriesId = showId,
-                            seasonId = season.id,
-                            offline = downloadsOnly,
-                        )
+                coroutineScope {
+                    seasons.map { season ->
+                        async {
+                            val episodes =
+                                repository.getEpisodes(
+                                    seriesId = showId,
+                                    seasonId = season.id,
+                                    offline = downloadsOnly,
+                                )
+                            season.id to episodes
+                        }
+                    }.awaitAll()
+                }.forEach { (seasonId, episodes) ->
                     val downloadedCount = episodes.count { it.isDownloaded() }
                     if (downloadedCount > 0) hasDownloads = true
-                    seasonDownloadInfo[season.id] =
+                    seasonDownloadInfo[seasonId] =
                         SeasonDownloadInfo(
                             downloadedCount = downloadedCount,
                             totalCount = episodes.size,
