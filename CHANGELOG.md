@@ -10,6 +10,35 @@ _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.1.0-ce.1] — 2026-07-23
+
+Results of a full codebase audit (scan → triage → fix): 30 targeted commits across all modules.
+
+### Fixed
+- Downloaded episodes now show their download state in search, favorites, resume and latest lists while online.
+- Home screen sections no longer intermittently disappear due to a state race between the parallel section loaders.
+- The "Are you still watching?" prompt can actually trigger during episode auto-advance — its counter was being reset by the auto-advance seek itself.
+- Player dialogs (track selection, speed, chapters, still-watching) no longer crash the app when restored after process death; added the `fragment-ktx` dependency this requires.
+- External WebVTT subtitles are parsed as WebVTT instead of being fed to the SubRip parser.
+- Premiere dates no longer display one day early in timezones west of UTC.
+- Resolution badge: sub-720p sources are labeled SD instead of HD, and above-4K content is no longer labeled SD.
+- Playback-stop reporting no longer sends a bogus played percentage when the player is released before the duration is known.
+- mpv: video frame rate no longer reports the pixel width, and multi-item playlist inserts keep their order.
+- TV: DPAD presses on the show screen no longer register twice, and the multi-select settings panel no longer shows the previous preference's checkboxes when moving focus between two multi-selects.
+- Progress bars guard against items with unknown runtime (no more infinite-width layout).
+- Missing posters/backdrops fall back to the placeholder instead of loading a broken "/null" URI.
+- The home pull-to-refresh spinner now stays visible until the reload actually finishes.
+- Setup: a server reporting no id shows a friendly error instead of crashing; Quick Connect failures are surfaced instead of silently swallowed; wrong-password detection uses the typed 401 exception instead of message matching; manually added server addresses are normalized, deduplicated, and failures are shown in the UI.
+- Settings: subtitle font scale is clamped on the generic (TV) settings path too.
+
+### Changed
+- Home screen fetches "latest media" per library in parallel, and the show screen fetches season episodes in parallel — both were sequential network calls that scaled with library/season count.
+- Room: added indices on `sources.itemId` and `mediastreams.sourceId` (schema v11, auto-migration) to avoid full-table scans on every list render.
+- Downloads screen no longer queries each show's episodes twice per load, the images download worker reuses the shared OkHttp client, and the settings file editor does its I/O off the main thread.
+
+### Maintenance
+- Removed dead code: the unused TV track-selector dialog and helper, two unused DAO queries, and unused `onClick` fields on number-input preferences; the download poll loop now uses its named constant.
+
 ## [v1.1.0-ce.0] — 2026-07-23
 
 ### Changed
