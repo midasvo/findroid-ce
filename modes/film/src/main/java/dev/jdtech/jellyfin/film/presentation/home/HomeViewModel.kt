@@ -145,13 +145,19 @@ constructor(
         Timber.i("Loading views")
         val items =
             if (appPreferences.getValue(appPreferences.homeLatest)) {
-                repository
-                    .getUserViews()
-                    .filter { view ->
-                        CollectionType.fromString(view.collectionType?.serialName) in
-                            CollectionType.supported
-                    }
-                    .map { view -> view to repository.getLatestMedia(view.id) }
+                val views =
+                    repository
+                        .getUserViews()
+                        .filter { view ->
+                            CollectionType.fromString(view.collectionType?.serialName) in
+                                CollectionType.supported
+                        }
+
+                coroutineScope {
+                    views
+                        .map { view -> async { view to repository.getLatestMedia(view.id) } }
+                        .awaitAll()
+                }
                     .filter { (_, latest) -> latest.isNotEmpty() }
                     .map { (view, latest) -> view.toView(latest) }
                     .map { HomeItem.ViewItem(it) }
