@@ -4,11 +4,24 @@ All notable changes to **Findroid CE** (`nl.midasvo.findroid.ce`) are documented
 
 This is a community fork of [findroid](https://github.com/jarnedemeulemeester/findroid). Releases are
 tagged `v<upstream-version>-ce.<N>`, where `<upstream-version>` tracks the upstream base
-(currently `1.0.2`) and `<N>` is the CE iteration counter. Entries below describe what each CE
+(currently `1.1.0`) and `<N>` is the CE iteration counter. Entries below describe what each CE
 release adds on top of upstream; routine dependency bumps and translation updates are grouped under
 _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [v1.1.0-ce.0] — 2026-07-23
+
+### Changed
+- Synced with upstream findroid `1.1.0` (up from `1.0.2`) — the CE tag base bumps accordingly and the iteration counter resets to 0.
+
+### Added
+- mpv preference now migrates automatically to the new player-backend preference; mpv settings are grouped together, and the config editor auto-focuses on open (ported from upstream).
+
+### Maintenance
+- Upstream's `DownloadManager` cursor-leak fix (#1227) doesn't apply to CE — we already replaced that backend with our own OkHttp-based download engine.
+- Updated fastlane, `actions/checkout` (v7), aboutlibraries (v15), androidx.hilt (1.4.0), androidx.lifecycle (2.11.0), androidx.core (1.19.0), androidx.compose (1.11.4), Hilt (2.60.1), Kotlin, and the Android Gradle plugin (9.3.0); compile SDK/build tools bumped to 37.
+- Spanish and Portuguese (Brazil) translation updates.
 
 ## [v1.0.2-ce.36] — 2026-07-12
 
