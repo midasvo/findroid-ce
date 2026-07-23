@@ -121,9 +121,20 @@ class SetupRepositoryImpl(
                     UiText.StringResource(SetupR.string.add_server_error_no_id)
                 )
 
-        Timber.d("Connecting to server: ${serverInfo.serverName}")
+        val serverId =
+            serverInfo.id
+                ?: throw ExceptionUiText(
+                    UiText.StringResource(SetupR.string.add_server_error_no_id)
+                )
+        val serverName =
+            serverInfo.serverName
+                ?: throw ExceptionUiText(
+                    UiText.StringResource(SetupR.string.add_server_error_no_id)
+                )
 
-        val serverInDatabase = database.get(serverInfo.id!!)
+        Timber.d("Connecting to server: $serverName")
+
+        val serverInDatabase = database.get(serverId)
 
         // Check if server is already in the database
         // If so only add a new address to that server if it's different
@@ -146,14 +157,14 @@ class SetupRepositoryImpl(
                 val serverAddress =
                     ServerAddress(
                         id = UUID.randomUUID(),
-                        serverId = serverInfo.id!!,
+                        serverId = serverId,
                         address = recommendedServerInfo.address,
                     )
 
                 val server =
                     Server(
-                        id = serverInfo.id!!,
-                        name = serverInfo.serverName!!,
+                        id = serverId,
+                        name = serverName,
                         currentServerAddressId = serverAddress.id,
                         currentUserId = null,
                     )
