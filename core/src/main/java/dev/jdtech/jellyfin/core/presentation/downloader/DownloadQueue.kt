@@ -7,6 +7,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.jdtech.jellyfin.core.Constants
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
 import dev.jdtech.jellyfin.models.FindroidEpisode
@@ -592,7 +593,7 @@ constructor(
                     }
                 }
             if (shouldExit) return
-            delay(1000L)
+            delay(Constants.DOWNLOAD_POLL_INTERVAL_MS)
         }
     }
 
