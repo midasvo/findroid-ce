@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import org.jellyfin.sdk.api.client.exception.InvalidStatusException
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(private val repository: SetupRepository) : ViewModel() {
@@ -64,7 +65,7 @@ class LoginViewModel @Inject constructor(private val repository: SetupRepository
                 eventsChannel.send(LoginEvent.Success)
             } catch (e: Exception) {
                 val message =
-                    if (e.message?.contains("401") == true) {
+                    if (e is InvalidStatusException && e.status == 401) {
                         UiText.StringResource(SetupR.string.login_error_wrong_username_password)
                     } else {
                         UiText.StringResource(CoreR.string.unknown_error)
