@@ -154,6 +154,11 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                     userScrollEnabled = false,
                     modifier =
                         Modifier.onPreviewKeyEvent { keyEvent ->
+                            // Only act on the key-up event so each physical press moves
+                            // currentIndex once, even with key-repeat (see ServersScreen).
+                            if (keyEvent.nativeKeyEvent.action != KeyEvent.ACTION_UP) {
+                                return@onPreviewKeyEvent false
+                            }
                             when (keyEvent.key.nativeKeyCode) {
                                 KeyEvent.KEYCODE_DPAD_DOWN -> {
                                     currentIndex =
