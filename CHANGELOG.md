@@ -10,6 +10,13 @@ _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.1.0-ce.2] — 2026-08-07
+
+Upstream sync only — no CE behaviour changes.
+
+### Maintenance
+- Synced with upstream findroid: Jellyfin SDK `1.8.12`, Android Gradle Plugin `9.3.1`, slf4j-api `2.0.18`, Ruby `4.0.6`.
+
 ## [v1.1.0-ce.1] — 2026-07-23
 
 Results of a full codebase audit (scan → triage → fix): 30 targeted commits across all modules.
