@@ -54,7 +54,7 @@ class MPVPlayer(
     private val seekForwardIncrement: Long = C.DEFAULT_SEEK_FORWARD_INCREMENT_MS,
     private val pauseAtEndOfMediaItems: Boolean = false,
     videoOutput: String = "gpu-next",
-    audioOutput: String = "aaudio",
+    audioOutput: String = "audiotrack",
     hwDec: String = "mediacodec",
 ) : BasePlayer(), MPVLib.EventObserver, AudioManager.OnAudioFocusChangeListener {
     private val mpvLib: MPVLib
@@ -100,7 +100,7 @@ class MPVPlayer(
         var videoOutput: String = "gpu-next"
             private set
 
-        var audioOutput: String = "aaudio"
+        var audioOutput: String = "audiotrack"
             private set
 
         var hwDec: String = "mediacodec"
