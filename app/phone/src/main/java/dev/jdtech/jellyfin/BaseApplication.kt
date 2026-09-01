@@ -76,6 +76,9 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
             DynamicColors.applyToActivitiesIfAvailable(this)
         }
 
+        // Issue #52: correct an "aaudio" value left in preferences by the old default.
+        appPreferences.migrateMpvAudioOutput()
+
         val workManager = WorkManager.getInstance(applicationContext)
 
         scheduleUserDataSync(workManager)

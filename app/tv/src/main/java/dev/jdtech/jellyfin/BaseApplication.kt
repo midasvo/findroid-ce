@@ -21,6 +21,13 @@ import okio.Path.Companion.toOkioPath
 class BaseApplication : Application(), SingletonImageLoader.Factory {
     @Inject lateinit var appPreferences: AppPreferences
 
+    override fun onCreate() {
+        super.onCreate()
+
+        // Issue #52: correct an "aaudio" value left in preferences by the old default.
+        appPreferences.migrateMpvAudioOutput()
+    }
+
     @OptIn(ExperimentalCoilApi::class, ExperimentalTime::class)
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         return ImageLoader.Builder(this)

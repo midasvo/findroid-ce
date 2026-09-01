@@ -33,6 +33,7 @@ import androidx.media3.common.util.Clock
 import androidx.media3.common.util.ListenerSet
 import androidx.media3.common.util.Size
 import androidx.media3.common.util.Util
+import dev.jdtech.jellyfin.settings.domain.Constants
 import dev.jdtech.mpv.MPVLib
 import dev.jdtech.mpv.MPVLib.MpvFormat
 import dev.jdtech.mpv.MPVLib.MpvEvent
@@ -54,7 +55,9 @@ class MPVPlayer(
     private val seekForwardIncrement: Long = C.DEFAULT_SEEK_FORWARD_INCREMENT_MS,
     private val pauseAtEndOfMediaItems: Boolean = false,
     videoOutput: String = "gpu-next",
-    audioOutput: String = "audiotrack",
+    // Mirrors AppPreferences.playerMpvAo — see the CE divergence note there (issue #52).
+    // Never observed in practice: PlayerViewModel always passes the stored preference.
+    audioOutput: String = Constants.MpvAudioOutput.AUDIOTRACK,
     hwDec: String = "mediacodec",
 ) : BasePlayer(), MPVLib.EventObserver, AudioManager.OnAudioFocusChangeListener {
     private val mpvLib: MPVLib
@@ -100,7 +103,7 @@ class MPVPlayer(
         var videoOutput: String = "gpu-next"
             private set
 
-        var audioOutput: String = "audiotrack"
+        var audioOutput: String = Constants.MpvAudioOutput.AUDIOTRACK
             private set
 
         var hwDec: String = "mediacodec"

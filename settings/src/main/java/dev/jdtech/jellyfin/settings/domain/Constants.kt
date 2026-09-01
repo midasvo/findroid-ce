@@ -7,6 +7,13 @@ object Constants {
         const val PIP = "pip"
     }
 
+    // Player - mpv audio output. These are mpv driver names, passed to `ao` verbatim, and
+    // are also the values stored in R.array.mpv_aos.
+    object MpvAudioOutput {
+        const val AUDIOTRACK = "audiotrack"
+        const val AAUDIO = "aaudio"
+    }
+
     // Player - Subtitle styling
     // Defaults match the platform "white-on-translucent-black" closed-caption look —
     // matches CaptionStyleCompat.DEFAULT but with an outlined edge for readability over

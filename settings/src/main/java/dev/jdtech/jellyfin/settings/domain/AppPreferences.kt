@@ -30,7 +30,17 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val playerMpv = Preference("pref_player_mpv", false)
     val playerMpvHwdec = Preference("pref_player_mpv_hwdec", "mediacodec")
     val playerMpvVo = Preference("pref_player_mpv_vo", "gpu-next")
-    val playerMpvAo = Preference("pref_player_mpv_ao", "audiotrack")
+
+    // CE divergence from upstream (issue #52 / upstream #1246): upstream defaults this to
+    // "aaudio", which freezes the video pipeline after any flush (seek, audio-track switch,
+    // next episode, surface recreation) while audio keeps playing. Every confirmed report so
+    // far is a Samsung device, but upstream's own bisect concluded the fault is with the
+    // aaudio output itself and reproduces it in mpv-android too, so do not narrow this to a
+    // manufacturer check — see mpv-android/mpv-android#1283, still unfixed.
+    // "audiotrack" is also what mpv's own autoprobe order picks on Android, and what
+    // mpv-android uses. aaudio stays selectable for anyone who wants it.
+    val playerMpvAo =
+        Preference("pref_player_mpv_ao", Constants.MpvAudioOutput.AUDIOTRACK)
 
     // Player - gestures
     val playerGestures = Preference("pref_player_gestures", true)
@@ -179,6 +189,28 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
 
     // Migrations
     val mpvMigrated = Preference("mpv_migrated", false)
+
+    val mpvAoAaudioMigrated = Preference("pref_player_mpv_ao_aaudio_migrated", false)
+
+    /**
+     * One-shot move off the broken "aaudio" audio output (issue #52).
+     *
+     * Flipping [playerMpvAo]'s default is not enough on its own: the settings picker persists a
+     * value on *any* tap, including on the row that is already selected, so everyone who merely
+     * opened Audio output while troubleshooting the freeze has "aaudio" written to disk — which
+     * is exactly the population that hit the bug. Rewrite that one value once.
+     *
+     * Guarded by [mpvAoAaudioMigrated] so a deliberate re-selection afterwards sticks; we correct
+     * an accidental value, we don't keep overruling the user.
+     */
+    fun migrateMpvAudioOutput() {
+        if (getValue(mpvAoAaudioMigrated)) return
+        if (getValue(playerMpvAo) == Constants.MpvAudioOutput.AAUDIO) {
+            Timber.i("Migrating mpv audio output off aaudio")
+            setValue(playerMpvAo, Constants.MpvAudioOutput.AUDIOTRACK)
+        }
+        setValue(mpvAoAaudioMigrated, true)
+    }
 
     inline fun <reified T> getValue(preference: Preference<T>): T {
         return try {
