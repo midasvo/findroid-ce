@@ -420,6 +420,15 @@ class SettingsViewModel @Inject constructor(
                                                             ),
                                                         )
                                                 ),
+                                                PreferenceSwitch(
+                                                    nameStringResource =
+                                                        R.string.player_tabletop_mode,
+                                                    descriptionStringRes =
+                                                        R.string.player_tabletop_mode_summary,
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
+                                                    backendPreference =
+                                                        appPreferences.playerTabletopMode,
+                                                ),
                                             )
                                     ),
                                     PreferenceGroup(

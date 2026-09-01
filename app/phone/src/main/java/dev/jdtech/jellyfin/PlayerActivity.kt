@@ -25,7 +25,9 @@ import android.widget.ImageView
 import android.widget.Space
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -33,6 +35,8 @@ import androidx.media3.common.C
 import androidx.media3.ui.DefaultTimeBar
 import androidx.media3.ui.PlayerControlView
 import androidx.media3.ui.PlayerView
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.WindowInfoTracker
 import dagger.hilt.android.AndroidEntryPoint
 import dev.jdtech.jellyfin.databinding.ActivityPlayerBinding
 import dev.jdtech.jellyfin.player.local.presentation.PlayerEvents
@@ -68,6 +72,13 @@ class PlayerActivity : BasePlayerActivity() {
     private lateinit var skipSegmentButton: Button
 
     private var stillWatchingDialog: StillWatchingDialogFragment? = null
+
+    /**
+     * The fold the window is currently straddling, if it is one we react to: half-opened, with the
+     * crease running horizontally across the window. Null whenever the window is flat, unfolded,
+     * or split by a vertical crease.
+     */
+    private var tabletopFold: FoldingFeature? = null
 
     private val isPipSupported by lazy {
         // Check if device has PiP feature
@@ -128,6 +139,10 @@ class PlayerActivity : BasePlayerActivity() {
                     binding.playerView,
                     getSystemService(AUDIO_SERVICE) as AudioManager,
                 )
+        }
+
+        if (appPreferences.getValue(appPreferences.playerTabletopMode)) {
+            observeFoldingPosture()
         }
 
         binding.playerView.findViewById<View>(R.id.back_button).setOnClickListener {
@@ -394,6 +409,84 @@ class PlayerActivity : BasePlayerActivity() {
         }
     }
 
+    /**
+     * Issue #51 — tabletop / flex posture on foldables.
+     *
+     * When the device is half-opened with a horizontal crease, the picture would otherwise be
+     * centred in the window and bend across the hinge. Collect the window's layout info and, while
+     * such a fold is present, confine the whole player to the pane above it.
+     *
+     * [FoldingFeature.isSeparating] rather than a state check on its own: it is what distinguishes
+     * a crease the content must not cross from one it merely spans. Bounds arrive in window
+     * coordinates, so this stays correct whatever orientation the activity ends up in, which matters
+     * because a Pixel-style fold reaches tabletop posture in portrait while a Z Fold reaches it in
+     * landscape.
+     */
+    private fun observeFoldingPosture() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                WindowInfoTracker.getOrCreate(this@PlayerActivity)
+                    .windowLayoutInfo(this@PlayerActivity)
+                    .collect { layoutInfo ->
+                        tabletopFold =
+                            layoutInfo.displayFeatures
+                                .filterIsInstance<FoldingFeature>()
+                                .firstOrNull {
+                                    it.isSeparating &&
+                                        it.orientation == FoldingFeature.Orientation.HORIZONTAL
+                                }
+                        applyTabletopLayout()
+                    }
+            }
+        }
+    }
+
+    /**
+     * Pad the bottom of the player root down to the crease, which confines every child — video
+     * surface, subtitles, controls and the gesture overlays alike — to the top pane in one step,
+     * because FrameLayout resolves both match_parent and layout_gravity inside its padding.
+     *
+     * Skipped in picture-in-picture: the window there is a small floating one that no longer spans
+     * the hinge, and the padding would eat most of it.
+     */
+    private fun applyTabletopLayout() {
+        val root = binding.root
+        val fold = tabletopFold
+        val inset = if (fold == null || isInPictureInPictureMode) 0 else tabletopBottomInset(fold)
+
+        if (root.paddingBottom != inset) {
+            root.updatePadding(bottom = inset)
+        }
+
+        // A fold can be reported before the first layout pass, when the root still measures 0 and
+        // tabletopBottomInset() cannot produce anything meaningful. Retry once it has been laid
+        // out. Guarded on isLaidOut because doOnLayout runs immediately on an already-laid-out
+        // view, which would otherwise recurse for a fold that legitimately yields no inset.
+        if (fold != null && !root.isLaidOut) {
+            root.doOnLayout { applyTabletopLayout() }
+        }
+    }
+
+    /**
+     * Distance from the crease to the bottom of the player root, in the root's own coordinates.
+     *
+     * Returns 0 — i.e. leave the player full-bleed, exactly as it behaves today — for anything that
+     * does not describe a fold genuinely crossing the middle of the view. That covers the
+     * pre-layout case and any window that only partially overlaps the hinge, so an unexpected
+     * geometry degrades to current behaviour rather than to a broken layout.
+     */
+    private fun tabletopBottomInset(fold: FoldingFeature): Int {
+        val root = binding.root
+        val height = root.height
+        if (height <= 0) return 0
+
+        val location = IntArray(2)
+        root.getLocationInWindow(location)
+        val foldTop = fold.bounds.top - location[1]
+
+        return if (foldTop <= 0 || foldTop >= height) 0 else height - foldTop
+    }
+
     private fun finishPlayback() {
         try {
             viewModel.player.clearVideoSurfaceView(
@@ -490,6 +583,7 @@ class PlayerActivity : BasePlayerActivity() {
     ) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
         viewModel.isInPictureInPictureMode = isInPictureInPictureMode
+        applyTabletopLayout()
         when (isInPictureInPictureMode) {
             true -> {
                 binding.playerView.useController = false
