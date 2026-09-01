@@ -144,3 +144,8 @@ the new tag, and the published release.
 - Never revert the app ID `nl.midasvo.findroid.ce` back to upstream's `dev.jdtech.jellyfin`.
 - Tag convention is `v1.0.2-ce.N` notation, not independent semver.
 - `.claude/worktrees/` are scratch copies — ignore them when grepping the tree.
+- **CE-owned defaults** — keep these on the CE value when a merge touches them; upstream still
+  ships the other value, so every sync re-presents it:
+  - `AppPreferences.playerMpvAo` = `audiotrack` (upstream: `aaudio`). Reverting it reintroduces
+    the mpv seek/track-switch video freeze — issue #52, upstream #1246, mpv-android#1283 (open).
+    `MPVPlayer`'s constructor and Builder defaults mirror it.

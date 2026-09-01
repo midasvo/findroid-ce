@@ -102,7 +102,8 @@ private fun SettingsSelectDetailsCardItem(
     isEnabled: Boolean = true,
 ) {
     Surface(
-        onClick = { onSelect(option.first) },
+        // Only report an actual change — see the same guard in the phone select dialog (#52).
+        onClick = { if (!isSelected) onSelect(option.first) },
         shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(4.dp)),
         colors =
             ClickableSurfaceDefaults.colors(
