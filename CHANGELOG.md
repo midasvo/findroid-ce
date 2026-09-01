@@ -10,6 +10,20 @@ _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.1.0-ce.3] — 2026-09-01
+
+Fixes the mpv video freeze after seeking, and an upstream sync.
+
+### Fixed
+- **mpv: video no longer freezes after seeking, switching audio track, advancing to the next episode, or turning the screen off and on.** The audio output default returns to `audiotrack`; the `aaudio` default introduced upstream freezes the video pipeline after any operation that flushes it while audio keeps playing. Reported and fixed by [@Emeseis](https://github.com/midasvo/findroid-ce/pull/53) (#52); tracked upstream as [findroid#1246](https://github.com/jarnedemeulemeester/findroid/issues/1246) and [mpv-android#1283](https://github.com/mpv-android/mpv-android/issues/1283), both still open.
+- **If you already had the audio output set to `aaudio`, this release moves you to `audiotrack` once.** A stored preference wins over a changed default, and simply opening the Audio output picker used to store a value — so the fix above would not have reached most affected installs on its own. This runs a single time: if you deliberately select `aaudio` again afterwards, it stays. Settings → Player → mpv → Audio output.
+- Select settings no longer save a value when you tap the option that is already selected. Doing so used to pin that preference to whatever the default was that day, silently blocking any later change to it — for every dropdown setting in the app, phone and TV.
+
+### Maintenance
+- Synced with upstream findroid: Gradle `9.7.1`, Android Gradle Plugin `9.3.2`, KSP `2.3.11`, androidx.paging `3.5.1`, aboutlibraries `15.1.1`.
+- Portuguese translation updates.
+- The mpv audio output default is recorded as CE-owned in the upstream-sync playbook, so a future sync does not silently restore upstream's `aaudio`.
+
 ## [v1.1.0-ce.2] — 2026-08-07
 
 Upstream sync only — no CE behaviour changes.
