@@ -25,7 +25,9 @@ import android.widget.ImageView
 import android.widget.Space
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -33,6 +35,8 @@ import androidx.media3.common.C
 import androidx.media3.ui.DefaultTimeBar
 import androidx.media3.ui.PlayerControlView
 import androidx.media3.ui.PlayerView
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.WindowInfoTracker
 import dagger.hilt.android.AndroidEntryPoint
 import dev.jdtech.jellyfin.databinding.ActivityPlayerBinding
 import dev.jdtech.jellyfin.player.local.presentation.PlayerEvents
@@ -68,6 +72,22 @@ class PlayerActivity : BasePlayerActivity() {
     private lateinit var skipSegmentButton: Button
 
     private var stillWatchingDialog: StillWatchingDialogFragment? = null
+
+    /**
+     * The fold the window is currently straddling, if it is one we react to: half-opened, with the
+     * crease running horizontally across the window. Null whenever the window is flat, unfolded,
+     * or split by a vertical crease.
+     */
+    private var tabletopFold: FoldingFeature? = null
+
+    /**
+     * Whether the window is split by a separating fold at all, in either orientation. Broader than
+     * [tabletopFold] on purpose: while the activity is still held in landscape, a device being set
+     * down into tabletop posture reports its crease as *vertical*, because the device has rotated
+     * and the framebuffer has not. That is the only signal available to decide the window should be
+     * allowed to follow it round.
+     */
+    private var hasSeparatingFold: Boolean = false
 
     private val isPipSupported by lazy {
         // Check if device has PiP feature
@@ -128,6 +148,10 @@ class PlayerActivity : BasePlayerActivity() {
                     binding.playerView,
                     getSystemService(AUDIO_SERVICE) as AudioManager,
                 )
+        }
+
+        if (appPreferences.getValue(appPreferences.playerTabletopMode)) {
+            observeFoldingPosture()
         }
 
         binding.playerView.findViewById<View>(R.id.back_button).setOnClickListener {
@@ -327,8 +351,10 @@ class PlayerActivity : BasePlayerActivity() {
         unlockButton.setOnClickListener {
             exoPlayerControlView.visibility = View.VISIBLE
             lockedLayout.visibility = View.GONE
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
             isControlsLocked = false
+            // Restores landscape when flat, but hands the window back to the sensor if we are
+            // still folded — hardcoding landscape here would drop us out of tabletop posture.
+            applyPlaybackOrientation()
         }
 
         subtitleButton.setOnClickListener {
@@ -392,6 +418,117 @@ class PlayerActivity : BasePlayerActivity() {
         ) {
             pictureInPicture()
         }
+    }
+
+    /**
+     * Issue #51 — tabletop / flex posture on foldables.
+     *
+     * When the device is half-opened with a horizontal crease, the picture would otherwise be
+     * centred in the window and bend across the hinge. Collect the window's layout info and, while
+     * such a fold is present, confine the whole player to the pane above it.
+     *
+     * [FoldingFeature.isSeparating] rather than a state check on its own: it is what distinguishes
+     * a crease the content must not cross from one it merely spans. Bounds arrive in window
+     * coordinates, so this stays correct whatever orientation the activity settles in, which
+     * matters because a Pixel-style fold reaches tabletop posture in portrait while a Z Fold
+     * reaches it in landscape.
+     */
+    private fun observeFoldingPosture() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                WindowInfoTracker.getOrCreate(this@PlayerActivity)
+                    .windowLayoutInfo(this@PlayerActivity)
+                    .collect { layoutInfo ->
+                        val separating =
+                            layoutInfo.displayFeatures.filterIsInstance<FoldingFeature>().filter {
+                                it.isSeparating
+                            }
+                        hasSeparatingFold = separating.isNotEmpty()
+                        tabletopFold =
+                            separating.firstOrNull {
+                                it.orientation == FoldingFeature.Orientation.HORIZONTAL
+                            }
+                        applyPlaybackOrientation()
+                        applyTabletopLayout()
+                    }
+            }
+        }
+    }
+
+    /**
+     * Let the window follow the device while it is folded, and pin it back to landscape once it is
+     * not.
+     *
+     * Without this the manifest's sensorLandscape keeps the window in landscape, and a device whose
+     * tabletop posture is *portrait* — a Pixel-style fold, whose inner display is landscape when
+     * open — never presents its crease horizontally, so [applyTabletopLayout] would never fire on
+     * exactly the hardware that has no system-level flex mode to fall back on.
+     *
+     * FULL_SENSOR rather than FULL_USER because it follows the sensor regardless of the user's
+     * rotation lock, which the manifest's sensorLandscape already does for this activity. Requiring
+     * auto-rotate would make the feature silently absent for anyone who keeps it off.
+     *
+     * Deliberately does nothing while the controls are locked — that lock is an explicit user
+     * request to stop the picture moving, and it outranks posture.
+     */
+    private fun applyPlaybackOrientation() {
+        if (isControlsLocked || isInPictureInPictureMode) return
+
+        val target =
+            if (hasSeparatingFold) ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+            else ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+
+        // The layout-info flow re-emits on every window change; reassigning the same value would
+        // churn the activity for nothing.
+        if (requestedOrientation != target) {
+            requestedOrientation = target
+        }
+    }
+
+    /**
+     * Pad the bottom of the player root down to the crease, which confines every child — video
+     * surface, subtitles, controls and the gesture overlays alike — to the top pane in one step,
+     * because FrameLayout resolves both match_parent and layout_gravity inside its padding.
+     *
+     * Skipped in picture-in-picture: the window there is a small floating one that no longer spans
+     * the hinge, and the padding would eat most of it.
+     */
+    private fun applyTabletopLayout() {
+        val root = binding.root
+        val fold = tabletopFold
+        val inset = if (fold == null || isInPictureInPictureMode) 0 else tabletopBottomInset(fold)
+
+        if (root.paddingBottom != inset) {
+            root.updatePadding(bottom = inset)
+        }
+
+        // A fold can be reported before the first layout pass, when the root still measures 0 and
+        // tabletopBottomInset() cannot produce anything meaningful. Retry once it has been laid
+        // out. Guarded on isLaidOut because doOnLayout runs immediately on an already-laid-out
+        // view, which would otherwise recurse for a fold that legitimately yields no inset.
+        if (fold != null && !root.isLaidOut) {
+            root.doOnLayout { applyTabletopLayout() }
+        }
+    }
+
+    /**
+     * Distance from the crease to the bottom of the player root, in the root's own coordinates.
+     *
+     * Returns 0 — i.e. leave the player full-bleed, exactly as it behaves today — for anything that
+     * does not describe a fold genuinely crossing the middle of the view. That covers the
+     * pre-layout case and any window that only partially overlaps the hinge, so an unexpected
+     * geometry degrades to current behaviour rather than to a broken layout.
+     */
+    private fun tabletopBottomInset(fold: FoldingFeature): Int {
+        val root = binding.root
+        val height = root.height
+        if (height <= 0) return 0
+
+        val location = IntArray(2)
+        root.getLocationInWindow(location)
+        val foldTop = fold.bounds.top - location[1]
+
+        return if (foldTop <= 0 || foldTop >= height) 0 else height - foldTop
     }
 
     private fun finishPlayback() {
@@ -490,6 +627,8 @@ class PlayerActivity : BasePlayerActivity() {
     ) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
         viewModel.isInPictureInPictureMode = isInPictureInPictureMode
+        applyPlaybackOrientation()
+        applyTabletopLayout()
         when (isInPictureInPictureMode) {
             true -> {
                 binding.playerView.useController = false

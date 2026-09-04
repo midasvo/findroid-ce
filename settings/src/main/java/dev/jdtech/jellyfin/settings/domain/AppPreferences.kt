@@ -26,6 +26,12 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val playerBackend = Preference("pref_player_backend", "exoplayer")
     val playerBrightness = Preference("pref_player_brightness", -1.0f)
 
+    // Issue #51: on a foldable held half-open with a horizontal hinge (tabletop / flex posture),
+    // keep the picture in the pane above the crease instead of letting it bend across it. Only
+    // ever acts on devices that actually report a separating fold, so it is inert everywhere else
+    // and safe to default on.
+    val playerTabletopMode = Preference("pref_player_tabletop_mode", true)
+
     // Player - mpv
     val playerMpv = Preference("pref_player_mpv", false)
     val playerMpvHwdec = Preference("pref_player_mpv_hwdec", "mediacodec")

@@ -54,6 +54,8 @@
     <string name="player_brightness_remember">Remember brightness level</string>
     <string name="player_start_maximized">Start maximized</string>
     <string name="player_start_maximized_summary">Open video in maximized mode by default</string>
+    <string name="player_tabletop_mode">Tabletop mode</string>
+    <string name="player_tabletop_mode_summary">On foldables, keep the video above the crease when the device is half-opened</string>
     <string name="seeking">Seeking</string>
     <string name="seek_back_increment">Seek back increment</string>
     <string name="seek_forward_increment">Seek forward increment</string>
