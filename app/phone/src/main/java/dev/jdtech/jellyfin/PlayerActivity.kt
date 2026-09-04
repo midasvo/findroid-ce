@@ -80,6 +80,15 @@ class PlayerActivity : BasePlayerActivity() {
      */
     private var tabletopFold: FoldingFeature? = null
 
+    /**
+     * Whether the window is split by a separating fold at all, in either orientation. Broader than
+     * [tabletopFold] on purpose: while the activity is still held in landscape, a device being set
+     * down into tabletop posture reports its crease as *vertical*, because the device has rotated
+     * and the framebuffer has not. That is the only signal available to decide the window should be
+     * allowed to follow it round.
+     */
+    private var hasSeparatingFold: Boolean = false
+
     private val isPipSupported by lazy {
         // Check if device has PiP feature
         if (!packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)) {
@@ -342,8 +351,10 @@ class PlayerActivity : BasePlayerActivity() {
         unlockButton.setOnClickListener {
             exoPlayerControlView.visibility = View.VISIBLE
             lockedLayout.visibility = View.GONE
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
             isControlsLocked = false
+            // Restores landscape when flat, but hands the window back to the sensor if we are
+            // still folded — hardcoding landscape here would drop us out of tabletop posture.
+            applyPlaybackOrientation()
         }
 
         subtitleButton.setOnClickListener {
@@ -418,9 +429,9 @@ class PlayerActivity : BasePlayerActivity() {
      *
      * [FoldingFeature.isSeparating] rather than a state check on its own: it is what distinguishes
      * a crease the content must not cross from one it merely spans. Bounds arrive in window
-     * coordinates, so this stays correct whatever orientation the activity ends up in, which matters
-     * because a Pixel-style fold reaches tabletop posture in portrait while a Z Fold reaches it in
-     * landscape.
+     * coordinates, so this stays correct whatever orientation the activity settles in, which
+     * matters because a Pixel-style fold reaches tabletop posture in portrait while a Z Fold
+     * reaches it in landscape.
      */
     private fun observeFoldingPosture() {
         lifecycleScope.launch {
@@ -428,16 +439,49 @@ class PlayerActivity : BasePlayerActivity() {
                 WindowInfoTracker.getOrCreate(this@PlayerActivity)
                     .windowLayoutInfo(this@PlayerActivity)
                     .collect { layoutInfo ->
+                        val separating =
+                            layoutInfo.displayFeatures.filterIsInstance<FoldingFeature>().filter {
+                                it.isSeparating
+                            }
+                        hasSeparatingFold = separating.isNotEmpty()
                         tabletopFold =
-                            layoutInfo.displayFeatures
-                                .filterIsInstance<FoldingFeature>()
-                                .firstOrNull {
-                                    it.isSeparating &&
-                                        it.orientation == FoldingFeature.Orientation.HORIZONTAL
-                                }
+                            separating.firstOrNull {
+                                it.orientation == FoldingFeature.Orientation.HORIZONTAL
+                            }
+                        applyPlaybackOrientation()
                         applyTabletopLayout()
                     }
             }
+        }
+    }
+
+    /**
+     * Let the window follow the device while it is folded, and pin it back to landscape once it is
+     * not.
+     *
+     * Without this the manifest's sensorLandscape keeps the window in landscape, and a device whose
+     * tabletop posture is *portrait* — a Pixel-style fold, whose inner display is landscape when
+     * open — never presents its crease horizontally, so [applyTabletopLayout] would never fire on
+     * exactly the hardware that has no system-level flex mode to fall back on.
+     *
+     * FULL_SENSOR rather than FULL_USER because it follows the sensor regardless of the user's
+     * rotation lock, which the manifest's sensorLandscape already does for this activity. Requiring
+     * auto-rotate would make the feature silently absent for anyone who keeps it off.
+     *
+     * Deliberately does nothing while the controls are locked — that lock is an explicit user
+     * request to stop the picture moving, and it outranks posture.
+     */
+    private fun applyPlaybackOrientation() {
+        if (isControlsLocked || isInPictureInPictureMode) return
+
+        val target =
+            if (hasSeparatingFold) ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+            else ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+
+        // The layout-info flow re-emits on every window change; reassigning the same value would
+        // churn the activity for nothing.
+        if (requestedOrientation != target) {
+            requestedOrientation = target
         }
     }
 
@@ -583,6 +627,7 @@ class PlayerActivity : BasePlayerActivity() {
     ) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
         viewModel.isInPictureInPictureMode = isInPictureInPictureMode
+        applyPlaybackOrientation()
         applyTabletopLayout()
         when (isInPictureInPictureMode) {
             true -> {
