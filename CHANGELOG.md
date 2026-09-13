@@ -10,6 +10,25 @@ _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.1.0-ce.4] — 2026-09-13
+
+Upstream sync only — no CE behaviour changes.
+
+### Changed
+- Back-gesture animations now follow through on the predictive back preview instead of snapping at
+  the end of the gesture, from upstream.
+
+### Maintenance
+- Synced with upstream findroid: Kotlin `2.4.20`, KSP `2.3.12`, Android Gradle Plugin `9.4.0`,
+  androidx.compose `1.12.1`, media3 `1.11.1`, navigation-compose `2.10.1`, Room `2.8.5`,
+  appcompat `1.8.0`, coil `3.6.2`, okhttp `5.5.0`, aboutlibraries `15.2.0`, slf4j `2.0.19`.
+- Portuguese translation updates.
+- ktfmt stays pinned to `0.26.0` rather than taking upstream's bump to `0.27.0`. The newer plugin
+  bundles ktfmt `0.64`, whose formatting differs from `0.62` across the whole tree — upstream's own
+  `main` is currently red on lint for this, because their bump touched only the version catalogue
+  and the lint workflow only runs on `.kt`/`.kts` changes. Recorded as CE-owned in the
+  upstream-sync playbook.
+
 ## [v1.1.0-ce.3] — 2026-09-01
 
 Fixes the mpv video freeze after seeking, and an upstream sync.
