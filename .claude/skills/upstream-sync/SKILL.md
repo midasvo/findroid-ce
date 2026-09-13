@@ -149,3 +149,8 @@ the new tag, and the published release.
   - `AppPreferences.playerMpvAo` = `audiotrack` (upstream: `aaudio`). Reverting it reintroduces
     the mpv seek/track-switch video freeze — issue #52, upstream #1246, mpv-android#1283 (open).
     `MPVPlayer`'s constructor and Builder defaults mirror it.
+  - `ktfmt` = `0.26.0` in `gradle/libs.versions.toml` (upstream: `0.27.0`). 0.27.0 bundles ktfmt
+    0.64, whose formatting differs from 0.62 across the whole tree; taking the bump turns Lint
+    red on ~100 files. Upstream's own `main` is red for this reason — their bump PR touched only
+    `libs.versions.toml`, and `lint.yaml`'s `**.kt`/`**.kts` path filter meant Lint never ran on
+    it. Unpin only together with a tree-wide `ktfmtFormat`, ideally after upstream reformats.
