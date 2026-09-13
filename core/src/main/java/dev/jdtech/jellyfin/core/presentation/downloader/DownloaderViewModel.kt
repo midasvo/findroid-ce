@@ -55,60 +55,52 @@ constructor(
 
     private fun startObserving(itemId: UUID) {
         observerJob?.cancel()
-        observerJob =
-            viewModelScope.launch {
-                downloadQueue.entries.collect { entries ->
-                    val entry = entries.firstOrNull { it.id == itemId }
-                    val newState =
-                        when (val s = entry?.state) {
-                            is DownloadQueue.EntryState.Pending ->
-                                DownloaderState(status = DownloadStatus.PENDING)
-                            is DownloadQueue.EntryState.Downloading ->
-                                DownloaderState(
-                                    status = DownloadStatus.RUNNING,
-                                    progress = entry.progress / 100f,
-                                )
-                            is DownloadQueue.EntryState.Paused ->
-                                DownloaderState(
-                                    status = DownloadStatus.PAUSED,
-                                    progress = entry.progress / 100f,
-                                )
-                            is DownloadQueue.EntryState.Completed ->
-                                DownloaderState(
-                                    status = DownloadStatus.SUCCESSFUL,
-                                    progress = 1f,
-                                )
-                            is DownloadQueue.EntryState.Failed ->
-                                DownloaderState(
-                                    status = DownloadStatus.FAILED,
-                                    errorText = s.error,
-                                )
-                            null -> DownloaderState()
-                        }
-                    if (
-                        newState.status == DownloadStatus.SUCCESSFUL && !wasCompleted
-                    ) {
-                        wasCompleted = true
-                        eventsChannel.trySend(DownloaderEvent.Successful)
+        observerJob = viewModelScope.launch {
+            downloadQueue.entries.collect { entries ->
+                val entry = entries.firstOrNull { it.id == itemId }
+                val newState =
+                    when (val s = entry?.state) {
+                        is DownloadQueue.EntryState.Pending ->
+                            DownloaderState(status = DownloadStatus.PENDING)
+                        is DownloadQueue.EntryState.Downloading ->
+                            DownloaderState(
+                                status = DownloadStatus.RUNNING,
+                                progress = entry.progress / 100f,
+                            )
+                        is DownloadQueue.EntryState.Paused ->
+                            DownloaderState(
+                                status = DownloadStatus.PAUSED,
+                                progress = entry.progress / 100f,
+                            )
+                        is DownloadQueue.EntryState.Completed ->
+                            DownloaderState(
+                                status = DownloadStatus.SUCCESSFUL,
+                                progress = 1f,
+                            )
+                        is DownloadQueue.EntryState.Failed ->
+                            DownloaderState(
+                                status = DownloadStatus.FAILED,
+                                errorText = s.error,
+                            )
+                        null -> DownloaderState()
                     }
-                    // Only fire the Failed event on an actual transition — otherwise
-                    // revisiting a screen with an already-failed item would re-toast
-                    // every time.
-                    val prevStatus = _state.value.status
-                    val wasInFlight =
-                        prevStatus == DownloadStatus.RUNNING ||
-                            prevStatus == DownloadStatus.PENDING
-                    if (
-                        newState.status == DownloadStatus.FAILED &&
-                            !wasFailed &&
-                            wasInFlight
-                    ) {
-                        wasFailed = true
-                        eventsChannel.trySend(DownloaderEvent.Failed(newState.errorText))
-                    }
-                    _state.emit(newState)
+                if (newState.status == DownloadStatus.SUCCESSFUL && !wasCompleted) {
+                    wasCompleted = true
+                    eventsChannel.trySend(DownloaderEvent.Successful)
                 }
+                // Only fire the Failed event on an actual transition — otherwise
+                // revisiting a screen with an already-failed item would re-toast
+                // every time.
+                val prevStatus = _state.value.status
+                val wasInFlight =
+                    prevStatus == DownloadStatus.RUNNING || prevStatus == DownloadStatus.PENDING
+                if (newState.status == DownloadStatus.FAILED && !wasFailed && wasInFlight) {
+                    wasFailed = true
+                    eventsChannel.trySend(DownloaderEvent.Failed(newState.errorText))
+                }
+                _state.emit(newState)
             }
+        }
     }
 
     private fun download(item: FindroidItem) {

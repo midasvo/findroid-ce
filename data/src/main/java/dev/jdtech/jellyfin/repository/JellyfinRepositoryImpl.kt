@@ -61,8 +61,12 @@ class JellyfinRepositoryImpl(
     private val deviceProfileBuilder: DeviceProfileBuilder,
 ) : JellyfinRepository {
     private val currentUserId: UUID
-        get() = jellyfinApi.userId
-            ?: throw IllegalStateException("No authenticated user. userId is null — session may have expired.")
+        get() =
+            jellyfinApi.userId
+                ?: throw IllegalStateException(
+                    "No authenticated user. userId is null — session may have expired."
+                )
+
     override suspend fun getPublicSystemInfo(): PublicSystemInfo =
         withContext(Dispatchers.IO) { jellyfinApi.systemApi.getPublicSystemInfo().content }
 
@@ -157,7 +161,15 @@ class JellyfinRepositoryImpl(
         return Pager(
                 config = PagingConfig(pageSize = 10, enablePlaceholders = false),
                 pagingSourceFactory = {
-                    ItemsPagingSource(this, parentId, includeTypes, recursive, sortBy, sortOrder, filters)
+                    ItemsPagingSource(
+                        this,
+                        parentId,
+                        includeTypes,
+                        recursive,
+                        sortBy,
+                        sortOrder,
+                        filters,
+                    )
                 },
             )
             .flow
@@ -423,7 +435,9 @@ class JellyfinRepositoryImpl(
                     if (sources != null) {
                         return@withContext File(sources.first(), index.toString()).readBytes()
                     }
-                } catch (e: Exception) { Timber.e(e, "Failed to read local trickplay data") }
+                } catch (e: Exception) {
+                    Timber.e(e, "Failed to read local trickplay data")
+                }
 
                 return@withContext jellyfinApi.trickplayApi
                     .getTrickplayTileImage(itemId, width, index)
@@ -596,18 +610,19 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getDownloads(): List<FindroidItem> =
         withContext(Dispatchers.IO) {
-            val serverId = appPreferences.getValue(appPreferences.currentServer)
-                ?: return@withContext emptyList()
+            val serverId =
+                appPreferences.getValue(appPreferences.currentServer)
+                    ?: return@withContext emptyList()
             val items = mutableListOf<FindroidItem>()
             items.addAll(
-                database
-                    .getMoviesByServerId(serverId)
-                    .map { it.toFindroidMovie(database, currentUserId) }
+                database.getMoviesByServerId(serverId).map {
+                    it.toFindroidMovie(database, currentUserId)
+                }
             )
             items.addAll(
-                database
-                    .getShowsByServerId(serverId)
-                    .map { it.toFindroidShow(database, currentUserId) }
+                database.getShowsByServerId(serverId).map {
+                    it.toFindroidShow(database, currentUserId)
+                }
             )
             items
         }

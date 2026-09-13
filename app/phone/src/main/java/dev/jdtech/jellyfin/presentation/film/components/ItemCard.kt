@@ -81,12 +81,13 @@ fun ItemCard(
             overflow = TextOverflow.Ellipsis,
         )
         if (item is FindroidEpisode) {
-            val episodeText = stringResource(
-                id = R.string.episode_name_extended,
-                item.parentIndexNumber,
-                item.indexNumber,
-                item.name,
-            )
+            val episodeText =
+                stringResource(
+                    id = R.string.episode_name_extended,
+                    item.parentIndexNumber,
+                    item.indexNumber,
+                    item.name,
+                )
             Text(
                 text = episodeText,
                 modifier = Modifier.copyOnLongClick(episodeText),

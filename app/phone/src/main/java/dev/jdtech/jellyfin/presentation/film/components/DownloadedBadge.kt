@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,7 +37,7 @@ fun DownloadFailedBadge(modifier: Modifier = Modifier) {
             modifier
                 .defaultMinSize(minWidth = 24.dp, minHeight = 24.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.error),
+                .background(MaterialTheme.colorScheme.error)
     ) {
         Icon(
             painter = painterResource(CoreR.drawable.ic_alert_circle),
@@ -56,7 +55,7 @@ fun DownloadingBadge(modifier: Modifier = Modifier) {
             modifier
                 .defaultMinSize(minWidth = 24.dp, minHeight = 24.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.tertiary),
+                .background(MaterialTheme.colorScheme.tertiary)
     ) {
         Icon(
             painter = painterResource(CoreR.drawable.ic_download),

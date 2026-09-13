@@ -49,7 +49,9 @@ class ItemsPagingSource(
     override fun getRefreshKey(state: PagingState<Int, FindroidItem>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.let { it + state.config.pageSize }
-                ?: state.closestPageToPosition(anchorPosition)?.nextKey?.let { it - state.config.pageSize }
+                ?: state.closestPageToPosition(anchorPosition)?.nextKey?.let {
+                    it - state.config.pageSize
+                }
         }
     }
 }

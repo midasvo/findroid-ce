@@ -129,7 +129,8 @@ fun ServerAddressesLayout(state: ServerAddressesState, onAction: (ServerAddresse
                     color = MaterialTheme.colorScheme.error,
                     modifier =
                         Modifier.padding(
-                            start = paddingStart + innerPadding.calculateStartPadding(layoutDirection),
+                            start =
+                                paddingStart + innerPadding.calculateStartPadding(layoutDirection),
                             top = paddingTop,
                             end = paddingEnd + innerPadding.calculateEndPadding(layoutDirection),
                         ),

@@ -9,8 +9,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Tests the pure profile-assembly half of [DeviceProfileBuilder]. The
- * `MediaCodecList` hardware probe needs a device and is not covered here.
+ * Tests the pure profile-assembly half of [DeviceProfileBuilder]. The `MediaCodecList` hardware
+ * probe needs a device and is not covered here.
  */
 class DeviceProfileBuilderTest {
 
@@ -23,10 +23,11 @@ class DeviceProfileBuilderTest {
 
     @Test
     fun `hevc codec profile excludes every Dolby Vision range from direct play`() {
-        val probed = ProbedCodecs(
-            videoCodecProfiles = mapOf("hevc" to setOf("Main", "Main 10")),
-            audioCodecs = setOf("aac"),
-        )
+        val probed =
+            ProbedCodecs(
+                videoCodecProfiles = mapOf("hevc" to setOf("Main", "Main 10")),
+                audioCodecs = setOf("aac"),
+            )
 
         val rangeCondition = hevcRangeCondition(probed)
 
@@ -41,10 +42,11 @@ class DeviceProfileBuilderTest {
 
     @Test
     fun `hevc is still range-restricted when the decoder reports no profiles`() {
-        val probed = ProbedCodecs(
-            videoCodecProfiles = mapOf("hevc" to emptySet()),
-            audioCodecs = setOf("aac"),
-        )
+        val probed =
+            ProbedCodecs(
+                videoCodecProfiles = mapOf("hevc" to emptySet()),
+                audioCodecs = setOf("aac"),
+            )
 
         assertTrue(
             "DV must be excluded even with no enumerable hevc profiles",
@@ -54,26 +56,29 @@ class DeviceProfileBuilderTest {
 
     @Test
     fun `non-hevc codecs are not range restricted`() {
-        val probed = ProbedCodecs(
-            videoCodecProfiles = mapOf("h264" to setOf("high", "main")),
-            audioCodecs = setOf("aac"),
-        )
+        val probed =
+            ProbedCodecs(
+                videoCodecProfiles = mapOf("h264" to setOf("high", "main")),
+                audioCodecs = setOf("aac"),
+            )
 
-        val h264RangeConditions = DeviceProfileBuilder.buildDeviceProfile(probed)
-            .codecProfiles
-            .filter { it.codec == "h264" }
-            .flatMap { it.conditions }
-            .filter { it.property == ProfileConditionValue.VIDEO_RANGE_TYPE }
+        val h264RangeConditions =
+            DeviceProfileBuilder.buildDeviceProfile(probed)
+                .codecProfiles
+                .filter { it.codec == "h264" }
+                .flatMap { it.conditions }
+                .filter { it.property == ProfileConditionValue.VIDEO_RANGE_TYPE }
 
         assertEquals(emptyList<Any>(), h264RangeConditions)
     }
 
     @Test
     fun `device profile direct-plays supported codecs and offers an HLS transcode`() {
-        val probed = ProbedCodecs(
-            videoCodecProfiles = mapOf("h264" to setOf("high"), "hevc" to setOf("Main 10")),
-            audioCodecs = setOf("aac"),
-        )
+        val probed =
+            ProbedCodecs(
+                videoCodecProfiles = mapOf("h264" to setOf("high"), "hevc" to setOf("Main 10")),
+                audioCodecs = setOf("aac"),
+            )
 
         val profile = DeviceProfileBuilder.buildDeviceProfile(probed)
 
@@ -91,10 +96,11 @@ class DeviceProfileBuilderTest {
 
     @Test
     fun `unsupported codecs are not advertised for direct play`() {
-        val probed = ProbedCodecs(
-            videoCodecProfiles = mapOf("h264" to setOf("high")),
-            audioCodecs = setOf("aac"),
-        )
+        val probed =
+            ProbedCodecs(
+                videoCodecProfiles = mapOf("h264" to setOf("high")),
+                audioCodecs = setOf("aac"),
+            )
 
         val profile = DeviceProfileBuilder.buildDeviceProfile(probed)
 
@@ -107,10 +113,11 @@ class DeviceProfileBuilderTest {
 
     @Test
     fun `image-based subtitle formats are deliverable embedded and external`() {
-        val probed = ProbedCodecs(
-            videoCodecProfiles = mapOf("h264" to setOf("high")),
-            audioCodecs = setOf("aac"),
-        )
+        val probed =
+            ProbedCodecs(
+                videoCodecProfiles = mapOf("h264" to setOf("high")),
+                audioCodecs = setOf("aac"),
+            )
 
         val subtitleProfiles = DeviceProfileBuilder.buildDeviceProfile(probed).subtitleProfiles
 
@@ -145,42 +152,45 @@ class DeviceProfileBuilderTest {
         // Locks down the exact (format, method) pairs the device profile emits.
         // Catches typos ("pgsub"), accidental drops (srt), and accidental
         // additions that a per-format presence test cannot see.
-        val probed = ProbedCodecs(
-            videoCodecProfiles = mapOf("h264" to setOf("high")),
-            audioCodecs = setOf("aac"),
-        )
+        val probed =
+            ProbedCodecs(
+                videoCodecProfiles = mapOf("h264" to setOf("high")),
+                audioCodecs = setOf("aac"),
+            )
 
-        val asPairs = DeviceProfileBuilder.buildDeviceProfile(probed)
-            .subtitleProfiles
-            .map { it.format to it.method }
-            .toSet()
+        val asPairs =
+            DeviceProfileBuilder.buildDeviceProfile(probed)
+                .subtitleProfiles
+                .map { it.format to it.method }
+                .toSet()
 
-        val expected = setOf(
-            // Embed: text + image formats media3 can decode from the container.
-            "dvbsub" to SubtitleDeliveryMethod.EMBED,
-            "dvdsub" to SubtitleDeliveryMethod.EMBED,
-            "pgssub" to SubtitleDeliveryMethod.EMBED,
-            "srt" to SubtitleDeliveryMethod.EMBED,
-            "subrip" to SubtitleDeliveryMethod.EMBED,
-            "ttml" to SubtitleDeliveryMethod.EMBED,
-            "ass" to SubtitleDeliveryMethod.EMBED,
-            "ssa" to SubtitleDeliveryMethod.EMBED,
-            // External: sidecar formats (text + image where the server can stream them).
-            "dvbsub" to SubtitleDeliveryMethod.EXTERNAL,
-            "dvdsub" to SubtitleDeliveryMethod.EXTERNAL,
-            "pgssub" to SubtitleDeliveryMethod.EXTERNAL,
-            "srt" to SubtitleDeliveryMethod.EXTERNAL,
-            "subrip" to SubtitleDeliveryMethod.EXTERNAL,
-            "ttml" to SubtitleDeliveryMethod.EXTERNAL,
-            "vtt" to SubtitleDeliveryMethod.EXTERNAL,
-            "webvtt" to SubtitleDeliveryMethod.EXTERNAL,
-            "ass" to SubtitleDeliveryMethod.EXTERNAL,
-            "ssa" to SubtitleDeliveryMethod.EXTERNAL,
-            // Encode: burn-in fallback for image subtitles only.
-            "dvbsub" to SubtitleDeliveryMethod.ENCODE,
-            "dvdsub" to SubtitleDeliveryMethod.ENCODE,
-            "pgssub" to SubtitleDeliveryMethod.ENCODE,
-        )
+        val expected =
+            setOf(
+                // Embed: text + image formats media3 can decode from the container.
+                "dvbsub" to SubtitleDeliveryMethod.EMBED,
+                "dvdsub" to SubtitleDeliveryMethod.EMBED,
+                "pgssub" to SubtitleDeliveryMethod.EMBED,
+                "srt" to SubtitleDeliveryMethod.EMBED,
+                "subrip" to SubtitleDeliveryMethod.EMBED,
+                "ttml" to SubtitleDeliveryMethod.EMBED,
+                "ass" to SubtitleDeliveryMethod.EMBED,
+                "ssa" to SubtitleDeliveryMethod.EMBED,
+                // External: sidecar formats (text + image where the server can stream them).
+                "dvbsub" to SubtitleDeliveryMethod.EXTERNAL,
+                "dvdsub" to SubtitleDeliveryMethod.EXTERNAL,
+                "pgssub" to SubtitleDeliveryMethod.EXTERNAL,
+                "srt" to SubtitleDeliveryMethod.EXTERNAL,
+                "subrip" to SubtitleDeliveryMethod.EXTERNAL,
+                "ttml" to SubtitleDeliveryMethod.EXTERNAL,
+                "vtt" to SubtitleDeliveryMethod.EXTERNAL,
+                "webvtt" to SubtitleDeliveryMethod.EXTERNAL,
+                "ass" to SubtitleDeliveryMethod.EXTERNAL,
+                "ssa" to SubtitleDeliveryMethod.EXTERNAL,
+                // Encode: burn-in fallback for image subtitles only.
+                "dvbsub" to SubtitleDeliveryMethod.ENCODE,
+                "dvdsub" to SubtitleDeliveryMethod.ENCODE,
+                "pgssub" to SubtitleDeliveryMethod.ENCODE,
+            )
 
         assertEquals(expected, asPairs)
     }
@@ -206,10 +216,11 @@ class DeviceProfileBuilderTest {
         assertTrue(profile.directPlayProfiles.all { it.container == "" })
 
         // DV is excluded from direct play, so the server transcodes it instead.
-        val rangeCondition = profile.codecProfiles
-            .filter { it.codec == "hevc" }
-            .flatMap { it.conditions }
-            .firstOrNull { it.property == ProfileConditionValue.VIDEO_RANGE_TYPE }
+        val rangeCondition =
+            profile.codecProfiles
+                .filter { it.codec == "hevc" }
+                .flatMap { it.conditions }
+                .firstOrNull { it.property == ProfileConditionValue.VIDEO_RANGE_TYPE }
         assertTrue("DV must be excluded from direct play", rangeCondition != null)
         assertFalse(rangeCondition!!.value.orEmpty().contains("DOVI"))
 

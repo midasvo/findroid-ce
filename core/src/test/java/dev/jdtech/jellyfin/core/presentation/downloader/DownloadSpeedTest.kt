@@ -5,9 +5,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/**
- * Unit tests for [nextDownloadSpeed] — the fix for the queue speed/ETA flashing.
- */
+/** Unit tests for [nextDownloadSpeed] — the fix for the queue speed/ETA flashing. */
 class DownloadSpeedTest {
 
     @Test

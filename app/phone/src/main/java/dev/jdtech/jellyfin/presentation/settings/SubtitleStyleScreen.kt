@@ -194,7 +194,7 @@ private fun SubtitleStylePreview(
                         (state.fontScale.coerceIn(
                             Constants.SubtitleStyle.FONT_SCALE_MIN,
                             Constants.SubtitleStyle.FONT_SCALE_MAX,
-                        ) / 100f),
+                        ) / 100f)
                 )
                 view.setCues(listOf(Cue.Builder().setText(sampleText).build()))
             },

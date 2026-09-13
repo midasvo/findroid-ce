@@ -31,7 +31,9 @@ fun PlayButton(
 ) {
     val runtimeMinutesLeft by
         remember(item.playbackPositionTicks) {
-            mutableLongStateOf((item.runtimeTicks - item.playbackPositionTicks) / Constants.TICKS_PER_MINUTE)
+            mutableLongStateOf(
+                (item.runtimeTicks - item.playbackPositionTicks) / Constants.TICKS_PER_MINUTE
+            )
         }
 
     Button(onClick = onClick, modifier = modifier, enabled = enabled) {

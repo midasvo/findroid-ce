@@ -39,8 +39,7 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     // manufacturer check — see mpv-android/mpv-android#1283, still unfixed.
     // "audiotrack" is also what mpv's own autoprobe order picks on Android, and what
     // mpv-android uses. aaudio stays selectable for anyone who wants it.
-    val playerMpvAo =
-        Preference("pref_player_mpv_ao", Constants.MpvAudioOutput.AUDIOTRACK)
+    val playerMpvAo = Preference("pref_player_mpv_ao", Constants.MpvAudioOutput.AUDIOTRACK)
 
     // Player - gestures
     val playerGestures = Preference("pref_player_gestures", true)
@@ -197,8 +196,8 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
      *
      * Flipping [playerMpvAo]'s default is not enough on its own: the settings picker persists a
      * value on *any* tap, including on the row that is already selected, so everyone who merely
-     * opened Audio output while troubleshooting the freeze has "aaudio" written to disk — which
-     * is exactly the population that hit the bug. Rewrite that one value once.
+     * opened Audio output while troubleshooting the freeze has "aaudio" written to disk — which is
+     * exactly the population that hit the bug. Rewrite that one value once.
      *
      * Guarded by [mpvAoAaudioMigrated] so a deliberate re-selection afterwards sticks; we correct
      * an accidental value, we don't keep overruling the user.
@@ -254,7 +253,10 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
             is Float -> editor.putFloat(preference.backendName, value as Float)
             is String? -> editor.putString(preference.backendName, value as String?)
             is Set<*> -> editor.putStringSet(preference.backendName, value as Set<String>)
-            else -> throw IllegalArgumentException("Unsupported preference type: ${preference.defaultValue}")
+            else ->
+                throw IllegalArgumentException(
+                    "Unsupported preference type: ${preference.defaultValue}"
+                )
         }
         editor.apply()
     }

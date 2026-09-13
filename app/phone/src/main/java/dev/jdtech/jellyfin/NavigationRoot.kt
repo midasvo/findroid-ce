@@ -96,13 +96,11 @@ data class LibraryRoute(
 
 @Serializable data class MovieRoute(val movieId: String)
 
-@Serializable
-data class ShowRoute(val showId: String, val downloadsOnly: Boolean = false)
+@Serializable data class ShowRoute(val showId: String, val downloadsOnly: Boolean = false)
 
 @Serializable data class EpisodeRoute(val episodeId: String)
 
-@Serializable
-data class SeasonRoute(val seasonId: String, val downloadsOnly: Boolean = false)
+@Serializable data class SeasonRoute(val seasonId: String, val downloadsOnly: Boolean = false)
 
 @Serializable data class PersonRoute(val personId: String)
 
@@ -110,9 +108,7 @@ data class SeasonRoute(val seasonId: String, val downloadsOnly: Boolean = false)
 
 @Serializable data object SubtitleStyleRoute
 
-@Serializable data class SettingsFileEditRoute(
-    val filePath: String,
-)
+@Serializable data class SettingsFileEditRoute(val filePath: String)
 
 @Serializable data object AboutRoute
 
@@ -477,9 +473,7 @@ fun NavigationRoot(
                     navigateToServers = { navController.safeNavigate(ServersRoute) },
                     navigateToUsers = { navController.safeNavigate(UsersRoute) },
                     navigateToAbout = { navController.safeNavigate(AboutRoute) },
-                    navigateToSubtitleStyle = {
-                        navController.safeNavigate(SubtitleStyleRoute)
-                    },
+                    navigateToSubtitleStyle = { navController.safeNavigate(SubtitleStyleRoute) },
                     navigateBack = { navController.safePopBackStack() },
                 )
             }
@@ -490,7 +484,8 @@ fun NavigationRoot(
                 val route: SettingsFileEditRoute = backStackEntry.toRoute()
                 SettingsFileEditScreen(
                     filePath = route.filePath,
-                    navigateBack = { navController.safePopBackStack() })
+                    navigateBack = { navController.safePopBackStack() },
+                )
             }
             composable<AboutRoute> {
                 AboutScreen(navigateBack = { navController.safePopBackStack() })

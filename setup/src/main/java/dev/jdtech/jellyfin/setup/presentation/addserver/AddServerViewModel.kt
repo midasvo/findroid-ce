@@ -55,7 +55,9 @@ constructor(private val repository: SetupRepository, private val appPreferences:
                 appPreferences.setValue(appPreferences.currentServer, server.id)
                 _state.emit(_state.value.copy(isLoading = false, error = null))
                 eventsChannel.send(AddServerEvent.Success)
-            } catch (e: CancellationException) { throw e } catch (e: ExceptionUiText) {
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: ExceptionUiText) {
                 _state.emit(_state.value.copy(isLoading = false, error = listOf(e.uiText)))
             } catch (e: ExceptionUiTexts) {
                 _state.emit(_state.value.copy(isLoading = false, error = e.uiTexts))

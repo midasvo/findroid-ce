@@ -17,18 +17,17 @@ import timber.log.Timber
 private const val MUTEX_CACHE_SIZE = 8
 
 /**
- * Lazily decodes trickplay sprite-sheets on demand and crops out the right cell for the
- * requested playback position. Sprite-sheets are decoded once and held in an LRU cache,
- * keyed by sheet index, so seeks within a sheet are essentially free and seeks across
- * sheets only re-decode once.
+ * Lazily decodes trickplay sprite-sheets on demand and crops out the right cell for the requested
+ * playback position. Sprite-sheets are decoded once and held in an LRU cache, keyed by sheet index,
+ * so seeks within a sheet are essentially free and seeks across sheets only re-decode once.
  *
- * This is the experimental, developer-toggle path. The default trickplay path eagerly
- * decodes every tile in [dev.jdtech.jellyfin.player.local.presentation.PlayerViewModel],
- * which is fine for short items but wasteful for long ones.
+ * This is the experimental, developer-toggle path. The default trickplay path eagerly decodes every
+ * tile in [dev.jdtech.jellyfin.player.local.presentation.PlayerViewModel], which is fine for short
+ * items but wasteful for long ones.
  *
- * Cache size is intentionally small (a handful of sheets): a single sheet at 320x180 with
- * 10x10 tiles is ~1.7MB decoded, and the user rarely scrubs across more than a few sheets
- * in quick succession.
+ * Cache size is intentionally small (a handful of sheets): a single sheet at 320x180 with 10x10
+ * tiles is ~1.7MB decoded, and the user rarely scrubs across more than a few sheets in quick
+ * succession.
  */
 class TrickplayLoader(
     private val repository: JellyfinRepository,
@@ -44,8 +43,7 @@ class TrickplayLoader(
 ) : TrickplayTileLoader {
 
     private val tilesPerSheet = max(1, tileWidth * tileHeight)
-    private val maxSheetIndex =
-        if (thumbnailCount <= 0) 0 else (thumbnailCount - 1) / tilesPerSheet
+    private val maxSheetIndex = if (thumbnailCount <= 0) 0 else (thumbnailCount - 1) / tilesPerSheet
 
     // We deliberately do not call recycle() in entryRemoved. tileAt holds a reference to
     // the evicted bitmap and reads from it on Dispatchers.Default after the LruCache lookup;
@@ -79,7 +77,7 @@ class TrickplayLoader(
         if (offsetX + width > sheet.width || offsetY + height > sheet.height) {
             Timber.w(
                 "Trickplay tile out of bounds: sheet=$sheetIndex tile=$localIndex " +
-                    "offset=($offsetX,$offsetY) sheet=${sheet.width}x${sheet.height}",
+                    "offset=($offsetX,$offsetY) sheet=${sheet.width}x${sheet.height}"
             )
             return null
         }
@@ -92,21 +90,28 @@ class TrickplayLoader(
     }
 
     private suspend fun loadSheet(sheetIndex: Int): Bitmap? {
-        sheetCache.get(sheetIndex)?.takeIf { !it.isRecycled }?.let { return it }
+        sheetCache
+            .get(sheetIndex)
+            ?.takeIf { !it.isRecycled }
+            ?.let {
+                return it
+            }
         if (sheetIndex < 0 || sheetIndex > maxSheetIndex) return null
 
         // LruCache.get/put are synchronized internally; the "check then insert" race
         // here at worst creates an extra unused Mutex that the LruCache will evict — the
         // per-mutex critical section below still dedupes the actual network fetch.
-        val mutex =
-            loadMutexes.get(sheetIndex) ?: Mutex().also { loadMutexes.put(sheetIndex, it) }
+        val mutex = loadMutexes.get(sheetIndex) ?: Mutex().also { loadMutexes.put(sheetIndex, it) }
 
         return mutex.withLock {
             // Double-check after acquiring the per-sheet mutex: another coroutine may
             // have populated the cache while we were waiting.
-            sheetCache.get(sheetIndex)?.takeIf { !it.isRecycled }?.let {
-                return@withLock it
-            }
+            sheetCache
+                .get(sheetIndex)
+                ?.takeIf { !it.isRecycled }
+                ?.let {
+                    return@withLock it
+                }
 
             val bitmap =
                 withContext(Dispatchers.IO) {

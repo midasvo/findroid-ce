@@ -39,12 +39,9 @@ constructor(
     private val uiTextNextUp = UiText.StringResource(FilmR.string.next_up)
 
     companion object {
-        private val UUID_SUGGESTIONS =
-            UUID.fromString("31e47044-9b79-4bb0-99d0-0e477ed65420")
-        private val UUID_CONTINUE_WATCHING =
-            UUID.fromString("44845958-8326-4e83-beb4-c4f42e9eeb95")
-        private val UUID_NEXT_UP =
-            UUID.fromString("18bfced5-f237-4d42-aa72-d9d7fed19279")
+        private val UUID_SUGGESTIONS = UUID.fromString("31e47044-9b79-4bb0-99d0-0e477ed65420")
+        private val UUID_CONTINUE_WATCHING = UUID.fromString("44845958-8326-4e83-beb4-c4f42e9eeb95")
+        private val UUID_NEXT_UP = UUID.fromString("18bfced5-f237-4d42-aa72-d9d7fed19279")
     }
 
     fun loadData() {
@@ -146,12 +143,10 @@ constructor(
         val items =
             if (appPreferences.getValue(appPreferences.homeLatest)) {
                 val views =
-                    repository
-                        .getUserViews()
-                        .filter { view ->
-                            CollectionType.fromString(view.collectionType?.serialName) in
-                                CollectionType.supported
-                        }
+                    repository.getUserViews().filter { view ->
+                        CollectionType.fromString(view.collectionType?.serialName) in
+                            CollectionType.supported
+                    }
 
                 coroutineScope {
                     views

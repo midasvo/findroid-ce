@@ -1,5 +1,6 @@
 package dev.jdtech.jellyfin.presentation.film.components
 
+import android.text.format.Formatter
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
-import android.text.format.Formatter
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -83,7 +83,7 @@ fun ActiveDownloadCard(
                     val totalPrefix = if (activeDownload.totalBytesEstimated) "~" else ""
                     parts.add(
                         "${Formatter.formatShortFileSize(context, downloaded)}" +
-                            " / $totalPrefix${Formatter.formatShortFileSize(context, total)}",
+                            " / $totalPrefix${Formatter.formatShortFileSize(context, total)}"
                     )
                 } else if (downloaded > 0) {
                     // Unknown total (a transcode still being produced) — at least show
@@ -92,7 +92,7 @@ fun ActiveDownloadCard(
                 }
                 if (activeDownload.bytesPerSecond > 0) {
                     parts.add(
-                        "${Formatter.formatShortFileSize(context, activeDownload.bytesPerSecond)}/s",
+                        "${Formatter.formatShortFileSize(context, activeDownload.bytesPerSecond)}/s"
                     )
                     val remaining = total - downloaded
                     if (total > 0 && remaining > 0) {
@@ -102,8 +102,7 @@ fun ActiveDownloadCard(
                 }
                 if (parts.isEmpty()) baseStatusText else parts.joinToString(" · ")
             }
-            DownloadStatus.FAILED ->
-                activeDownload.errorText?.asString() ?: baseStatusText
+            DownloadStatus.FAILED -> activeDownload.errorText?.asString() ?: baseStatusText
             else -> baseStatusText
         }
 
@@ -156,8 +155,9 @@ fun ActiveDownloadCard(
                     )
                     // Only show a percentage when there is a total to measure against.
                     // A transcode of unknown length shows an indeterminate bar instead.
-                    if (progress.status == DownloadStatus.DOWNLOADING &&
-                        activeDownload.totalBytes > 0
+                    if (
+                        progress.status == DownloadStatus.DOWNLOADING &&
+                            activeDownload.totalBytes > 0
                     ) {
                         val pct = animatedProgress.times(100).roundToInt()
                         Text(
@@ -176,17 +176,13 @@ fun ActiveDownloadCard(
                         )
                     }
                     progress.status == DownloadStatus.PENDING -> {
-                        LinearProgressIndicator(
-                            modifier = Modifier.fillMaxWidth().height(3.dp),
-                        )
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth().height(3.dp))
                     }
                     progress.status == DownloadStatus.DOWNLOADING &&
                         activeDownload.totalBytes <= 0L -> {
                         // Transcode of unknown length: an indeterminate bar makes clear
                         // the download is working even though there is no percentage.
-                        LinearProgressIndicator(
-                            modifier = Modifier.fillMaxWidth().height(3.dp),
-                        )
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth().height(3.dp))
                     }
                     else -> {
                         LinearProgressIndicator(
@@ -230,11 +226,12 @@ fun ActiveDownloadCard(
     }
 }
 
-private fun formatEta(seconds: Long): String = when {
-    seconds < 60 -> "~${seconds}s"
-    seconds < 3600 -> "~${seconds / 60} min"
-    else -> "~${seconds / 3600}h ${(seconds % 3600) / 60}m"
-}
+private fun formatEta(seconds: Long): String =
+    when {
+        seconds < 60 -> "~${seconds}s"
+        seconds < 3600 -> "~${seconds / 60} min"
+        else -> "~${seconds / 3600}h ${(seconds % 3600) / 60}m"
+    }
 
 @Preview
 @Composable
@@ -244,7 +241,8 @@ private fun ActiveDownloadCardPreview() {
             activeDownload =
                 ActiveDownload(
                     item = dummyEpisode,
-                    progress = DownloadProgress(status = DownloadStatus.DOWNLOADING, progress = 0.45f),
+                    progress =
+                        DownloadProgress(status = DownloadStatus.DOWNLOADING, progress = 0.45f),
                     downloadId = 1L,
                 ),
             onCancelClick = {},

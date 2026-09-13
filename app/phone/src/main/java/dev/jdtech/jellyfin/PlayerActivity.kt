@@ -337,13 +337,11 @@ class PlayerActivity : BasePlayerActivity() {
         }
 
         speedButton.setOnClickListener {
-            SpeedSelectionDialogFragment()
-                .show(supportFragmentManager, "speedselectiondialog")
+            SpeedSelectionDialogFragment().show(supportFragmentManager, "speedselectiondialog")
         }
 
         chaptersButton.setOnClickListener {
-            ChapterListDialogFragment()
-                .show(supportFragmentManager, "chapterlistdialog")
+            ChapterListDialogFragment().show(supportFragmentManager, "chapterlistdialog")
         }
 
         pipButton.setOnClickListener { pictureInPicture() }
@@ -413,7 +411,8 @@ class PlayerActivity : BasePlayerActivity() {
 
         // videoSize is VideoSize.UNKNOWN (0x0) until the file is loaded, which would yield a NaN
         // Rational and crash setAspectRatio. Bail with IAE so the existing call-site catches
-        // (setPictureInPictureParams / enterPictureInPictureMode both wrap in try { } catch (_: IAE)).
+        // (setPictureInPictureParams / enterPictureInPictureMode both wrap in try { } catch (_:
+        // IAE)).
         val videoSize = binding.playerView.player?.videoSize
         val aspectRatio =
             if (videoSize != null && videoSize.width > 0 && videoSize.height > 0) {

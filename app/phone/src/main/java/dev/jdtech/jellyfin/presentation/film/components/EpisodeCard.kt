@@ -80,7 +80,7 @@ fun EpisodeCard(
             // Progress bar at bottom of thumbnail during download
             if (
                 effectiveStatus == DownloadStatus.DOWNLOADING ||
-                effectiveStatus == DownloadStatus.PENDING
+                    effectiveStatus == DownloadStatus.PENDING
             ) {
                 val animatedProgress by
                     animateFloatAsState(
@@ -89,18 +89,13 @@ fun EpisodeCard(
                     )
                 if (effectiveStatus == DownloadStatus.PENDING) {
                     LinearProgressIndicator(
-                        modifier =
-                            Modifier.align(Alignment.BottomStart)
-                                .fillMaxWidth()
-                                .height(3.dp),
+                        modifier = Modifier.align(Alignment.BottomStart).fillMaxWidth().height(3.dp)
                     )
                 } else {
                     LinearProgressIndicator(
                         progress = { animatedProgress },
                         modifier =
-                            Modifier.align(Alignment.BottomStart)
-                                .fillMaxWidth()
-                                .height(3.dp),
+                            Modifier.align(Alignment.BottomStart).fillMaxWidth().height(3.dp),
                     )
                 }
             }
@@ -243,7 +238,8 @@ private fun EpisodeDownloadButton(
                 ) {
                     Icon(
                         painter = painterResource(CoreR.drawable.ic_download),
-                        contentDescription = stringResource(CoreR.string.download_button_description),
+                        contentDescription =
+                            stringResource(CoreR.string.download_button_description),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp),
                     )
@@ -256,9 +252,7 @@ private fun EpisodeDownloadButton(
 @Preview(showBackground = true)
 @Composable
 private fun EpisodeCardPreview() {
-    FindroidTheme {
-        EpisodeCard(episode = dummyEpisode, onClick = {}, onDownloadClick = {})
-    }
+    FindroidTheme { EpisodeCard(episode = dummyEpisode, onClick = {}, onDownloadClick = {}) }
 }
 
 @Preview(showBackground = true)
@@ -268,7 +262,8 @@ private fun EpisodeCardDownloadingPreview() {
         EpisodeCard(
             episode = dummyEpisode,
             onClick = {},
-            downloadProgress = DownloadProgress(status = DownloadStatus.DOWNLOADING, progress = 0.4f),
+            downloadProgress =
+                DownloadProgress(status = DownloadStatus.DOWNLOADING, progress = 0.4f),
         )
     }
 }

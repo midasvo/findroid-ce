@@ -50,7 +50,9 @@ fun SettingsGroupCard(
         Card(
             modifier = modifier,
             colors =
-                CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                ),
         ) {
             group.preferences.fastForEachIndexed { index, preference ->
                 when (preference) {

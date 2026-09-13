@@ -1,10 +1,10 @@
 package dev.jdtech.jellyfin.film.presentation.downloads
 
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadProgress
-import java.util.UUID
 import dev.jdtech.jellyfin.models.CollectionSection
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.UiText
+import java.util.UUID
 
 data class ActiveDownload(
     val item: FindroidItem,
@@ -24,7 +24,11 @@ data class ActiveDownload(
     val errorText: UiText? = null,
 )
 
-enum class DownloadSortOrder { NAME, DATE, SIZE }
+enum class DownloadSortOrder {
+    NAME,
+    DATE,
+    SIZE,
+}
 
 data class DownloadsState(
     val queueItems: List<ActiveDownload> = emptyList(),

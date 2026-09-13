@@ -26,14 +26,13 @@ import org.junit.Test
 /**
  * Regression test for the offline crash documented in BUGREPORT_ANALYSIS.md.
  *
- * Drives the REAL [HomeViewModel] against a repository that behaves as if the
- * device is offline — every call throws [IOException], exactly like the Jellyfin
- * SDK does with no network.
+ * Drives the REAL [HomeViewModel] against a repository that behaves as if the device is offline —
+ * every call throws [IOException], exactly like the Jellyfin SDK does with no network.
  *
- * Asserts that [HomeViewModel.loadData] does NOT leak an uncaught exception: the
- * offline failure must be caught and surfaced in [HomeState.error] for the UI to
- * show. Before the `coroutineScope { }` fix this test failed — `loadData()`
- * crashed the app on startup. [LoadDataConcurrencyMechanismTest] proves *why*.
+ * Asserts that [HomeViewModel.loadData] does NOT leak an uncaught exception: the offline failure
+ * must be caught and surfaced in [HomeState.error] for the UI to show. Before the `coroutineScope {
+ * }` fix this test failed — `loadData()` crashed the app on startup.
+ * [LoadDataConcurrencyMechanismTest] proves *why*.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelOfflineCrashTest {
@@ -70,15 +69,14 @@ class HomeViewModelOfflineCrashTest {
         viewModel.loadData()
 
         // loadData() runs on Dispatchers.Default; wait for it to settle.
-        val state =
-            runBlocking {
-                withTimeoutOrNull(5_000) {
-                    while (with(viewModel.state.value) { error == null || isLoading }) {
-                        delay(20)
-                    }
-                    viewModel.state.value
+        val state = runBlocking {
+            withTimeoutOrNull(5_000) {
+                while (with(viewModel.state.value) { error == null || isLoading }) {
+                    delay(20)
                 }
+                viewModel.state.value
             }
+        }
 
         // The fix: nothing escapes -> the app does not crash.
         assertNull(
@@ -97,10 +95,9 @@ class HomeViewModelOfflineCrashTest {
     }
 
     /**
-     * Every repository call throws [IOException] — models a device with no network,
-     * which is how the Jellyfin SDK fails. [HomeViewModel] only calls a handful of
-     * these (getSuggestions / getResumeItems / getNextUp / getUserViews); the rest
-     * are never reached.
+     * Every repository call throws [IOException] — models a device with no network, which is how
+     * the Jellyfin SDK fails. [HomeViewModel] only calls a handful of these (getSuggestions /
+     * getResumeItems / getNextUp / getUserViews); the rest are never reached.
      */
     private fun offlineRepository(): JellyfinRepository =
         Proxy.newProxyInstance(
@@ -132,10 +129,9 @@ class HomeViewModelOfflineCrashTest {
         } as ServerDatabaseDao
 
     /**
-     * A [SharedPreferences] whose getters return the supplied default value.
-     * `AppPreferences` then reports its own declared defaults: `currentServer` =
-     * null (so `loadData()` skips the database entirely) and the `home*` toggles =
-     * true (so every section actually calls the repository).
+     * A [SharedPreferences] whose getters return the supplied default value. `AppPreferences` then
+     * reports its own declared defaults: `currentServer` = null (so `loadData()` skips the database
+     * entirely) and the `home*` toggles = true (so every section actually calls the repository).
      */
     private fun defaultsOnlySharedPreferences(): SharedPreferences =
         Proxy.newProxyInstance(

@@ -56,12 +56,11 @@ constructor(
                 // so episode.sources gets the new LOCAL entry. Firing per-episode would
                 // cause N network roundtrips.
                 val episodeIds = episodes.map { it.id }.toSet()
-                val isBusy =
-                    entries.any {
-                        it.id in episodeIds &&
-                            (it.state is DownloadQueue.EntryState.Downloading ||
-                                it.state is DownloadQueue.EntryState.Pending)
-                    }
+                val isBusy = entries.any {
+                    it.id in episodeIds &&
+                        (it.state is DownloadQueue.EntryState.Downloading ||
+                            it.state is DownloadQueue.EntryState.Pending)
+                }
                 if (isBusy) {
                     wasBusy = true
                 } else if (wasBusy && ::seasonId.isInitialized) {
@@ -171,7 +170,8 @@ constructor(
                             status = DownloadStatus.PAUSED,
                             progress = entry.progress / 100f,
                         )
-                    is DownloadQueue.EntryState.Failed -> DownloadProgress(status = DownloadStatus.FAILED)
+                    is DownloadQueue.EntryState.Failed ->
+                        DownloadProgress(status = DownloadStatus.FAILED)
                     is DownloadQueue.EntryState.Completed ->
                         DownloadProgress(status = DownloadStatus.COMPLETED, progress = 1f)
                     null ->

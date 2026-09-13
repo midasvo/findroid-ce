@@ -30,13 +30,14 @@ internal sealed class DeviceCodec(
         maxBitrate: Int,
     ) : DeviceCodec(name, mimeType, profiles, maxBitrate) {
 
-        fun mergeCodec(codecToMerge: Video): Video = Video(
-            name = name,
-            mimeType = mimeType,
-            profiles = profiles + codecToMerge.profiles,
-            levels = levels + codecToMerge.levels,
-            maxBitrate = max(maxBitrate, codecToMerge.maxBitrate),
-        )
+        fun mergeCodec(codecToMerge: Video): Video =
+            Video(
+                name = name,
+                mimeType = mimeType,
+                profiles = profiles + codecToMerge.profiles,
+                levels = levels + codecToMerge.levels,
+                maxBitrate = max(maxBitrate, codecToMerge.maxBitrate),
+            )
     }
 
     class Audio(
@@ -48,20 +49,24 @@ internal sealed class DeviceCodec(
         private val maxSampleRate: Int?,
     ) : DeviceCodec(name, mimeType, profiles, maxBitrate) {
 
-        fun mergeCodec(codecToMerge: Audio): Audio = Audio(
-            name = name,
-            mimeType = mimeType,
-            profiles = profiles + codecToMerge.profiles,
-            maxBitrate = max(maxBitrate, codecToMerge.maxBitrate),
-            maxChannels = max(maxChannels, codecToMerge.maxChannels),
-            maxSampleRate = when {
-                maxSampleRate != null -> when {
-                    codecToMerge.maxSampleRate != null -> max(maxSampleRate, codecToMerge.maxSampleRate)
-                    else -> maxSampleRate
-                }
-                else -> codecToMerge.maxSampleRate
-            },
-        )
+        fun mergeCodec(codecToMerge: Audio): Audio =
+            Audio(
+                name = name,
+                mimeType = mimeType,
+                profiles = profiles + codecToMerge.profiles,
+                maxBitrate = max(maxBitrate, codecToMerge.maxBitrate),
+                maxChannels = max(maxChannels, codecToMerge.maxChannels),
+                maxSampleRate =
+                    when {
+                        maxSampleRate != null ->
+                            when {
+                                codecToMerge.maxSampleRate != null ->
+                                    max(maxSampleRate, codecToMerge.maxSampleRate)
+                                else -> maxSampleRate
+                            }
+                        else -> codecToMerge.maxSampleRate
+                    },
+            )
     }
 
     companion object {
@@ -101,9 +106,10 @@ internal sealed class DeviceCodec(
                         maxBitrate = codecCapabilities.audioCapabilities?.bitrateRange?.upper ?: 0,
                         maxChannels =
                             codecCapabilities.audioCapabilities?.maxInputChannelCount ?: 0,
-                        maxSampleRate = codecCapabilities.audioCapabilities
-                            ?.supportedSampleRateRanges
-                            ?.maxOfOrNull(Range<Int>::getUpper),
+                        maxSampleRate =
+                            codecCapabilities.audioCapabilities
+                                ?.supportedSampleRateRanges
+                                ?.maxOfOrNull(Range<Int>::getUpper),
                     )
                 }
                 else -> null

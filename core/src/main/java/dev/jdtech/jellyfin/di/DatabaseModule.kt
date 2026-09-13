@@ -21,7 +21,8 @@ object DatabaseModule {
         return Room.databaseBuilder(app.applicationContext, ServerDatabase::class.java, "servers")
             .addMigrations(MIGRATION_6_7)
             .fallbackToDestructiveMigration(dropAllTables = true)
-            .allowMainThreadQueries() // TODO: Remove after migrating synchronous DAO callers (ApiModule, MainViewModel) to suspend/IO
+            .allowMainThreadQueries() // TODO: Remove after migrating synchronous DAO callers
+            // (ApiModule, MainViewModel) to suspend/IO
             .build()
             .getServerDatabaseDao()
     }

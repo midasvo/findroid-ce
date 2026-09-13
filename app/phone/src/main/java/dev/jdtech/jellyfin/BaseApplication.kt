@@ -136,9 +136,8 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
     }
 
     private fun scheduleUserDataSync(workManager: WorkManager) {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
+        val constraints =
+            Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
 
         val syncWorkRequest =
             OneTimeWorkRequestBuilder<SyncWorker>()
@@ -146,23 +145,20 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
                 .build()
 
-        workManager
-            .enqueueUniqueWork(
-                uniqueWorkName = "syncUserData",
-                existingWorkPolicy = ExistingWorkPolicy.KEEP,
-                request = syncWorkRequest
-            )
+        workManager.enqueueUniqueWork(
+            uniqueWorkName = "syncUserData",
+            existingWorkPolicy = ExistingWorkPolicy.KEEP,
+            request = syncWorkRequest,
+        )
     }
 
     private fun scheduleMpvCleanup(workManager: WorkManager) {
-        val cleanupRequest =
-            OneTimeWorkRequestBuilder<MpvCleanupWorker>()
-                .build()
+        val cleanupRequest = OneTimeWorkRequestBuilder<MpvCleanupWorker>().build()
 
         workManager.enqueueUniqueWork(
             uniqueWorkName = "mpv_cleanup",
             existingWorkPolicy = ExistingWorkPolicy.KEEP,
-            request = cleanupRequest
+            request = cleanupRequest,
         )
     }
 }

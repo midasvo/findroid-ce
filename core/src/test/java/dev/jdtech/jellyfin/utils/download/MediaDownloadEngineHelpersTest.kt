@@ -6,11 +6,11 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Unit tests for the three pure helper functions in MediaDownloadEngine.kt:
- * [shouldPauseTransfer], [resolveResumePlan], and [parseContentRangeTotal].
+ * Unit tests for the three pure helper functions in MediaDownloadEngine.kt: [shouldPauseTransfer],
+ * [resolveResumePlan], and [parseContentRangeTotal].
  *
- * These functions are file-top-level `internal` helpers so they are directly accessible
- * here (same package, test source set).
+ * These functions are file-top-level `internal` helpers so they are directly accessible here (same
+ * package, test source set).
  */
 class MediaDownloadEngineHelpersTest {
 
@@ -25,7 +25,7 @@ class MediaDownloadEngineHelpersTest {
                 isRoaming = false,
                 allowMetered = true,
                 allowRoaming = true,
-            ),
+            )
         )
     }
 
@@ -38,7 +38,7 @@ class MediaDownloadEngineHelpersTest {
                 isRoaming = true,
                 allowMetered = false,
                 allowRoaming = false,
-            ),
+            )
         )
     }
 
@@ -51,7 +51,7 @@ class MediaDownloadEngineHelpersTest {
                 isRoaming = false,
                 allowMetered = false,
                 allowRoaming = true,
-            ),
+            )
         )
     }
 
@@ -64,7 +64,7 @@ class MediaDownloadEngineHelpersTest {
                 isRoaming = true,
                 allowMetered = true,
                 allowRoaming = false,
-            ),
+            )
         )
     }
 
@@ -77,7 +77,7 @@ class MediaDownloadEngineHelpersTest {
                 isRoaming = true,
                 allowMetered = false,
                 allowRoaming = false,
-            ),
+            )
         )
     }
 
@@ -90,7 +90,7 @@ class MediaDownloadEngineHelpersTest {
                 isRoaming = false,
                 allowMetered = false,
                 allowRoaming = false,
-            ),
+            )
         )
     }
 
@@ -103,7 +103,7 @@ class MediaDownloadEngineHelpersTest {
                 isRoaming = false,
                 allowMetered = true,
                 allowRoaming = false,
-            ),
+            )
         )
     }
 
@@ -116,7 +116,7 @@ class MediaDownloadEngineHelpersTest {
                 isRoaming = true,
                 allowMetered = false,
                 allowRoaming = true,
-            ),
+            )
         )
     }
 
@@ -129,7 +129,7 @@ class MediaDownloadEngineHelpersTest {
                 isRoaming = true,
                 allowMetered = true,
                 allowRoaming = true,
-            ),
+            )
         )
     }
 
@@ -137,12 +137,13 @@ class MediaDownloadEngineHelpersTest {
 
     @Test
     fun `206 with parseable Content-Range total uses that total`() {
-        val plan = resolveResumePlan(
-            code = 206,
-            existingLength = 500L,
-            contentLength = 524L,
-            contentRangeTotal = 1024L,
-        )
+        val plan =
+            resolveResumePlan(
+                code = 206,
+                existingLength = 500L,
+                contentLength = 524L,
+                contentRangeTotal = 1024L,
+            )
         assertEquals(500L, plan.startByte)
         assertEquals(1024L, plan.totalBytes)
         assertFalse(plan.complete)
@@ -150,12 +151,13 @@ class MediaDownloadEngineHelpersTest {
 
     @Test
     fun `206 without Content-Range total falls back to existingLength plus contentLength`() {
-        val plan = resolveResumePlan(
-            code = 206,
-            existingLength = 200L,
-            contentLength = 824L,
-            contentRangeTotal = -1L,
-        )
+        val plan =
+            resolveResumePlan(
+                code = 206,
+                existingLength = 200L,
+                contentLength = 824L,
+                contentRangeTotal = -1L,
+            )
         assertEquals(200L, plan.startByte)
         assertEquals(1024L, plan.totalBytes)
         assertFalse(plan.complete)
@@ -163,12 +165,13 @@ class MediaDownloadEngineHelpersTest {
 
     @Test
     fun `206 without Content-Range and unknown contentLength yields unknown total`() {
-        val plan = resolveResumePlan(
-            code = 206,
-            existingLength = 200L,
-            contentLength = -1L,
-            contentRangeTotal = -1L,
-        )
+        val plan =
+            resolveResumePlan(
+                code = 206,
+                existingLength = 200L,
+                contentLength = -1L,
+                contentRangeTotal = -1L,
+            )
         assertEquals(200L, plan.startByte)
         assertEquals(-1L, plan.totalBytes)
         assertFalse(plan.complete)
@@ -176,12 +179,13 @@ class MediaDownloadEngineHelpersTest {
 
     @Test
     fun `200 truncates file to 0 and uses contentLength as total`() {
-        val plan = resolveResumePlan(
-            code = 200,
-            existingLength = 500L,
-            contentLength = 2048L,
-            contentRangeTotal = -1L,
-        )
+        val plan =
+            resolveResumePlan(
+                code = 200,
+                existingLength = 500L,
+                contentLength = 2048L,
+                contentRangeTotal = -1L,
+            )
         assertEquals(0L, plan.startByte)
         assertEquals(2048L, plan.totalBytes)
         assertFalse(plan.complete)
@@ -189,12 +193,13 @@ class MediaDownloadEngineHelpersTest {
 
     @Test
     fun `200 with unknown contentLength yields unknown total`() {
-        val plan = resolveResumePlan(
-            code = 200,
-            existingLength = 0L,
-            contentLength = -1L,
-            contentRangeTotal = -1L,
-        )
+        val plan =
+            resolveResumePlan(
+                code = 200,
+                existingLength = 0L,
+                contentLength = -1L,
+                contentRangeTotal = -1L,
+            )
         assertEquals(0L, plan.startByte)
         assertEquals(-1L, plan.totalBytes)
         assertFalse(plan.complete)
@@ -202,12 +207,13 @@ class MediaDownloadEngineHelpersTest {
 
     @Test
     fun `416 marks file as already complete`() {
-        val plan = resolveResumePlan(
-            code = 416,
-            existingLength = 1024L,
-            contentLength = -1L,
-            contentRangeTotal = -1L,
-        )
+        val plan =
+            resolveResumePlan(
+                code = 416,
+                existingLength = 1024L,
+                contentLength = -1L,
+                contentRangeTotal = -1L,
+            )
         assertEquals(1024L, plan.startByte)
         assertEquals(1024L, plan.totalBytes)
         assertTrue(plan.complete)

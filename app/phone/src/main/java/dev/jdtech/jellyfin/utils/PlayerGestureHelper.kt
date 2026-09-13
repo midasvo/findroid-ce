@@ -106,7 +106,7 @@ class PlayerGestureHelper(
                     when (appPreferences.getValue(appPreferences.playerGesturesHold)) {
                         "chapter" -> handleChapterSkip(e)
                         "speed" -> enableSpeedIncrease()
-                        // "disabled" -> do nothing
+                    // "disabled" -> do nothing
                     }
                 }
 

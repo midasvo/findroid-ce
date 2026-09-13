@@ -33,7 +33,8 @@ fun Modifier.copyOnLongClick(
             scope.launch {
                 clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(clipLabel, text)))
             }
-            // Only show a toast for Android 12 and lower; newer versions show their own confirmation.
+            // Only show a toast for Android 12 and lower; newer versions show their own
+            // confirmation.
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
                 Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
             }

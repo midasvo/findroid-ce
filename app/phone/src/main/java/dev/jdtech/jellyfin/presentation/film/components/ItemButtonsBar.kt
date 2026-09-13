@@ -31,15 +31,15 @@ import dev.jdtech.jellyfin.core.Constants
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloaderState
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyEpisode
-import dev.jdtech.jellyfin.utils.download.DownloadStatus
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidMovie
 import dev.jdtech.jellyfin.models.FindroidShow
 import dev.jdtech.jellyfin.models.FindroidSourceType
 import dev.jdtech.jellyfin.models.isDownloaded
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
-import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
 import dev.jdtech.jellyfin.presentation.theme.spacings
+import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
+import dev.jdtech.jellyfin.utils.download.DownloadStatus
 
 @Composable
 fun ItemButtonsBar(
@@ -98,7 +98,8 @@ fun ItemButtonsBar(
                         FilledTonalIconButton(onClick = { onPlayClick(true) }) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_rotate_ccw),
-                                contentDescription = stringResource(CoreR.string.play_from_beginning),
+                                contentDescription =
+                                    stringResource(CoreR.string.play_from_beginning),
                             )
                         }
                     }
@@ -119,24 +120,30 @@ fun ItemButtonsBar(
                         FilledTonalIconButton(onClick = { onPlayClick(true) }) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_rotate_ccw),
-                                contentDescription = stringResource(CoreR.string.play_from_beginning),
+                                contentDescription =
+                                    stringResource(CoreR.string.play_from_beginning),
                             )
                         }
                     }
                 }
-                trailerUri?.takeIf { !isOfflineMode }?.let { uri ->
-                    FilledTonalIconButton(onClick = { onTrailerClick(uri) }) {
-                        Icon(
-                            painter = painterResource(CoreR.drawable.ic_film),
-                            contentDescription = stringResource(CoreR.string.trailer_button_description),
-                        )
+                trailerUri
+                    ?.takeIf { !isOfflineMode }
+                    ?.let { uri ->
+                        FilledTonalIconButton(onClick = { onTrailerClick(uri) }) {
+                            Icon(
+                                painter = painterResource(CoreR.drawable.ic_film),
+                                contentDescription =
+                                    stringResource(CoreR.string.trailer_button_description),
+                            )
+                        }
                     }
-                }
                 FilledTonalIconButton(onClick = onMarkAsPlayedClick) {
                     Icon(
                         painter = painterResource(CoreR.drawable.ic_check),
                         contentDescription = stringResource(CoreR.string.check_button_description),
-                        tint = if (item.played) MaterialTheme.colorScheme.error else LocalContentColor.current,
+                        tint =
+                            if (item.played) MaterialTheme.colorScheme.error
+                            else LocalContentColor.current,
                     )
                 }
                 FilledTonalIconButton(onClick = onMarkAsFavoriteClick) {
@@ -144,14 +151,16 @@ fun ItemButtonsBar(
                         true -> {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_heart_filled),
-                                contentDescription = stringResource(CoreR.string.favorite_button_description),
+                                contentDescription =
+                                    stringResource(CoreR.string.favorite_button_description),
                                 tint = MaterialTheme.colorScheme.error,
                             )
                         }
                         false -> {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_heart),
-                                contentDescription = stringResource(CoreR.string.favorite_button_description),
+                                contentDescription =
+                                    stringResource(CoreR.string.favorite_button_description),
                             )
                         }
                     }
@@ -168,7 +177,8 @@ fun ItemButtonsBar(
                         FilledTonalIconButton(onClick = onDownloadClick) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_download),
-                                contentDescription = stringResource(CoreR.string.download_button_description),
+                                contentDescription =
+                                    stringResource(CoreR.string.download_button_description),
                             )
                         }
                     }
@@ -194,10 +204,9 @@ fun ItemButtonsBar(
                 if (localSource != null) {
                     val label =
                         remember(localSource.path) {
-                            val dir =
-                                storageLocations.firstOrNull { dir ->
-                                    dir != null && localSource.path.startsWith(dir.path)
-                                }
+                            val dir = storageLocations.firstOrNull { dir ->
+                                dir != null && localSource.path.startsWith(dir.path)
+                            }
                             val isExternal =
                                 dir != null && Environment.isExternalStorageRemovable(dir)
                             context.getString(
@@ -258,8 +267,7 @@ private fun ItemButtonsBarDownloadingPreview() {
     FindroidTheme {
         ItemButtonsBar(
             item = dummyEpisode,
-            downloaderState =
-                DownloaderState(status = DownloadStatus.RUNNING, progress = 0.3f),
+            downloaderState = DownloaderState(status = DownloadStatus.RUNNING, progress = 0.3f),
             onPlayClick = {},
             onMarkAsPlayedClick = {},
             onMarkAsFavoriteClick = {},
