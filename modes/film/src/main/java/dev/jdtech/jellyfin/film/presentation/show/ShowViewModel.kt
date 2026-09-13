@@ -57,26 +57,29 @@ constructor(
                 val seasonDownloadInfo = mutableMapOf<UUID, SeasonDownloadInfo>()
                 var hasDownloads = false
                 coroutineScope {
-                    seasons.map { season ->
-                        async {
-                            val episodes =
-                                repository.getEpisodes(
-                                    seriesId = showId,
-                                    seasonId = season.id,
-                                    offline = downloadsOnly,
-                                )
-                            season.id to episodes
+                    seasons
+                        .map { season ->
+                            async {
+                                val episodes =
+                                    repository.getEpisodes(
+                                        seriesId = showId,
+                                        seasonId = season.id,
+                                        offline = downloadsOnly,
+                                    )
+                                season.id to episodes
+                            }
                         }
-                    }.awaitAll()
-                }.forEach { (seasonId, episodes) ->
-                    val downloadedCount = episodes.count { it.isDownloaded() }
-                    if (downloadedCount > 0) hasDownloads = true
-                    seasonDownloadInfo[seasonId] =
-                        SeasonDownloadInfo(
-                            downloadedCount = downloadedCount,
-                            totalCount = episodes.size,
-                        )
+                        .awaitAll()
                 }
+                    .forEach { (seasonId, episodes) ->
+                        val downloadedCount = episodes.count { it.isDownloaded() }
+                        if (downloadedCount > 0) hasDownloads = true
+                        seasonDownloadInfo[seasonId] =
+                            SeasonDownloadInfo(
+                                downloadedCount = downloadedCount,
+                                totalCount = episodes.size,
+                            )
+                    }
                 _state.emit(
                     _state.value.copy(
                         show = show,

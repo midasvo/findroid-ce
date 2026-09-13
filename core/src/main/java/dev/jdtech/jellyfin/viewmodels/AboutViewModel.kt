@@ -19,15 +19,14 @@ import kotlinx.coroutines.launch
 /**
  * Backs the About screen's "Export device profile" action.
  *
- * Lives in `core` because both the device-profile builder (in `data`) and
- * `AppPreferences` (in `settings`) need to be assembled, and `core` is the
- * lowest module that depends on both. The AboutScreen itself stays in
- * `app/phone` and consumes this VM via `hiltViewModel()`.
+ * Lives in `core` because both the device-profile builder (in `data`) and `AppPreferences` (in
+ * `settings`) need to be assembled, and `core` is the lowest module that depends on both. The
+ * AboutScreen itself stays in `app/phone` and consumes this VM via `hiltViewModel()`.
  *
- * Report assembly + JSON encoding runs on [kotlinx.coroutines.Dispatchers.Default]
- * (see [DeviceCapabilityReportBuilder.buildJson]) so the UI thread is never
- * blocked while a few KB of `kotlinx.serialization` output is produced. The
- * resulting payload is delivered to the UI as a one-shot event.
+ * Report assembly + JSON encoding runs on [kotlinx.coroutines.Dispatchers.Default] (see
+ * [DeviceCapabilityReportBuilder.buildJson]) so the UI thread is never blocked while a few KB of
+ * `kotlinx.serialization` output is produced. The resulting payload is delivered to the UI as a
+ * one-shot event.
  */
 @HiltViewModel
 class AboutViewModel
@@ -68,20 +67,20 @@ constructor(
         viewModelScope.launch {
             _state.value = _state.value.copy(isExporting = true)
             try {
-                val json = DeviceCapabilityReportBuilder.buildJson(
-                    context = context,
-                    deviceProfileBuilder = deviceProfileBuilder,
-                    findroidVersion = findroidVersion,
-                    findroidBuildType = findroidBuildType,
-                    transcodeDolbyVision = appPreferences.getValue(
-                        appPreferences.downloadTranscodeDolbyVision,
-                    ),
-                )
+                val json =
+                    DeviceCapabilityReportBuilder.buildJson(
+                        context = context,
+                        deviceProfileBuilder = deviceProfileBuilder,
+                        findroidVersion = findroidVersion,
+                        findroidBuildType = findroidBuildType,
+                        transcodeDolbyVision =
+                            appPreferences.getValue(appPreferences.downloadTranscodeDolbyVision),
+                    )
                 eventsChannel.send(
                     when (target) {
                         ExportTarget.Share -> AboutEvent.ShareDeviceProfile(json)
                         ExportTarget.Clipboard -> AboutEvent.CopyDeviceProfile(json)
-                    },
+                    }
                 )
             } catch (e: CancellationException) {
                 throw e
@@ -104,10 +103,15 @@ sealed interface AboutAction {
     ) : AboutAction
 }
 
-enum class ExportTarget { Share, Clipboard }
+enum class ExportTarget {
+    Share,
+    Clipboard,
+}
 
 sealed interface AboutEvent {
     data class ShareDeviceProfile(val json: String) : AboutEvent
+
     data class CopyDeviceProfile(val json: String) : AboutEvent
+
     data class ExportFailed(val cause: Throwable) : AboutEvent
 }

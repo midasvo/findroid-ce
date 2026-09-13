@@ -165,15 +165,13 @@ interface ServerDatabaseDao {
     @Query("SELECT COUNT(*) FROM movies WHERE serverId = :serverId")
     fun countMoviesByServerId(serverId: String): Int
 
-    @Query("SELECT * FROM movies WHERE id = :id")
-    fun getMovieOrNull(id: UUID): FindroidMovieDto?
+    @Query("SELECT * FROM movies WHERE id = :id") fun getMovieOrNull(id: UUID): FindroidMovieDto?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE) fun insertShow(show: FindroidShowDto)
 
     @Query("SELECT * FROM shows WHERE id = :id") fun getShow(id: UUID): FindroidShowDto
 
-    @Query("SELECT * FROM shows WHERE id = :id")
-    fun getShowOrNull(id: UUID): FindroidShowDto?
+    @Query("SELECT * FROM shows WHERE id = :id") fun getShowOrNull(id: UUID): FindroidShowDto?
 
     @Query("SELECT * FROM shows ORDER BY name ASC") fun getShows(): List<FindroidShowDto>
 

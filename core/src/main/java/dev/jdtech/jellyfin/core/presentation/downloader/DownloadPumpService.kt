@@ -25,10 +25,10 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
- * Foreground service that keeps the app process alive while the DownloadQueue has
- * work to do. The OkHttp download engine runs in-process, so closing the app would
- * stall any active or pending transfers until the user reopens the app. This service
- * keeps the process alive while work remains.
+ * Foreground service that keeps the app process alive while the DownloadQueue has work to do. The
+ * OkHttp download engine runs in-process, so closing the app would stall any active or pending
+ * transfers until the user reopens the app. This service keeps the process alive while work
+ * remains.
  */
 @AndroidEntryPoint
 class DownloadPumpService : Service() {
@@ -54,26 +54,25 @@ class DownloadPumpService : Service() {
 
     private fun observeQueue() {
         observeJob?.cancel()
-        observeJob =
-            scope.launch {
-                downloadQueue.entries
-                    .map { entries ->
-                        entries.count {
-                            it.state is DownloadQueue.EntryState.Downloading ||
-                                it.state is DownloadQueue.EntryState.Pending ||
-                                it.state is DownloadQueue.EntryState.Paused
-                        }
+        observeJob = scope.launch {
+            downloadQueue.entries
+                .map { entries ->
+                    entries.count {
+                        it.state is DownloadQueue.EntryState.Downloading ||
+                            it.state is DownloadQueue.EntryState.Pending ||
+                            it.state is DownloadQueue.EntryState.Paused
                     }
-                    .distinctUntilChanged()
-                    .collect { count ->
-                        if (count == 0) {
-                            stopForegroundCompat()
-                            stopSelf()
-                        } else {
-                            updateNotification(count)
-                        }
+                }
+                .distinctUntilChanged()
+                .collect { count ->
+                    if (count == 0) {
+                        stopForegroundCompat()
+                        stopSelf()
+                    } else {
+                        updateNotification(count)
                     }
-            }
+                }
+        }
     }
 
     private fun startForegroundWithCount(count: Int) {
@@ -95,9 +94,10 @@ class DownloadPumpService : Service() {
     }
 
     private fun buildNotification(count: Int): android.app.Notification {
-        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
-            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
+        val launchIntent =
+            packageManager.getLaunchIntentForPackage(packageName)?.apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
         val pendingIntent = launchIntent?.let {
             PendingIntent.getActivity(
                 this,

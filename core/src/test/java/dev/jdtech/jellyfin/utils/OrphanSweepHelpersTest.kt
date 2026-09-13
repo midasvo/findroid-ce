@@ -19,7 +19,7 @@ class OrphanSweepHelpersTest {
                 path = "/storage/emulated/0/downloads/Name.sourceId.uuid.srt",
                 knownPaths = emptySet(),
                 liveDmPaths = emptySet(),
-            ),
+            )
         )
     }
 
@@ -31,7 +31,7 @@ class OrphanSweepHelpersTest {
                 path = path,
                 knownPaths = setOf(path),
                 liveDmPaths = emptySet(),
-            ),
+            )
         )
     }
 
@@ -43,7 +43,7 @@ class OrphanSweepHelpersTest {
                 path = path,
                 knownPaths = emptySet(),
                 liveDmPaths = setOf(path),
-            ),
+            )
         )
     }
 
@@ -54,7 +54,7 @@ class OrphanSweepHelpersTest {
                 path = "/storage/emulated/0/downloads/Show/S01/junk.mkv.download",
                 knownPaths = emptySet(),
                 liveDmPaths = emptySet(),
-            ),
+            )
         )
     }
 
@@ -65,7 +65,7 @@ class OrphanSweepHelpersTest {
                 path = "/storage/emulated/0/downloads/Movie/Movie (2024)/Movie (2024).mkv.download",
                 knownPaths = emptySet(),
                 liveDmPaths = emptySet(),
-            ),
+            )
         )
     }
 
@@ -79,18 +79,20 @@ class OrphanSweepHelpersTest {
             isUnderMountedRoot(
                 path = "$root/Show/S01/S01E01.mkv.download",
                 mountedRoots = roots,
-            ),
+            )
         )
     }
 
     @Test
     fun `path not under any mounted root returns false`() {
-        val roots = listOf("/storage/emulated/0/Android/data/nl.midasvo.findroid.ce/files/downloads")
+        val roots =
+            listOf("/storage/emulated/0/Android/data/nl.midasvo.findroid.ce/files/downloads")
         assertFalse(
             isUnderMountedRoot(
-                path = "/storage/sdcard1/Android/data/nl.midasvo.findroid.ce/files/downloads/Movie.mkv",
+                path =
+                    "/storage/sdcard1/Android/data/nl.midasvo.findroid.ce/files/downloads/Movie.mkv",
                 mountedRoots = roots,
-            ),
+            )
         )
     }
 
@@ -100,7 +102,7 @@ class OrphanSweepHelpersTest {
             isUnderMountedRoot(
                 path = "/storage/emulated/0/downloads/anything.mkv.download",
                 mountedRoots = emptyList(),
-            ),
+            )
         )
     }
 
@@ -113,7 +115,7 @@ class OrphanSweepHelpersTest {
             isUnderMountedRoot(
                 path = "/storage/emulated/0/downloads",
                 mountedRoots = roots,
-            ),
+            )
         )
     }
 }

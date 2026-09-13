@@ -80,8 +80,8 @@ data class HdrInfo(
 )
 
 /**
- * Flat, JSON-friendly view of [ProbedCodecs] — `Set` is not directly serializable
- * with the default kotlinx config, so we expose them as sorted lists.
+ * Flat, JSON-friendly view of [ProbedCodecs] — `Set` is not directly serializable with the default
+ * kotlinx config, so we expose them as sorted lists.
  */
 @Serializable
 data class ProbedCodecsReport(
@@ -90,9 +90,8 @@ data class ProbedCodecsReport(
 )
 
 /**
- * Builds a [DeviceCapabilityReport] from the device + the supplied profile
- * builder. Kept Hilt-free so callers can construct it with whatever Context /
- * builder / preferences they already have.
+ * Builds a [DeviceCapabilityReport] from the device + the supplied profile builder. Kept Hilt-free
+ * so callers can construct it with whatever Context / builder / preferences they already have.
  */
 object DeviceCapabilityReportBuilder {
 
@@ -106,9 +105,7 @@ object DeviceCapabilityReportBuilder {
         // SDK classes pick it up at runtime. Without this, encodeToString blows
         // up the first time DeviceProfileBuilder.getDeviceProfile() hands us a
         // profile with an actual UUID — which is every real device.
-        serializersModule = SerializersModule {
-            contextual(UUID::class, UUIDSerializer())
-        }
+        serializersModule = SerializersModule { contextual(UUID::class, UUIDSerializer()) }
     }
 
     fun build(
@@ -125,24 +122,27 @@ object DeviceCapabilityReportBuilder {
             findroidVersion = findroidVersion,
             findroidBuildType = findroidBuildType,
             generatedAt = java.time.Instant.ofEpochMilli(clock()).toString(),
-            android = AndroidBuildInfo(
-                manufacturer = Build.MANUFACTURER.orEmpty(),
-                model = Build.MODEL.orEmpty(),
-                device = Build.DEVICE.orEmpty(),
-                brand = Build.BRAND.orEmpty(),
-                product = Build.PRODUCT.orEmpty(),
-                sdkInt = Build.VERSION.SDK_INT,
-                release = Build.VERSION.RELEASE.orEmpty(),
-                display = Build.DISPLAY.orEmpty(),
-                fingerprint = Build.FINGERPRINT.orEmpty(),
-            ),
+            android =
+                AndroidBuildInfo(
+                    manufacturer = Build.MANUFACTURER.orEmpty(),
+                    model = Build.MODEL.orEmpty(),
+                    device = Build.DEVICE.orEmpty(),
+                    brand = Build.BRAND.orEmpty(),
+                    product = Build.PRODUCT.orEmpty(),
+                    sdkInt = Build.VERSION.SDK_INT,
+                    release = Build.VERSION.RELEASE.orEmpty(),
+                    display = Build.DISPLAY.orEmpty(),
+                    fingerprint = Build.FINGERPRINT.orEmpty(),
+                ),
             display = display,
-            probedCodecs = ProbedCodecsReport(
-                videoCodecProfiles = probed.videoCodecProfiles
-                    .mapValues { (_, profiles) -> profiles.sorted() }
-                    .toSortedMap(),
-                audioCodecs = probed.audioCodecs.sorted(),
-            ),
+            probedCodecs =
+                ProbedCodecsReport(
+                    videoCodecProfiles =
+                        probed.videoCodecProfiles
+                            .mapValues { (_, profiles) -> profiles.sorted() }
+                            .toSortedMap(),
+                    audioCodecs = probed.audioCodecs.sorted(),
+                ),
             deviceProfile = deviceProfileBuilder.getDeviceProfile(),
             directPlayProfile = deviceProfileBuilder.getDirectPlayProfile(),
             downloadProfile = deviceProfileBuilder.getDownloadProfile(transcodeDolbyVision),
@@ -153,10 +153,9 @@ object DeviceCapabilityReportBuilder {
     fun toJson(report: DeviceCapabilityReport): String = json.encodeToString(report)
 
     /**
-     * Suspend variant that assembles the report and serialises it on
-     * [Dispatchers.Default]. The probe + JSON encode walks a non-trivial SDK
-     * object graph (three full [DeviceProfile]s, codec maps, etc.) so we keep
-     * it off the UI thread even though the result is only ~tens of kilobytes
+     * Suspend variant that assembles the report and serialises it on [Dispatchers.Default]. The
+     * probe + JSON encode walks a non-trivial SDK object graph (three full [DeviceProfile]s, codec
+     * maps, etc.) so we keep it off the UI thread even though the result is only ~tens of kilobytes
      * in practice.
      */
     suspend fun buildJson(
@@ -166,29 +165,31 @@ object DeviceCapabilityReportBuilder {
         findroidBuildType: String,
         transcodeDolbyVision: Boolean,
         clock: () -> Long = System::currentTimeMillis,
-    ): String = withContext(Dispatchers.Default) {
-        val report = build(
-            context = context,
-            deviceProfileBuilder = deviceProfileBuilder,
-            findroidVersion = findroidVersion,
-            findroidBuildType = findroidBuildType,
-            transcodeDolbyVision = transcodeDolbyVision,
-            clock = clock,
-        )
-        toJson(report)
-    }
+    ): String =
+        withContext(Dispatchers.Default) {
+            val report =
+                build(
+                    context = context,
+                    deviceProfileBuilder = deviceProfileBuilder,
+                    findroidVersion = findroidVersion,
+                    findroidBuildType = findroidBuildType,
+                    transcodeDolbyVision = transcodeDolbyVision,
+                    clock = clock,
+                )
+            toJson(report)
+        }
 
     private fun currentDisplay(context: Context): DisplayInfo {
         // Context.display was added in API 30; on older devices fall back to the
         // deprecated WindowManager.defaultDisplay. Either is fine for an
         // informational diagnostic — we just want any sane display.
-        val display: Display? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            @Suppress("UnsafeOptInUsageError")
-            context.display
-        } else {
-            @Suppress("DEPRECATION")
-            (context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager)?.defaultDisplay
-        }
+        val display: Display? =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                @Suppress("UnsafeOptInUsageError") context.display
+            } else {
+                @Suppress("DEPRECATION")
+                (context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager)?.defaultDisplay
+            }
         if (display == null) {
             return DisplayInfo(
                 widthPx = 0,
@@ -196,37 +197,40 @@ object DeviceCapabilityReportBuilder {
                 densityDpi = context.resources.displayMetrics.densityDpi,
                 refreshRateHz = 0f,
                 supportedRefreshRatesHz = emptyList(),
-                hdr = HdrInfo(
-                    supportedTypes = emptyList(),
-                    desiredMaxLuminance = 0f,
-                    desiredMaxAverageLuminance = 0f,
-                    desiredMinLuminance = 0f,
-                ),
+                hdr =
+                    HdrInfo(
+                        supportedTypes = emptyList(),
+                        desiredMaxLuminance = 0f,
+                        desiredMaxAverageLuminance = 0f,
+                        desiredMinLuminance = 0f,
+                    ),
             )
         }
 
         val metrics = context.resources.displayMetrics
-        val supportedRates = try {
-            display.supportedModes.map { it.refreshRate }.distinct().sorted()
-        } catch (_: Exception) {
-            emptyList()
-        }
-        val hdr = try {
-            val caps = display.hdrCapabilities
-            // Display.getHdrCapabilities().supportedHdrTypes was soft-deprecated
-            // in API 34 in favour of Display.Mode.supportedHdrTypes; the data is
-            // identical and we want it across all API levels, so keep it.
-            @Suppress("DEPRECATION")
-            val supported = caps?.supportedHdrTypes?.map(::hdrTypeName).orEmpty()
-            HdrInfo(
-                supportedTypes = supported,
-                desiredMaxLuminance = caps?.desiredMaxLuminance ?: 0f,
-                desiredMaxAverageLuminance = caps?.desiredMaxAverageLuminance ?: 0f,
-                desiredMinLuminance = caps?.desiredMinLuminance ?: 0f,
-            )
-        } catch (_: Exception) {
-            HdrInfo(emptyList(), 0f, 0f, 0f)
-        }
+        val supportedRates =
+            try {
+                display.supportedModes.map { it.refreshRate }.distinct().sorted()
+            } catch (_: Exception) {
+                emptyList()
+            }
+        val hdr =
+            try {
+                val caps = display.hdrCapabilities
+                // Display.getHdrCapabilities().supportedHdrTypes was soft-deprecated
+                // in API 34 in favour of Display.Mode.supportedHdrTypes; the data is
+                // identical and we want it across all API levels, so keep it.
+                @Suppress("DEPRECATION")
+                val supported = caps?.supportedHdrTypes?.map(::hdrTypeName).orEmpty()
+                HdrInfo(
+                    supportedTypes = supported,
+                    desiredMaxLuminance = caps?.desiredMaxLuminance ?: 0f,
+                    desiredMaxAverageLuminance = caps?.desiredMaxAverageLuminance ?: 0f,
+                    desiredMinLuminance = caps?.desiredMinLuminance ?: 0f,
+                )
+            } catch (_: Exception) {
+                HdrInfo(emptyList(), 0f, 0f, 0f)
+            }
 
         return DisplayInfo(
             widthPx = metrics.widthPixels,
@@ -238,11 +242,12 @@ object DeviceCapabilityReportBuilder {
         )
     }
 
-    private fun hdrTypeName(type: Int): String = when (type) {
-        Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION -> "DOLBY_VISION"
-        Display.HdrCapabilities.HDR_TYPE_HDR10 -> "HDR10"
-        Display.HdrCapabilities.HDR_TYPE_HDR10_PLUS -> "HDR10_PLUS"
-        Display.HdrCapabilities.HDR_TYPE_HLG -> "HLG"
-        else -> "UNKNOWN($type)"
-    }
+    private fun hdrTypeName(type: Int): String =
+        when (type) {
+            Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION -> "DOLBY_VISION"
+            Display.HdrCapabilities.HDR_TYPE_HDR10 -> "HDR10"
+            Display.HdrCapabilities.HDR_TYPE_HDR10_PLUS -> "HDR10_PLUS"
+            Display.HdrCapabilities.HDR_TYPE_HLG -> "HLG"
+            else -> "UNKNOWN($type)"
+        }
 }

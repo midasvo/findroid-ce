@@ -16,9 +16,8 @@ data class FindroidSource(
     val mediaStreams: List<FindroidMediaStream>,
     val downloadId: Long? = null,
     /**
-     * True when [path] points at a server-side transcode (an HLS manifest) rather
-     * than the original file. Only the playback path ever produces this — downloads
-     * always fetch the original.
+     * True when [path] points at a server-side transcode (an HLS manifest) rather than the original
+     * file. Only the playback path ever produces this — downloads always fetch the original.
      */
     val transcoded: Boolean = false,
 )

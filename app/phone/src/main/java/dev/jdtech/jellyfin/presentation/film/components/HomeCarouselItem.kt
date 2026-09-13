@@ -19,9 +19,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.res.stringResource
 import coil3.compose.AsyncImage
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyMovie
@@ -44,12 +44,11 @@ fun HomeCarouselItem(item: FindroidItem, onAction: (HomeAction) -> Unit) {
 
     Box(
         modifier =
-            Modifier
-                .aspectRatio(1.77f)
+            Modifier.aspectRatio(1.77f)
                 .clip(MaterialTheme.shapes.large)
                 .copyOnLongClick(
                     text = item.name,
-                    onClick = { onAction(HomeAction.OnItemClick(item)) }
+                    onClick = { onAction(HomeAction.OnItemClick(item)) },
                 )
     ) {
         AsyncImage(

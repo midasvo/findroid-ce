@@ -13,10 +13,10 @@ import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import timber.log.Timber
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jellyfin.sdk.model.api.PersonKind
+import timber.log.Timber
 
 @HiltViewModel
 class EpisodeViewModel
@@ -36,7 +36,8 @@ constructor(
         viewModelScope.launch {
             try {
                 val episode = repository.getEpisode(episodeId)
-                val videoMetadata = episode.sources.firstOrNull()?.let { videoMetadataParser.parse(it) }
+                val videoMetadata =
+                    episode.sources.firstOrNull()?.let { videoMetadataParser.parse(it) }
                 val actors = getActors(episode)
                 val displayExtraInfo = appPreferences.getValue(appPreferences.displayExtraInfo)
                 _state.emit(

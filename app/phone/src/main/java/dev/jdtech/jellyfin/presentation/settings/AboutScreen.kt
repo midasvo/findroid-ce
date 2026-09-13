@@ -81,18 +81,20 @@ fun AboutScreen(
             is AboutEvent.CopyDeviceProfile -> {
                 copyToClipboard(context, event.json)
                 Toast.makeText(
-                    context,
-                    context.getString(SettingsR.string.export_device_profile_copied),
-                    Toast.LENGTH_SHORT,
-                ).show()
+                        context,
+                        context.getString(SettingsR.string.export_device_profile_copied),
+                        Toast.LENGTH_SHORT,
+                    )
+                    .show()
             }
             is AboutEvent.ExportFailed -> {
                 Timber.e(event.cause, "Failed to build device capability report")
                 Toast.makeText(
-                    context,
-                    context.getString(SettingsR.string.export_device_profile_failed),
-                    Toast.LENGTH_SHORT,
-                ).show()
+                        context,
+                        context.getString(SettingsR.string.export_device_profile_failed),
+                        Toast.LENGTH_SHORT,
+                    )
+                    .show()
             }
         }
     }
@@ -106,7 +108,7 @@ fun AboutScreen(
                     findroidVersion = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
                     findroidBuildType = BuildConfig.BUILD_TYPE,
                     target = ExportTarget.Share,
-                ),
+                )
             )
         },
         onCopyDeviceProfile = {
@@ -115,7 +117,7 @@ fun AboutScreen(
                     findroidVersion = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
                     findroidBuildType = BuildConfig.BUILD_TYPE,
                     target = ExportTarget.Clipboard,
-                ),
+                )
             )
         },
     )
@@ -236,9 +238,8 @@ private fun AboutScreenLayout(
                             )
                             Spacer(Modifier.height(MaterialTheme.spacings.extraSmall))
                             Text(
-                                text = stringResource(
-                                    SettingsR.string.export_device_profile_summary,
-                                ),
+                                text =
+                                    stringResource(SettingsR.string.export_device_profile_summary),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -258,9 +259,7 @@ private fun AboutScreenLayout(
                                     enabled = !state.isExporting,
                                 ) {
                                     Text(
-                                        stringResource(
-                                            SettingsR.string.export_device_profile_copy,
-                                        ),
+                                        stringResource(SettingsR.string.export_device_profile_copy)
                                     )
                                 }
                             }
@@ -274,11 +273,12 @@ private fun AboutScreenLayout(
 }
 
 private fun shareJson(context: Context, json: String) {
-    val sendIntent = Intent(Intent.ACTION_SEND).apply {
-        type = "application/json"
-        putExtra(Intent.EXTRA_SUBJECT, "Findroid device profile")
-        putExtra(Intent.EXTRA_TEXT, json)
-    }
+    val sendIntent =
+        Intent(Intent.ACTION_SEND).apply {
+            type = "application/json"
+            putExtra(Intent.EXTRA_SUBJECT, "Findroid device profile")
+            putExtra(Intent.EXTRA_TEXT, json)
+        }
     try {
         context.startActivity(Intent.createChooser(sendIntent, null))
     } catch (e: Exception) {

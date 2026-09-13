@@ -20,9 +20,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class SubtitleStyleViewModel @Inject constructor(
-    private val appPreferences: AppPreferences,
-) : ViewModel() {
+class SubtitleStyleViewModel @Inject constructor(private val appPreferences: AppPreferences) :
+    ViewModel() {
     private val _state =
         MutableStateFlow(
             SubtitleStyleState(
@@ -78,9 +77,7 @@ class SubtitleStyleViewModel @Inject constructor(
             is SubtitleStyleAction.OnOpenSystemCaptionSettings -> {
                 viewModelScope.launch {
                     eventsChannel.send(
-                        SubtitleStyleEvent.LaunchIntent(
-                            Intent(Settings.ACTION_CAPTIONING_SETTINGS)
-                        )
+                        SubtitleStyleEvent.LaunchIntent(Intent(Settings.ACTION_CAPTIONING_SETTINGS))
                     )
                 }
             }
@@ -102,9 +99,7 @@ class SubtitleStyleViewModel @Inject constructor(
                                 options = R.array.subtitle_foreground_colors,
                                 optionValues = R.array.subtitle_foreground_color_values,
                                 value =
-                                    appPreferences.getValue(
-                                        appPreferences.subtitleForegroundColor
-                                    ),
+                                    appPreferences.getValue(appPreferences.subtitleForegroundColor),
                             ),
                             PreferenceSelect(
                                 nameStringResource = R.string.subtitle_background_color,
@@ -112,9 +107,7 @@ class SubtitleStyleViewModel @Inject constructor(
                                 options = R.array.subtitle_background_colors,
                                 optionValues = R.array.subtitle_background_color_values,
                                 value =
-                                    appPreferences.getValue(
-                                        appPreferences.subtitleBackgroundColor
-                                    ),
+                                    appPreferences.getValue(appPreferences.subtitleBackgroundColor),
                             ),
                             PreferenceSelect(
                                 nameStringResource = R.string.subtitle_edge_type,
@@ -128,16 +121,14 @@ class SubtitleStyleViewModel @Inject constructor(
                                 backendPreference = appPreferences.subtitleEdgeColor,
                                 options = R.array.subtitle_edge_colors,
                                 optionValues = R.array.subtitle_edge_color_values,
-                                value =
-                                    appPreferences.getValue(appPreferences.subtitleEdgeColor),
+                                value = appPreferences.getValue(appPreferences.subtitleEdgeColor),
                             ),
                             PreferenceSelect(
                                 nameStringResource = R.string.subtitle_font_family,
                                 backendPreference = appPreferences.subtitleFontFamily,
                                 options = R.array.subtitle_font_families,
                                 optionValues = R.array.subtitle_font_family_values,
-                                value =
-                                    appPreferences.getValue(appPreferences.subtitleFontFamily),
+                                value = appPreferences.getValue(appPreferences.subtitleFontFamily),
                             ),
                             PreferenceIntInput(
                                 nameStringResource = R.string.subtitle_font_scale,

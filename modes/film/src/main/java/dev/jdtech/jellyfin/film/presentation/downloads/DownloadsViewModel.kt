@@ -17,9 +17,9 @@ import dev.jdtech.jellyfin.models.CollectionSection
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidMovie
 import dev.jdtech.jellyfin.models.FindroidShow
-import dev.jdtech.jellyfin.models.toFindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidSourceType
 import dev.jdtech.jellyfin.models.UiText
+import dev.jdtech.jellyfin.models.toFindroidEpisode
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.Downloader
@@ -55,19 +55,17 @@ constructor(
         viewModelScope.launch {
             downloadQueue.entries.collect { entries ->
                 val items = entries.map { it.toActiveDownload() }
-                val hasCompleted =
-                    entries.any { it.state is DownloadQueue.EntryState.Completed }
+                val hasCompleted = entries.any { it.state is DownloadQueue.EntryState.Completed }
                 _state.emit(_state.value.copy(queueItems = items, hasCompleted = hasCompleted))
                 // When downloads finish (busy -> not busy), reload sections so newly
                 // completed items appear and removed shows disappear. The pump now
                 // finalizes downloads (rename + DB update) before flipping to
                 // Completed, so a single reload is enough — no race window.
-                val isBusy =
-                    entries.any {
-                        it.state is DownloadQueue.EntryState.Downloading ||
-                            it.state is DownloadQueue.EntryState.Pending ||
-                            it.state is DownloadQueue.EntryState.Paused
-                    }
+                val isBusy = entries.any {
+                    it.state is DownloadQueue.EntryState.Downloading ||
+                        it.state is DownloadQueue.EntryState.Pending ||
+                        it.state is DownloadQueue.EntryState.Paused
+                }
                 if (isBusy) {
                     wasBusy = true
                 } else if (wasBusy) {
@@ -104,22 +102,22 @@ constructor(
     }
 
     /**
-     * Self-heal pass: any source still tagged `.download` in the DB whose final
-     * file is already on disk gets fixed up. This rescues items left stuck by
-     * older buggy builds, missed broadcasts, or process death between rename
-     * and DB write — without it, those items would never appear in the Library
-     * tab again, even after restart.
+     * Self-heal pass: any source still tagged `.download` in the DB whose final file is already on
+     * disk gets fixed up. This rescues items left stuck by older buggy builds, missed broadcasts,
+     * or process death between rename and DB write — without it, those items would never appear in
+     * the Library tab again, even after restart.
      */
-    private suspend fun reconcileStuckDownloads() = withContext(Dispatchers.IO) {
-        for (src in database.getActiveDownloadSources()) {
-            val finalPath = src.path.removeSuffix(".download")
-            val finalFile = File(finalPath)
-            if (finalFile.exists() && finalFile.length() > 0) {
-                database.setSourcePath(src.id, finalPath)
-                File(src.path).takeIf { it.exists() }?.delete()
+    private suspend fun reconcileStuckDownloads() =
+        withContext(Dispatchers.IO) {
+            for (src in database.getActiveDownloadSources()) {
+                val finalPath = src.path.removeSuffix(".download")
+                val finalFile = File(finalPath)
+                if (finalFile.exists() && finalFile.length() > 0) {
+                    database.setSourcePath(src.id, finalPath)
+                    File(src.path).takeIf { it.exists() }?.delete()
+                }
             }
         }
-    }
 
     fun cancelDownload(activeDownload: ActiveDownload) {
         downloadQueue.remove(activeDownload.item.id)
@@ -135,7 +133,6 @@ constructor(
     fun retryDownload(activeDownload: ActiveDownload) {
         downloadQueue.retry(activeDownload.item.id)
     }
-
 
     fun setSortOrder(order: DownloadSortOrder) {
         viewModelScope.launch {
@@ -153,14 +150,16 @@ constructor(
                     for (epDto in episodes) {
                         val ep = epDto.toFindroidEpisode(database, userId)
                         downloadQueue.remove(ep.id)
-                        val source = ep.sources.firstOrNull { it.type == FindroidSourceType.LOCAL }
-                            ?: continue
+                        val source =
+                            ep.sources.firstOrNull { it.type == FindroidSourceType.LOCAL }
+                                ?: continue
                         downloader.deleteItem(ep, source)
                     }
                 } else {
                     downloadQueue.remove(item.id)
-                    val source = item.sources.firstOrNull { it.type == FindroidSourceType.LOCAL }
-                        ?: return@withContext
+                    val source =
+                        item.sources.firstOrNull { it.type == FindroidSourceType.LOCAL }
+                            ?: return@withContext
                     downloader.deleteItem(item, source)
                 }
             }
@@ -186,8 +185,7 @@ constructor(
         val failureText = (state as? DownloadQueue.EntryState.Failed)?.error
         return ActiveDownload(
             item = item,
-            progress =
-                DownloadProgress(status = downloadStatus, progress = progress / 100f),
+            progress = DownloadProgress(status = downloadStatus, progress = progress / 100f),
             downloadId = downloadId,
             bytesDownloaded = bytesDownloaded,
             totalBytes = totalBytes,
@@ -207,45 +205,48 @@ constructor(
             // A movie/show with ONLY a .download source is still being downloaded
             // and belongs in the Queue tab, not the Library tab. Filter by
             // completed-source presence before sorting.
-            val filteredMovies = items
-                .filterIsInstance<FindroidMovie>()
-                .filter { hasCompletedSource(it.id) }
-            val sortedMovies = when (sortOrder) {
-                DownloadSortOrder.NAME -> filteredMovies.sortedBy { it.name.lowercase() }
-                DownloadSortOrder.DATE -> filteredMovies.sortedByDescending { maxSourceMtime(it.id) }
-                DownloadSortOrder.SIZE -> filteredMovies.sortedByDescending { itemSizes[it.id] ?: 0L }
-            }
+            val filteredMovies =
+                items.filterIsInstance<FindroidMovie>().filter { hasCompletedSource(it.id) }
+            val sortedMovies =
+                when (sortOrder) {
+                    DownloadSortOrder.NAME -> filteredMovies.sortedBy { it.name.lowercase() }
+                    DownloadSortOrder.DATE ->
+                        filteredMovies.sortedByDescending { maxSourceMtime(it.id) }
+                    DownloadSortOrder.SIZE ->
+                        filteredMovies.sortedByDescending { itemSizes[it.id] ?: 0L }
+                }
             val shows = items.filterIsInstance<FindroidShow>()
             // Fetch each show's episode list once and reuse it for both the
             // filter and sort passes below, instead of re-querying the DB.
             val episodesByShow = shows.associateWith { database.getEpisodesByShowId(it.id) }
-            val filteredShows = shows
-                .filter { show ->
-                    episodesByShow.getValue(show).any { hasCompletedSource(it.id) }
-                }
-            val sortedShows = when (sortOrder) {
-                DownloadSortOrder.NAME -> filteredShows.sortedBy { it.name.lowercase() }
-                DownloadSortOrder.DATE -> filteredShows.sortedByDescending { show ->
-                    episodesByShow.getValue(show)
-                        .maxOfOrNull { maxSourceMtime(it.id) } ?: 0L
-                }
-                DownloadSortOrder.SIZE -> filteredShows.sortedByDescending { show ->
-                    episodesByShow.getValue(show)
-                        .sumOf { ep -> itemSizes[ep.id] ?: 0L }
-                }
+            val filteredShows = shows.filter { show ->
+                episodesByShow.getValue(show).any { hasCompletedSource(it.id) }
             }
+            val sortedShows =
+                when (sortOrder) {
+                    DownloadSortOrder.NAME -> filteredShows.sortedBy { it.name.lowercase() }
+                    DownloadSortOrder.DATE ->
+                        filteredShows.sortedByDescending { show ->
+                            episodesByShow.getValue(show).maxOfOrNull { maxSourceMtime(it.id) }
+                                ?: 0L
+                        }
+                    DownloadSortOrder.SIZE ->
+                        filteredShows.sortedByDescending { show ->
+                            episodesByShow.getValue(show).sumOf { ep -> itemSizes[ep.id] ?: 0L }
+                        }
+                }
             val sections = mutableListOf<CollectionSection>()
             CollectionSection(
-                Constants.FAVORITE_TYPE_MOVIES,
-                UiText.StringResource(CoreR.string.movies_label),
-                sortedMovies,
-            )
+                    Constants.FAVORITE_TYPE_MOVIES,
+                    UiText.StringResource(CoreR.string.movies_label),
+                    sortedMovies,
+                )
                 .let { if (it.items.isNotEmpty()) sections.add(it) }
             CollectionSection(
-                Constants.FAVORITE_TYPE_SHOWS,
-                UiText.StringResource(CoreR.string.shows_label),
-                sortedShows,
-            )
+                    Constants.FAVORITE_TYPE_SHOWS,
+                    UiText.StringResource(CoreR.string.shows_label),
+                    sortedShows,
+                )
                 .let { if (it.items.isNotEmpty()) sections.add(it) }
             sections
         }
@@ -256,31 +257,30 @@ constructor(
     private fun hasCompletedSource(itemId: java.util.UUID): Boolean =
         database.getSources(itemId).any { !it.path.endsWith(".download") }
 
-    private suspend fun computeItemSizes(
-        items: List<FindroidItem>,
-    ): Map<java.util.UUID, Long> = withContext(Dispatchers.IO) {
-        val sizes = mutableMapOf<java.util.UUID, Long>()
-        for (item in items) {
-            if (item is FindroidShow) {
-                val episodes = database.getEpisodesByShowId(item.id)
-                val totalBytes = episodes.sumOf { ep ->
-                    database.getSources(ep.id).sumOf { src ->
+    private suspend fun computeItemSizes(items: List<FindroidItem>): Map<java.util.UUID, Long> =
+        withContext(Dispatchers.IO) {
+            val sizes = mutableMapOf<java.util.UUID, Long>()
+            for (item in items) {
+                if (item is FindroidShow) {
+                    val episodes = database.getEpisodesByShowId(item.id)
+                    val totalBytes = episodes.sumOf { ep ->
+                        database.getSources(ep.id).sumOf { src ->
+                            val f = File(src.path)
+                            if (f.exists()) f.length() else 0L
+                        }
+                    }
+                    if (totalBytes > 0) sizes[item.id] = totalBytes
+                } else {
+                    val sources = database.getSources(item.id)
+                    val totalBytes = sources.sumOf { src ->
                         val f = File(src.path)
                         if (f.exists()) f.length() else 0L
                     }
+                    if (totalBytes > 0) sizes[item.id] = totalBytes
                 }
-                if (totalBytes > 0) sizes[item.id] = totalBytes
-            } else {
-                val sources = database.getSources(item.id)
-                val totalBytes = sources.sumOf { src ->
-                    val f = File(src.path)
-                    if (f.exists()) f.length() else 0L
-                }
-                if (totalBytes > 0) sizes[item.id] = totalBytes
             }
+            sizes
         }
-        sizes
-    }
 
     private suspend fun calculateStorageInfo(): Triple<Long, Long, Boolean> =
         withContext(Dispatchers.IO) {

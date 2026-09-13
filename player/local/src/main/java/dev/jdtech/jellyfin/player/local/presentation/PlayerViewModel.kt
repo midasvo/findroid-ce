@@ -177,23 +177,29 @@ constructor(
         // Resolve the per-type tri-state preference. fromPreferenceValueOrNull
         // returns null when the value is absent or corrupted, so the legacy
         // global toggles remain reachable in resolveSegmentAction.
-        segmentsActions = mapOf(
-            FindroidSegmentType.INTRO to MediaSegmentAction.fromPreferenceValueOrNull(
-                appPreferences.getValue(appPreferences.playerMediaSegmentsIntroAction),
-            ),
-            FindroidSegmentType.OUTRO to MediaSegmentAction.fromPreferenceValueOrNull(
-                appPreferences.getValue(appPreferences.playerMediaSegmentsOutroAction),
-            ),
-            FindroidSegmentType.RECAP to MediaSegmentAction.fromPreferenceValueOrNull(
-                appPreferences.getValue(appPreferences.playerMediaSegmentsRecapAction),
-            ),
-            FindroidSegmentType.PREVIEW to MediaSegmentAction.fromPreferenceValueOrNull(
-                appPreferences.getValue(appPreferences.playerMediaSegmentsPreviewAction),
-            ),
-            FindroidSegmentType.COMMERCIAL to MediaSegmentAction.fromPreferenceValueOrNull(
-                appPreferences.getValue(appPreferences.playerMediaSegmentsCommercialAction),
-            ),
-        )
+        segmentsActions =
+            mapOf(
+                FindroidSegmentType.INTRO to
+                    MediaSegmentAction.fromPreferenceValueOrNull(
+                        appPreferences.getValue(appPreferences.playerMediaSegmentsIntroAction)
+                    ),
+                FindroidSegmentType.OUTRO to
+                    MediaSegmentAction.fromPreferenceValueOrNull(
+                        appPreferences.getValue(appPreferences.playerMediaSegmentsOutroAction)
+                    ),
+                FindroidSegmentType.RECAP to
+                    MediaSegmentAction.fromPreferenceValueOrNull(
+                        appPreferences.getValue(appPreferences.playerMediaSegmentsRecapAction)
+                    ),
+                FindroidSegmentType.PREVIEW to
+                    MediaSegmentAction.fromPreferenceValueOrNull(
+                        appPreferences.getValue(appPreferences.playerMediaSegmentsPreviewAction)
+                    ),
+                FindroidSegmentType.COMMERCIAL to
+                    MediaSegmentAction.fromPreferenceValueOrNull(
+                        appPreferences.getValue(appPreferences.playerMediaSegmentsCommercialAction)
+                    ),
+            )
 
         val audioAttributes =
             AudioAttributes.Builder()
@@ -213,44 +219,46 @@ constructor(
                 )
         )
 
-
         val playerBackend = appPreferences.getValue(appPreferences.playerBackend)
-        player = when (playerBackend) {
-            "exoplayer" -> {
-                val renderersFactory =
-                    DefaultRenderersFactory(application)
-                        .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
-                ExoPlayer.Builder(application, renderersFactory)
-                    .setAudioAttributes(audioAttributes, true)
-                    .setTrackSelector(trackSelector)
-                    .setSeekBackIncrementMs(
-                        appPreferences.getValue(appPreferences.playerSeekBackInc)
-                    )
-                    .setSeekForwardIncrementMs(
-                        appPreferences.getValue(appPreferences.playerSeekForwardInc)
-                    )
-                    .setPauseAtEndOfMediaItems(true)
-                    .build()
-            }
-            "mpv" -> {
-                MPVPlayer.Builder(application)
-                    .setAudioAttributes(audioAttributes, true)
-                    .setTrackSelectionParameters(trackSelector.parameters)
-                    .setSeekBackIncrementMs(
-                        appPreferences.getValue(appPreferences.playerSeekBackInc)
-                    )
-                    .setSeekForwardIncrementMs(
-                        appPreferences.getValue(appPreferences.playerSeekForwardInc)
-                    )
-                    .setPauseAtEndOfMediaItems(true)
-                    .setVideoOutput(appPreferences.getValue(appPreferences.playerMpvVo))
-                    .setAudioOutput(appPreferences.getValue(appPreferences.playerMpvAo))
-                    .setHwDec(appPreferences.getValue(appPreferences.playerMpvHwdec))
-                    .build()
-            }
+        player =
+            when (playerBackend) {
+                "exoplayer" -> {
+                    val renderersFactory =
+                        DefaultRenderersFactory(application)
+                            .setExtensionRendererMode(
+                                DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
+                            )
+                    ExoPlayer.Builder(application, renderersFactory)
+                        .setAudioAttributes(audioAttributes, true)
+                        .setTrackSelector(trackSelector)
+                        .setSeekBackIncrementMs(
+                            appPreferences.getValue(appPreferences.playerSeekBackInc)
+                        )
+                        .setSeekForwardIncrementMs(
+                            appPreferences.getValue(appPreferences.playerSeekForwardInc)
+                        )
+                        .setPauseAtEndOfMediaItems(true)
+                        .build()
+                }
+                "mpv" -> {
+                    MPVPlayer.Builder(application)
+                        .setAudioAttributes(audioAttributes, true)
+                        .setTrackSelectionParameters(trackSelector.parameters)
+                        .setSeekBackIncrementMs(
+                            appPreferences.getValue(appPreferences.playerSeekBackInc)
+                        )
+                        .setSeekForwardIncrementMs(
+                            appPreferences.getValue(appPreferences.playerSeekForwardInc)
+                        )
+                        .setPauseAtEndOfMediaItems(true)
+                        .setVideoOutput(appPreferences.getValue(appPreferences.playerMpvVo))
+                        .setAudioOutput(appPreferences.getValue(appPreferences.playerMpvAo))
+                        .setHwDec(appPreferences.getValue(appPreferences.playerMpvHwdec))
+                        .build()
+                }
 
-            else -> throw RuntimeException("$playerBackend is not a valid player backend")
-        }
+                else -> throw RuntimeException("$playerBackend is not a valid player backend")
+            }
     }
 
     fun initializePlayer(itemId: UUID, itemKind: String, startFromBeginning: Boolean) {
@@ -303,16 +311,15 @@ constructor(
 
     private fun PlayerItem.toMediaItem(): MediaItem {
         val streamUrl = mediaSourceUri
-        val mediaSubtitles =
-            externalSubtitles.map { externalSubtitle ->
-                MediaItem.SubtitleConfiguration.Builder(externalSubtitle.uri)
-                    .setLabel(
-                        externalSubtitle.title.ifBlank { application.getString(R.string.external) }
-                    )
-                    .setMimeType(externalSubtitle.mimeType)
-                    .setLanguage(externalSubtitle.language)
-                    .build()
-            }
+        val mediaSubtitles = externalSubtitles.map { externalSubtitle ->
+            MediaItem.SubtitleConfiguration.Builder(externalSubtitle.uri)
+                .setLabel(
+                    externalSubtitle.title.ifBlank { application.getString(R.string.external) }
+                )
+                .setMimeType(externalSubtitle.mimeType)
+                .setLanguage(externalSubtitle.language)
+                .build()
+        }
 
         Timber.d("Stream url: $streamUrl")
         val mediaItem =
@@ -382,87 +389,85 @@ constructor(
     }
 
     /**
-     * Inspect the player's current position and update the UI to reflect the
-     * configured action for any segment it has entered. Suspends rather than
-     * launching its own coroutine so the activity's per-second poll loop can
-     * call it directly without paying for an extra `viewModelScope.launch`
-     * each tick (PR #20 review).
+     * Inspect the player's current position and update the UI to reflect the configured action for
+     * any segment it has entered. Suspends rather than launching its own coroutine so the
+     * activity's per-second poll loop can call it directly without paying for an extra
+     * `viewModelScope.launch` each tick (PR #20 review).
      */
-    suspend fun updateCurrentSegment() = withContext(Dispatchers.Main) {
-        Timber.d("Updating current segment")
-        if (currentMediaItemSegments.isEmpty()) {
-            return@withContext
-        }
+    suspend fun updateCurrentSegment() =
+        withContext(Dispatchers.Main) {
+            Timber.d("Updating current segment")
+            if (currentMediaItemSegments.isEmpty()) {
+                return@withContext
+            }
 
-        val milliSeconds = player.currentPosition
+            val milliSeconds = player.currentPosition
 
-        // Get current segment, - 100 milliseconds to avoid showing button after segment ends
-        val currentSegment =
-            currentMediaItemSegments.find { segment ->
+            // Get current segment, - 100 milliseconds to avoid showing button after segment ends
+            val currentSegment = currentMediaItemSegments.find { segment ->
                 milliSeconds in segment.startTicks..<(segment.endTicks - 100L)
             }
 
-        if (currentSegment == null) {
-            // Remove button if not pressed and there is no current segment
-            if (_uiState.value.currentSegment != null) {
-                _uiState.update { it.copy(currentSegment = null) }
-            }
-            return@withContext
-        }
-
-        Timber.tag("SegmentInfo").d("currentSegment: %s", currentSegment)
-
-        when (resolveSegmentAction(currentSegment)) {
-            MediaSegmentAction.SKIP -> {
-                // Auto Skip segment. The legacy `auto skip mode` (always vs
-                // PIP-only) is still respected — if the user picked PIP-only
-                // and we are not in PiP, fall back to showing the ASK
-                // button instead of nothing, since they clearly want to
-                // skip the segment in some form.
-                val pipOnly =
-                    segmentsAutoSkipMode == Constants.PlayerMediaSegmentsAutoSkip.PIP
-                if (!pipOnly || isInPictureInPictureMode) {
-                    skipSegment(currentSegment)
-                } else {
-                    _uiState.update {
-                        it.copy(
-                            currentSegment = currentSegment,
-                            currentSkipButtonStringRes =
-                                getSkipButtonTextStringId(currentSegment),
-                        )
-                    }
-                }
-            }
-            MediaSegmentAction.ASK -> {
-                // Show the skip button; the UI handles its own auto-hide
-                // after `segmentsSkipButtonDuration` seconds.
-                _uiState.update {
-                    it.copy(
-                        currentSegment = currentSegment,
-                        currentSkipButtonStringRes = getSkipButtonTextStringId(currentSegment),
-                    )
-                }
-            }
-            MediaSegmentAction.IGNORE -> {
+            if (currentSegment == null) {
+                // Remove button if not pressed and there is no current segment
                 if (_uiState.value.currentSegment != null) {
                     _uiState.update { it.copy(currentSegment = null) }
                 }
+                return@withContext
+            }
+
+            Timber.tag("SegmentInfo").d("currentSegment: %s", currentSegment)
+
+            when (resolveSegmentAction(currentSegment)) {
+                MediaSegmentAction.SKIP -> {
+                    // Auto Skip segment. The legacy `auto skip mode` (always vs
+                    // PIP-only) is still respected — if the user picked PIP-only
+                    // and we are not in PiP, fall back to showing the ASK
+                    // button instead of nothing, since they clearly want to
+                    // skip the segment in some form.
+                    val pipOnly = segmentsAutoSkipMode == Constants.PlayerMediaSegmentsAutoSkip.PIP
+                    if (!pipOnly || isInPictureInPictureMode) {
+                        skipSegment(currentSegment)
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                currentSegment = currentSegment,
+                                currentSkipButtonStringRes =
+                                    getSkipButtonTextStringId(currentSegment),
+                            )
+                        }
+                    }
+                }
+                MediaSegmentAction.ASK -> {
+                    // Show the skip button; the UI handles its own auto-hide
+                    // after `segmentsSkipButtonDuration` seconds.
+                    _uiState.update {
+                        it.copy(
+                            currentSegment = currentSegment,
+                            currentSkipButtonStringRes = getSkipButtonTextStringId(currentSegment),
+                        )
+                    }
+                }
+                MediaSegmentAction.IGNORE -> {
+                    if (_uiState.value.currentSegment != null) {
+                        _uiState.update { it.copy(currentSegment = null) }
+                    }
+                }
             }
         }
-    }
 
     /**
-     * Resolve the configured [MediaSegmentAction] for the segment that the
-     * player is currently inside.
+     * Resolve the configured [MediaSegmentAction] for the segment that the player is currently
+     * inside.
      *
      * Priority:
-     *  1. The per-type preference (issue #12).
-     *  2. Legacy global toggles — autoSkip+type set, then skipButton+type set —
-     *     for users who never touched the new per-type controls.
-     *  3. [MediaSegmentAction.IGNORE] as the safe default.
+     * 1. The per-type preference (issue #12).
+     * 2. Legacy global toggles — autoSkip+type set, then skipButton+type set — for users who never
+     *    touched the new per-type controls.
+     * 3. [MediaSegmentAction.IGNORE] as the safe default.
      *
-     * The actual logic lives on [MediaSegmentAction.Companion.resolve] so it
-     * can be unit-tested without the PlayerViewModel's Android dependencies.
+     * The actual logic lives on [MediaSegmentAction.Companion.resolve] so it can be unit-tested
+     * without the PlayerViewModel's Android dependencies.
      */
     private fun resolveSegmentAction(segment: FindroidSegment): MediaSegmentAction =
         MediaSegmentAction.resolve(
@@ -475,12 +480,12 @@ constructor(
         )
 
     /**
-     * True if at least one segment type is set to SKIP or ASK — used by the
-     * activity to decide whether to start the per-second segment poller.
+     * True if at least one segment type is set to SKIP or ASK — used by the activity to decide
+     * whether to start the per-second segment poller.
      *
-     * `segmentsActions` entries may be null (the user has not picked a per-type
-     * action) so we only short-circuit on non-null non-IGNORE values; null
-     * entries fall back to the legacy toggles, which we test separately.
+     * `segmentsActions` entries may be null (the user has not picked a per-type action) so we only
+     * short-circuit on non-null non-IGNORE values; null entries fall back to the legacy toggles,
+     * which we test separately.
      */
     fun shouldPollSegments(): Boolean {
         if (segmentsAutoSkip || segmentsSkipButton) return true
@@ -594,8 +599,8 @@ constructor(
     /**
      * Advance to the next item as part of automatic playback (end-of-item auto-advance or a
      * confirmed still-watching prompt). Arms [pendingAutoAdvanceSeek] so the resulting
-     * DISCONTINUITY_REASON_SEEK is not mistaken for a user interaction. The flag is only set when
-     * a next item actually exists — otherwise seekToNextMediaItem() is a no-op that fires no
+     * DISCONTINUITY_REASON_SEEK is not mistaken for a user interaction. The flag is only set when a
+     * next item actually exists — otherwise seekToNextMediaItem() is a no-op that fires no
      * discontinuity, and the flag would leak onto the next genuine user seek.
      */
     private fun autoAdvanceToNextItem() {
@@ -610,15 +615,14 @@ constructor(
         Timber.d("Still-watching threshold tripped — prompting user")
         _uiState.update { it.copy(showStillWatching = true) }
         stillWatchingTimeoutJob?.cancel()
-        stillWatchingTimeoutJob =
-            viewModelScope.launch {
-                delay(stillWatchingPromptTimeoutSeconds * 1000L)
-                // Timeout: user is gone. Hide the dialog and leave the player paused. The current
-                // item's progress was already reported above (postPlaybackStop with the actual
-                // position), so the season won't be marked watched.
-                _uiState.update { it.copy(showStillWatching = false) }
-                Timber.d("Still-watching prompt timed out — staying paused")
-            }
+        stillWatchingTimeoutJob = viewModelScope.launch {
+            delay(stillWatchingPromptTimeoutSeconds * 1000L)
+            // Timeout: user is gone. Hide the dialog and leave the player paused. The current
+            // item's progress was already reported above (postPlaybackStop with the actual
+            // position), so the season won't be marked watched.
+            _uiState.update { it.copy(showStillWatching = false) }
+            Timber.d("Still-watching prompt timed out — staying paused")
+        }
     }
 
     /** Called when the user confirms the still-watching prompt. Resumes auto-advance. */
@@ -640,8 +644,8 @@ constructor(
     }
 
     /**
-     * Reset the still-watching counters. Call from every user-driven action — touches,
-     * gestures, button presses, dialog choices.
+     * Reset the still-watching counters. Call from every user-driven action — touches, gestures,
+     * button presses, dialog choices.
      */
     fun markUserInteraction() {
         stillWatchingTracker.onUserInteraction(nowMs = System.currentTimeMillis())
@@ -690,8 +694,8 @@ constructor(
                     .setTrackTypeDisabled(trackType, true)
                     .build()
         } else {
-            val filteredGroups = player.currentTracks.groups
-                .filter { it.type == trackType && it.isSupported }
+            val filteredGroups =
+                player.currentTracks.groups.filter { it.type == trackType && it.isSupported }
             val group = filteredGroups.getOrNull(index) ?: return
             player.trackSelectionParameters =
                 player.trackSelectionParameters
@@ -742,9 +746,7 @@ constructor(
                     interval = trickplayInfo.interval,
                 )
             _uiState.update {
-                it.copy(
-                    currentTrickplay = Trickplay(trickplayInfo.interval, loader = loader),
-                )
+                it.copy(currentTrickplay = Trickplay(trickplayInfo.interval, loader = loader))
             }
             return
         }
@@ -960,7 +962,8 @@ constructor(
         // end up here). It ALSO fires for our own auto-advance: with pauseAtEndOfMediaItems the
         // app performs the transition to the next item via an explicit seekToNextMediaItem(), which
         // the player reports as a seek, not as an AUTO_TRANSITION. autoAdvanceToNextItem() arms
-        // pendingAutoAdvanceSeek before that call so we can tell the two apart here — a programmatic
+        // pendingAutoAdvanceSeek before that call so we can tell the two apart here — a
+        // programmatic
         // advance must not count as a user interaction (that would reset the still-watching counter
         // and refresh the inactivity timer, so the prompt could never fire).
         if (reason == Player.DISCONTINUITY_REASON_SEEK) {

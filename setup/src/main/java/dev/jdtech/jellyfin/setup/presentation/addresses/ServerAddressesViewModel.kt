@@ -68,18 +68,16 @@ constructor(val application: Application, private val database: ServerDatabaseDa
                     )
 
                 // Only accept an address that actually points at the server we're editing.
-                val match =
-                    recommended.firstOrNull {
-                        it.systemInfo.getOrNull()?.id == currentServerId
-                    }
+                val match = recommended.firstOrNull {
+                    it.systemInfo.getOrNull()?.id == currentServerId
+                }
                 if (match == null) {
                     setError(SetupR.string.add_server_error_not_found)
                     return@launch
                 }
 
                 // Dedupe against the addresses already stored for this server.
-                val existingAddresses =
-                    database.getServerWithAddresses(currentServerId).addresses
+                val existingAddresses = database.getServerWithAddresses(currentServerId).addresses
                 if (existingAddresses.any { it.address == match.address }) {
                     return@launch
                 }

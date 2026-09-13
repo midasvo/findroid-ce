@@ -1,10 +1,12 @@
 package dev.jdtech.jellyfin.presentation.film
 
 import android.text.format.Formatter
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
@@ -13,32 +15,31 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.recalculateWindowInsets
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items as gridItems
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,13 +47,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.painterResource
-import androidx.compose.foundation.background
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
@@ -61,7 +61,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.jdtech.jellyfin.core.R as CoreR
-import dev.jdtech.jellyfin.core.presentation.downloader.DownloadProgress
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadStatus
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyMovies
 import dev.jdtech.jellyfin.film.presentation.downloads.ActiveDownload
@@ -78,7 +77,10 @@ import dev.jdtech.jellyfin.presentation.film.components.ItemCard
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 
-private enum class DownloadsTab { LIBRARY, QUEUE }
+private enum class DownloadsTab {
+    LIBRARY,
+    QUEUE,
+}
 
 @Composable
 fun DownloadsScreen(
@@ -91,9 +93,10 @@ fun DownloadsScreen(
     // made on show/season/movie screens (deletes) are reflected when we return.
     val lifecycleOwner = LocalLifecycleOwner.current
     androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
-        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) viewModel.loadItems()
-        }
+        val observer =
+            androidx.lifecycle.LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) viewModel.loadItems()
+            }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
@@ -151,20 +154,22 @@ private fun DownloadsScreenLayout(
                         it.progress.status == DownloadStatus.DOWNLOADING ||
                         it.progress.status == DownloadStatus.PAUSED
                 }
-            val queueLabel = stringResource(CoreR.string.download_queue).let { base ->
-                if (activeCount > 0) "$base ($activeCount)" else base
-            }
-            val tabLabels = listOf(
-                stringResource(CoreR.string.downloads_tab_library),
-                queueLabel,
-            )
+            val queueLabel =
+                stringResource(CoreR.string.download_queue).let { base ->
+                    if (activeCount > 0) "$base ($activeCount)" else base
+                }
+            val tabLabels =
+                listOf(
+                    stringResource(CoreR.string.downloads_tab_library),
+                    queueLabel,
+                )
             SingleChoiceSegmentedButtonRow(
                 modifier =
                     Modifier.fillMaxWidth()
                         .padding(
                             horizontal = MaterialTheme.spacings.default,
                             vertical = MaterialTheme.spacings.small,
-                        ),
+                        )
             ) {
                 tabLabels.forEachIndexed { index, label ->
                     SegmentedButton(
@@ -177,7 +182,7 @@ private fun DownloadsScreenLayout(
                             ),
                         colors =
                             SegmentedButtonDefaults.colors(
-                                inactiveContainerColor = Color.Transparent,
+                                inactiveContainerColor = Color.Transparent
                             ),
                         label = { Text(label) },
                     )
@@ -185,20 +190,22 @@ private fun DownloadsScreenLayout(
             }
 
             when (DownloadsTab.entries.getOrNull(selectedTab) ?: DownloadsTab.LIBRARY) {
-                DownloadsTab.LIBRARY -> DownloadsTabContent(
-                    state = state,
-                    onItemClick = onItemClick,
-                    onItemDelete = onItemDelete,
-                    onSortOrderChange = onSortOrderChange,
-                    context = context,
-                )
-                DownloadsTab.QUEUE -> QueueTabContent(
-                    state = state,
-                    onCancelDownload = onCancelDownload,
-                    onDismissDownload = onDismissDownload,
-                    onRetryDownload = onRetryDownload,
-                    onClearCompleted = onClearCompleted,
-                )
+                DownloadsTab.LIBRARY ->
+                    DownloadsTabContent(
+                        state = state,
+                        onItemClick = onItemClick,
+                        onItemDelete = onItemDelete,
+                        onSortOrderChange = onSortOrderChange,
+                        context = context,
+                    )
+                DownloadsTab.QUEUE ->
+                    QueueTabContent(
+                        state = state,
+                        onCancelDownload = onCancelDownload,
+                        onDismissDownload = onDismissDownload,
+                        onRetryDownload = onRetryDownload,
+                        onClearCompleted = onClearCompleted,
+                    )
             }
         }
     }
@@ -248,19 +255,24 @@ private fun DownloadsTabContent(
                         SegmentedButton(
                             selected = state.sortOrder == order,
                             onClick = { onSortOrderChange(order) },
-                            shape = SegmentedButtonDefaults.itemShape(
-                                index = index,
-                                count = DownloadSortOrder.entries.size,
-                            ),
-                            colors = SegmentedButtonDefaults.colors(
-                                inactiveContainerColor = Color.Transparent,
-                            ),
+                            shape =
+                                SegmentedButtonDefaults.itemShape(
+                                    index = index,
+                                    count = DownloadSortOrder.entries.size,
+                                ),
+                            colors =
+                                SegmentedButtonDefaults.colors(
+                                    inactiveContainerColor = Color.Transparent
+                                ),
                             label = {
                                 Text(
                                     when (order) {
-                                        DownloadSortOrder.NAME -> stringResource(CoreR.string.sort_name)
-                                        DownloadSortOrder.DATE -> stringResource(CoreR.string.sort_date)
-                                        DownloadSortOrder.SIZE -> stringResource(CoreR.string.sort_size)
+                                        DownloadSortOrder.NAME ->
+                                            stringResource(CoreR.string.sort_name)
+                                        DownloadSortOrder.DATE ->
+                                            stringResource(CoreR.string.sort_date)
+                                        DownloadSortOrder.SIZE ->
+                                            stringResource(CoreR.string.sort_size)
                                     }
                                 )
                             },
@@ -303,7 +315,8 @@ private fun DownloadsTabContent(
                             ) {
                                 Icon(
                                     painter = painterResource(CoreR.drawable.ic_trash),
-                                    contentDescription = stringResource(CoreR.string.remove_download),
+                                    contentDescription =
+                                        stringResource(CoreR.string.remove_download),
                                     modifier = Modifier.size(16.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -312,10 +325,14 @@ private fun DownloadsTabContent(
                                 AlertDialog(
                                     onDismissRequest = { showDeleteDialog = false },
                                     confirmButton = {
-                                        TextButton(onClick = {
-                                            showDeleteDialog = false
-                                            onItemDelete(item)
-                                        }) { Text(stringResource(CoreR.string.remove)) }
+                                        TextButton(
+                                            onClick = {
+                                                showDeleteDialog = false
+                                                onItemDelete(item)
+                                            }
+                                        ) {
+                                            Text(stringResource(CoreR.string.remove))
+                                        }
                                     },
                                     dismissButton = {
                                         TextButton(onClick = { showDeleteDialog = false }) {
@@ -323,7 +340,14 @@ private fun DownloadsTabContent(
                                         }
                                     },
                                     title = { Text(stringResource(CoreR.string.remove_download)) },
-                                    text = { Text(stringResource(CoreR.string.remove_download_message, item.name)) },
+                                    text = {
+                                        Text(
+                                            stringResource(
+                                                CoreR.string.remove_download_message,
+                                                item.name,
+                                            )
+                                        )
+                                    },
                                 )
                             }
                         }
@@ -409,8 +433,9 @@ private fun QueueTabContent(
                 val dismissState = rememberSwipeToDismissBoxState()
                 LaunchedEffect(dismissState.currentValue) {
                     if (dismissState.currentValue != SwipeToDismissBoxValue.Settled) {
-                        if (activeDownload.progress.status == DownloadStatus.COMPLETED ||
-                            activeDownload.progress.status == DownloadStatus.FAILED
+                        if (
+                            activeDownload.progress.status == DownloadStatus.COMPLETED ||
+                                activeDownload.progress.status == DownloadStatus.FAILED
                         ) {
                             onDismissDownload(activeDownload)
                         } else {
@@ -422,15 +447,16 @@ private fun QueueTabContent(
                     state = dismissState,
                     backgroundContent = {
                         Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.errorContainer),
+                            modifier =
+                                Modifier.fillMaxSize()
+                                    .background(MaterialTheme.colorScheme.errorContainer),
                             contentAlignment = Alignment.CenterEnd,
                         ) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_x),
                                 contentDescription = null,
-                                modifier = Modifier.padding(horizontal = MaterialTheme.spacings.default),
+                                modifier =
+                                    Modifier.padding(horizontal = MaterialTheme.spacings.default),
                                 tint = MaterialTheme.colorScheme.onErrorContainer,
                             )
                         }

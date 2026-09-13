@@ -6,12 +6,12 @@ import dev.jdtech.jellyfin.settings.domain.models.Preference as PreferenceBacken
 import dev.jdtech.jellyfin.settings.presentation.enums.DeviceType
 
 /**
- * Like [PreferenceSelect] but options are provided as a runtime list instead of @ArrayRes
- * IDs. Use this when the option labels must be computed at runtime (e.g. storage volumes
- * with free-space annotations).
+ * Like [PreferenceSelect] but options are provided as a runtime list instead of @ArrayRes IDs. Use
+ * this when the option labels must be computed at runtime (e.g. storage volumes with free-space
+ * annotations).
  *
- * [dynamicOptions] is a list of (storedValue, displayLabel) pairs. The stored value is what
- * gets written to [backendPreference]; null is allowed (maps to "not set").
+ * [dynamicOptions] is a list of (storedValue, displayLabel) pairs. The stored value is what gets
+ * written to [backendPreference]; null is allowed (maps to "not set").
  */
 data class PreferenceDynamicSelect(
     @param:StringRes override val nameStringResource: Int,

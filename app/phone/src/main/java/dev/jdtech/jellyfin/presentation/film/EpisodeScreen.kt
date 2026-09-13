@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin.presentation.film
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,8 +32,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import androidx.compose.ui.unit.dp
-import dev.jdtech.jellyfin.presentation.theme.StarRatingYellow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.jdtech.jellyfin.PlayerActivity
@@ -55,13 +54,13 @@ import dev.jdtech.jellyfin.presentation.film.components.ItemTopBar
 import dev.jdtech.jellyfin.presentation.film.components.OverviewText
 import dev.jdtech.jellyfin.presentation.film.components.VideoMetadataBar
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
+import dev.jdtech.jellyfin.presentation.theme.StarRatingYellow
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
 import dev.jdtech.jellyfin.utils.ObserveAsEvents
 import dev.jdtech.jellyfin.utils.copyOnLongClick
 import dev.jdtech.jellyfin.utils.format
-import android.widget.Toast
 import java.util.UUID
 import org.jellyfin.sdk.model.api.BaseItemKind
 
@@ -100,8 +99,9 @@ fun EpisodeScreen(
                 }
             }
             is DownloaderEvent.Failed -> {
-                val message = event.errorText?.asString(context.resources)
-                    ?: context.getString(CoreR.string.download_failed)
+                val message =
+                    event.errorText?.asString(context.resources)
+                        ?: context.getString(CoreR.string.download_failed)
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()
             }
         }
@@ -166,10 +166,11 @@ private fun EpisodeScreenLayout(
                                             episode.parentIndexNumber,
                                         )
                                     }
-                            val episodeNumberText = stringResource(
-                                id = CoreR.string.episode_number,
-                                episode.indexNumber,
-                            )
+                            val episodeNumberText =
+                                stringResource(
+                                    id = CoreR.string.episode_number,
+                                    episode.indexNumber,
+                                )
                             val prefixText = "$seasonName - $episodeNumberText"
                             Text(
                                 text = prefixText,
@@ -202,10 +203,11 @@ private fun EpisodeScreenLayout(
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                         }
-                        val runtimeText = stringResource(
-                            CoreR.string.runtime_minutes,
-                            episode.runtimeTicks.div(Constants.TICKS_PER_MINUTE),
-                        )
+                        val runtimeText =
+                            stringResource(
+                                CoreR.string.runtime_minutes,
+                                episode.runtimeTicks.div(Constants.TICKS_PER_MINUTE),
+                            )
                         Text(
                             text = runtimeText,
                             modifier = Modifier.copyOnLongClick(runtimeText),
@@ -215,7 +217,7 @@ private fun EpisodeScreenLayout(
                             val ratingText = "%.1f".format(communityRating)
                             Row(
                                 modifier = Modifier.copyOnLongClick(ratingText),
-                                verticalAlignment = Alignment.Bottom
+                                verticalAlignment = Alignment.Bottom,
                             ) {
                                 Icon(
                                     painter = painterResource(CoreR.drawable.ic_star),

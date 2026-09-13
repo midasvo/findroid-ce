@@ -41,9 +41,10 @@ import dev.jdtech.jellyfin.player.local.R
 import dev.jdtech.jellyfin.presentation.theme.spacings
 
 /**
- * TV chapter list overlay. Mirrors the phone [dev.jdtech.jellyfin.presentation.player.ChapterListDialogFragment]
- * but composes natively so D-pad navigation falls out of [androidx.tv.material3.Card] focus
- * behaviour. The first item receives focus on open.
+ * TV chapter list overlay. Mirrors the phone
+ * [dev.jdtech.jellyfin.presentation.player.ChapterListDialogFragment] but composes natively so
+ * D-pad navigation falls out of [androidx.tv.material3.Card] focus behaviour. The first item
+ * receives focus on open.
  */
 @Composable
 fun ChapterListDialog(
@@ -125,9 +126,7 @@ private fun ChapterRow(
         ) {
             Box(
                 modifier =
-                    Modifier.width(160.dp)
-                        .aspectRatio(16f / 9f)
-                        .clip(RoundedCornerShape(4.dp)),
+                    Modifier.width(160.dp).aspectRatio(16f / 9f).clip(RoundedCornerShape(4.dp)),
                 contentAlignment = Alignment.Center,
             ) {
                 if (imageUrl != null) {
@@ -142,7 +141,8 @@ private fun ChapterRow(
                     // server extracted a chapter thumbnail.
                     Spacer(
                         modifier =
-                            Modifier.fillMaxWidth().fillMaxHeight()
+                            Modifier.fillMaxWidth()
+                                .fillMaxHeight()
                                 .clip(RoundedCornerShape(4.dp))
                                 .background(MaterialTheme.colorScheme.surface)
                     )
@@ -167,4 +167,3 @@ private fun ChapterRow(
         }
     }
 }
-

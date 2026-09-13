@@ -8,8 +8,8 @@ import org.junit.Test
 /**
  * Unit tests for the pure-Kotlin pieces of [SubtitleStyle].
  *
- * The mapper deliberately avoids depending on `android.graphics.Color` (which needs the
- * Android framework) so these run as a plain JVM test without Robolectric.
+ * The mapper deliberately avoids depending on `android.graphics.Color` (which needs the Android
+ * framework) so these run as a plain JVM test without Robolectric.
  */
 class SubtitleStyleTest {
 

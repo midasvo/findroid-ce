@@ -46,17 +46,16 @@ class JellyfinRepositoryOfflineImpl(
 ) : JellyfinRepository {
 
     companion object {
-        val VIRTUAL_VIEW_MOVIES: UUID =
-            UUID.fromString("a1b2c3d4-0000-0000-0000-000000000001")
-        val VIRTUAL_VIEW_SHOWS: UUID =
-            UUID.fromString("a1b2c3d4-0000-0000-0000-000000000002")
+        val VIRTUAL_VIEW_MOVIES: UUID = UUID.fromString("a1b2c3d4-0000-0000-0000-000000000001")
+        val VIRTUAL_VIEW_SHOWS: UUID = UUID.fromString("a1b2c3d4-0000-0000-0000-000000000002")
     }
 
     private val currentUserId: UUID
-        get() = jellyfinApi.userId ?: throw IllegalStateException("No user ID available in offline mode")
+        get() =
+            jellyfinApi.userId
+                ?: throw IllegalStateException("No user ID available in offline mode")
 
-    private fun currentServerId(): String? =
-        appPreferences.getValue(appPreferences.currentServer)
+    private fun currentServerId(): String? = appPreferences.getValue(appPreferences.currentServer)
 
     override suspend fun getPublicSystemInfo(): PublicSystemInfo {
         throw Exception("System info not available in offline mode")
@@ -159,36 +158,43 @@ class JellyfinRepositoryOfflineImpl(
         return withContext(Dispatchers.IO) {
             val serverId = currentServerId() ?: return@withContext emptyList()
             val items = mutableListOf<FindroidItem>()
-            val wantMovies = parentId == VIRTUAL_VIEW_MOVIES ||
-                includeTypes?.contains(BaseItemKind.MOVIE) == true
-            val wantShows = parentId == VIRTUAL_VIEW_SHOWS ||
-                includeTypes?.contains(BaseItemKind.SERIES) == true
+            val wantMovies =
+                parentId == VIRTUAL_VIEW_MOVIES ||
+                    includeTypes?.contains(BaseItemKind.MOVIE) == true
+            val wantShows =
+                parentId == VIRTUAL_VIEW_SHOWS ||
+                    includeTypes?.contains(BaseItemKind.SERIES) == true
             if (wantMovies) {
                 items.addAll(
-                    database.getMoviesByServerId(serverId)
-                        .map { it.toFindroidMovie(database, currentUserId) }
+                    database.getMoviesByServerId(serverId).map {
+                        it.toFindroidMovie(database, currentUserId)
+                    }
                 )
             }
             if (wantShows) {
                 items.addAll(
-                    database.getShowsByServerId(serverId)
-                        .map { it.toFindroidShow(database, currentUserId) }
+                    database.getShowsByServerId(serverId).map {
+                        it.toFindroidShow(database, currentUserId)
+                    }
                 )
             }
-            val sorted = when (sortBy) {
-                SortBy.NAME -> items.sortedBy { it.name }
-                SortBy.IMDB_RATING -> items.sortedByDescending {
-                    (it as? FindroidMovie)?.communityRating
-                        ?: (it as? FindroidShow)?.communityRating
-                }
-                SortBy.RELEASE_DATE -> items.sortedByDescending {
-                    (it as? FindroidMovie)?.premiereDate
-                        ?: (it as? FindroidShow)?.productionYear?.let {
-                            java.time.LocalDateTime.of(it, 1, 1, 0, 0)
+            val sorted =
+                when (sortBy) {
+                    SortBy.NAME -> items.sortedBy { it.name }
+                    SortBy.IMDB_RATING ->
+                        items.sortedByDescending {
+                            (it as? FindroidMovie)?.communityRating
+                                ?: (it as? FindroidShow)?.communityRating
                         }
+                    SortBy.RELEASE_DATE ->
+                        items.sortedByDescending {
+                            (it as? FindroidMovie)?.premiereDate
+                                ?: (it as? FindroidShow)?.productionYear?.let {
+                                    java.time.LocalDateTime.of(it, 1, 1, 0, 0)
+                                }
+                        }
+                    else -> items
                 }
-                else -> items
-            }
             val ordered = if (sortOrder == SortOrder.DESCENDING) sorted.reversed() else sorted
             val start = startIndex ?: 0
             val result = ordered.drop(start)
@@ -224,17 +230,20 @@ class JellyfinRepositoryOfflineImpl(
             val serverId = currentServerId() ?: return@withContext emptyList()
             val items = mutableListOf<FindroidItem>()
             items.addAll(
-                database.getMoviesByServerId(serverId)
+                database
+                    .getMoviesByServerId(serverId)
                     .map { it.toFindroidMovie(database, currentUserId) }
                     .filter { it.favorite }
             )
             items.addAll(
-                database.getShowsByServerId(serverId)
+                database
+                    .getShowsByServerId(serverId)
                     .map { it.toFindroidShow(database, currentUserId) }
                     .filter { it.favorite }
             )
             items.addAll(
-                database.getEpisodesByServerId(serverId)
+                database
+                    .getEpisodesByServerId(serverId)
                     .map { it.toFindroidEpisode(database, currentUserId) }
                     .filter { it.favorite }
             )
@@ -246,17 +255,17 @@ class JellyfinRepositoryOfflineImpl(
         return withContext(Dispatchers.IO) {
             val serverId = currentServerId() ?: return@withContext emptyList()
             val movies =
-                database
-                    .searchMovies(serverId, query)
-                    .map { it.toFindroidMovie(database, currentUserId) }
+                database.searchMovies(serverId, query).map {
+                    it.toFindroidMovie(database, currentUserId)
+                }
             val shows =
-                database
-                    .searchShows(serverId, query)
-                    .map { it.toFindroidShow(database, currentUserId) }
+                database.searchShows(serverId, query).map {
+                    it.toFindroidShow(database, currentUserId)
+                }
             val episodes =
-                database
-                    .searchEpisodes(serverId, query)
-                    .map { it.toFindroidEpisode(database, currentUserId) }
+                database.searchEpisodes(serverId, query).map {
+                    it.toFindroidEpisode(database, currentUserId)
+                }
             movies + shows + episodes
         }
     }
@@ -266,12 +275,14 @@ class JellyfinRepositoryOfflineImpl(
             val serverId = currentServerId() ?: return@withContext emptyList()
             val items = mutableListOf<FindroidItem>()
             items.addAll(
-                database.getMoviesByServerId(serverId)
-                    .map { it.toFindroidMovie(database, currentUserId) }
+                database.getMoviesByServerId(serverId).map {
+                    it.toFindroidMovie(database, currentUserId)
+                }
             )
             items.addAll(
-                database.getShowsByServerId(serverId)
-                    .map { it.toFindroidShow(database, currentUserId) }
+                database.getShowsByServerId(serverId).map {
+                    it.toFindroidShow(database, currentUserId)
+                }
             )
             items.shuffled().take(10)
         }
@@ -299,12 +310,14 @@ class JellyfinRepositoryOfflineImpl(
             val serverId = currentServerId() ?: return@withContext emptyList()
             when (parentId) {
                 VIRTUAL_VIEW_MOVIES -> {
-                    database.getMoviesByServerId(serverId)
-                        .map { it.toFindroidMovie(database, currentUserId) }
+                    database.getMoviesByServerId(serverId).map {
+                        it.toFindroidMovie(database, currentUserId)
+                    }
                 }
                 VIRTUAL_VIEW_SHOWS -> {
-                    database.getShowsByServerId(serverId)
-                        .map { it.toFindroidShow(database, currentUserId) }
+                    database.getShowsByServerId(serverId).map {
+                        it.toFindroidShow(database, currentUserId)
+                    }
                 }
                 else -> emptyList()
             }
@@ -323,9 +336,9 @@ class JellyfinRepositoryOfflineImpl(
             val serverId = currentServerId() ?: return@withContext emptyList()
             val result = mutableListOf<FindroidEpisode>()
             val shows =
-                database
-                    .getShowsByServerId(serverId)
-                    .filter { if (seriesId != null) it.id == seriesId else true }
+                database.getShowsByServerId(serverId).filter {
+                    if (seriesId != null) it.id == seriesId else true
+                }
             for (show in shows) {
                 val episodes =
                     database.getEpisodesByShowId(show.id).map {
@@ -477,14 +490,14 @@ class JellyfinRepositoryOfflineImpl(
             val serverId = currentServerId() ?: return@withContext emptyList()
             val items = mutableListOf<FindroidItem>()
             items.addAll(
-                database
-                    .getMoviesByServerId(serverId)
-                    .map { it.toFindroidMovie(database, currentUserId) }
+                database.getMoviesByServerId(serverId).map {
+                    it.toFindroidMovie(database, currentUserId)
+                }
             )
             items.addAll(
-                database
-                    .getShowsByServerId(serverId)
-                    .map { it.toFindroidShow(database, currentUserId) }
+                database.getShowsByServerId(serverId).map {
+                    it.toFindroidShow(database, currentUserId)
+                }
             )
             items
         }

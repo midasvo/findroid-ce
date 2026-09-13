@@ -73,15 +73,16 @@ fun SettingsDynamicSelectCard(
         SettingsSelectDialog(
             // SettingsSelectDialog accepts a PreferenceSelect; we build a synthetic one
             // using the existing SettingsSelectDialog overload that takes options directly.
-            preference = PreferenceSelect(
-                nameStringResource = preference.nameStringResource,
-                backendPreference = preference.backendPreference,
-                options = 0,        // unused — dialog receives the list directly
-                optionValues = 0,   // unused
-                // Normalize null to "0" so the internal-storage radio button is
-                // highlighted when the preference has never been explicitly set.
-                value = preference.value ?: "0",
-            ),
+            preference =
+                PreferenceSelect(
+                    nameStringResource = preference.nameStringResource,
+                    backendPreference = preference.backendPreference,
+                    options = 0, // unused — dialog receives the list directly
+                    optionValues = 0, // unused
+                    // Normalize null to "0" so the internal-storage radio button is
+                    // highlighted when the preference has never been explicitly set.
+                    value = preference.value ?: "0",
+                ),
             options = preference.dynamicOptions,
             onUpdate = { value ->
                 showDialog = false
@@ -97,12 +98,17 @@ fun SettingsDynamicSelectCard(
 private fun SettingsDynamicSelectCardPreview() {
     FindroidTheme {
         SettingsDynamicSelectCard(
-            preference = PreferenceDynamicSelect(
-                nameStringResource = SettingsR.string.pref_download_storage_location,
-                backendPreference = Preference("", null),
-                dynamicOptions = listOf("0" to "Internal storage (42 GB free)", "1" to "SD card 1 (8 GB free)"),
-                value = "0",
-            ),
+            preference =
+                PreferenceDynamicSelect(
+                    nameStringResource = SettingsR.string.pref_download_storage_location,
+                    backendPreference = Preference("", null),
+                    dynamicOptions =
+                        listOf(
+                            "0" to "Internal storage (42 GB free)",
+                            "1" to "SD card 1 (8 GB free)",
+                        ),
+                    value = "0",
+                ),
             onUpdate = {},
         )
     }

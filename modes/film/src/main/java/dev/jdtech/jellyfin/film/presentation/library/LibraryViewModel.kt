@@ -74,8 +74,7 @@ constructor(
                                 else sortBy, // Jellyfin uses a different enum for sorting series by
                             // data played
                             sortOrder = sortOrder,
-                            filters =
-                                if (filterWatched) listOf(ItemFilter.IS_UNPLAYED) else null,
+                            filters = if (filterWatched) listOf(ItemFilter.IS_UNPLAYED) else null,
                         )
                         .cachedIn(viewModelScope)
                 _state.emit(_state.value.copy(items = items, isLoading = false))
@@ -90,7 +89,13 @@ constructor(
             sortBy = SortBy.fromString(appPreferences.getValue(appPreferences.sortBy))
             sortOrder = SortOrder.fromString(appPreferences.getValue(appPreferences.sortOrder))
             filterWatched = appPreferences.getValue(appPreferences.filterWatched)
-            _state.emit(_state.value.copy(sortBy = sortBy, sortOrder = sortOrder, filterWatched = filterWatched))
+            _state.emit(
+                _state.value.copy(
+                    sortBy = sortBy,
+                    sortOrder = sortOrder,
+                    filterWatched = filterWatched,
+                )
+            )
         }
     }
 

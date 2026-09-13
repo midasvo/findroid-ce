@@ -8,7 +8,6 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dev.jdtech.jellyfin.api.JellyfinApi
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
-import timber.log.Timber
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.User
 import dev.jdtech.jellyfin.models.toFindroidEpisode
@@ -17,6 +16,7 @@ import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jellyfin.sdk.model.api.UpdateUserItemDataDto
+import timber.log.Timber
 
 @HiltWorker
 class SyncWorker

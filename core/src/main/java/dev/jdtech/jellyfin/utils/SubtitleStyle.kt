@@ -8,8 +8,8 @@ import dev.jdtech.jellyfin.settings.domain.Constants
 import timber.log.Timber
 
 /**
- * Default ARGB fallbacks. Kept here so the pure mapper does not need to know the platform
- * Color constants, which keeps it usable from unit tests that run without the Android framework.
+ * Default ARGB fallbacks. Kept here so the pure mapper does not need to know the platform Color
+ * constants, which keeps it usable from unit tests that run without the Android framework.
  */
 private const val DEFAULT_FOREGROUND_ARGB: Int = 0xFFFFFFFF.toInt()
 private const val DEFAULT_BACKGROUND_ARGB: Int = 0x80000000.toInt() // 50% black
@@ -19,8 +19,8 @@ private const val TRANSPARENT_ARGB: Int = 0x00000000
 /**
  * Builds a [CaptionStyleCompat] from the user's saved subtitle preferences.
  *
- * Reads the prefs and delegates to [buildSubtitleCaptionStyle], the pure mapper used by both
- * the player and the live preview in the styling settings screen.
+ * Reads the prefs and delegates to [buildSubtitleCaptionStyle], the pure mapper used by both the
+ * player and the live preview in the styling settings screen.
  */
 fun AppPreferences.buildCaptionStyle(): CaptionStyleCompat =
     buildSubtitleCaptionStyle(
@@ -34,9 +34,9 @@ fun AppPreferences.buildCaptionStyle(): CaptionStyleCompat =
 /**
  * Pure mapper from primitive subtitle-style values to a [CaptionStyleCompat].
  *
- * Lives in [core] so both the live preview and the player wiring share the exact same
- * mapping logic. Takes primitives only — by contract it does not depend on [AppPreferences]
- * or any UI state — which keeps it testable from plain JVM unit tests.
+ * Lives in [core] so both the live preview and the player wiring share the exact same mapping
+ * logic. Takes primitives only — by contract it does not depend on [AppPreferences] or any UI state
+ * — which keeps it testable from plain JVM unit tests.
  *
  * Colors are parsed defensively: a malformed value falls back to the library default for that
  * channel rather than crashing the player.
@@ -95,7 +95,7 @@ fun AppPreferences.subtitleFontScaleFraction(): Float {
 fun SubtitleView.applySubtitleStyle(appPreferences: AppPreferences) {
     setStyle(appPreferences.buildCaptionStyle())
     setFractionalTextSize(
-        SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * appPreferences.subtitleFontScaleFraction(),
+        SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * appPreferences.subtitleFontScaleFraction()
     )
     // Honour user-applied insets only; we deliberately do not call setApplyEmbeddedStyles(false)
     // because that would also suppress SRT positioning (e.g. {\an1}..{\an9}) emitted by the
@@ -135,4 +135,3 @@ internal fun parseColorOr(value: String?, fallback: Int): Int {
     val argb = if (hex.length == 6) parsed or 0xFF000000L else parsed
     return argb.toInt()
 }
-

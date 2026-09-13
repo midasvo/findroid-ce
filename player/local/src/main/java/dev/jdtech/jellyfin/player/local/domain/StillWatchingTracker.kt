@@ -9,8 +9,8 @@ package dev.jdtech.jellyfin.player.local.domain
  *
  * Either threshold trips the prompt. A value of [OFF] for either disables that axis.
  *
- * Pure: no Android, no media3, no coroutines. Drives off whatever wall-clock the caller
- * passes in so tests can advance it manually.
+ * Pure: no Android, no media3, no coroutines. Drives off whatever wall-clock the caller passes in
+ * so tests can advance it manually.
  */
 class StillWatchingTracker(
     val autoAdvanceThreshold: Int,
@@ -32,9 +32,9 @@ class StillWatchingTracker(
     }
 
     /**
-     * Call when the player is about to auto-advance to the next item. Returns true if the
-     * prompt should fire *instead* of advancing. The caller must hold the auto-advance off
-     * until the user confirms.
+     * Call when the player is about to auto-advance to the next item. Returns true if the prompt
+     * should fire *instead* of advancing. The caller must hold the auto-advance off until the user
+     * confirms.
      */
     fun onAutoAdvance(nowMs: Long): Boolean {
         autoAdvanceCount += 1

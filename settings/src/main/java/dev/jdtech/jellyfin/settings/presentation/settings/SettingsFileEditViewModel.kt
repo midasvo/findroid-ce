@@ -4,20 +4,17 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.io.File
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.File
-import javax.inject.Inject
 
 @HiltViewModel
-class SettingsFileEditViewModel
-@Inject
-constructor(
-    private val application: Application,
-) : ViewModel() {
+class SettingsFileEditViewModel @Inject constructor(private val application: Application) :
+    ViewModel() {
     private val _state = MutableStateFlow(SettingsFileEditState())
     val state = _state.asStateFlow()
 
@@ -28,9 +25,10 @@ constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             val file = File(application.filesDir, filePath)
-            val text = if (file.exists()) {
-                file.readText()
-            } else ""
+            val text =
+                if (file.exists()) {
+                    file.readText()
+                } else ""
             _state.update { it.copy(initialText = text) }
         }
     }

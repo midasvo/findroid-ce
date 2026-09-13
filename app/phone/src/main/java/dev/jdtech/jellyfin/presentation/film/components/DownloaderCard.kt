@@ -27,9 +27,9 @@ import androidx.compose.ui.unit.dp
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloaderState
 import dev.jdtech.jellyfin.models.UiText
-import dev.jdtech.jellyfin.utils.download.DownloadStatus
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
+import dev.jdtech.jellyfin.utils.download.DownloadStatus
 import kotlin.math.roundToInt
 
 @Composable
@@ -121,7 +121,8 @@ fun DownloaderCard(state: DownloaderState, onCancelClick: () -> Unit, onRetryCli
                         FilledTonalIconButton(onClick = onCancelClick) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_x),
-                                contentDescription = stringResource(CoreR.string.cancel_download_button),
+                                contentDescription =
+                                    stringResource(CoreR.string.cancel_download_button),
                             )
                         }
                     }

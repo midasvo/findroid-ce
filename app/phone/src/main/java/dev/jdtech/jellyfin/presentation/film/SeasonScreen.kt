@@ -45,7 +45,6 @@ import dev.jdtech.jellyfin.film.presentation.season.SeasonAction
 import dev.jdtech.jellyfin.film.presentation.season.SeasonEvent
 import dev.jdtech.jellyfin.film.presentation.season.SeasonState
 import dev.jdtech.jellyfin.film.presentation.season.SeasonViewModel
-import dev.jdtech.jellyfin.utils.ObserveAsEvents
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.isDownloaded
 import dev.jdtech.jellyfin.presentation.film.components.Direction
@@ -57,6 +56,7 @@ import dev.jdtech.jellyfin.presentation.film.components.ItemTopBar
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
+import dev.jdtech.jellyfin.utils.ObserveAsEvents
 import dev.jdtech.jellyfin.utils.copyOnLongClick
 import java.util.UUID
 import org.jellyfin.sdk.model.api.BaseItemKind
@@ -269,9 +269,7 @@ private fun SeasonScreenLayout(
                         onClick = { onAction(SeasonAction.NavigateToItem(episode)) },
                         modifier = Modifier.padding(start = paddingStart, end = paddingEnd),
                         downloadProgress = state.episodeDownloadProgress[episode.id],
-                        onDownloadClick = {
-                            onAction(SeasonAction.DownloadEpisode(episode))
-                        },
+                        onDownloadClick = { onAction(SeasonAction.DownloadEpisode(episode)) },
                         onDownloadedClick = {
                             onAction(SeasonAction.DeleteEpisodeDownload(episode))
                         },
