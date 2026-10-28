@@ -3,6 +3,7 @@ package dev.jdtech.jellyfin.presentation.film.components
 import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +16,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -30,10 +33,13 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyMovie
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
@@ -72,6 +78,7 @@ fun DownloadRow(
     supporting: String? = null,
     metaColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     showPlaybackProgress: Boolean = false,
+    onPlayClick: (() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
@@ -99,6 +106,7 @@ fun DownloadRow(
             DownloadArtwork(
                 item = item,
                 showPlaybackProgress = showPlaybackProgress,
+                onPlayClick = onPlayClick,
                 modifier = Modifier.width(112.dp),
             )
             Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
@@ -131,12 +139,16 @@ fun DownloadRow(
     }
 }
 
-/** 16:9 artwork for a download row, preferring wide images over cropped posters. */
+/**
+ * 16:9 artwork for a download row, preferring wide images over cropped posters. With
+ * [onPlayClick] it shows a play glyph and the whole artwork starts playback.
+ */
 @Composable
 fun DownloadArtwork(
     item: FindroidItem,
     modifier: Modifier = Modifier,
     showPlaybackProgress: Boolean = false,
+    onPlayClick: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     var imageUri =
@@ -152,12 +164,22 @@ fun DownloadArtwork(
                 .appendEncodedPath(imageUri.path)
                 .build()
     }
+    val playLabel = stringResource(CoreR.string.play)
     Box(
         modifier =
             modifier
                 .aspectRatio(16f / 9f)
                 .clip(RoundedCornerShape(10.dp))
                 .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                .then(
+                    if (onPlayClick != null) {
+                        Modifier.clickable(
+                            onClickLabel = playLabel,
+                            role = Role.Button,
+                            onClick = onPlayClick,
+                        )
+                    } else Modifier
+                )
     ) {
         AsyncImage(
             model = imageUri,
@@ -165,6 +187,23 @@ fun DownloadArtwork(
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
         )
+        if (onPlayClick != null) {
+            Box(
+                modifier =
+                    Modifier.align(Alignment.Center)
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.55f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(CoreR.drawable.ic_play),
+                    contentDescription = playLabel,
+                    modifier = Modifier.size(16.dp),
+                    tint = Color.White,
+                )
+            }
+        }
         val progress =
             if (showPlaybackProgress && item.runtimeTicks > 0) {
                 (item.playbackPositionTicks.toFloat() / item.runtimeTicks).coerceIn(0f, 1f)

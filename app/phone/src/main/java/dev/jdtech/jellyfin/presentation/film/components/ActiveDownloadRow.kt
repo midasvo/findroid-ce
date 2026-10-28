@@ -5,9 +5,15 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +37,17 @@ fun ActiveDownloadRow(
     modifier: Modifier = Modifier,
 ) {
     val status = activeDownload.progress.status
+
+    // A light tap when a download finishes while the user is watching it.
+    val haptics = LocalHapticFeedback.current
+    var previousStatus by remember { mutableStateOf(status) }
+    LaunchedEffect(status) {
+        if (status == DownloadStatus.COMPLETED && previousStatus != DownloadStatus.COMPLETED) {
+            haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+        }
+        previousStatus = status
+    }
+
     val animatedProgress by
         animateFloatAsState(
             targetValue =

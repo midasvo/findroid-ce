@@ -43,6 +43,8 @@ data class ShowRoute(val showId: String, val downloadsOnly: Boolean = false) : N
 
 @Serializable data class EpisodeRoute(val episodeId: String) : NavKey
 
+@Serializable data class DownloadedShowRoute(val showId: String, val showName: String) : NavKey
+
 @Serializable
 data class SeasonRoute(val seasonId: String, val downloadsOnly: Boolean = false) : NavKey
 

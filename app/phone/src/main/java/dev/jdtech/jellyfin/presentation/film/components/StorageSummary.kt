@@ -45,6 +45,7 @@ fun StorageSummary(
     totalBytes: Long,
     isExternal: Boolean,
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     // Running low: turn the free space red so it is noticed before a download fails.
@@ -69,6 +70,8 @@ fun StorageSummary(
         )
 
     Surface(
+        onClick = onClick ?: {},
+        enabled = onClick != null,
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         modifier = modifier,

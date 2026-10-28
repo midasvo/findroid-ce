@@ -150,6 +150,14 @@
     <string name="downloads_empty_title">No downloads yet</string>
     <string name="downloads_empty_body">Download movies and episodes to watch without a connection, on a plane, a train, or anywhere else.</string>
     <string name="browse_library">Browse library</string>
+    <string name="select">Select</string>
+    <string name="downloads_selected_count">%1$d selected</string>
+    <string name="download_removed">Removed %1$s</string>
+    <plurals name="downloads_removed">
+        <item quantity="one">Removed %d download</item>
+        <item quantity="other">Removed %d downloads</item>
+    </plurals>
+    <string name="downloads_remove_all">Remove all downloads</string>
     <string name="sort_name">Name</string>
     <string name="sort_size">Size</string>
     <string name="remove_download">Remove download</string>

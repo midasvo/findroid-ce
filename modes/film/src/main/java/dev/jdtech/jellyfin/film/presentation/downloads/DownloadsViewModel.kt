@@ -26,12 +26,20 @@ import dev.jdtech.jellyfin.utils.Downloader
 import java.io.File
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+/**
+ * Deletes run here instead of in viewModelScope: an Undo snackbar commits its delete when the
+ * screen goes away, which can be just as the ViewModel is cleared.
+ */
+internal val downloadDeletionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
 @HiltViewModel
 class DownloadsViewModel
@@ -51,6 +59,9 @@ constructor(
 
     /** Completed queue entries already scheduled to move into the library. */
     private val handledCompletions = mutableSetOf<UUID>()
+
+    /** Exponential moving average of each active download's transfer rate. */
+    private val speedAverages = mutableMapOf<UUID, Double>()
 
     init {
         // Load library sections on first open.
@@ -173,28 +184,28 @@ constructor(
         }
     }
 
-    fun deleteDownloadedItem(item: FindroidItem) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
+    fun deleteDownloadedItem(item: FindroidItem) = deleteDownloadedItems(listOf(item))
+
+    fun deleteDownloadedItems(items: List<FindroidItem>) {
+        downloadDeletionScope.launch {
+            for (item in items) {
                 if (item is FindroidShow) {
                     val userId = repository.getUserId()
-                    val episodes = database.getEpisodesByShowId(item.id)
-                    for (epDto in episodes) {
-                        val ep = epDto.toFindroidEpisode(database, userId)
-                        downloadQueue.remove(ep.id)
-                        val source = ep.sources.firstOrNull { it.type == FindroidSourceType.LOCAL }
-                            ?: continue
-                        downloader.deleteItem(ep, source)
+                    for (epDto in database.getEpisodesByShowId(item.id)) {
+                        deleteLocalCopy(epDto.toFindroidEpisode(database, userId))
                     }
                 } else {
-                    downloadQueue.remove(item.id)
-                    val source = item.sources.firstOrNull { it.type == FindroidSourceType.LOCAL }
-                        ?: return@withContext
-                    downloader.deleteItem(item, source)
+                    deleteLocalCopy(item)
                 }
             }
             loadItems()
         }
+    }
+
+    private suspend fun deleteLocalCopy(item: FindroidItem) {
+        downloadQueue.remove(item.id)
+        val source = item.sources.firstOrNull { it.type == FindroidSourceType.LOCAL } ?: return
+        downloader.deleteItem(item, source)
     }
 
     private fun DownloadQueue.Entry.toActiveDownload(): ActiveDownload {
@@ -207,6 +218,20 @@ constructor(
                 is DownloadQueue.EntryState.Failed -> DownloadStatus.FAILED
             }
         val failureText = (state as? DownloadQueue.EntryState.Failed)?.error
+        // Smooth the measured rate so the time-left estimate settles instead of jumping
+        // around with every poll.
+        val smoothedBytesPerSecond =
+            if (bytesPerSecond > 0) {
+                val previous = speedAverages[id]
+                val average =
+                    if (previous == null) bytesPerSecond.toDouble()
+                    else previous + SPEED_SMOOTHING * (bytesPerSecond - previous)
+                speedAverages[id] = average
+                average.toLong()
+            } else {
+                speedAverages.remove(id)
+                0L
+            }
         return ActiveDownload(
             item = item,
             progress =
@@ -216,7 +241,7 @@ constructor(
             totalBytes = totalBytes,
             totalBytesEstimated = totalBytesEstimated,
             isTranscode = isTranscode,
-            bytesPerSecond = bytesPerSecond,
+            bytesPerSecond = smoothedBytesPerSecond,
             errorText = failureText,
         )
     }
@@ -368,5 +393,8 @@ constructor(
     private companion object {
         /** How long a finished download stays in the queue showing its check mark. */
         const val COMPLETED_LINGER_MS = 1_500L
+
+        /** Weight of the newest speed sample; lower is steadier but slower to react. */
+        const val SPEED_SMOOTHING = 0.2
     }
 }

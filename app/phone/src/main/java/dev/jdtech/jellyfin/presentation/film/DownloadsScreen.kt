@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin.presentation.film
 
 import android.text.format.Formatter
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,7 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,10 +33,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -49,7 +48,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -88,21 +87,30 @@ import dev.jdtech.jellyfin.presentation.film.components.ActiveDownloadRow
 import dev.jdtech.jellyfin.presentation.film.components.DownloadRow
 import dev.jdtech.jellyfin.presentation.film.components.StorageSummary
 import dev.jdtech.jellyfin.presentation.film.components.SwipeActionBackground
+import dev.jdtech.jellyfin.presentation.film.components.canPlayDirectly
 import dev.jdtech.jellyfin.presentation.film.components.downloadTitles
 import dev.jdtech.jellyfin.presentation.film.components.groupedItemShape
+import dev.jdtech.jellyfin.presentation.film.components.playDownloadedItem
+import dev.jdtech.jellyfin.presentation.film.components.rememberUndoController
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
 import java.util.UUID
-import kotlin.coroutines.cancellation.CancellationException
-import kotlinx.coroutines.launch
 
 /** Queues longer than this collapse behind a "Show all" toggle. */
 private const val COLLAPSED_QUEUE_SIZE = 3
 
+private val UuidSetSaver =
+    listSaver<Set<UUID>, String>(
+        save = { ids -> ids.map { it.toString() } },
+        restore = { ids -> ids.map(UUID::fromString).toSet() },
+    )
+
 @Composable
 fun DownloadsScreen(
     onItemClick: (item: FindroidItem) -> Unit,
+    onShowClick: (show: FindroidShow) -> Unit,
     onBrowseLibraryClick: () -> Unit,
+    onStorageClick: () -> Unit,
     viewModel: DownloadsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -121,13 +129,15 @@ fun DownloadsScreen(
     DownloadsScreenLayout(
         state = state,
         onItemClick = onItemClick,
-        onItemDelete = { viewModel.deleteDownloadedItem(it) },
+        onShowClick = onShowClick,
+        onItemsDelete = { viewModel.deleteDownloadedItems(it) },
         onSortOrderChange = { viewModel.setSortOrder(it) },
         onCancelDownload = { viewModel.cancelDownload(it) },
         onDismissDownload = { viewModel.dismissCompletedDownload(it) },
         onRetryDownload = { viewModel.retryDownload(it) },
         // The library can't be browsed offline, so the empty state offers no way there.
         onBrowseLibraryClick = onBrowseLibraryClick.takeUnless { LocalOfflineMode.current },
+        onStorageClick = onStorageClick,
     )
 }
 
@@ -136,52 +146,63 @@ fun DownloadsScreen(
 private fun DownloadsScreenLayout(
     state: DownloadsState,
     onItemClick: (FindroidItem) -> Unit,
-    onItemDelete: (FindroidItem) -> Unit,
+    onShowClick: (FindroidShow) -> Unit,
+    onItemsDelete: (List<FindroidItem>) -> Unit,
     onSortOrderChange: (DownloadSortOrder) -> Unit,
     onCancelDownload: (ActiveDownload) -> Unit,
     onDismissDownload: (ActiveDownload) -> Unit,
     onRetryDownload: (ActiveDownload) -> Unit,
     onBrowseLibraryClick: (() -> Unit)?,
+    onStorageClick: () -> Unit,
 ) {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
-    // Cancelling throws away progress, so it is deferred behind an Undo snackbar.
-    // Until the snackbar resolves the download keeps running but is hidden here.
-    var pendingCancelIds by remember { mutableStateOf(emptySet<UUID>()) }
-    LaunchedEffect(state.queueItems) {
-        // Forget committed cancels once the queue has dropped them, so a later
-        // re-download of the same item is not hidden.
-        val queuedIds = state.queueItems.map { it.item.id }.toSet()
-        pendingCancelIds = pendingCancelIds intersect queuedIds
+    // Cancelling and removing are deferred behind an Undo snackbar; until it resolves the
+    // affected rows are hidden here.
+    val undo = rememberUndoController(snackbarHostState)
+    LaunchedEffect(state.queueItems, state.sections) {
+        undo.retainHidden(
+            state.queueItems.map { it.item.id }.toSet() +
+                state.sections.flatMap { section -> section.items.map { it.id } }
+        )
     }
-    val requestCancel: (ActiveDownload) -> Unit = { download ->
-        pendingCancelIds = pendingCancelIds + download.item.id
-        scope.launch {
-            // Resolve any earlier snackbar first; dismissing it commits that cancel.
-            snackbarHostState.currentSnackbarData?.dismiss()
-            val result =
-                try {
-                    snackbarHostState.showSnackbar(
-                        message = context.getString(CoreR.string.download_cancelled, download.item.name),
-                        actionLabel = context.getString(CoreR.string.undo),
-                        duration = SnackbarDuration.Short,
-                    )
-                } catch (e: CancellationException) {
-                    // Leaving the screen counts as not undoing.
-                    onCancelDownload(download)
-                    throw e
-                }
-            if (result == SnackbarResult.ActionPerformed) {
-                pendingCancelIds = pendingCancelIds - download.item.id
-            } else {
-                onCancelDownload(download)
-            }
+    val queueItems = state.queueItems.filterNot { it.item.id in undo.hiddenIds }
+    val sections =
+        state.sections
+            .map { section -> section.copy(items = section.items.filterNot { it.id in undo.hiddenIds }) }
+            .filter { it.items.isNotEmpty() }
+    val libraryItems = sections.flatMap { it.items }
+
+    val cancelDownload: (ActiveDownload) -> Unit = { download ->
+        undo.run(
+            ids = setOf(download.item.id),
+            message = context.getString(CoreR.string.download_cancelled, download.item.name),
+        ) {
+            onCancelDownload(download)
         }
     }
-    val queueItems = state.queueItems.filterNot { it.item.id in pendingCancelIds }
+    val removeItems: (List<FindroidItem>) -> Unit = { items ->
+        val message =
+            items.singleOrNull()?.let { context.getString(CoreR.string.download_removed, it.name) }
+                ?: context.resources.getQuantityString(
+                    CoreR.plurals.downloads_removed,
+                    items.size,
+                    items.size,
+                )
+        undo.run(ids = items.map { it.id }.toSet(), message = message) { onItemsDelete(items) }
+    }
+
+    // Multi-select: entered from the top bar or by long-pressing a row.
+    var selecting by rememberSaveable { mutableStateOf(false) }
+    var selectedIds by rememberSaveable(stateSaver = UuidSetSaver) { mutableStateOf(emptySet<UUID>()) }
+    fun exitSelection() {
+        selecting = false
+        selectedIds = emptySet()
+    }
+    BackHandler(enabled = selecting) { exitSelection() }
+    LaunchedEffect(libraryItems.isEmpty()) { if (libraryItems.isEmpty()) exitSelection() }
 
     Scaffold(
         modifier =
@@ -190,9 +211,45 @@ private fun DownloadsScreenLayout(
                 .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text(text = stringResource(CoreR.string.title_download)) },
+                title = {
+                    Text(
+                        if (selecting) {
+                            stringResource(CoreR.string.downloads_selected_count, selectedIds.size)
+                        } else stringResource(CoreR.string.title_download)
+                    )
+                },
+                navigationIcon = {
+                    if (selecting) {
+                        IconButton(onClick = ::exitSelection) {
+                            Icon(
+                                painter = painterResource(CoreR.drawable.ic_x),
+                                contentDescription = stringResource(CoreR.string.close),
+                            )
+                        }
+                    }
+                },
                 actions = {
-                    SortMenu(sortOrder = state.sortOrder, onSortOrderChange = onSortOrderChange)
+                    if (selecting) {
+                        IconButton(
+                            onClick = {
+                                removeItems(libraryItems.filter { it.id in selectedIds })
+                                exitSelection()
+                            },
+                            enabled = selectedIds.isNotEmpty(),
+                        ) {
+                            Icon(
+                                painter = painterResource(CoreR.drawable.ic_trash),
+                                contentDescription = stringResource(CoreR.string.remove),
+                            )
+                        }
+                    } else {
+                        if (libraryItems.isNotEmpty()) {
+                            TextButton(onClick = { selecting = true }) {
+                                Text(stringResource(CoreR.string.select))
+                            }
+                        }
+                        SortMenu(sortOrder = state.sortOrder, onSortOrderChange = onSortOrderChange)
+                    }
                 },
                 windowInsets = WindowInsets.statusBars.union(WindowInsets.displayCutout),
                 scrollBehavior = scrollBehavior,
@@ -201,7 +258,7 @@ private fun DownloadsScreenLayout(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         contentWindowInsets = WindowInsets.statusBars.union(WindowInsets.displayCutout),
     ) { innerPadding ->
-        if (queueItems.isEmpty() && state.sections.isEmpty()) {
+        if (queueItems.isEmpty() && sections.isEmpty()) {
             if (!state.isLoading) {
                 EmptyDownloads(
                     onBrowseLibraryClick = onBrowseLibraryClick,
@@ -225,6 +282,7 @@ private fun DownloadsScreenLayout(
                         freeBytes = state.storageFreeBytes,
                         totalBytes = state.storageTotalBytes,
                         isExternal = state.storageIsExternal,
+                        onClick = onStorageClick,
                         modifier = Modifier.animateItem(),
                     )
                 }
@@ -233,13 +291,13 @@ private fun DownloadsScreenLayout(
             if (queueItems.isNotEmpty()) {
                 downloadingSection(
                     queueItems = queueItems,
-                    onCancelDownload = requestCancel,
+                    onCancelDownload = cancelDownload,
                     onDismissDownload = onDismissDownload,
                     onRetryDownload = onRetryDownload,
                 )
             }
 
-            for (section in state.sections) {
+            for (section in sections) {
                 item(key = "section:${section.id}") {
                     SectionHeader(
                         title = section.name.asString(),
@@ -250,13 +308,32 @@ private fun DownloadsScreenLayout(
                     items = section.items,
                     key = { _, item -> "library:${item.id}" },
                 ) { index, item ->
+                    val selected = item.id in selectedIds
+                    fun toggle() {
+                        selectedIds = if (selected) selectedIds - item.id else selectedIds + item.id
+                    }
                     LibraryRow(
                         item = item,
                         sizeBytes = state.itemSizes[item.id],
                         episodeCount = state.episodeCounts[item.id],
                         shape = groupedItemShape(index, section.items.size),
-                        onClick = { onItemClick(item) },
-                        onDelete = { onItemDelete(item) },
+                        selected = if (selecting) selected else null,
+                        onClick = {
+                            when {
+                                selecting -> toggle()
+                                item is FindroidShow -> onShowClick(item)
+                                else -> onItemClick(item)
+                            }
+                        },
+                        onLongClick = {
+                            selecting = true
+                            toggle()
+                        },
+                        onPlayClick =
+                            if (!selecting && canPlayDirectly(item)) {
+                                { context.playDownloadedItem(item) }
+                            } else null,
+                        onRemove = { removeItems(listOf(item)) },
                         modifier = Modifier.animateItem(),
                     )
                 }
@@ -299,8 +376,7 @@ private fun LazyListScope.downloadingSection(
                 key(download.item.id) {
                     QueueRow(
                         download = download,
-                        index = index,
-                        count = visible.size,
+                        shape = groupedItemShape(index, visible.size),
                         onCancel = { onCancelDownload(download) },
                         onDismiss = { onDismissDownload(download) },
                         onRetry = { onRetryDownload(download) },
@@ -325,13 +401,11 @@ private fun LazyListScope.downloadingSection(
 @Composable
 private fun QueueRow(
     download: ActiveDownload,
-    index: Int,
-    count: Int,
+    shape: Shape,
     onCancel: () -> Unit,
     onDismiss: () -> Unit,
     onRetry: () -> Unit,
 ) {
-    val shape = groupedItemShape(index, count)
     val dismissState = rememberSwipeToDismissBoxState()
     LaunchedEffect(dismissState.currentValue) {
         if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
@@ -356,27 +430,24 @@ private fun QueueRow(
     }
 }
 
+/** A downloaded movie or show. [selected] is non-null while multi-select is active. */
 @Composable
 private fun LibraryRow(
     item: FindroidItem,
     sizeBytes: Long?,
     episodeCount: Int?,
     shape: Shape,
+    selected: Boolean?,
     onClick: () -> Unit,
-    onDelete: () -> Unit,
+    onLongClick: () -> Unit,
+    onPlayClick: (() -> Unit)?,
+    onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    var showMenu by remember { mutableStateOf(false) }
-    var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
-
-    // Swiping asks for confirmation rather than deleting, then springs back.
     val dismissState = rememberSwipeToDismissBoxState()
     LaunchedEffect(dismissState.currentValue) {
-        if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
-            showDeleteDialog = true
-            dismissState.reset()
-        }
+        if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) onRemove()
     }
 
     val meta =
@@ -407,58 +478,24 @@ private fun LibraryRow(
     SwipeToDismissBox(
         state = dismissState,
         enableDismissFromStartToEnd = false,
+        gesturesEnabled = selected == null,
         backgroundContent = { SwipeActionBackground(icon = CoreR.drawable.ic_trash, shape = shape) },
         modifier = modifier,
     ) {
-        Box {
-            DownloadRow(
-                item = item,
-                title = title,
-                supporting = supporting,
-                meta = meta,
-                shape = shape,
-                showPlaybackProgress = item !is FindroidShow,
-                onClick = onClick,
-                onLongClick = { showMenu = true },
-            )
-            DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(CoreR.string.remove_download)) },
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(CoreR.drawable.ic_trash),
-                            contentDescription = null,
-                        )
-                    },
-                    onClick = {
-                        showMenu = false
-                        showDeleteDialog = true
-                    },
-                )
-            }
-        }
-    }
-
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        onDelete()
-                    }
-                ) {
-                    Text(stringResource(CoreR.string.remove))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text(stringResource(CoreR.string.cancel))
-                }
-            },
-            title = { Text(stringResource(CoreR.string.remove_download)) },
-            text = { Text(stringResource(CoreR.string.remove_download_message, item.name)) },
+        DownloadRow(
+            item = item,
+            title = title,
+            supporting = supporting,
+            meta = meta,
+            shape = shape,
+            showPlaybackProgress = item !is FindroidShow,
+            onPlayClick = onPlayClick,
+            onClick = onClick,
+            onLongClick = if (selected == null) onLongClick else null,
+            trailing =
+                selected?.let { isSelected ->
+                    { Checkbox(checked = isSelected, onCheckedChange = { onClick() }) }
+                },
         )
     }
 }
@@ -604,12 +641,14 @@ private fun DownloadsScreenLayoutPreview() {
                     storageTotalBytes = 64_000_000_000L,
                 ),
             onItemClick = {},
-            onItemDelete = {},
+            onShowClick = {},
+            onItemsDelete = {},
             onSortOrderChange = {},
             onCancelDownload = {},
             onDismissDownload = {},
             onRetryDownload = {},
             onBrowseLibraryClick = {},
+            onStorageClick = {},
         )
     }
 }
@@ -621,12 +660,14 @@ private fun DownloadsScreenLayoutEmptyPreview() {
         DownloadsScreenLayout(
             state = DownloadsState(),
             onItemClick = {},
-            onItemDelete = {},
+            onShowClick = {},
+            onItemsDelete = {},
             onSortOrderChange = {},
             onCancelDownload = {},
             onDismissDownload = {},
             onRetryDownload = {},
             onBrowseLibraryClick = {},
+            onStorageClick = {},
         )
     }
 }
