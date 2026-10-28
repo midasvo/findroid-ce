@@ -35,6 +35,7 @@ import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.download.DownloadStatus
 import dev.jdtech.jellyfin.utils.download.MediaDownloadEngine
+import dev.jdtech.jellyfin.utils.download.estimateCappedDownloadSize
 import dev.jdtech.jellyfin.work.ImagesDownloaderWorker
 import java.io.File
 import java.io.IOException
@@ -223,8 +224,7 @@ class DownloaderImpl(
             // download's size from the bitrate cap instead of flagging false positives.
             val expectedSize =
                 if (source.transcoded && maxBitrate != null) {
-                    val durationSeconds = item.runtimeTicks / 10_000_000.0
-                    (maxBitrate / 8.0 * durationSeconds).toLong()
+                    estimateCappedDownloadSize(item.runtimeTicks, maxBitrate)
                 } else {
                     source.size
                 }

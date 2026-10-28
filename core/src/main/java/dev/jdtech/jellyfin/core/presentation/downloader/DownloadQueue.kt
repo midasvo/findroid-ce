@@ -18,6 +18,7 @@ import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.Downloader
 import dev.jdtech.jellyfin.utils.download.DownloadStatus
+import dev.jdtech.jellyfin.utils.download.estimateCappedDownloadSize
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -447,12 +448,24 @@ constructor(
                     // UI can show an approximate %/ETA instead of a frozen 0%.
                     val originalSize =
                         (entry.item as? FindroidSources)?.sources?.maxOfOrNull { it.size } ?: 0L
+                    // A quality-capped transcode is far smaller than the original, so
+                    // estimate it from the cap instead (never above the original size).
+                    val cappedSize =
+                        entry.maxBitrate
+                            ?.let { estimateCappedDownloadSize(entry.item.runtimeTicks, it) }
+                            ?: 0L
+                    val estimatedSize =
+                        when {
+                            cappedSize <= 0L -> originalSize
+                            originalSize <= 0L -> cappedSize
+                            else -> minOf(cappedSize, originalSize)
+                        }
                     val estimating =
                         snapshot.totalBytes <= 0L &&
-                            originalSize > 0L &&
-                            snapshot.bytesDownloaded in 0 until originalSize
+                            estimatedSize > 0L &&
+                            snapshot.bytesDownloaded in 0 until estimatedSize
                     val effectiveTotal =
-                        if (estimating) originalSize else snapshot.totalBytes
+                        if (estimating) estimatedSize else snapshot.totalBytes
                     // External subtitle/media-stream downloads have no retry/backoff of
                     // their own (unlike this entry's video downloadId, tracked above) — a
                     // transient failure otherwise permanently drops that subtitle track
@@ -477,7 +490,7 @@ constructor(
                         if (estimating) {
                             // Cap at 99: the estimate may undershoot, and we only want
                             // to show 100% once the download has genuinely completed.
-                            (snapshot.bytesDownloaded * 100 / originalSize)
+                            (snapshot.bytesDownloaded * 100 / estimatedSize)
                                 .toInt()
                                 .coerceIn(0, 99)
                         } else {
