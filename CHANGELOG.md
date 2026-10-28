@@ -4,15 +4,25 @@ All notable changes to **Findroid CE** (`nl.midasvo.findroid.ce`) are documented
 
 This is a community fork of [findroid](https://github.com/jarnedemeulemeester/findroid). Releases are
 tagged `v<upstream-version>-ce.<N>`, where `<upstream-version>` tracks the upstream base
-(currently `1.1.0`) and `<N>` is the CE iteration counter. Entries below describe what each CE
+(currently `1.2.0`) and `<N>` is the CE iteration counter. Entries below describe what each CE
 release adds on top of upstream; routine dependency bumps and translation updates are grouped under
 _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## Unreleased
+## [v1.2.0-ce.0] — 2026-10-28
+
+An upstream sync to findroid 1.2.0, a download quality picker, and a batch of player fixes.
 
 ### Added
+- Download quality picker. Every download (movie, episode, season or whole show) now asks for a
+  quality: "Original quality" or a bitrate from 4K 120 Mbps down to 360p 720 kbps. Files above the
+  chosen bitrate are converted by the server; files already under it download as the original.
+  Retries and Smart Downloads keep the chosen quality, and subtitles are saved as separate files,
+  image-based ones (PGS, VobSub) included. Thanks @jorritsmit (#75, #74).
+- Permission requests, from upstream. On Android 17 the app asks for local network access, which it
+  needs to reach a server on your home network. New installs ask during setup, existing users get a
+  one-time prompt, and Settings has a new Permissions section. Phone and TV.
 - "Play next episode automatically" setting under Settings → Player, on phone and TV. By default
   it follows the Jellyfin account's "Play next episode automatically" playback setting, which
   Findroid used to ignore; "Always" and "Never" override it on this device. With autoplay off,
@@ -20,6 +30,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   player closes. An outro set to skip automatically no longer starts the next episode either. The
   next button, the outro "Next episode" button and remote controls still go to the next episode.
   Offline, "Use server setting" keeps autoplaying (#66, upstream #1050).
+
+### Changed
+- **Android 10 is now the minimum; Android 9 is no longer supported.** The app now targets
+  Android 17. From upstream.
+- The home screen asks the server for less. The Continue watching, Next up and Latest rows request
+  one poster and one backdrop per item instead of every image, and skip a count nobody uses, which
+  helps most on large libraries and slow servers. Thanks @DrHurt for the pointer (#77, #73).
+- Release APKs for phone are now named `findroid-ce-v<version>-libre-<abi>.apk`.
 
 ### Fixed
 - Opening a movie, show or episode no longer crashes on Jellyfin 12 servers when an actor has more
@@ -38,6 +56,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   episode with autoplay off) instead of sitting paused on the last frame.
 - On TV, media-segment skip buttons and automatic skipping (intros, outros, recaps…) now work; the
   TV player never checked the playback position against the segments.
+- The progress bar for a lower-quality download now estimates the converted file's size instead of
+  the original's. A 20 GB film capped at 3 Mbps used to show "2.7 GB / ~20 GB" and stall near 13 %
+  before jumping to done (#76).
+- The keyboard no longer covers text fields; the screen resizes around it instead. From upstream.
+
+### Maintenance
+- From upstream: Jellyfin SDK 1.9.3, kotlinx-serialization 1.12.0, OkHttp 5.5.1, Gradle 9.8.2.
 
 ## [v1.1.0-ce.5] — 2026-10-15
 
@@ -276,6 +301,7 @@ Initial CE fork off findroid `1.0.2`. These rapid early iterations established t
 `nl.midasvo.findroid.ce` application ID, downloads and SD-card storage improvements, and ongoing
 tracking of upstream. See the git history between the corresponding tags for commit-level detail.
 
+[v1.2.0-ce.0]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.0
 [v1.0.2-ce.36]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.36
 [v1.0.2-ce.35]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.35
 [v1.0.2-ce.34]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.34
