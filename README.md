@@ -66,7 +66,23 @@ Add this repo URL in [Obtainium](https://github.com/ImranR98/Obtainium):
 https://github.com/midasvo/findroid-ce
 ```
 
-Obtainium then checks for new releases automatically and notifies you of updates.
+Obtainium then checks for new releases automatically and notifies you of updates. Leave
+**Include prereleases** off for this entry so it only follows stable releases.
+
+### Beta channel (Obtainium)
+
+Beta builds of `main` and of work in progress are published as GitHub prereleases tagged
+`v<version>-beta.<n>`. They install as a separate app, **Findroid Staging**
+(`nl.midasvo.findroid.ce.staging`), with its own data, so they never replace the stable app.
+
+To follow them, add the same repo URL in Obtainium a second time with these settings:
+
+- **Include prereleases**: on
+- **Filter APKs by regular expression**: `-beta\.\d+-libre-arm64-v8a\.apk$`
+  (swap `arm64-v8a` for your device's ABI if needed)
+
+Betas are untested builds — expect bugs. Maintainers can publish any branch as a beta with
+`gh workflow run beta.yml --ref <branch>`; every push to `main` publishes one too.
 
 ### Manual
 
