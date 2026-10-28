@@ -37,6 +37,7 @@ import org.jellyfin.sdk.model.api.BaseItemDto
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.DeviceOptionsDto
 import org.jellyfin.sdk.model.api.GeneralCommandType
+import org.jellyfin.sdk.model.api.ImageType
 import org.jellyfin.sdk.model.api.ItemFields
 import org.jellyfin.sdk.model.api.ItemFilter
 import org.jellyfin.sdk.model.api.ItemSortBy
@@ -225,6 +226,7 @@ class JellyfinRepositoryImpl(
                     currentUserId,
                     limit = 6,
                     type = listOf(BaseItemKind.MOVIE, BaseItemKind.SERIES),
+                    enableTotalRecordCount = false,
                 )
                 .content
                 .items
@@ -238,6 +240,9 @@ class JellyfinRepositoryImpl(
                     currentUserId,
                     limit = 12,
                     includeItemTypes = listOf(BaseItemKind.MOVIE, BaseItemKind.EPISODE),
+                    imageTypeLimit = 1,
+                    enableImageTypes = ROW_IMAGE_TYPES,
+                    enableTotalRecordCount = false,
                 )
                 .content
                 .items
@@ -247,7 +252,13 @@ class JellyfinRepositoryImpl(
     override suspend fun getLatestMedia(parentId: UUID): List<FindroidItem> =
         withContext(Dispatchers.IO) {
             jellyfinApi.libraryApi
-                .getLatestMedia(currentUserId, parentId = parentId, limit = 16)
+                .getLatestMedia(
+                    currentUserId,
+                    parentId = parentId,
+                    limit = 16,
+                    imageTypeLimit = 1,
+                    enableImageTypes = ROW_IMAGE_TYPES,
+                )
                 .content
                 .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
         }
@@ -272,6 +283,9 @@ class JellyfinRepositoryImpl(
                     currentUserId,
                     limit = 24,
                     seriesId = seriesId,
+                    imageTypeLimit = 1,
+                    enableImageTypes = ROW_IMAGE_TYPES,
+                    enableTotalRecordCount = false,
                     enableResumable = false,
                 )
                 .content
@@ -629,5 +643,15 @@ class JellyfinRepositoryImpl(
 
     override fun getUserId(): UUID {
         return currentUserId
+    }
+
+    private companion object {
+        /**
+         * The only images row cards (home rows, next up) render: `FindroidImages` reads the
+         * primary tag, the first backdrop and the series primary tag. Together with
+         * `imageTypeLimit = 1` this stops the server from resolving (and sending blurhashes
+         * for) every backdrop, logo, thumb and banner of each item.
+         */
+        val ROW_IMAGE_TYPES = listOf(ImageType.PRIMARY, ImageType.BACKDROP)
     }
 }
