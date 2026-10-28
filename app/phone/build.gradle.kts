@@ -1,3 +1,4 @@
+import com.android.build.api.variant.FilterConfiguration
 import java.util.Properties
 
 plugins {
@@ -105,6 +106,21 @@ android {
         includeInApk = false
         // Disables dependency metadata when building Android App Bundles.
         includeInBundle = false
+    }
+}
+
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        variant.outputs.forEach { output ->
+            val abi =
+                output.filters
+                    .firstOrNull { it.filterType == FilterConfiguration.FilterType.ABI }
+                    ?.identifier
+            // CE-owned: "findroid-ce-" so CE APKs are not named exactly like upstream's.
+            output.outputFileName.set(
+                "findroid-ce-v${output.versionName.get()}-${variant.flavorName}-$abi.apk"
+            )
+        }
     }
 }
 
