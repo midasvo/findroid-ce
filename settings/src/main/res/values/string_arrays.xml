@@ -10,6 +10,10 @@
         <item>light</item>
         <item>dark</item>
     </string-array>
+    <string-array name="player_backends">
+        <item>exoplayer</item>
+        <item>mpv</item>
+    </string-array>
     <string-array name="mpv_hwdec">
         <item>no</item>
         <item>mediacodec</item>
@@ -23,6 +27,26 @@
         <item>audiotrack</item>
         <item>opensles</item>
         <item>aaudio</item>
+    </string-array>
+    <string-array name="player_gestures_hold">
+        <item>@string/player_gestures_hold_chapter</item>
+        <item>@string/player_gestures_hold_speed</item>
+        <item>@string/player_gestures_hold_disabled</item>
+    </string-array>
+    <string-array name="player_gestures_hold_values">
+        <item>chapter</item>
+        <item>speed</item>
+        <item>disabled</item>
+    </string-array>
+    <string-array name="player_autoplay_next">
+        <item>@string/player_autoplay_next_server</item>
+        <item>@string/player_autoplay_next_on</item>
+        <item>@string/player_autoplay_next_off</item>
+    </string-array>
+    <string-array name="player_autoplay_next_values">
+        <item>server</item>
+        <item>on</item>
+        <item>off</item>
     </string-array>
     <string-array name="media_segments_auto_skip">
         <item>@string/media_segments_auto_skip_pip</item>

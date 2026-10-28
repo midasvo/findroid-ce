@@ -73,16 +73,18 @@ suspend fun BaseItemDto.toFindroidEpisode(
             images = toFindroidImages(jellyfinRepository),
             chapters = toFindroidChapters(),
             trickplayInfo =
-                trickplay?.mapValues { entry ->
-                    entry.value[entry.value.keys.maxOrNull()]?.toFindroidTrickplayInfo()
-                }?.filterValues { it != null }?.mapValues { it.value!! },
+                trickplay
+                    ?.mapNotNull { (width, info) ->
+                        info?.keys?.maxOrNull()?.let { info[it] }?.toFindroidTrickplayInfo()?.let { width to it }
+                    }
+                    ?.toMap(),
         )
     } catch (_: NullPointerException) {
         null
     }
 }
 
-fun FindroidEpisodeDto.toFindroidEpisode(
+suspend fun FindroidEpisodeDto.toFindroidEpisode(
     database: ServerDatabaseDao,
     userId: UUID,
 ): FindroidEpisode {

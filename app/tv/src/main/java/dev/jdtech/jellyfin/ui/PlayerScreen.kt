@@ -47,8 +47,8 @@ import dagger.hilt.android.EntryPointAccessors
 import dev.jdtech.jellyfin.core.R
 import dev.jdtech.jellyfin.di.SubtitleStyleEntryPoint
 import dev.jdtech.jellyfin.player.core.domain.models.PlayerChapter
-import dev.jdtech.jellyfin.player.core.domain.models.Track
 import dev.jdtech.jellyfin.player.local.presentation.PlayerAction
+import dev.jdtech.jellyfin.player.local.presentation.PlayerEvents
 import dev.jdtech.jellyfin.player.local.presentation.PlayerViewModel
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.ui.components.player.ChapterListDialog
@@ -59,9 +59,9 @@ import dev.jdtech.jellyfin.ui.components.player.VideoPlayerOverlay
 import dev.jdtech.jellyfin.ui.components.player.VideoPlayerSeeker
 import dev.jdtech.jellyfin.ui.components.player.VideoPlayerState
 import dev.jdtech.jellyfin.ui.components.player.rememberVideoPlayerState
+import dev.jdtech.jellyfin.utils.ObserveAsEvents
 import dev.jdtech.jellyfin.utils.applySubtitleStyle
 import dev.jdtech.jellyfin.utils.handleDPadKeyEvents
-import java.util.Locale
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
@@ -72,12 +72,22 @@ fun PlayerScreen(
     itemId: UUID,
     itemKind: String,
     startFromBeginning: Boolean,
-    // resultRecipient: ResultRecipient<VideoPlayerTrackSelectorDialogDestination,
-    // VideoPlayerTrackSelectorDialogResult>,
+    navigateBack: () -> Unit,
 ) {
     val viewModel = hiltViewModel<PlayerViewModel>()
 
     val uiState by viewModel.uiState.collectAsState()
+
+    ObserveAsEvents(viewModel.eventsChannelFlow) { event ->
+        when (event) {
+            // Sent when the queue ends, or when an episode ends with autoplay off.
+            is PlayerEvents.NavigateBack -> navigateBack()
+            // Already logged in PlayerViewModel; phone does not surface it either.
+            is PlayerEvents.PlayerError -> Unit
+            // The screen is kept on for as long as the player is shown (see below).
+            is PlayerEvents.IsPlayingChanged -> Unit
+        }
+    }
 
     val context = LocalContext.current
     val currentView = LocalView.current
@@ -124,37 +134,22 @@ fun PlayerScreen(
             delay(300)
             currentPosition = viewModel.player.currentPosition
             isPlaying = viewModel.player.isPlaying
+            // TV has no periodic progress update, so this is what keeps the stop report on
+            // next/previous (remote, media session) at the current position.
+            viewModel.refreshPlayingSnapshot()
+        }
+    }
+
+    // Drives the skip button and auto-skip for media segments, as PlayerActivity does on phone.
+    LaunchedEffect(Unit) {
+        if (!viewModel.shouldPollSegments()) return@LaunchedEffect
+        while (true) {
+            viewModel.updateCurrentSegment()
+            delay(1000L)
         }
     }
 
     // TODO: implement the track selection dialogs
-    /*
-    resultRecipient.onNavResult { result ->
-        when (result) {
-            is NavResult.Canceled -> Unit
-            is NavResult.Value -> {
-                val trackType = result.value.trackType
-                val index = result.value.index
-
-                if (index == -1) {
-                    viewModel.player.trackSelectionParameters = viewModel.player.trackSelectionParameters
-                        .buildUpon()
-                        .clearOverridesOfType(trackType)
-                        .setTrackTypeDisabled(trackType, true)
-                        .build()
-                } else {
-                    viewModel.player.trackSelectionParameters = viewModel.player.trackSelectionParameters
-                        .buildUpon()
-                        .setOverrideForType(
-                            TrackSelectionOverride(viewModel.player.currentTracks.groups[index].mediaTrackGroup, 0),
-                        )
-                        .setTrackTypeDisabled(trackType, false)
-                        .build()
-                }
-            }
-        }
-    }
-     */
 
     // Media Segments
     val segment = uiState.currentSegment
@@ -307,21 +302,13 @@ fun VideoPlayerControls(
                     icon = painterResource(id = R.drawable.ic_speaker),
                     state = state,
                     isPlaying = isPlaying,
-                    onClick = {
-                        // val tracks = getTracks(player, C.TRACK_TYPE_AUDIO)
-                        // navigator.navigate(VideoPlayerTrackSelectorDialogDestination(C.TRACK_TYPE_AUDIO,
-                        // tracks))
-                    },
+                    onClick = {},
                 )
                 VideoPlayerMediaButton(
                     icon = painterResource(id = R.drawable.ic_closed_caption),
                     state = state,
                     isPlaying = isPlaying,
-                    onClick = {
-                        // val tracks = getTracks(player, C.TRACK_TYPE_TEXT)
-                        // navigator.navigate(VideoPlayerTrackSelectorDialogDestination(C.TRACK_TYPE_TEXT,
-                        // tracks))
-                    },
+                    onClick = {},
                 )
                 if (chapters.isNotEmpty()) {
                     VideoPlayerMediaButton(
@@ -375,37 +362,3 @@ private fun Modifier.dPadEvents(exoPlayer: Player, videoPlayerState: VideoPlayer
             videoPlayerState.showControls()
         },
     )
-
-@androidx.annotation.OptIn(UnstableApi::class)
-private fun getTracks(player: Player, type: Int): Array<Track> {
-    val tracks = arrayListOf<Track>()
-    for (groupIndex in 0 until player.currentTracks.groups.count()) {
-        val group = player.currentTracks.groups[groupIndex]
-        if (group.type == type) {
-            val format = group.mediaTrackGroup.getFormat(0)
-
-            val track =
-                Track(
-                    id = groupIndex,
-                    label = format.label,
-                    language = Locale(format.language.toString()).displayLanguage,
-                    codec = format.codecs,
-                    selected = group.isSelected,
-                    supported = group.isSupported,
-                )
-
-            tracks.add(track)
-        }
-    }
-
-    val noneTrack =
-        Track(
-            id = -1,
-            label = null,
-            language = null,
-            codec = null,
-            selected = !tracks.any { it.selected },
-            supported = true,
-        )
-    return arrayOf(noneTrack) + tracks
-}

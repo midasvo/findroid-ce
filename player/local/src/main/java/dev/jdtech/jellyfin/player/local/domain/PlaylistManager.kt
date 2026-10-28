@@ -200,6 +200,21 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
         currentItemIndex = items.indexOfFirst { it.id == itemId }
     }
 
+    /**
+     * Re-resolve an already-queued item's media sources — used when the user
+     * changes the max streaming bitrate mid-playback, which invalidates every
+     * queued stream URL. The cached entry is replaced (not just added) so the
+     * duplicate check in [getPreviousPlayerItem]/[getNextPlayerItem] keeps
+     * treating the item as already queued.
+     */
+    suspend fun recreatePlayerItem(playerItem: PlayerItem): PlayerItem {
+        val item = items.firstOrNull { it.id == playerItem.itemId } ?: return playerItem
+        val recreated = item.toPlayerItem(null, playerItem.playbackPosition)
+        playerItems.removeAll { it.itemId == playerItem.itemId }
+        playerItems.add(recreated)
+        return recreated
+    }
+
     private suspend fun FindroidItem.toPlayerItem(
         mediaSourceIndex: Int?,
         playbackPosition: Long,
@@ -216,7 +231,14 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
         val externalSubtitles =
             mediaSource.mediaStreams
                 .filter { mediaStream ->
-                    mediaStream.isExternal &&
+                    // isExternal reflects the *server's* original file layout, which only
+                    // matters for a REMOTE source riding along in the same stream ExoPlayer
+                    // is already playing. A LOCAL (downloaded) source only ever has a
+                    // mediastreams row for a subtitle that was saved as its own sidecar file
+                    // — downloadExternalMediaStreams never writes a row for a track that
+                    // stays muxed inside the downloaded video — so every row on a LOCAL
+                    // source is a real external file on disk, regardless of isExternal.
+                    (mediaSource.type == FindroidSourceType.LOCAL || mediaStream.isExternal) &&
                         mediaStream.type == MediaStreamType.SUBTITLE &&
                         !mediaStream.path.isNullOrBlank()
                 }
@@ -227,7 +249,7 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
                         mediaStream.path!!.toUri(),
                         when (mediaStream.codec) {
                             "subrip" -> MimeTypes.APPLICATION_SUBRIP
-                            "webvtt" -> MimeTypes.APPLICATION_SUBRIP
+                            "webvtt" -> MimeTypes.TEXT_VTT
                             "ass" -> MimeTypes.TEXT_SSA
                             // Image-based subtitle sidecars. media3 ships native parsers
                             // for these, so advertising the correct MIME lets the renderer

@@ -66,14 +66,19 @@ private fun SettingsSelectDialogItem(
     isSelected: Boolean,
     onSelect: (String?) -> Unit,
 ) {
+    // Only report an actual change. Re-selecting the current row used to persist the value the
+    // user was merely looking at, which pins them to whatever the default was that day and
+    // silently defeats any later change to it (issue #52).
+    val select = { if (!isSelected) onSelect(option.first) }
+
     Row(
         modifier =
             Modifier.fillMaxWidth()
-                .clickable { onSelect(option.first) }
+                .clickable(onClick = select)
                 .padding(horizontal = MaterialTheme.spacings.default),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        RadioButton(selected = isSelected, onClick = { onSelect(option.first) })
+        RadioButton(selected = isSelected, onClick = select)
         Spacer(modifier = Modifier.width(MaterialTheme.spacings.medium))
         Text(text = option.second, color = MaterialTheme.colorScheme.onSurface)
     }

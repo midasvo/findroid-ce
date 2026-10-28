@@ -1,6 +1,5 @@
 package dev.jdtech.jellyfin.core.presentation.downloader
 
-import android.app.DownloadManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -8,6 +7,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.jdtech.jellyfin.core.Constants
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
 import dev.jdtech.jellyfin.models.FindroidEpisode
@@ -17,7 +17,10 @@ import dev.jdtech.jellyfin.models.UiText
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.Downloader
+import dev.jdtech.jellyfin.utils.download.DownloadStatus
+import dev.jdtech.jellyfin.utils.download.estimateCappedDownloadSize
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
@@ -81,12 +84,17 @@ constructor(
         val totalBytes: Long = -1L,
         /**
          * True when [totalBytes] is an estimate rather than a figure from
-         * DownloadManager — happens for transcodes, whose length is not known
+         * the download engine — happens for transcodes, whose length is not known
          * up front so we fall back to the item's original file size.
          */
         val totalBytesEstimated: Boolean = false,
         /** True when the server is transcoding this download (e.g. Dolby Vision). */
         val isTranscode: Boolean = false,
+        /**
+         * User-selected download quality cap (bits/sec) for this entry, or null
+         * for original quality. Carried through retries and smart downloads.
+         */
+        val maxBitrate: Int? = null,
         /** Moving-average bytes/sec, or 0 if not computed yet. */
         val bytesPerSecond: Long = 0L,
         /** How many times this entry has been auto-retried. */
@@ -100,12 +108,17 @@ constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val mutex = Mutex()
+
+    // Refreshed at most every MEDIA_STREAM_RETRY_INTERVAL_MS, keyed by downloadId, by a
+    // fire-and-forget check so the tight progress-polling loop below is never blocked on
+    // a network call.
+    private val lastMediaStreamRetryCheck = ConcurrentHashMap<Long, Long>()
     private var pumpJob: Job? = null
 
     /** Previous bytes + wall-clock (ms) sample per downloadId, for speed calc. */
     private val lastSamples = mutableMapOf<Long, Pair<Long, Long>>()
 
-    suspend fun enqueue(item: FindroidItem) {
+    suspend fun enqueue(item: FindroidItem, maxBitrate: Int? = null) {
         var persisted = false
         mutex.withLock {
             if (_entries.value.any { it.id == item.id && it.state !is EntryState.Failed && it.state !is EntryState.Completed }) {
@@ -119,13 +132,14 @@ constructor(
                     item = item,
                     addedAt = System.currentTimeMillis(),
                     state = EntryState.Pending,
+                    maxBitrate = maxBitrate,
                 )
             _entries.value = sort(filtered + newEntry)
             persisted = true
         }
         if (persisted) {
             try {
-                downloader.savePendingDownload(item)
+                downloader.savePendingDownload(item, maxBitrate)
             } catch (e: Exception) {
                 Timber.e(e, "Failed to persist pending download ${item.name}")
             }
@@ -135,8 +149,7 @@ constructor(
 
     /**
      * Re-attaches an in-flight download started in a previous app session. No-op if
-     * the item is already tracked. Does not call Downloader — Android's DownloadManager
-     * is already running this downloadId.
+     * the item is already tracked.
      */
     suspend fun restore(item: FindroidItem, downloadId: Long) {
         mutex.withLock {
@@ -168,9 +181,13 @@ constructor(
 
     /**
      * Re-attaches every in-flight download from the DB. Call on app startup to
-     * recover queue state after process death. Android DownloadManager runs
-     * independently, so completion broadcasts still update the DB; this just
-     * reattaches the UI-facing queue so the user can see/cancel those downloads.
+     * recover queue state after process death. Unlike the old DownloadManager model
+     * (where DM continued running independently), the OkHttp engine is in-process and
+     * does NOT survive process death. So restored active partials are added as
+     * [EntryState.Pending] rather than Downloading, causing the pump to call
+     * startDownload -> downloadItem, which detects the existing source row and resumes
+     * from the partial file via Range. Ordering: restored actives sort before fresh
+     * pendings via their addedAt timestamp.
      */
     suspend fun restoreAll() {
         val active =
@@ -191,28 +208,31 @@ constructor(
         mutex.withLock {
             val known = _entries.value.map { it.id }.toSet()
             val now = System.currentTimeMillis()
+            // Restored active partials re-enter as Pending so the pump drives the resume
+            // through downloadItem (which detects the existing source row and does Range resume).
+            // Use addedAt = now - 1 so they sort before brand-new pending entries.
             val addedActive =
-                active.filter { (item, _) -> item.id !in known }.map { (item, downloadId) ->
+                active.filter { it.item.id !in known }.map { restored ->
                     Entry(
-                        id = item.id,
-                        item = item,
-                        addedAt = now,
-                        state = EntryState.Downloading,
-                        downloadId = downloadId,
-                        startedAt = now,
+                        id = restored.item.id,
+                        item = restored.item,
+                        addedAt = now - 1,
+                        state = EntryState.Pending,
+                        maxBitrate = restored.maxBitrate,
                     )
                 }
             // Pending items entered after active downloads so they don't cut in line.
             val activeIds = addedActive.map { it.id }.toSet()
             val addedPending =
                 pending
-                    .filter { (item, _) -> item.id !in known && item.id !in activeIds }
-                    .map { (item, addedAt) ->
+                    .filter { it.item.id !in known && it.item.id !in activeIds }
+                    .map { restored ->
                         Entry(
-                            id = item.id,
-                            item = item,
-                            addedAt = addedAt,
+                            id = restored.item.id,
+                            item = restored.item,
+                            addedAt = restored.addedAt,
                             state = EntryState.Pending,
+                            maxBitrate = restored.maxBitrate,
                         )
                     }
             val added = addedActive + addedPending
@@ -222,7 +242,7 @@ constructor(
         ensurePump()
     }
 
-    suspend fun enqueueAll(items: List<FindroidItem>) {
+    suspend fun enqueueAll(items: List<FindroidItem>, maxBitrate: Int? = null) {
         val persistedItems = mutableListOf<FindroidItem>()
         mutex.withLock {
             val existingIds =
@@ -240,6 +260,7 @@ constructor(
                             item = item,
                             addedAt = now + idx, // preserve insertion order
                             state = EntryState.Pending,
+                            maxBitrate = maxBitrate,
                         )
                     }
             if (newEntries.isEmpty()) return@withLock
@@ -250,7 +271,7 @@ constructor(
         }
         for (item in persistedItems) {
             try {
-                downloader.savePendingDownload(item)
+                downloader.savePendingDownload(item, maxBitrate)
             } catch (e: Exception) {
                 Timber.e(e, "Failed to persist pending download ${item.name}")
             }
@@ -290,13 +311,13 @@ constructor(
     /** Re-queues a failed entry. */
     fun retry(id: UUID) {
         scope.launch {
-            var retried: FindroidItem? = null
+            var retried: Entry? = null
             mutex.withLock {
                 _entries.value =
                     sort(
                         _entries.value.map { entry ->
                             if (entry.id == id && entry.state is EntryState.Failed) {
-                                retried = entry.item
+                                retried = entry
                                 entry.copy(
                                     state = EntryState.Pending,
                                     addedAt = System.currentTimeMillis(),
@@ -312,11 +333,11 @@ constructor(
                         }
                     )
             }
-            retried?.let { item ->
+            retried?.let { entry ->
                 try {
-                    downloader.savePendingDownload(item)
+                    downloader.savePendingDownload(entry.item, entry.maxBitrate)
                 } catch (e: Exception) {
-                    Timber.e(e, "Failed to persist retried download ${item.name}")
+                    Timber.e(e, "Failed to persist retried download ${entry.item.name}")
                 }
             }
             ensurePump()
@@ -376,8 +397,8 @@ constructor(
     private suspend fun pump() {
         while (true) {
             // 1. Poll active downloads and transition completed/failed. Paused entries
-            //    keep their DownloadManager job attached, so poll them too so we can
-            //    flip back to Downloading when DM resumes (e.g. wifi reconnects).
+            //    keep their engine task active, so poll them too so we can
+            //    flip back to Downloading when the engine resumes (e.g. wifi reconnects).
             val active =
                 _entries.value.filter {
                     it.state is EntryState.Downloading || it.state is EntryState.Paused
@@ -387,6 +408,7 @@ constructor(
             if (lastSamples.isNotEmpty()) {
                 val activeDlIds = active.mapNotNull { it.downloadId }.toSet()
                 lastSamples.keys.retainAll(activeDlIds)
+                lastMediaStreamRetryCheck.keys.retainAll(activeDlIds)
             }
             if (active.isNotEmpty()) {
                 val updates = mutableMapOf<UUID, Entry>()
@@ -398,46 +420,77 @@ constructor(
                     val snapshot =
                         snapshots[dlId]
                             ?: Downloader.Progress(
-                                DownloadManager.STATUS_FAILED,
+                                DownloadStatus.FAILED,
                                 0,
                                 -1L,
                                 -1L,
                             )
                     val newState: EntryState? =
                         when (snapshot.status) {
-                            DownloadManager.STATUS_PENDING,
-                            DownloadManager.STATUS_RUNNING ->
-                                // If we were Paused and DM is running again, flip back
+                            DownloadStatus.PENDING,
+                            DownloadStatus.RUNNING ->
+                                // If we were Paused and the engine is running again, flip back
                                 // to Downloading so the user sees progress resume.
                                 if (entry.state is EntryState.Paused) EntryState.Downloading
                                 else null
-                            DownloadManager.STATUS_PAUSED ->
+                            DownloadStatus.PAUSED ->
                                 if (entry.state is EntryState.Paused) null
                                 else EntryState.Paused
-                            DownloadManager.STATUS_SUCCESSFUL -> EntryState.Completed
-                            DownloadManager.STATUS_FAILED -> EntryState.Failed(null)
-                            // Unknown/unhandled status (e.g. DM entry disappeared between
-                            // process death and restore). Treat as failed rather than silently
-                            // claiming success.
+                            DownloadStatus.SUCCESSFUL -> EntryState.Completed
+                            DownloadStatus.FAILED -> EntryState.Failed(null)
+                            // Unknown/unhandled status (e.g. engine entry disappeared).
+                            // Treat as failed rather than silently claiming success.
                             else -> EntryState.Failed(null)
                         }
                     // A server-side transcode (e.g. a Dolby Vision download) streams
-                    // output of unknown length, so DownloadManager reports no total.
+                    // output of unknown length, so the engine reports totalBytes=-1.
                     // Fall back to the item's original file size as an estimate, so the
                     // UI can show an approximate %/ETA instead of a frozen 0%.
                     val originalSize =
                         (entry.item as? FindroidSources)?.sources?.maxOfOrNull { it.size } ?: 0L
+                    // A quality-capped transcode is far smaller than the original, so
+                    // estimate it from the cap instead (never above the original size).
+                    val cappedSize =
+                        entry.maxBitrate
+                            ?.let { estimateCappedDownloadSize(entry.item.runtimeTicks, it) }
+                            ?: 0L
+                    val estimatedSize =
+                        when {
+                            cappedSize <= 0L -> originalSize
+                            originalSize <= 0L -> cappedSize
+                            else -> minOf(cappedSize, originalSize)
+                        }
                     val estimating =
                         snapshot.totalBytes <= 0L &&
-                            originalSize > 0L &&
-                            snapshot.bytesDownloaded in 0 until originalSize
+                            estimatedSize > 0L &&
+                            snapshot.bytesDownloaded in 0 until estimatedSize
                     val effectiveTotal =
-                        if (estimating) originalSize else snapshot.totalBytes
+                        if (estimating) estimatedSize else snapshot.totalBytes
+                    // External subtitle/media-stream downloads have no retry/backoff of
+                    // their own (unlike this entry's video downloadId, tracked above) — a
+                    // transient failure otherwise permanently drops that subtitle track
+                    // with no recovery. Throttled and fire-and-forget so this network call
+                    // never blocks the poll loop; only while genuinely downloading, not
+                    // paused/offline.
+                    if (entry.state is EntryState.Downloading) {
+                        val lastCheck = lastMediaStreamRetryCheck[dlId] ?: 0L
+                        if (now - lastCheck >= MEDIA_STREAM_RETRY_INTERVAL_MS) {
+                            lastMediaStreamRetryCheck[dlId] = now
+                            val item = entry.item
+                            scope.launch {
+                                try {
+                                    downloader.retryFailedMediaStreams(item)
+                                } catch (e: Exception) {
+                                    Timber.w(e, "Failed to retry media streams for ${item.name}")
+                                }
+                            }
+                        }
+                    }
                     val newProgress =
                         if (estimating) {
                             // Cap at 99: the estimate may undershoot, and we only want
                             // to show 100% once the download has genuinely completed.
-                            (snapshot.bytesDownloaded * 100 / originalSize)
+                            (snapshot.bytesDownloaded * 100 / estimatedSize)
                                 .toInt()
                                 .coerceIn(0, 99)
                         } else {
@@ -500,24 +553,14 @@ constructor(
                         _entries.value =
                             sort(_entries.value.map { updates[it.id] ?: it })
                     }
-                    // Any entry that transitioned to Failed has an orphaned .download
-                    // file + source row on disk/DB. Clean them up so retry creates a
-                    // fresh download and restoreAll() on next launch doesn't resurrect
-                    // a dead DownloadManager id.
+                    // A failed entry keeps its partial .download file and source row so
+                    // the next attempt (auto-retry or manual retry) can resume from where
+                    // it left off via Range. We only clear the speed sample — no file/row cleanup.
                     val failedEntries =
                         updates.values.filter { it.state is EntryState.Failed }
-                    // Clean up DM jobs for failed entries first.
                     for (failed in failedEntries) {
                         val dlId = failed.downloadId ?: continue
                         lastSamples.remove(dlId)
-                        try {
-                            downloader.cancelDownload(failed.item, dlId)
-                        } catch (e: Exception) {
-                            Timber.e(
-                                e,
-                                "Failed to clean up orphaned download for ${failed.item.name}",
-                            )
-                        }
                     }
                     // Schedule auto-retry for eligible entries; notify for permanent failures.
                     val retryUpdates = mutableMapOf<UUID, Entry>()
@@ -534,7 +577,7 @@ constructor(
                             )
                             Timber.i("Auto-retry #${failed.retryCount + 1} for ${failed.item.name} in ${backoffMs / 1000}s")
                             try {
-                                downloader.savePendingDownload(failed.item)
+                                downloader.savePendingDownload(failed.item, failed.maxBitrate)
                             } catch (e: Exception) {
                                 Timber.e(e, "Failed to re-persist auto-retried download ${failed.item.name}")
                             }
@@ -553,10 +596,10 @@ constructor(
                         updates.values.filter { it.state is EntryState.Completed }
                     for (entry in completedEntries) {
                         entry.downloadId?.let { lastSamples.remove(it) }
-                        // Smart Downloads: auto-queue next episode
+                        // Smart Downloads: auto-queue next episode at the same quality
                         val item = entry.item
                         if (item is FindroidEpisode) {
-                            scope.launch { smartEnqueueNext(item) }
+                            scope.launch { smartEnqueueNext(item, entry.maxBitrate) }
                         }
                     }
                 }
@@ -599,21 +642,23 @@ constructor(
                     }
                 }
             if (shouldExit) return
-            delay(1000L)
+            delay(Constants.DOWNLOAD_POLL_INTERVAL_MS)
         }
     }
 
     private suspend fun startDownload(entry: Entry) {
         val storageIndex =
             appPreferences.getValue(appPreferences.downloadStorageIndex)?.toIntOrNull() ?: 0
-        // A Dolby Vision item is transcoded server-side when the setting is on, which
-        // makes the download's length unknown up front — flag it so the UI can say so.
+        // A Dolby Vision item (with the setting on) or a quality-capped download may
+        // be transcoded server-side, which makes the download's length unknown up
+        // front — flag it so the UI can say so.
         val isTranscode =
-            appPreferences.getValue(appPreferences.downloadTranscodeDolbyVision) &&
-                entry.item.hasDolbyVision()
+            entry.maxBitrate != null ||
+                (appPreferences.getValue(appPreferences.downloadTranscodeDolbyVision) &&
+                    entry.item.hasDolbyVision())
         // Drop the pending row *before* running setup. If the process dies
         // mid-setup, restoreAll() on next launch would otherwise resurrect the
-        // pending entry and enqueue a duplicate DM job + duplicate source row
+        // pending entry and start a duplicate engine task + duplicate source row
         // on top of whatever partial state setup left behind.
         try {
             downloader.removePendingDownload(entry.id)
@@ -622,7 +667,11 @@ constructor(
         }
         val (downloadId, errorText) =
             try {
-                downloader.downloadItem(item = entry.item, storageIndex = storageIndex)
+                downloader.downloadItem(
+                    item = entry.item,
+                    storageIndex = storageIndex,
+                    maxBitrate = entry.maxBitrate,
+                )
             } catch (e: Exception) {
                 Timber.e(e, "downloadItem threw for ${entry.item.name}")
                 // Surface something to the Queue UI instead of a blank error — the
@@ -636,7 +685,7 @@ constructor(
             val stillPresent = _entries.value.any { it.id == entry.id }
             if (!stillPresent) {
                 // Entry was removed (user cancelled) while we were starting the
-                // download. Android DM is running it but we no longer track it —
+                // download. The engine task is running but we no longer track it —
                 // cancel to avoid leaking.
                 orphaned = downloadId != -1L
                 return@withLock
@@ -698,9 +747,9 @@ constructor(
     /**
      * Smart Downloads: when an episode finishes downloading, automatically
      * queue the next episode in the same season (if it exists and isn't
-     * already downloaded or queued).
+     * already downloaded or queued), at the same quality as the finished one.
      */
-    private suspend fun smartEnqueueNext(episode: FindroidEpisode) {
+    private suspend fun smartEnqueueNext(episode: FindroidEpisode, maxBitrate: Int?) {
         if (!appPreferences.getValue(appPreferences.smartDownloads)) return
         try {
             val episodes = repository.getEpisodes(
@@ -723,7 +772,7 @@ constructor(
                 return
             }
             Timber.i("Smart Downloads: auto-queueing next episode ${next.seriesName} S%02dE%02d".format(next.parentIndexNumber, next.indexNumber))
-            enqueue(next)
+            enqueue(next, maxBitrate)
         } catch (e: Exception) {
             Timber.e(e, "Smart Downloads: failed to fetch next episode after ${episode.name}")
         }
@@ -734,5 +783,8 @@ constructor(
         private const val MAX_AUTO_RETRIES = 3
         /** Backoff delays: 30s, 2m, 10m. */
         private val RETRY_BACKOFF_MS = longArrayOf(30_000L, 120_000L, 600_000L)
+
+        /** Minimum gap between checks for failed external subtitle/media-stream downloads. */
+        private const val MEDIA_STREAM_RETRY_INTERVAL_MS = 30_000L
     }
 }

@@ -3,6 +3,9 @@ package dev.jdtech.jellyfin.settings.domain
 import android.content.SharedPreferences
 import dev.jdtech.jellyfin.settings.domain.models.Preference
 import javax.inject.Inject
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import timber.log.Timber
 
 class AppPreferences @Inject constructor(val sharedPreferences: SharedPreferences) {
@@ -23,15 +26,31 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val displayExtraInfo = Preference("pref_display_extra_info", false)
 
     // Player
+    val playerBackend = Preference("pref_player_backend", "exoplayer")
     val playerBrightness = Preference("pref_player_brightness", -1.0f)
     val playerBackgroundAudio = Preference(Constants.PREF_PLAYER_BACKGROUND_AUDIO, false)
 
+
+    // Maximum streaming bitrate in bits per second; the server transcodes
+    // anything above it. 0 means no cap (original quality). Set from the
+    // player's quality selector.
+    val playerMaxBitrate = Preference("pref_player_max_bitrate", 0)
 
     // Player - mpv
     val playerMpv = Preference("pref_player_mpv", false)
     val playerMpvHwdec = Preference("pref_player_mpv_hwdec", "mediacodec")
     val playerMpvVo = Preference("pref_player_mpv_vo", "gpu-next")
-    val playerMpvAo = Preference("pref_player_mpv_ao", "aaudio")
+
+    // CE divergence from upstream (issue #52 / upstream #1246): upstream defaults this to
+    // "aaudio", which freezes the video pipeline after any flush (seek, audio-track switch,
+    // next episode, surface recreation) while audio keeps playing. Every confirmed report so
+    // far is a Samsung device, but upstream's own bisect concluded the fault is with the
+    // aaudio output itself and reproduces it in mpv-android too, so do not narrow this to a
+    // manufacturer check — see mpv-android/mpv-android#1283, still unfixed.
+    // "audiotrack" is also what mpv's own autoprobe order picks on Android, and what
+    // mpv-android uses. aaudio stays selectable for anyone who wants it.
+    val playerMpvAo =
+        Preference("pref_player_mpv_ao", Constants.MpvAudioOutput.AUDIOTRACK)
 
     // Player - gestures
     val playerGestures = Preference("pref_player_gestures", true)
@@ -39,7 +58,7 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val playerGesturesZoom = Preference("pref_player_gestures_zoom", true)
     val playerGesturesSeek = Preference("pref_player_gestures_seek", true)
     val playerGesturesSeekTrickplay = Preference("pref_player_gestures_seek_trickplay", true)
-    val playerGesturesChapterSkip = Preference("pref_player_gestures_chapter_skip", true)
+    val playerGesturesHold = Preference("pref_player_gestures_hold", "chapter")
     val playerGesturesBrightnessRemember = Preference("pref_player_brightness_remember", false)
     val playerGesturesStartMaximized = Preference("pref_player_start_maximized", false)
 
@@ -80,6 +99,11 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val stillWatchingAfterMinutes = Preference("pref_player_still_watching_after_minutes", 90)
     val stillWatchingPromptTimeoutSeconds =
         Preference("pref_player_still_watching_prompt_timeout_seconds", 30)
+
+    // Player - "Play next episode automatically". "server" follows the Jellyfin user's
+    // enableNextEpisodeAutoPlay; "on" / "off" override it (Constants.PlayerAutoPlayNext).
+    val playerAutoPlayNext =
+        Preference<String?>("pref_player_autoplay_next", Constants.PlayerAutoPlayNext.SERVER)
 
     // Player - Media Segments per-type action (SKIP / ASK / IGNORE)
     //
@@ -164,6 +188,9 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val socketTimeout =
         Preference("pref_network_socket_timeout", Constants.NETWORK_DEFAULT_SOCKET_TIMEOUT)
 
+    // Library filter
+    val filterWatched = Preference("pref_filter_watched", false)
+
     // Cache
     val imageCache = Preference("pref_image_cache", true)
     val imageCacheSize = Preference("pref_image_cache_size", 20)
@@ -174,6 +201,34 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
 
     // Offline mode
     val offlineMode = Preference("pref_offline_mode", false)
+
+    // Permissions
+    val localNetworkPermissionDecided = Preference("pref_permission_local_network_decided", false)
+
+    // Migrations
+    val mpvMigrated = Preference("mpv_migrated", false)
+
+    val mpvAoAaudioMigrated = Preference("pref_player_mpv_ao_aaudio_migrated", false)
+
+    /**
+     * One-shot move off the broken "aaudio" audio output (issue #52).
+     *
+     * Flipping [playerMpvAo]'s default is not enough on its own: the settings picker persists a
+     * value on *any* tap, including on the row that is already selected, so everyone who merely
+     * opened Audio output while troubleshooting the freeze has "aaudio" written to disk — which
+     * is exactly the population that hit the bug. Rewrite that one value once.
+     *
+     * Guarded by [mpvAoAaudioMigrated] so a deliberate re-selection afterwards sticks; we correct
+     * an accidental value, we don't keep overruling the user.
+     */
+    fun migrateMpvAudioOutput() {
+        if (getValue(mpvAoAaudioMigrated)) return
+        if (getValue(playerMpvAo) == Constants.MpvAudioOutput.AAUDIO) {
+            Timber.i("Migrating mpv audio output off aaudio")
+            setValue(playerMpvAo, Constants.MpvAudioOutput.AUDIOTRACK)
+        }
+        setValue(mpvAoAaudioMigrated, true)
+    }
 
     inline fun <reified T> getValue(preference: Preference<T>): T {
         return try {
@@ -205,6 +260,19 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
             setValue(preference, preference.defaultValue)
             preference.defaultValue
         }
+    }
+
+    /** Emits the current value of [preference] and then emits a new value every time it changes. */
+    inline fun <reified T> observe(preference: Preference<T>): Flow<T> = callbackFlow {
+        trySend(getValue(preference))
+
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, changedKey ->
+            if (changedKey == preference.backendName) {
+                trySend(getValue(preference))
+            }
+        }
+        sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 
     inline fun <reified T> setValue(preference: Preference<T>, value: T) {

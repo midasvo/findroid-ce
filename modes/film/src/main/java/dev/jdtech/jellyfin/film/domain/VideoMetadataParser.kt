@@ -96,6 +96,10 @@ object VideoMetadataParser {
                              */
                             resolution.add(
                                 when {
+                                    height!! <= 576 && width!! <= 1024 -> {
+                                        Resolution.SD
+                                    }
+
                                     height!! <= 1080 && width!! <= 1920 -> {
                                         Resolution.HD
                                     }
@@ -104,7 +108,7 @@ object VideoMetadataParser {
                                         Resolution.UHD
                                     }
 
-                                    else -> Resolution.SD
+                                    else -> Resolution.UHD
                                 }
                             )
 

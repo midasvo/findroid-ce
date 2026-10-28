@@ -29,6 +29,7 @@ import dev.jdtech.jellyfin.core.presentation.dummy.dummyEpisode
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyMovie
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
+import dev.jdtech.jellyfin.models.FindroidSeason
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 
@@ -38,6 +39,7 @@ fun ItemCard(
     direction: Direction,
     onClick: (FindroidItem) -> Unit,
     modifier: Modifier = Modifier,
+    showSeriesName: Boolean = false,
 ) {
     val width =
         when (direction) {
@@ -68,15 +70,16 @@ fun ItemCard(
                             Modifier.align(Alignment.BottomStart)
                                 .padding(MaterialTheme.spacings.small)
                     ) {
+                        val progress =
+                            if (item.runtimeTicks > 0) {
+                                (item.playbackPositionTicks.toFloat() / item.runtimeTicks.toFloat()).coerceIn(0f, 1f)
+                            } else {
+                                0f
+                            }
                         Box(
                             modifier =
                                 Modifier.height(4.dp)
-                                    .width(
-                                        item.playbackPositionTicks
-                                            .div(item.runtimeTicks.toFloat())
-                                            .times(width - 16)
-                                            .dp
-                                    )
+                                    .width(progress.times(width - 16).dp)
                                     .clip(MaterialTheme.shapes.extraSmall)
                                     .background(MaterialTheme.colorScheme.primary)
                         )
@@ -85,21 +88,33 @@ fun ItemCard(
             }
         }
         Spacer(modifier = Modifier.height(MaterialTheme.spacings.small))
-        Text(
-            text = if (item is FindroidEpisode) item.seriesName else item.name,
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = if (direction == Direction.HORIZONTAL) 1 else 2,
-            overflow = TextOverflow.Ellipsis,
-        )
-        if (item is FindroidEpisode) {
-            Text(
-                text =
+        val title =
+            when (item) {
+                is FindroidEpisode -> item.seriesName
+                is FindroidSeason -> if (showSeriesName) item.seriesName else item.name
+                else -> item.name
+            }
+        val subtitle =
+            when (item) {
+                is FindroidEpisode ->
                     stringResource(
                         id = R.string.episode_name_extended,
                         item.parentIndexNumber,
                         item.indexNumber,
                         item.name,
-                    ),
+                    )
+                is FindroidSeason -> if (showSeriesName) item.name else null
+                else -> null
+            }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            maxLines = if (direction == Direction.HORIZONTAL) 1 else 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (subtitle != null) {
+            Text(
+                text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                 maxLines = 1,

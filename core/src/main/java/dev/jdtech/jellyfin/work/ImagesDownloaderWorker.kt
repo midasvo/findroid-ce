@@ -6,6 +6,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import dev.jdtech.jellyfin.di.DownloadHttpClient
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import java.io.File
 import java.io.IOException
@@ -23,8 +24,8 @@ constructor(
     @Assisted private val appContext: Context,
     @Assisted private val params: WorkerParameters,
     private val repository: JellyfinRepository,
+    @DownloadHttpClient private val client: OkHttpClient,
 ) : CoroutineWorker(appContext, params) {
-    private val client = OkHttpClient()
     override suspend fun doWork(): Result {
         val itemId = UUID.fromString(params.inputData.getString(KEY_ITEM_ID))
         return downloadImages(itemId = itemId)

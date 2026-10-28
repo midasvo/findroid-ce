@@ -43,11 +43,11 @@ fun ItemHeader(
         }
 
     // Ugly workaround to append the files directory when loading local images
-    if (backdropUri?.scheme == null) {
+    if (backdropUri != null && backdropUri.scheme == null) {
         backdropUri =
             Uri.Builder()
                 .appendEncodedPath("${context.filesDir}")
-                .appendEncodedPath(backdropUri?.path)
+                .appendEncodedPath(backdropUri.path)
                 .build()
     }
 
@@ -85,11 +85,11 @@ fun ItemHeader(
         }
 
     // Ugly workaround to append the files directory when loading local images
-    if (backdropUri?.scheme == null) {
+    if (backdropUri != null && backdropUri.scheme == null) {
         backdropUri =
             Uri.Builder()
                 .appendEncodedPath("${context.filesDir}")
-                .appendEncodedPath(backdropUri?.path)
+                .appendEncodedPath(backdropUri.path)
                 .build()
     }
 

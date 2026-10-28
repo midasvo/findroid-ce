@@ -36,22 +36,20 @@ fun VideoPlayerSeeker(
     contentDuration: Duration,
     chapterMarkers: List<Float> = emptyList(),
 ) {
-    val contentProgressString =
-        contentProgress.toComponents { h, m, s, _ ->
-            if (h > 0) {
-                "$h:${m.padStartWith0()}:${s.padStartWith0()}"
-            } else {
-                "${m.padStartWith0()}:${s.padStartWith0()}"
-            }
+    val contentProgressString = contentProgress.toComponents { h, m, s, _ ->
+        if (h > 0) {
+            "$h:${m.padStartWith0()}:${s.padStartWith0()}"
+        } else {
+            "${m.padStartWith0()}:${s.padStartWith0()}"
         }
-    val contentDurationString =
-        contentDuration.toComponents { h, m, s, _ ->
-            if (h > 0) {
-                "$h:${m.padStartWith0()}:${s.padStartWith0()}"
-            } else {
-                "${m.padStartWith0()}:${s.padStartWith0()}"
-            }
+    }
+    val contentDurationString = contentDuration.toComponents { h, m, s, _ ->
+        if (h > 0) {
+            "$h:${m.padStartWith0()}:${s.padStartWith0()}"
+        } else {
+            "${m.padStartWith0()}:${s.padStartWith0()}"
         }
+    }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(

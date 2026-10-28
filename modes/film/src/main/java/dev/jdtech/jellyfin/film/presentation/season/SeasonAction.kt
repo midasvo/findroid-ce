@@ -22,7 +22,9 @@ sealed interface SeasonAction {
 
     data class NavigateToSeries(val seriesId: UUID) : SeasonAction
 
-    data class DownloadEpisode(val episode: FindroidItem) : SeasonAction
+    /** [maxBitrate] = download quality cap in bits/sec, null for original quality. */
+    data class DownloadEpisode(val episode: FindroidItem, val maxBitrate: Int? = null) :
+        SeasonAction
 
     data class DeleteEpisodeDownload(val episode: FindroidItem) : SeasonAction
 }

@@ -8,6 +8,7 @@ import dev.jdtech.jellyfin.models.UiText
 import dev.jdtech.jellyfin.setup.R as SetupR
 import dev.jdtech.jellyfin.setup.domain.SetupRepository
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import org.jellyfin.sdk.api.client.exception.InvalidStatusException
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(private val repository: SetupRepository) : ViewModel() {
@@ -63,7 +65,7 @@ class LoginViewModel @Inject constructor(private val repository: SetupRepository
                 eventsChannel.send(LoginEvent.Success)
             } catch (e: Exception) {
                 val message =
-                    if (e.message?.contains("401") == true) {
+                    if (e is InvalidStatusException && e.status == 401) {
                         UiText.StringResource(SetupR.string.login_error_wrong_username_password)
                     } else {
                         UiText.StringResource(CoreR.string.unknown_error)
@@ -94,8 +96,17 @@ class LoginViewModel @Inject constructor(private val repository: SetupRepository
 
                     _state.emit(_state.value.copy(quickConnectCode = null))
                     eventsChannel.send(LoginEvent.Success)
-                } catch (_: Exception) {
-                    _state.emit(_state.value.copy(quickConnectCode = null))
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Timber.e(e, "Quick connect failed")
+                    val message =
+                        if (e.message != null) {
+                            UiText.DynamicString(e.message!!)
+                        } else {
+                            UiText.StringResource(CoreR.string.unknown_error)
+                        }
+                    _state.emit(_state.value.copy(quickConnectCode = null, error = message))
                 }
             }
     }

@@ -22,6 +22,8 @@ import kotlinx.coroutines.launch
 import org.jellyfin.sdk.model.api.ItemFields
 import timber.log.Timber
 
+internal val seasonEpisodeFields = listOf(ItemFields.OVERVIEW, ItemFields.CAN_DOWNLOAD)
+
 @HiltViewModel
 class SeasonViewModel
 @Inject
@@ -82,7 +84,7 @@ constructor(
                     repository.getEpisodes(
                         seriesId = season.seriesId,
                         seasonId = seasonId,
-                        fields = listOf(ItemFields.OVERVIEW),
+                        fields = seasonEpisodeFields,
                         offline = downloadsOnly,
                     )
                 _state.emit(
@@ -99,7 +101,7 @@ constructor(
         }
     }
 
-    fun downloadSeason() {
+    fun downloadSeason(maxBitrate: Int? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             // An episode already enqueued (pending/downloading/paused) is "in
             // progress" from the user's perspective, so count it as skipped rather
@@ -129,7 +131,7 @@ constructor(
                 return@launch
             }
 
-            downloadQueue.enqueueAll(toQueue)
+            downloadQueue.enqueueAll(toQueue, maxBitrate)
             eventsChannel.send(
                 SeasonEvent.DownloadResult(started = toQueue.size, skipped = skipped, failed = 0)
             )
@@ -229,7 +231,7 @@ constructor(
                 viewModelScope.launch(Dispatchers.IO) {
                     val episode = action.episode
                     if (episode is FindroidEpisode) {
-                        downloadQueue.enqueue(episode)
+                        downloadQueue.enqueue(episode, action.maxBitrate)
                     }
                 }
             }

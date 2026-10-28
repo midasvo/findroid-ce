@@ -38,7 +38,7 @@ constructor(
             )
 
         return withContext(Dispatchers.IO) {
-            val servers = database.getAllServersSync()
+            val servers = database.getServers()
             var hadFailures = false
 
             for (server in servers) {
@@ -81,7 +81,7 @@ constructor(
             val userData = database.getUserDataToBeSynced(user.id, item.id) ?: continue
 
             try {
-                jellyfinApi.itemsApi.updateItemUserData(
+                jellyfinApi.userDataApi.updateItemUserData(
                     itemId = item.id,
                     userId = user.id,
                     data =

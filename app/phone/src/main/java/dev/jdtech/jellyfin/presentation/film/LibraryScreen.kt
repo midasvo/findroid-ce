@@ -127,6 +127,12 @@ private fun LibraryScreenLayout(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { onAction(LibraryAction.ToggleWatchedFilter(!state.filterWatched)) }) {
+                        Icon(
+                            painter = painterResource(if (state.filterWatched) CoreR.drawable.ic_eye_off else CoreR.drawable.ic_eye),
+                            contentDescription = stringResource(CoreR.string.toggle_watched),
+                        )
+                    }
                     IconButton(onClick = { showSortByDialog = true }) {
                         Icon(
                             painter = painterResource(CoreR.drawable.ic_arrow_down_up),

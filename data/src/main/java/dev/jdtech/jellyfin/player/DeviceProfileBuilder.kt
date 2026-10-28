@@ -60,14 +60,41 @@ class DeviceProfileBuilder {
     fun getDirectPlayProfile(): DeviceProfile = buildDirectPlayProfile()
 
     /**
+     * The mpv profile used when the user caps the streaming bitrate: still
+     * direct-play everything, but with the HLS transcoding profiles attached so
+     * the server has a transcode target for files whose bitrate exceeds the cap.
+     * Without them the plain direct-play profile leaves the server no way to
+     * honor a bitrate limit and playback info returns no usable source.
+     */
+    fun getDirectPlayTranscodeFallbackProfile(): DeviceProfile =
+        buildDirectPlayProfile().copy(transcodingProfiles = TRANSCODING_PROFILES)
+
+    /**
      * Profile for the downloader. With [transcodeDolbyVision] off this is just the
      * permissive direct-play profile (downloads stay original). With it on, Dolby
      * Vision is excluded from direct play and a progressive H.264 transcoding
      * profile is offered, so DV files download as a device-compatible copy that
      * plays offline — every other file still downloads as the original.
+     *
+     * [bitrateCapped] is set when the user picked a download quality below
+     * "original": the progressive transcoding profile must then be present even
+     * without the DV exclusion, so the server has a transcode target for files
+     * whose bitrate exceeds the cap. Files under the cap still direct-download.
      */
-    fun getDownloadProfile(transcodeDolbyVision: Boolean): DeviceProfile =
-        if (transcodeDolbyVision) buildDownloadTranscodeProfile() else buildDirectPlayProfile()
+    fun getDownloadProfile(
+        transcodeDolbyVision: Boolean,
+        bitrateCapped: Boolean = false,
+    ): DeviceProfile =
+        when {
+            transcodeDolbyVision -> buildDownloadTranscodeProfile()
+            bitrateCapped ->
+                buildDirectPlayProfile()
+                    .copy(
+                        transcodingProfiles = DOWNLOAD_TRANSCODING_PROFILES,
+                        subtitleProfiles = DOWNLOAD_SUBTITLE_PROFILES,
+                    )
+            else -> buildDirectPlayProfile()
+        }
 
     /**
      * The [MediaCodecList] probe result this builder was constructed with.
@@ -397,13 +424,42 @@ class DeviceProfileBuilder {
         )
 
         /**
+         * Subtitle handling for download transcodes: everything is delivered as
+         * an external sidecar, image formats included. Without the image entries
+         * the server's only option for a PGS/VobSub/DVB track is ENCODE (burn-in),
+         * which drags a GPU overlay filter chain (VAAPI + Vulkan/libplacebo) into
+         * the transcode — observed to wedge the encoder mid-stream and stall the
+         * download indefinitely.
+         */
+        private val DOWNLOAD_SUBTITLE_PROFILES = listOf(
+            SubtitleProfile("srt", SubtitleDeliveryMethod.EXTERNAL),
+            SubtitleProfile("ass", SubtitleDeliveryMethod.EXTERNAL),
+            SubtitleProfile("pgssub", SubtitleDeliveryMethod.EXTERNAL),
+            SubtitleProfile("dvdsub", SubtitleDeliveryMethod.EXTERNAL),
+            SubtitleProfile("dvbsub", SubtitleDeliveryMethod.EXTERNAL),
+        )
+
+        /**
+         * The transcoding profile used for downloads. Uses HTTP — a single
+         * continuous `.ts` stream — rather than HLS, because the app's single-URL
+         * OkHttp downloader writes one contiguous file and cannot reassemble HLS
+         * segments. `.ts` is also safe to write progressively (no trailing index
+         * to patch in, unlike `.mp4`).
+         */
+        private val DOWNLOAD_TRANSCODING_PROFILES = listOf(
+            TranscodingProfile(
+                type = DlnaProfileType.VIDEO,
+                container = "ts",
+                videoCodec = "h264",
+                audioCodec = "aac,ac3,eac3,mp3",
+                protocol = MediaStreamProtocol.HTTP,
+                conditions = emptyList(),
+            ),
+        )
+
+        /**
          * Download profile that forces Dolby Vision through a progressive H.264
          * transcode while leaving every other file as a direct-play original.
-         *
-         * The transcoding profile uses HTTP — a single continuous `.ts` stream —
-         * rather than HLS, because `DownloadManager` downloads one URL and cannot
-         * reassemble HLS segments. `.ts` is also safe to write progressively (no
-         * trailing index to patch in, unlike `.mp4`).
          */
         internal fun buildDownloadTranscodeProfile(): DeviceProfile = DeviceProfile(
             name = "Findroid Download Profile",
@@ -413,16 +469,7 @@ class DeviceProfileBuilder {
                 DirectPlayProfile(type = DlnaProfileType.VIDEO, container = ""),
                 DirectPlayProfile(type = DlnaProfileType.AUDIO, container = ""),
             ),
-            transcodingProfiles = listOf(
-                TranscodingProfile(
-                    type = DlnaProfileType.VIDEO,
-                    container = "ts",
-                    videoCodec = "h264",
-                    audioCodec = "aac,ac3,eac3,mp3",
-                    protocol = MediaStreamProtocol.HTTP,
-                    conditions = emptyList(),
-                ),
-            ),
+            transcodingProfiles = DOWNLOAD_TRANSCODING_PROFILES,
             containerProfiles = emptyList(),
             // Empty container = match every container: Dolby Vision is excluded from
             // direct play regardless of how the file is muxed, so it transcodes.
@@ -442,10 +489,7 @@ class DeviceProfileBuilder {
                     ),
                 ),
             ),
-            subtitleProfiles = listOf(
-                SubtitleProfile("srt", SubtitleDeliveryMethod.EXTERNAL),
-                SubtitleProfile("ass", SubtitleDeliveryMethod.EXTERNAL),
-            ),
+            subtitleProfiles = DOWNLOAD_SUBTITLE_PROFILES,
         )
     }
 }

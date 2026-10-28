@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.jdtech.jellyfin.film.domain.VideoMetadataParser
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItemPerson
+import dev.jdtech.jellyfin.models.mergeDuplicateRoles
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import java.util.UUID
@@ -55,7 +56,7 @@ constructor(
 
     private suspend fun getActors(item: FindroidEpisode): List<FindroidItemPerson> {
         return withContext(Dispatchers.Default) {
-            item.people.filter { it.type == PersonKind.ACTOR }
+            item.people.mergeDuplicateRoles().filter { it.type == PersonKind.ACTOR }
         }
     }
 

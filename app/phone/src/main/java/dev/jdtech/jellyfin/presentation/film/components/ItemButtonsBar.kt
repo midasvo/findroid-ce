@@ -1,6 +1,5 @@
 package dev.jdtech.jellyfin.presentation.film.components
 
-import android.app.DownloadManager
 import android.os.Environment
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +31,7 @@ import dev.jdtech.jellyfin.core.Constants
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloaderState
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyEpisode
+import dev.jdtech.jellyfin.utils.download.DownloadStatus
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidMovie
 import dev.jdtech.jellyfin.models.FindroidShow
@@ -259,7 +259,7 @@ private fun ItemButtonsBarDownloadingPreview() {
         ItemButtonsBar(
             item = dummyEpisode,
             downloaderState =
-                DownloaderState(status = DownloadManager.STATUS_RUNNING, progress = 0.3f),
+                DownloaderState(status = DownloadStatus.RUNNING, progress = 0.3f),
             onPlayClick = {},
             onMarkAsPlayedClick = {},
             onMarkAsFavoriteClick = {},

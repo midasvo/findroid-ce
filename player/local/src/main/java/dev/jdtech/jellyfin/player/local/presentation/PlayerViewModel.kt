@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin.player.local.presentation
 
 import android.app.Application
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.widget.Toast
@@ -32,17 +33,22 @@ import dev.jdtech.jellyfin.player.local.R
 import dev.jdtech.jellyfin.player.local.domain.PlaylistManager
 import dev.jdtech.jellyfin.player.local.domain.StillWatchingTracker
 import dev.jdtech.jellyfin.player.local.domain.TrickplayLoader
+import dev.jdtech.jellyfin.player.local.domain.autoPlayNextFollowsServer
+import dev.jdtech.jellyfin.player.local.domain.resolveAutoPlayNext
 import dev.jdtech.jellyfin.player.local.mpv.MPVPlayer
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.settings.domain.Constants
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.ceil
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -136,6 +142,10 @@ constructor(
 
     var playbackSpeed: Float = 1f
 
+    /** Bitrate cap in bits per second, 0 = original quality. Mirrors [AppPreferences.playerMaxBitrate]. */
+    var maxBitrate: Int = 0
+        private set
+
     var isInPictureInPictureMode: Boolean = false
 
     // "Are you still watching?" — prompt fires after N consecutive auto-advanced episodes
@@ -145,7 +155,61 @@ constructor(
     private val stillWatchingPromptTimeoutSeconds: Int
     private var stillWatchingTimeoutJob: Job? = null
 
+    // Armed immediately before an app-initiated seekToNextMediaItem() (auto-advance). Because
+    // pauseAtEndOfMediaItems is on, the app performs that transition as an explicit seek, which
+    // surfaces in onPositionDiscontinuity as DISCONTINUITY_REASON_SEEK — indistinguishable from a
+    // user seek without this hint. onPositionDiscontinuity checks and clears the flag so it does
+    // not treat our own advance as a user interaction (which would reset the still-watching
+    // counter and refresh the inactivity timer). The flag persists until the callback fires rather
+    // than being cleared right after the seek call, so it holds whether a backend delivers the
+    // discontinuity synchronously from seekTo() (MPVPlayer) or later on the main looper.
+    private var pendingAutoAdvanceSeek = false
+
+    /**
+     * The item the server was told is playing, with the last known position and duration. Used to
+     * report playback stopped for the item being left when [onMediaItemTransition] fires, which
+     * covers every item change (auto-advance, next/previous buttons, gestures, media-session and
+     * remote controls, the outro "Next episode" button) on both backends.
+     *
+     * `null` before the first transition, after [releasePlayer], and after the still-watching
+     * prompt already reported the finished item (so the transition that follows does not report it
+     * again).
+     */
+    private data class PlayingSnapshot(val itemId: UUID, val positionMs: Long, val durationMs: Long)
+
+    private var playing: PlayingSnapshot? = null
+
+    /**
+     * Whether to start the next item by itself at the end of an item: the "Play next episode
+     * automatically" preference, which follows the Jellyfin user's `enableNextEpisodeAutoPlay`
+     * unless it is set to always or never. Resolved once per player session and started here, at
+     * construction, so the end of an item does not wait on the network. The server is only asked
+     * when the preference follows it; if that fails (offline, network error) it falls back to
+     * autoplay. Only affects what happens automatically: next/previous, the outro "Next episode"
+     * button and remote controls always work, and the queue is the same either way.
+     */
+    private val autoPlayNext: Deferred<Boolean> =
+        viewModelScope.async {
+            val pref = appPreferences.getValue(appPreferences.playerAutoPlayNext)
+            val server =
+                if (autoPlayNextFollowsServer(pref)) {
+                    try {
+                        repository.getUserConfiguration()?.enableNextEpisodeAutoPlay
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Timber.e(e, "Could not read the server's next episode autoplay setting")
+                        null
+                    }
+                } else {
+                    null
+                }
+            resolveAutoPlayNext(pref, server).also { Timber.d("Autoplay next item: $it") }
+        }
+
     init {
+        maxBitrate = appPreferences.getValue(appPreferences.playerMaxBitrate)
+
         val episodes = appPreferences.getValue(appPreferences.stillWatchingAfterEpisodes)
         val minutes = appPreferences.getValue(appPreferences.stillWatchingAfterMinutes)
         stillWatchingTracker =
@@ -211,8 +275,45 @@ constructor(
                 )
         )
 
-        if (appPreferences.getValue(appPreferences.playerMpv)) {
-            player =
+
+        val playerBackend = appPreferences.getValue(appPreferences.playerBackend)
+        player = when (playerBackend) {
+            "exoplayer" -> {
+                // PREFER (not ON) so the bundled ffmpeg extension decodes audio ahead of
+                // the platform MediaCodec: hardware Dolby decoders can advertise eac3
+                // support yet fatally reject DD+ Atmos streams ("unsupported DDP-JOC
+                // frame" on Pixel 8), killing playback. ffmpeg decodes the DD+ core and
+                // ignores the JOC extension, like mpv. Only audio is affected — the
+                // ffmpeg extension has no video decoders, so video stays on hardware.
+                // Not on TV: ffmpeg always decodes to PCM, which would break E-AC-3/Atmos
+                // passthrough to a soundbar or receiver over HDMI. TVs keep ON so
+                // MediaCodec (and its passthrough path) stays first.
+                val isTv =
+                    application.packageManager.hasSystemFeature(
+                        PackageManager.FEATURE_LEANBACK
+                    )
+                val renderersFactory =
+                    DefaultRenderersFactory(application)
+                        .setExtensionRendererMode(
+                            if (isTv) {
+                                DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
+                            } else {
+                                DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
+                            }
+                        )
+                ExoPlayer.Builder(application, renderersFactory)
+                    .setAudioAttributes(audioAttributes, true)
+                    .setTrackSelector(trackSelector)
+                    .setSeekBackIncrementMs(
+                        appPreferences.getValue(appPreferences.playerSeekBackInc)
+                    )
+                    .setSeekForwardIncrementMs(
+                        appPreferences.getValue(appPreferences.playerSeekForwardInc)
+                    )
+                    .setPauseAtEndOfMediaItems(true)
+                    .build()
+            }
+            "mpv" -> {
                 MPVPlayer.Builder(application)
                     .setAudioAttributes(audioAttributes, true)
                     .setTrackSelectionParameters(trackSelector.parameters)
@@ -227,22 +328,9 @@ constructor(
                     .setAudioOutput(appPreferences.getValue(appPreferences.playerMpvAo))
                     .setHwDec(appPreferences.getValue(appPreferences.playerMpvHwdec))
                     .build()
-        } else {
-            val renderersFactory =
-                DefaultRenderersFactory(application)
-                    .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
-            player =
-                ExoPlayer.Builder(application, renderersFactory)
-                    .setAudioAttributes(audioAttributes, true)
-                    .setTrackSelector(trackSelector)
-                    .setSeekBackIncrementMs(
-                        appPreferences.getValue(appPreferences.playerSeekBackInc)
-                    )
-                    .setSeekForwardIncrementMs(
-                        appPreferences.getValue(appPreferences.playerSeekForwardInc)
-                    )
-                    .setPauseAtEndOfMediaItems(true)
-                    .build()
+            }
+
+            else -> throw RuntimeException("$playerBackend is not a valid player backend")
         }
 
         mediaSession = MediaSession.Builder(application, player).build()
@@ -330,9 +418,11 @@ constructor(
     }
 
     private fun releasePlayer() {
-        val mediaId = player.currentMediaItem?.mediaId
-        val position = player.currentPosition
-        val duration = player.duration
+        // Take the exact position, then clear the snapshot so a transition fired while releasing
+        // cannot report the same item a second time.
+        refreshPlayingSnapshot()
+        val stopped = playing
+        playing = null
 
         _uiState.value.currentTrickplay?.loader?.release()
         _uiState.update { it.copy(currentTrickplay = null) }
@@ -352,19 +442,50 @@ constructor(
             Timber.e(e)
         }
 
-        if (mediaId != null && duration != C.TIME_UNSET) {
-            @OptIn(DelicateCoroutinesApi::class)
-            GlobalScope.launch(Dispatchers.IO) {
-                try {
-                    Timber.d("Sending playback stop")
-                    repository.postPlaybackStop(
-                        UUID.fromString(mediaId),
-                        position.times(10000),
-                        position.div(duration.toFloat()).times(100).toInt(),
-                    )
-                } catch (e: Exception) {
-                    Timber.e(e)
-                }
+        stopped?.let { reportStopped(it) }
+    }
+
+    /**
+     * Copy the player's position and duration into [playing], if the player is still on that item
+     * and both values are known. Unknown values are skipped so the last good ones are kept: mpv
+     * resets its position and duration as soon as it starts loading the next file, before it
+     * reports the item change.
+     *
+     * Called from the periodic progress and segment updates, from the UI poll loops, and right
+     * before every app-initiated item change, so a stop report uses a recent position.
+     */
+    fun refreshPlayingSnapshot() {
+        val current = playing ?: return
+        if (player.currentMediaItem?.mediaId != current.itemId.toString()) return
+        val position = player.currentPosition
+        val duration = player.duration
+        if (position < 0 || duration == C.TIME_UNSET || duration <= 0) return
+        playing = current.copy(positionMs = position, durationMs = duration)
+    }
+
+    /**
+     * Tell the server (and the local database) that [snapshot]'s item stopped playing. The only
+     * caller of [JellyfinRepository.postPlaybackStop]; skipped when the duration is unknown.
+     *
+     * Runs in [GlobalScope] because it must outlive [viewModelScope]: [releasePlayer] runs from
+     * [onCleared], and the player can be closed right after an item change.
+     *
+     * @return the reporting job, so a caller can wait for it, or `null` if nothing was sent.
+     */
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun reportStopped(snapshot: PlayingSnapshot): Job? {
+        val (itemId, position, duration) = snapshot
+        if (duration == C.TIME_UNSET || duration <= 0) return null
+        return GlobalScope.launch(Dispatchers.IO) {
+            try {
+                Timber.d("Sending playback stop for $itemId at $position / $duration ms")
+                repository.postPlaybackStop(
+                    itemId,
+                    position.times(10000),
+                    position.div(duration.toFloat()).times(100).toInt(),
+                )
+            } catch (e: Exception) {
+                Timber.e(e)
             }
         }
     }
@@ -372,7 +493,13 @@ constructor(
     fun updatePlaybackProgress() {
         Timber.d("Updating playback progress")
         viewModelScope.launch(Dispatchers.Main) {
+            refreshPlayingSnapshot()
             savedStateHandle["position"] = player.currentPosition
+            // The current item's stop was already reported (end of item without autoplay, or the
+            // still-watching prompt). A progress report now would reopen its session on the
+            // server and overwrite the position the stop stored, e.g. from onPause while the
+            // player closes.
+            if (playing == null) return@launch
             val mediaItem = player.currentMediaItem ?: return@launch
             if (mediaItem.mediaId.isNotEmpty()) {
                 val itemId = UUID.fromString(mediaItem.mediaId)
@@ -398,6 +525,7 @@ constructor(
      */
     suspend fun updateCurrentSegment() = withContext(Dispatchers.Main) {
         Timber.d("Updating current segment")
+        refreshPlayingSnapshot()
         if (currentMediaItemSegments.isEmpty()) {
             return@withContext
         }
@@ -430,7 +558,7 @@ constructor(
                 val pipOnly =
                     segmentsAutoSkipMode == Constants.PlayerMediaSegmentsAutoSkip.PIP
                 if (!pipOnly || isInPictureInPictureMode) {
-                    skipSegment(currentSegment)
+                    skipSegmentAutomatically(currentSegment)
                 } else {
                     _uiState.update {
                         it.copy(
@@ -498,6 +626,21 @@ constructor(
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
         Timber.d("Playing MediaItem: ${mediaItem?.mediaId}")
         savedStateHandle["mediaItemIndex"] = player.currentMediaItemIndex
+
+        // Every item change goes through here, whatever caused it, so this is where the item being
+        // left is reported as stopped. The first load (nothing playing yet) reports nothing, and a
+        // reload of the same item (quality switch) keeps its snapshot and reports nothing.
+        val previous = playing
+        val newId = mediaItem?.mediaId?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+        val stopJob =
+            if (previous != null && previous.itemId != newId) reportStopped(previous) else null
+        playing =
+            when {
+                previous != null && previous.itemId == newId -> previous
+                newId != null -> PlayingSnapshot(newId, 0L, C.TIME_UNSET)
+                else -> null
+            }
+
         viewModelScope.launch {
             try {
                 items
@@ -523,6 +666,10 @@ constructor(
                             )
                         }
 
+                        // Keep the previous item's stop ahead of this item's start, as the old
+                        // auto-advance code did. A stop that reaches the server after the start
+                        // can clear the session's now-playing item.
+                        stopJob?.join()
                         repository.postPlaybackStart(item.itemId)
 
                         if (shouldPollSegments()) {
@@ -562,25 +709,31 @@ constructor(
     }
 
     override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
-        // Report playback stopped for current item and transition to the next one
+        // End of the current item: transition to the next one, or close the player if autoplay is
+        // off. On an advance, the stop for the finished item is reported by onMediaItemTransition.
         if (
             !playWhenReady &&
                 reason == Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM &&
                 player.playbackState == ExoPlayer.STATE_READY
         ) {
-            viewModelScope.launch {
-                val mediaId = player.currentMediaItem?.mediaId
-                val position = player.currentPosition
-                val duration = player.duration
-                if (mediaId != null && duration != C.TIME_UNSET && duration > 0) {
-                    try {
-                        repository.postPlaybackStop(
-                            UUID.fromString(mediaId),
-                            position.times(10000),
-                            position.div(duration.toFloat()).times(100).toInt(),
-                        )
-                    } catch (e: Exception) {
-                        Timber.e(e)
+            // Dispatched (not immediate) so the advance runs after this listener callback returns,
+            // as it did when a network call came first.
+            viewModelScope.launch(Dispatchers.Main) {
+                refreshPlayingSnapshot()
+
+                // Autoplay off: stop here and close the player instead of advancing. The last item
+                // keeps the normal path below, which ends the playlist (STATE_ENDED →
+                // NavigateBack) and reports the stop on release, so the setting changes nothing
+                // there.
+                if (player.hasNextMediaItem()) {
+                    val endedItemId = player.currentMediaItem?.mediaId
+                    // Normally resolved long ago; this only waits if the server is slow to answer.
+                    val autoPlay = autoPlayNext.await()
+                    // The user moved to another item while waiting: nothing left to do here.
+                    if (player.currentMediaItem?.mediaId != endedItemId) return@launch
+                    if (!autoPlay) {
+                        endItemWithoutAdvancing()
+                        return@launch
                     }
                 }
 
@@ -591,13 +744,56 @@ constructor(
                     player.hasNextMediaItem() &&
                         stillWatchingTracker.onAutoAdvance(nowMs = System.currentTimeMillis())
                 ) {
+                    // The player stays paused on the finished item, so no transition happens
+                    // yet. Report the stop now so the server knows the item finished, and clear
+                    // the snapshot so the transition after the prompt (confirm, or the user
+                    // pressing play or next after dismissing it) does not report it again.
+                    playing?.let { reportStopped(it) }
+                    playing = null
                     showStillWatchingPrompt()
                     return@launch
                 }
-                player.seekToNextMediaItem()
-                player.play()
+                autoAdvanceToNextItem()
             }
         }
+    }
+
+    /**
+     * Advance to the next item as part of automatic playback (end-of-item auto-advance or a
+     * confirmed still-watching prompt). Arms [pendingAutoAdvanceSeek] so the resulting
+     * DISCONTINUITY_REASON_SEEK is not mistaken for a user interaction. The flag is only set when
+     * a next item actually exists — otherwise seekToNextMediaItem() is a no-op that fires no
+     * discontinuity, and the flag would leak onto the next genuine user seek.
+     */
+    private fun autoAdvanceToNextItem() {
+        // Exact position for the stop report onMediaItemTransition sends for the item being left.
+        refreshPlayingSnapshot()
+        if (player.hasNextMediaItem()) {
+            pendingAutoAdvanceSeek = true
+        }
+        player.seekToNextMediaItem()
+        player.play()
+    }
+
+    /**
+     * End the current item without moving on, because autoplay is off: report the stop for it and
+     * close the player, the same way it closes after the last item. Used at the end of an item and
+     * for an automatic skip of an outro that runs to the end. The still-watching prompt is not
+     * shown, since nothing plays on.
+     *
+     * Clearing [playing] keeps [releasePlayer] (and [updatePlaybackProgress]) from reporting the
+     * item again when the player closes. It also makes this a no-op if called again for the same
+     * item, e.g. by the next segment poll while the player is closing.
+     */
+    private fun endItemWithoutAdvancing() {
+        refreshPlayingSnapshot()
+        val finished = playing ?: return
+        playing = null
+        Timber.d("Autoplay off — not advancing past ${finished.itemId}")
+        // Already paused at the end of an item; this stops an outro that is still playing.
+        player.pause()
+        reportStopped(finished)
+        eventsChannel.trySend(PlayerEvents.NavigateBack)
     }
 
     private fun showStillWatchingPrompt() {
@@ -608,7 +804,7 @@ constructor(
             viewModelScope.launch {
                 delay(stillWatchingPromptTimeoutSeconds * 1000L)
                 // Timeout: user is gone. Hide the dialog and leave the player paused. The current
-                // item's progress was already reported above (postPlaybackStop with the actual
+                // item's stop was already reported in onPlayWhenReadyChanged (with the actual
                 // position), so the season won't be marked watched.
                 _uiState.update { it.copy(showStillWatching = false) }
                 Timber.d("Still-watching prompt timed out — staying paused")
@@ -622,8 +818,7 @@ constructor(
         stillWatchingTracker.onUserInteraction(nowMs = System.currentTimeMillis())
         _uiState.update { it.copy(showStillWatching = false) }
         if (player.hasNextMediaItem()) {
-            player.seekToNextMediaItem()
-            player.play()
+            autoAdvanceToNextItem()
         }
     }
 
@@ -708,6 +903,57 @@ constructor(
         playbackSpeed = speed
     }
 
+    /**
+     * Change the max streaming bitrate (0 = original quality) and switch the
+     * running stream over to it. Every queued item's sources are re-resolved
+     * under the new cap — the server answers with a transcode URL for files
+     * above it — and the whole queue is swapped in place, preserving position
+     * and pause state. Works on both backends: ExoPlayer and MPVPlayer share
+     * the setMediaItems(items, index, position) + prepare() reload path.
+     *
+     * The playlist rebuild is done here explicitly instead of relying on
+     * onMediaItemTransition: MPVPlayer only emits a transition when the media
+     * *id* changes, which it does not on an in-place quality switch.
+     * PlaylistManager's cache entries are replaced by recreatePlayerItem, so
+     * when ExoPlayer does fire the transition its prev/next re-add finds the
+     * items already queued and adds nothing.
+     */
+    fun selectMaxBitrate(bitrate: Int) {
+        markUserInteraction()
+        if (bitrate == maxBitrate) return
+        val previousBitrate = maxBitrate
+        maxBitrate = bitrate
+        appPreferences.setValue(appPreferences.playerMaxBitrate, bitrate)
+
+        viewModelScope.launch {
+            val rebuilt =
+                try {
+                    items.map { playlistManager.recreatePlayerItem(it) }
+                } catch (e: Exception) {
+                    Timber.e(e)
+                    // Keep playing the current stream and roll the setting back so
+                    // the UI does not claim a quality that is not being delivered.
+                    maxBitrate = previousBitrate
+                    appPreferences.setValue(appPreferences.playerMaxBitrate, previousBitrate)
+                    Toast.makeText(application, e.localizedMessage, Toast.LENGTH_LONG).show()
+                    return@launch
+                }
+
+            // Same URLs for the whole queue (local file, or every source already
+            // below the cap) — nothing to reload, keep playing untouched.
+            if (rebuilt.map { it.mediaSourceUri } == items.map { it.mediaSourceUri }) {
+                items = rebuilt.toMutableList()
+                return@launch
+            }
+
+            val currentIndex = player.currentMediaItemIndex
+            val position = player.currentPosition
+            items = rebuilt.toMutableList()
+            player.setMediaItems(rebuilt.map { it.toMediaItem() }, currentIndex, position)
+            player.prepare()
+        }
+    }
+
     private suspend fun getSegments(itemId: UUID) {
         try {
             currentMediaItemSegments = repository.getSegments(itemId)
@@ -789,11 +1035,29 @@ constructor(
     fun skipSegment(segment: FindroidSegment) {
         markUserInteraction()
         if (shouldSkipToNextEpisode(segment)) {
+            // Exact position for the stop report onMediaItemTransition sends for this item. Past
+            // 90 % of the runtime, that report marks the item as played (#31).
+            refreshPlayingSnapshot()
             player.seekToNextMediaItem()
         } else {
             player.seekTo(segment.endTicks)
         }
         _uiState.update { it.copy(currentSegment = null) }
+    }
+
+    /**
+     * Skip [segment] because its action is [MediaSegmentAction.SKIP]. Skipping an outro that runs
+     * to the end of the item would start the next one, which is autoplay; with autoplay off, end
+     * the item and close the player instead. A tap on "Next episode" goes through [skipSegment]
+     * and always moves on.
+     */
+    private suspend fun skipSegmentAutomatically(segment: FindroidSegment) {
+        if (shouldSkipToNextEpisode(segment) && !autoPlayNext.await()) {
+            _uiState.update { it.copy(currentSegment = null) }
+            endItemWithoutAdvancing()
+            return
+        }
+        skipSegment(segment)
     }
 
     // Check if the outro segment's end time is within n milliseconds of the player's total duration
@@ -951,11 +1215,19 @@ constructor(
         reason: Int,
     ) {
         super.onPositionDiscontinuity(oldPosition, newPosition, reason)
-        // Player.DISCONTINUITY_REASON_SEEK fires for user-driven seeks (controls + gestures
-        // both end up here). Auto-transitions go through onMediaItemTransition with a separate
-        // reason, so we don't accidentally pick those up.
+        // Player.DISCONTINUITY_REASON_SEEK fires for user-driven seeks (controls + gestures both
+        // end up here). It ALSO fires for our own auto-advance: with pauseAtEndOfMediaItems the
+        // app performs the transition to the next item via an explicit seekToNextMediaItem(), which
+        // the player reports as a seek, not as an AUTO_TRANSITION. autoAdvanceToNextItem() arms
+        // pendingAutoAdvanceSeek before that call so we can tell the two apart here — a programmatic
+        // advance must not count as a user interaction (that would reset the still-watching counter
+        // and refresh the inactivity timer, so the prompt could never fire).
         if (reason == Player.DISCONTINUITY_REASON_SEEK) {
-            markUserInteraction()
+            if (pendingAutoAdvanceSeek) {
+                pendingAutoAdvanceSeek = false
+            } else {
+                markUserInteraction()
+            }
         }
     }
 }

@@ -38,6 +38,7 @@ import dev.jdtech.jellyfin.databinding.ActivityPlayerBinding
 import dev.jdtech.jellyfin.player.local.presentation.PlayerEvents
 import dev.jdtech.jellyfin.player.local.presentation.PlayerViewModel
 import dev.jdtech.jellyfin.presentation.player.ChapterListDialogFragment
+import dev.jdtech.jellyfin.presentation.player.QualitySelectionDialogFragment
 import dev.jdtech.jellyfin.presentation.player.SpeedSelectionDialogFragment
 import dev.jdtech.jellyfin.presentation.player.StillWatchingDialogFragment
 import dev.jdtech.jellyfin.presentation.player.TrackSelectionDialogFragment
@@ -143,6 +144,8 @@ class PlayerActivity : BasePlayerActivity() {
         val audioButton = binding.playerView.findViewById<ImageButton>(R.id.btn_audio_track)
         val subtitleButton = binding.playerView.findViewById<ImageButton>(R.id.btn_subtitle)
         val speedButton = binding.playerView.findViewById<ImageButton>(R.id.btn_speed)
+        val qualityButton = binding.playerView.findViewById<ImageButton>(R.id.btn_quality)
+        val qualitySpace = binding.playerView.findViewById<Space>(R.id.space_quality)
         skipSegmentButton = binding.playerView.findViewById(R.id.btn_skip_segment)
         val pipButton = binding.playerView.findViewById<ImageButton>(R.id.btn_pip)
         val lockButton = binding.playerView.findViewById<ImageButton>(R.id.btn_lockview)
@@ -225,6 +228,8 @@ class PlayerActivity : BasePlayerActivity() {
                                 subtitleButton.imageAlpha = 255
                                 speedButton.isEnabled = true
                                 speedButton.imageAlpha = 255
+                                qualityButton.isEnabled = true
+                                qualityButton.imageAlpha = 255
                                 pipButton.isEnabled = true
                                 pipButton.imageAlpha = 255
                             }
@@ -233,7 +238,7 @@ class PlayerActivity : BasePlayerActivity() {
                             // ViewModel. The ViewModel is the source of truth for the timeout;
                             // the dialog is purely a render of the state.
                             if (showStillWatching && stillWatchingDialog == null) {
-                                val dialog = StillWatchingDialogFragment(viewModel)
+                                val dialog = StillWatchingDialogFragment()
                                 stillWatchingDialog = dialog
                                 dialog.show(supportFragmentManager, "stillwatchingdialog")
                             } else if (!showStillWatching && stillWatchingDialog != null) {
@@ -277,6 +282,14 @@ class PlayerActivity : BasePlayerActivity() {
                     }
                 }
 
+                // Keeps the position used for the stop report on next/previous within a second.
+                launch {
+                    while (true) {
+                        viewModel.refreshPlayingSnapshot()
+                        delay(1000L)
+                    }
+                }
+
                 if (viewModel.shouldPollSegments()) {
                     launch {
                         while (true) {
@@ -300,6 +313,16 @@ class PlayerActivity : BasePlayerActivity() {
         speedButton.isEnabled = false
         speedButton.imageAlpha = 75
 
+        // A bitrate cap only makes sense against the server; offline playback
+        // always plays the local file as-is.
+        if (appPreferences.getValue(appPreferences.offlineMode)) {
+            qualityButton.isVisible = false
+            qualitySpace.isVisible = false
+        } else {
+            qualityButton.isEnabled = false
+            qualityButton.imageAlpha = 75
+        }
+
         if (isPipSupported) {
             pipButton.isEnabled = false
             pipButton.imageAlpha = 75
@@ -310,7 +333,7 @@ class PlayerActivity : BasePlayerActivity() {
         }
 
         audioButton.setOnClickListener {
-            TrackSelectionDialogFragment(C.TRACK_TYPE_AUDIO, viewModel)
+            TrackSelectionDialogFragment.newInstance(C.TRACK_TYPE_AUDIO)
                 .show(supportFragmentManager, "trackselectiondialog")
         }
 
@@ -332,17 +355,22 @@ class PlayerActivity : BasePlayerActivity() {
         }
 
         subtitleButton.setOnClickListener {
-            TrackSelectionDialogFragment(C.TRACK_TYPE_TEXT, viewModel)
+            TrackSelectionDialogFragment.newInstance(C.TRACK_TYPE_TEXT)
                 .show(supportFragmentManager, "trackselectiondialog")
         }
 
         speedButton.setOnClickListener {
-            SpeedSelectionDialogFragment(viewModel)
+            SpeedSelectionDialogFragment()
                 .show(supportFragmentManager, "speedselectiondialog")
         }
 
+        qualityButton.setOnClickListener {
+            QualitySelectionDialogFragment()
+                .show(supportFragmentManager, "qualityselectiondialog")
+        }
+
         chaptersButton.setOnClickListener {
-            ChapterListDialogFragment(viewModel)
+            ChapterListDialogFragment()
                 .show(supportFragmentManager, "chapterlistdialog")
         }
 

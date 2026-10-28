@@ -1,7 +1,7 @@
 package dev.jdtech.jellyfin.core.presentation.downloader
 
-import android.app.DownloadManager
 import dev.jdtech.jellyfin.models.UiText
+import dev.jdtech.jellyfin.utils.download.DownloadStatus
 
 data class DownloaderState(
     val status: Int = 0,
@@ -12,9 +12,9 @@ data class DownloaderState(
         get() =
             status in
                 arrayOf(
-                    DownloadManager.STATUS_PENDING,
-                    DownloadManager.STATUS_RUNNING,
-                    DownloadManager.STATUS_PAUSED,
-                    DownloadManager.STATUS_FAILED,
+                    DownloadStatus.PENDING,
+                    DownloadStatus.RUNNING,
+                    DownloadStatus.PAUSED,
+                    DownloadStatus.FAILED,
                 )
 }

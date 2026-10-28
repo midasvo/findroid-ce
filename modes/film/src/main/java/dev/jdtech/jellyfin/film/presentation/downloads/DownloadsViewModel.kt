@@ -212,23 +212,30 @@ constructor(
                 .filter { hasCompletedSource(it.id) }
             val sortedMovies = when (sortOrder) {
                 DownloadSortOrder.NAME -> filteredMovies.sortedBy { it.name.lowercase() }
-                DownloadSortOrder.DATE -> filteredMovies.sortedByDescending { maxSourceMtime(it.id) }
+                DownloadSortOrder.DATE -> {
+                    val mtimes = filteredMovies.associate { it.id to maxSourceMtime(it.id) }
+                    filteredMovies.sortedByDescending { mtimes.getValue(it.id) }
+                }
                 DownloadSortOrder.SIZE -> filteredMovies.sortedByDescending { itemSizes[it.id] ?: 0L }
             }
-            val filteredShows = items
-                .filterIsInstance<FindroidShow>()
+            val shows = items.filterIsInstance<FindroidShow>()
+            // Fetch each show's episode list once and reuse it for both the
+            // filter and sort passes below, instead of re-querying the DB.
+            val episodesByShow = shows.associateWith { database.getEpisodesByShowId(it.id) }
+            val filteredShows = shows
                 .filter { show ->
-                    database.getEpisodesByShowId(show.id)
-                        .any { hasCompletedSource(it.id) }
+                    episodesByShow.getValue(show).any { hasCompletedSource(it.id) }
                 }
             val sortedShows = when (sortOrder) {
                 DownloadSortOrder.NAME -> filteredShows.sortedBy { it.name.lowercase() }
-                DownloadSortOrder.DATE -> filteredShows.sortedByDescending { show ->
-                    database.getEpisodesByShowId(show.id)
-                        .maxOfOrNull { maxSourceMtime(it.id) } ?: 0L
+                DownloadSortOrder.DATE -> {
+                    val mtimes = filteredShows.associateWith { show ->
+                        episodesByShow.getValue(show).maxOfOrNull { maxSourceMtime(it.id) } ?: 0L
+                    }
+                    filteredShows.sortedByDescending { mtimes.getValue(it) }
                 }
                 DownloadSortOrder.SIZE -> filteredShows.sortedByDescending { show ->
-                    database.getEpisodesByShowId(show.id)
+                    episodesByShow.getValue(show)
                         .sumOf { ep -> itemSizes[ep.id] ?: 0L }
                 }
             }
@@ -248,10 +255,10 @@ constructor(
             sections
         }
 
-    private fun maxSourceMtime(itemId: java.util.UUID): Long =
+    private suspend fun maxSourceMtime(itemId: java.util.UUID): Long =
         database.getSources(itemId).maxOfOrNull { File(it.path).lastModified() } ?: 0L
 
-    private fun hasCompletedSource(itemId: java.util.UUID): Boolean =
+    private suspend fun hasCompletedSource(itemId: java.util.UUID): Boolean =
         database.getSources(itemId).any { !it.path.endsWith(".download") }
 
     private suspend fun computeItemSizes(

@@ -9,12 +9,16 @@ import dev.jdtech.jellyfin.models.FindroidItemPerson
 import dev.jdtech.jellyfin.models.FindroidShow
 import dev.jdtech.jellyfin.models.FindroidSourceType
 import dev.jdtech.jellyfin.models.isDownloaded
+import dev.jdtech.jellyfin.models.mergeDuplicateRoles
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.utils.Downloader
 import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -53,16 +57,22 @@ constructor(
                 val writers = getWriters(show)
                 val seasonDownloadInfo = mutableMapOf<UUID, SeasonDownloadInfo>()
                 var hasDownloads = false
-                for (season in seasons) {
-                    val episodes =
-                        repository.getEpisodes(
-                            seriesId = showId,
-                            seasonId = season.id,
-                            offline = downloadsOnly,
-                        )
+                coroutineScope {
+                    seasons.map { season ->
+                        async {
+                            val episodes =
+                                repository.getEpisodes(
+                                    seriesId = showId,
+                                    seasonId = season.id,
+                                    offline = downloadsOnly,
+                                )
+                            season.id to episodes
+                        }
+                    }.awaitAll()
+                }.forEach { (seasonId, episodes) ->
                     val downloadedCount = episodes.count { it.isDownloaded() }
                     if (downloadedCount > 0) hasDownloads = true
-                    seasonDownloadInfo[season.id] =
+                    seasonDownloadInfo[seasonId] =
                         SeasonDownloadInfo(
                             downloadedCount = downloadedCount,
                             totalCount = episodes.size,
@@ -86,7 +96,7 @@ constructor(
         }
     }
 
-    fun downloadSeasons(seasonIds: Set<UUID>) {
+    fun downloadSeasons(seasonIds: Set<UUID>, maxBitrate: Int? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             // Episodes already in flight count as skipped so the toast count
             // matches what actually got added to the queue.
@@ -108,7 +118,7 @@ constructor(
                     else toQueue.add(episode)
                 }
             }
-            downloadQueue.enqueueAll(toQueue)
+            downloadQueue.enqueueAll(toQueue, maxBitrate)
             eventsChannel.send(ShowEvent.DownloadResult(toQueue.size, skipped, 0))
             loadShow(showId)
         }
@@ -142,19 +152,19 @@ constructor(
 
     private suspend fun getActors(item: FindroidShow): List<FindroidItemPerson> {
         return withContext(Dispatchers.Default) {
-            item.people.filter { it.type == PersonKind.ACTOR }
+            item.people.mergeDuplicateRoles().filter { it.type == PersonKind.ACTOR }
         }
     }
 
     private suspend fun getDirector(item: FindroidShow): FindroidItemPerson? {
         return withContext(Dispatchers.Default) {
-            item.people.firstOrNull { it.type == PersonKind.DIRECTOR }
+            item.people.mergeDuplicateRoles().firstOrNull { it.type == PersonKind.DIRECTOR }
         }
     }
 
     private suspend fun getWriters(item: FindroidShow): List<FindroidItemPerson> {
         return withContext(Dispatchers.Default) {
-            item.people.filter { it.type == PersonKind.WRITER }
+            item.people.mergeDuplicateRoles().filter { it.type == PersonKind.WRITER }
         }
     }
 

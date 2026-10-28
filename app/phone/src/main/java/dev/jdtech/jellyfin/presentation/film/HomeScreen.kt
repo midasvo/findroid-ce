@@ -96,7 +96,7 @@ private fun HomeScreenLayout(state: HomeState, onAction: (HomeAction) -> Unit) {
     var showServerSelectionBottomSheet by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize().semantics { isTraversalGroup = true }) {
-        PullToRefreshBox(isRefreshing = false, onRefresh = { onAction(HomeAction.OnRetryClick) }) {
+        PullToRefreshBox(isRefreshing = state.isLoading, onRefresh = { onAction(HomeAction.OnRetryClick) }) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().semantics { traversalIndex = 1f },
                 contentPadding = PaddingValues(top = contentPaddingTop, bottom = paddingBottom),

@@ -41,22 +41,22 @@ class SetupRepositoryImpl(
     }
 
     override suspend fun getCurrentServer(): Server? {
-        return appPreferences.getValue(appPreferences.currentServer)?.let { id -> database.get(id) }
+        return appPreferences.getValue(appPreferences.currentServer)?.let { id -> database.getServer(id) }
     }
 
     override suspend fun deleteServer(serverId: String) {
-        database.delete(serverId)
+        database.deleteServer(serverId)
     }
 
     override suspend fun getIsQuickConnectEnabled(): Boolean =
-        withContext(Dispatchers.IO) { jellyfinApi.quickConnectApi.getQuickConnectEnabled().content }
+        withContext(Dispatchers.IO) { jellyfinApi.authenticationApi.getQuickConnectEnabled().content }
 
     override suspend fun initiateQuickConnect(): QuickConnectResult =
-        withContext(Dispatchers.IO) { jellyfinApi.quickConnectApi.initiateQuickConnect().content }
+        withContext(Dispatchers.IO) { jellyfinApi.authenticationApi.initiateQuickConnect().content }
 
     override suspend fun getQuickConnectState(secret: String): QuickConnectResult =
         withContext(Dispatchers.IO) {
-            jellyfinApi.quickConnectApi.getQuickConnectState(secret).content
+            jellyfinApi.authenticationApi.getQuickConnectState(secret).content
         }
 
     override suspend fun setCurrentServer(serverId: String) {
@@ -114,16 +114,27 @@ class SetupRepositoryImpl(
         }
     }
 
-    private fun saveServerInDatabase(recommendedServerInfo: RecommendedServerInfo): Server {
+    private suspend fun saveServerInDatabase(recommendedServerInfo: RecommendedServerInfo): Server {
         val serverInfo =
             recommendedServerInfo.systemInfo.getOrNull()
                 ?: throw ExceptionUiText(
                     UiText.StringResource(SetupR.string.add_server_error_no_id)
                 )
 
-        Timber.d("Connecting to server: ${serverInfo.serverName}")
+        val serverId =
+            serverInfo.id
+                ?: throw ExceptionUiText(
+                    UiText.StringResource(SetupR.string.add_server_error_no_id)
+                )
+        val serverName =
+            serverInfo.serverName
+                ?: throw ExceptionUiText(
+                    UiText.StringResource(SetupR.string.add_server_error_no_id)
+                )
 
-        val serverInDatabase = database.get(serverInfo.id!!)
+        Timber.d("Connecting to server: $serverName")
+
+        val serverInDatabase = database.getServer(serverId)
 
         // Check if server is already in the database
         // If so only add a new address to that server if it's different
@@ -146,14 +157,14 @@ class SetupRepositoryImpl(
                 val serverAddress =
                     ServerAddress(
                         id = UUID.randomUUID(),
-                        serverId = serverInfo.id!!,
+                        serverId = serverId,
                         address = recommendedServerInfo.address,
                     )
 
                 val server =
                     Server(
-                        id = serverInfo.id!!,
-                        name = serverInfo.serverName!!,
+                        id = serverId,
+                        name = serverName,
                         currentServerAddressId = serverAddress.id,
                         currentUserId = null,
                     )
@@ -209,7 +220,7 @@ class SetupRepositoryImpl(
     override suspend fun login(username: String, password: String) {
         withContext(Dispatchers.IO) {
             val authenticationResult by
-                jellyfinApi.userApi.authenticateUserByName(
+                jellyfinApi.authenticationApi.authenticateUserByName(
                     data = AuthenticateUserByName(username = username, pw = password)
                 )
 
@@ -220,7 +231,7 @@ class SetupRepositoryImpl(
     override suspend fun loginWithSecret(secret: String) {
         withContext(Dispatchers.IO) {
             val authenticationResult by
-                jellyfinApi.userApi.authenticateWithQuickConnect(
+                jellyfinApi.authenticationApi.authenticateWithQuickConnect(
                     data = QuickConnectDto(secret = secret)
                 )
 
@@ -228,7 +239,7 @@ class SetupRepositoryImpl(
         }
     }
 
-    private fun saveAuthenticationResult(authenticationResult: AuthenticationResult) {
+    private suspend fun saveAuthenticationResult(authenticationResult: AuthenticationResult) {
         val user =
             User(
                 id = authenticationResult.user!!.id,
@@ -276,7 +287,7 @@ class SetupRepositoryImpl(
         val server = getCurrentServer() ?: return
         val user = database.getUser(userId) ?: return
         server.currentUserId = user.id
-        database.update(server)
+        database.updateServer(server)
 
         jellyfinApi.apply {
             api.update(accessToken = user.accessToken)
@@ -291,7 +302,7 @@ class SetupRepositoryImpl(
             return
         }
         server.currentServerAddressId = address.id
-        database.update(server)
+        database.updateServer(server)
         jellyfinApi.apply { api.update(baseUrl = address.address) }
     }
 }

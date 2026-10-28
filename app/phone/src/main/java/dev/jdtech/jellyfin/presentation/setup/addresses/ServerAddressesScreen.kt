@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -77,6 +78,7 @@ fun ServerAddressesScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServerAddressesLayout(state: ServerAddressesState, onAction: (ServerAddressesAction) -> Unit) {
+    val context = LocalContext.current
     val layoutDirection = LocalLayoutDirection.current
     val safePadding = rememberSafePadding()
 
@@ -121,6 +123,18 @@ fun ServerAddressesLayout(state: ServerAddressesState, onAction: (ServerAddresse
         },
     ) { innerPadding ->
         Column(modifier = Modifier.padding(top = innerPadding.calculateTopPadding())) {
+            if (state.error != null) {
+                Text(
+                    text = state.error!!.joinToString { it.asString(context.resources) },
+                    color = MaterialTheme.colorScheme.error,
+                    modifier =
+                        Modifier.padding(
+                            start = paddingStart + innerPadding.calculateStartPadding(layoutDirection),
+                            top = paddingTop,
+                            end = paddingEnd + innerPadding.calculateEndPadding(layoutDirection),
+                        ),
+                )
+            }
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding =

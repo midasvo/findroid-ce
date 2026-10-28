@@ -23,6 +23,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +51,7 @@ import dev.jdtech.jellyfin.film.presentation.episode.EpisodeAction
 import dev.jdtech.jellyfin.film.presentation.episode.EpisodeState
 import dev.jdtech.jellyfin.film.presentation.episode.EpisodeViewModel
 import dev.jdtech.jellyfin.presentation.film.components.ActorsRow
+import dev.jdtech.jellyfin.presentation.film.components.DownloadQualityDialog
 import dev.jdtech.jellyfin.presentation.film.components.ExtraInfoText
 import dev.jdtech.jellyfin.presentation.film.components.ItemButtonsBar
 import dev.jdtech.jellyfin.presentation.film.components.ItemHeader
@@ -59,6 +63,7 @@ import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
 import dev.jdtech.jellyfin.utils.ObserveAsEvents
+import dev.jdtech.jellyfin.utils.copyOnLongClick
 import dev.jdtech.jellyfin.utils.format
 import android.widget.Toast
 import java.util.UUID
@@ -145,6 +150,8 @@ private fun EpisodeScreenLayout(
 
     val scrollState = rememberScrollState()
 
+    var downloadQualityDialogOpen by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxSize()) {
         state.episode?.let { episode ->
             Column(modifier = Modifier.fillMaxWidth().verticalScroll(scrollState)) {
@@ -165,18 +172,20 @@ private fun EpisodeScreenLayout(
                                             episode.parentIndexNumber,
                                         )
                                     }
+                            val episodeNumberText = stringResource(
+                                id = CoreR.string.episode_number,
+                                episode.indexNumber,
+                            )
+                            val prefixText = "$seasonName - $episodeNumberText"
                             Text(
-                                text =
-                                    "$seasonName - " +
-                                        stringResource(
-                                            id = CoreR.string.episode_number,
-                                            episode.indexNumber,
-                                        ),
+                                text = prefixText,
+                                modifier = Modifier.copyOnLongClick(prefixText),
                                 maxLines = 1,
                                 style = MaterialTheme.typography.labelLarge,
                             )
                             Text(
                                 text = episode.name,
+                                modifier = Modifier.copyOnLongClick(episode.name),
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 3,
                                 style = MaterialTheme.typography.headlineMedium,
@@ -192,21 +201,28 @@ private fun EpisodeScreenLayout(
                         verticalAlignment = Alignment.Bottom,
                     ) {
                         episode.premiereDate?.let { premiereDate ->
+                            val dateText = premiereDate.format()
                             Text(
-                                text = premiereDate.format(),
+                                text = dateText,
+                                modifier = Modifier.copyOnLongClick(dateText),
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                         }
+                        val runtimeText = stringResource(
+                            CoreR.string.runtime_minutes,
+                            episode.runtimeTicks.div(Constants.TICKS_PER_MINUTE),
+                        )
                         Text(
-                            text =
-                                stringResource(
-                                    CoreR.string.runtime_minutes,
-                                    episode.runtimeTicks.div(Constants.TICKS_PER_MINUTE),
-                                ),
+                            text = runtimeText,
+                            modifier = Modifier.copyOnLongClick(runtimeText),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         episode.communityRating?.let { communityRating ->
-                            Row(verticalAlignment = Alignment.Bottom) {
+                            val ratingText = "%.1f".format(communityRating)
+                            Row(
+                                modifier = Modifier.copyOnLongClick(ratingText),
+                                verticalAlignment = Alignment.Bottom
+                            ) {
                                 Icon(
                                     painter = painterResource(CoreR.drawable.ic_star),
                                     contentDescription = null,
@@ -244,9 +260,7 @@ private fun EpisodeScreenLayout(
                             }
                         },
                         onTrailerClick = {},
-                        onDownloadClick = {
-                            onDownloaderAction(DownloaderAction.Download(episode))
-                        },
+                        onDownloadClick = { downloadQualityDialogOpen = true },
                         onDownloadCancelClick = {
                             onDownloaderAction(DownloaderAction.CancelDownload(episode))
                         },
@@ -303,6 +317,18 @@ private fun EpisodeScreenLayout(
                         }
                 }
             }
+        }
+
+        if (downloadQualityDialogOpen) {
+            DownloadQualityDialog(
+                onSelect = { maxBitrate ->
+                    state.episode?.let { episode ->
+                        onDownloaderAction(DownloaderAction.Download(episode, maxBitrate))
+                    }
+                    downloadQualityDialogOpen = false
+                },
+                onDismiss = { downloadQualityDialogOpen = false },
+            )
         }
     }
 }

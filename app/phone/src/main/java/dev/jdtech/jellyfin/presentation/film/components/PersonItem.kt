@@ -1,7 +1,6 @@
 package dev.jdtech.jellyfin.presentation.film.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +22,7 @@ import dev.jdtech.jellyfin.core.presentation.dummy.dummyPerson
 import dev.jdtech.jellyfin.models.FindroidItemPerson
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
+import dev.jdtech.jellyfin.utils.copyOnLongClick
 
 @Composable
 fun PersonItem(
@@ -36,7 +36,7 @@ fun PersonItem(
             modifier
                 .width(110.dp)
                 .clip(MaterialTheme.shapes.small)
-                .clickable(enabled = enabled, onClick = onClick)
+                .copyOnLongClick(person.name, enabled = enabled, onClick = onClick)
     ) {
         AsyncImage(
             model = person.image.uri,
@@ -51,12 +51,14 @@ fun PersonItem(
         Spacer(Modifier.height(MaterialTheme.spacings.extraSmall))
         Text(
             text = person.name,
+            modifier = Modifier.copyOnLongClick(person.name),
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             style = MaterialTheme.typography.bodyMedium,
         )
         Text(
             text = person.role,
+            modifier = Modifier.copyOnLongClick(person.role),
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,

@@ -67,13 +67,18 @@ suspend fun BaseItemDto.toFindroidMovie(
         images = toFindroidImages(jellyfinRepository),
         chapters = toFindroidChapters(),
         trickplayInfo =
-            trickplay?.mapValues { entry ->
-                entry.value[entry.value.keys.maxOrNull()]?.toFindroidTrickplayInfo()
-            }?.filterValues { it != null }?.mapValues { it.value!! },
+            trickplay
+                ?.mapNotNull { (width, info) ->
+                    info?.keys?.maxOrNull()?.let { info[it] }?.toFindroidTrickplayInfo()?.let { width to it }
+                }
+                ?.toMap(),
     )
 }
 
-fun FindroidMovieDto.toFindroidMovie(database: ServerDatabaseDao, userId: UUID): FindroidMovie {
+suspend fun FindroidMovieDto.toFindroidMovie(
+    database: ServerDatabaseDao,
+    userId: UUID,
+): FindroidMovie {
     val userData = database.getUserDataOrCreateNew(id, userId)
     val sources = database.getSources(id).map { it.toFindroidSource(database) }
     val trickplayInfos = mutableMapOf<String, FindroidTrickplayInfo>()

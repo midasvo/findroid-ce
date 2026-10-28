@@ -37,6 +37,7 @@ import org.jellyfin.sdk.model.api.BaseItemDto
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.DeviceOptionsDto
 import org.jellyfin.sdk.model.api.GeneralCommandType
+import org.jellyfin.sdk.model.api.ImageType
 import org.jellyfin.sdk.model.api.ItemFields
 import org.jellyfin.sdk.model.api.ItemFilter
 import org.jellyfin.sdk.model.api.ItemSortBy
@@ -68,12 +69,12 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getUserViews(): List<BaseItemDto> =
         withContext(Dispatchers.IO) {
-            jellyfinApi.viewsApi.getUserViews(currentUserId).content.items
+            jellyfinApi.userViewApi.getUserViews(currentUserId).content.items
         }
 
     override suspend fun getEpisode(itemId: UUID): FindroidEpisode =
         withContext(Dispatchers.IO) {
-            jellyfinApi.userLibraryApi
+            jellyfinApi.libraryApi
                 .getItem(itemId, currentUserId)
                 .content
                 .toFindroidEpisode(this@JellyfinRepositoryImpl, database)!!
@@ -81,7 +82,7 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getMovie(itemId: UUID): FindroidMovie =
         withContext(Dispatchers.IO) {
-            jellyfinApi.userLibraryApi
+            jellyfinApi.libraryApi
                 .getItem(itemId, currentUserId)
                 .content
                 .toFindroidMovie(this@JellyfinRepositoryImpl, database)
@@ -89,7 +90,7 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getShow(itemId: UUID): FindroidShow =
         withContext(Dispatchers.IO) {
-            jellyfinApi.userLibraryApi
+            jellyfinApi.libraryApi
                 .getItem(itemId, currentUserId)
                 .content
                 .toFindroidShow(this@JellyfinRepositoryImpl)
@@ -97,7 +98,7 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getSeason(itemId: UUID): FindroidSeason =
         withContext(Dispatchers.IO) {
-            jellyfinApi.userLibraryApi
+            jellyfinApi.libraryApi
                 .getItem(itemId, currentUserId)
                 .content
                 .toFindroidSeason(this@JellyfinRepositoryImpl)
@@ -105,14 +106,14 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getLibraries(): List<FindroidCollection> =
         withContext(Dispatchers.IO) {
-            jellyfinApi.itemsApi.getItems(currentUserId).content.items.mapNotNull {
+            jellyfinApi.libraryApi.getItems(currentUserId).content.items.mapNotNull {
                 it.toFindroidCollection(this@JellyfinRepositoryImpl)
             }
         }
 
     override suspend fun getItem(itemId: UUID): FindroidItem? =
         withContext(Dispatchers.IO) {
-            jellyfinApi.userLibraryApi
+            jellyfinApi.libraryApi
                 .getItem(itemId = itemId, userId = currentUserId)
                 .content
                 .toFindroidItem(this@JellyfinRepositoryImpl)
@@ -124,11 +125,12 @@ class JellyfinRepositoryImpl(
         recursive: Boolean,
         sortBy: SortBy,
         sortOrder: SortOrder,
+        filters: List<ItemFilter>?,
         startIndex: Int?,
         limit: Int?,
     ): List<FindroidItem> =
         withContext(Dispatchers.IO) {
-            jellyfinApi.itemsApi
+            jellyfinApi.libraryApi
                 .getItems(
                     currentUserId,
                     parentId = parentId,
@@ -136,6 +138,7 @@ class JellyfinRepositoryImpl(
                     recursive = recursive,
                     sortBy = listOf(ItemSortBy.fromName(sortBy.sortString)),
                     sortOrder = listOf(ItemSortOrder.fromName(sortOrder.sortString)),
+                    filters = filters,
                     startIndex = startIndex,
                     limit = limit,
                 )
@@ -150,11 +153,12 @@ class JellyfinRepositoryImpl(
         recursive: Boolean,
         sortBy: SortBy,
         sortOrder: SortOrder,
+        filters: List<ItemFilter>?,
     ): Flow<PagingData<FindroidItem>> {
         return Pager(
                 config = PagingConfig(pageSize = 10, enablePlaceholders = false),
                 pagingSourceFactory = {
-                    ItemsPagingSource(this, parentId, includeTypes, recursive, sortBy, sortOrder)
+                    ItemsPagingSource(this, parentId, includeTypes, recursive, sortBy, sortOrder, filters)
                 },
             )
             .flow
@@ -162,7 +166,7 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getPerson(personId: UUID): FindroidPerson =
         withContext(Dispatchers.IO) {
-            jellyfinApi.userLibraryApi
+            jellyfinApi.libraryApi
                 .getItem(personId, currentUserId)
                 .content
                 .toFindroidPerson(this@JellyfinRepositoryImpl)
@@ -174,7 +178,7 @@ class JellyfinRepositoryImpl(
         recursive: Boolean,
     ): List<FindroidItem> =
         withContext(Dispatchers.IO) {
-            jellyfinApi.itemsApi
+            jellyfinApi.libraryApi
                 .getItems(
                     currentUserId,
                     personIds = personIds,
@@ -188,7 +192,7 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getFavoriteItems(): List<FindroidItem> =
         withContext(Dispatchers.IO) {
-            jellyfinApi.itemsApi
+            jellyfinApi.libraryApi
                 .getItems(
                     currentUserId,
                     filters = listOf(ItemFilter.IS_FAVORITE),
@@ -203,7 +207,7 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getSearchItems(query: String): List<FindroidItem> =
         withContext(Dispatchers.IO) {
-            jellyfinApi.itemsApi
+            jellyfinApi.libraryApi
                 .getItems(
                     currentUserId,
                     searchTerm = query,
@@ -217,11 +221,12 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getSuggestions(): List<FindroidItem> =
         withContext(Dispatchers.IO) {
-            jellyfinApi.suggestionsApi
+            jellyfinApi.suggestionApi
                 .getSuggestions(
                     currentUserId,
                     limit = 6,
                     type = listOf(BaseItemKind.MOVIE, BaseItemKind.SERIES),
+                    enableTotalRecordCount = false,
                 )
                 .content
                 .items
@@ -230,11 +235,14 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getResumeItems(): List<FindroidItem> =
         withContext(Dispatchers.IO) {
-            jellyfinApi.itemsApi
+            jellyfinApi.libraryApi
                 .getResumeItems(
                     currentUserId,
                     limit = 12,
                     includeItemTypes = listOf(BaseItemKind.MOVIE, BaseItemKind.EPISODE),
+                    imageTypeLimit = 1,
+                    enableImageTypes = ROW_IMAGE_TYPES,
+                    enableTotalRecordCount = false,
                 )
                 .content
                 .items
@@ -243,8 +251,14 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getLatestMedia(parentId: UUID): List<FindroidItem> =
         withContext(Dispatchers.IO) {
-            jellyfinApi.userLibraryApi
-                .getLatestMedia(currentUserId, parentId = parentId, limit = 16)
+            jellyfinApi.libraryApi
+                .getLatestMedia(
+                    currentUserId,
+                    parentId = parentId,
+                    limit = 16,
+                    imageTypeLimit = 1,
+                    enableImageTypes = ROW_IMAGE_TYPES,
+                )
                 .content
                 .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
         }
@@ -252,7 +266,7 @@ class JellyfinRepositoryImpl(
     override suspend fun getSeasons(seriesId: UUID, offline: Boolean): List<FindroidSeason> =
         withContext(Dispatchers.IO) {
             if (!offline) {
-                jellyfinApi.showsApi.getSeasons(seriesId, currentUserId).content.items.map {
+                jellyfinApi.showApi.getSeasons(seriesId, currentUserId).content.items.map {
                     it.toFindroidSeason(this@JellyfinRepositoryImpl)
                 }
             } else {
@@ -264,11 +278,14 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getNextUp(seriesId: UUID?): List<FindroidEpisode> =
         withContext(Dispatchers.IO) {
-            jellyfinApi.showsApi
+            jellyfinApi.showApi
                 .getNextUp(
                     currentUserId,
                     limit = 24,
                     seriesId = seriesId,
+                    imageTypeLimit = 1,
+                    enableImageTypes = ROW_IMAGE_TYPES,
+                    enableTotalRecordCount = false,
                     enableResumable = false,
                 )
                 .content
@@ -286,7 +303,7 @@ class JellyfinRepositoryImpl(
     ): List<FindroidEpisode> =
         withContext(Dispatchers.IO) {
             if (!offline) {
-                jellyfinApi.showsApi
+                jellyfinApi.showApi
                     .getEpisodes(
                         seriesId,
                         currentUserId,
@@ -309,12 +326,14 @@ class JellyfinRepositoryImpl(
         itemId: UUID,
         includePath: Boolean,
         transcodeDolbyVision: Boolean,
+        maxBitrate: Int?,
     ): List<FindroidSource> =
         withContext(Dispatchers.IO) {
             // The downloader's path. The profile direct-plays everything (→ original
-            // file) unless transcodeDolbyVision is set, in which case Dolby Vision is
-            // routed through a progressive H.264 transcode. Non-DV files stay original
-            // either way.
+            // file) unless transcodeDolbyVision is set (Dolby Vision routed through a
+            // progressive H.264 transcode) or the user picked a download quality cap
+            // (files over the cap transcoded down to it). Everything else stays the
+            // original file.
             val sources = mutableListOf<FindroidSource>()
             sources.addAll(
                 jellyfinApi.mediaInfoApi
@@ -323,11 +342,15 @@ class JellyfinRepositoryImpl(
                         PlaybackInfoDto(
                             userId = currentUserId,
                             deviceProfile =
-                                deviceProfileBuilder.getDownloadProfile(transcodeDolbyVision),
-                            maxStreamingBitrate = 1_000_000_000,
-                            enableTranscoding = transcodeDolbyVision,
-                            // Force a real video re-encode when DV transcodes — never
-                            // let the server copy the DV bitstream into the container.
+                                deviceProfileBuilder.getDownloadProfile(
+                                    transcodeDolbyVision,
+                                    bitrateCapped = maxBitrate != null,
+                                ),
+                            maxStreamingBitrate = maxBitrate ?: 1_000_000_000,
+                            enableTranscoding = transcodeDolbyVision || maxBitrate != null,
+                            // Force a real video re-encode when a transcode happens —
+                            // never let the server copy the DV bitstream into the
+                            // container, and never let a stream copy defeat the cap.
                             allowVideoStreamCopy = false,
                             allowAudioStreamCopy = true,
                         ),
@@ -345,13 +368,21 @@ class JellyfinRepositoryImpl(
             // mpv software-decodes practically everything, so keep it on the permissive
             // direct-play profile. ExoPlayer gets the honest, hardware-probed profile so
             // the server transcodes anything it cannot direct-play — notably Dolby Vision.
-            val useDirectPlay = appPreferences.getValue(appPreferences.playerMpv)
+            val useDirectPlay = appPreferences.getValue(appPreferences.playerBackend) == "mpv"
+            // User-selected bitrate cap (player quality selector). 0 = original quality.
+            // Files above the cap get a server-side transcode; files below it still
+            // direct-play. mpv's plain profile has no transcoding profiles, so a cap
+            // switches it to the variant that carries the HLS fallback.
+            val maxBitrate =
+                appPreferences.getValue(appPreferences.playerMaxBitrate).takeIf { it > 0 }
             val deviceProfile =
-                if (useDirectPlay) {
-                    deviceProfileBuilder.getDirectPlayProfile()
-                } else {
-                    deviceProfileBuilder.getDeviceProfile()
+                when {
+                    useDirectPlay && maxBitrate != null ->
+                        deviceProfileBuilder.getDirectPlayTranscodeFallbackProfile()
+                    useDirectPlay -> deviceProfileBuilder.getDirectPlayProfile()
+                    else -> deviceProfileBuilder.getDeviceProfile()
                 }
+            val enableTranscoding = !useDirectPlay || maxBitrate != null
             val sources = mutableListOf<FindroidSource>()
             sources.addAll(
                 jellyfinApi.mediaInfoApi
@@ -360,11 +391,12 @@ class JellyfinRepositoryImpl(
                         PlaybackInfoDto(
                             userId = currentUserId,
                             deviceProfile = deviceProfile,
-                            maxStreamingBitrate = deviceProfile.maxStreamingBitrate,
-                            enableTranscoding = !useDirectPlay,
+                            maxStreamingBitrate = maxBitrate
+                                ?: deviceProfile.maxStreamingBitrate,
+                            enableTranscoding = enableTranscoding,
                             allowVideoStreamCopy = true,
                             allowAudioStreamCopy = true,
-                            autoOpenLiveStream = !useDirectPlay,
+                            autoOpenLiveStream = enableTranscoding,
                         ),
                     )
                     .content
@@ -380,7 +412,7 @@ class JellyfinRepositoryImpl(
     override suspend fun getStreamUrl(itemId: UUID, mediaSourceId: String): String =
         withContext(Dispatchers.IO) {
             try {
-                jellyfinApi.videosApi.getVideoStreamUrl(
+                jellyfinApi.videoApi.getVideoStreamUrl(
                     itemId,
                     static = true,
                     mediaSourceId = mediaSourceId,
@@ -401,7 +433,7 @@ class JellyfinRepositoryImpl(
 
             try {
                 val apiSegments =
-                    jellyfinApi.mediaSegmentsApi.getItemSegments(itemId).content.items.map {
+                    jellyfinApi.mediaSegmentApi.getItemSegments(itemId).content.items.map {
                         it.toFindroidSegment()
                     }
 
@@ -422,7 +454,7 @@ class JellyfinRepositoryImpl(
                     }
                 } catch (e: Exception) { Timber.e(e, "Failed to read local trickplay data") }
 
-                return@withContext jellyfinApi.trickplayApi
+                return@withContext jellyfinApi.trickPlayApi
                     .getTrickplayTileImage(itemId, width, index)
                     .content
             } catch (_: Exception) {
@@ -459,7 +491,7 @@ class JellyfinRepositoryImpl(
     override suspend fun postPlaybackStart(itemId: UUID) {
         Timber.d("Sending start $itemId")
         withContext(Dispatchers.IO) {
-            jellyfinApi.playStateApi.reportPlaybackStart(
+            jellyfinApi.sessionApi.reportPlaybackStart(
                 PlaybackStartInfo(
                     itemId = itemId,
                     canSeek = true,
@@ -495,7 +527,7 @@ class JellyfinRepositoryImpl(
                 }
             }
             try {
-                jellyfinApi.playStateApi.reportPlaybackStopped(
+                jellyfinApi.sessionApi.reportPlaybackStopped(
                     PlaybackStopInfo(itemId = itemId, positionTicks = positionTicks, failed = false)
                 )
             } catch (_: Exception) {
@@ -513,7 +545,7 @@ class JellyfinRepositoryImpl(
         withContext(Dispatchers.IO) {
             database.setPlaybackPositionTicks(itemId, currentUserId, positionTicks)
             try {
-                jellyfinApi.playStateApi.reportPlaybackProgress(
+                jellyfinApi.sessionApi.reportPlaybackProgress(
                     PlaybackProgressInfo(
                         itemId = itemId,
                         canSeek = true,
@@ -535,7 +567,7 @@ class JellyfinRepositoryImpl(
         withContext(Dispatchers.IO) {
             database.setFavorite(currentUserId, itemId, true)
             try {
-                jellyfinApi.userLibraryApi.markFavoriteItem(itemId)
+                jellyfinApi.userDataApi.markFavoriteItem(itemId)
             } catch (_: Exception) {
                 database.setUserDataToBeSynced(currentUserId, itemId, true)
             }
@@ -546,7 +578,7 @@ class JellyfinRepositoryImpl(
         withContext(Dispatchers.IO) {
             database.setFavorite(currentUserId, itemId, false)
             try {
-                jellyfinApi.userLibraryApi.unmarkFavoriteItem(itemId)
+                jellyfinApi.userDataApi.unmarkFavoriteItem(itemId)
             } catch (_: Exception) {
                 database.setUserDataToBeSynced(currentUserId, itemId, true)
             }
@@ -557,7 +589,7 @@ class JellyfinRepositoryImpl(
         withContext(Dispatchers.IO) {
             database.setPlayed(currentUserId, itemId, true)
             try {
-                jellyfinApi.playStateApi.markPlayedItem(itemId)
+                jellyfinApi.userDataApi.markPlayedItem(itemId)
             } catch (_: Exception) {
                 database.setUserDataToBeSynced(currentUserId, itemId, true)
             }
@@ -568,7 +600,7 @@ class JellyfinRepositoryImpl(
         withContext(Dispatchers.IO) {
             database.setPlayed(currentUserId, itemId, false)
             try {
-                jellyfinApi.playStateApi.markUnplayedItem(itemId)
+                jellyfinApi.userDataApi.markUnplayedItem(itemId)
             } catch (_: Exception) {
                 database.setUserDataToBeSynced(currentUserId, itemId, true)
             }
@@ -580,7 +612,7 @@ class JellyfinRepositoryImpl(
     override suspend fun updateDeviceName(name: String) {
         withContext(Dispatchers.IO) {
             jellyfinApi.jellyfin.deviceInfo?.id?.let { id ->
-                jellyfinApi.devicesApi.updateDeviceOptions(
+                jellyfinApi.deviceApi.updateDeviceOptions(
                     id,
                     DeviceOptionsDto(0, customName = name),
                 )
@@ -611,5 +643,15 @@ class JellyfinRepositoryImpl(
 
     override fun getUserId(): UUID {
         return currentUserId
+    }
+
+    private companion object {
+        /**
+         * The only images row cards (home rows, next up) render: `FindroidImages` reads the
+         * primary tag, the first backdrop and the series primary tag. Together with
+         * `imageTypeLimit = 1` this stops the server from resolving (and sending blurhashes
+         * for) every backdrop, logo, thumb and banner of each item.
+         */
+        val ROW_IMAGE_TYPES = listOf(ImageType.PRIMARY, ImageType.BACKDROP)
     }
 }

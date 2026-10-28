@@ -2,74 +2,93 @@
 
 # Findroid CE (Community Edition)
 
-A maintained fork of [Findroid](https://github.com/jarnedemeulemeester/findroid), the native Jellyfin Android client.
+A community-driven fork of [Findroid](https://github.com/jarnedemeulemeester/findroid) — the native
+Jellyfin client for Android. Think of it as a **bleeding-edge channel**: a place to move a little
+faster, try out community contributions, and experiment with new features.
 
-## Why this fork?
+## Why Findroid CE?
 
-The original Findroid is an excellent Jellyfin client, but many community PRs with useful features aren't being merged. Findroid CE merges select community contributions and keeps dependencies up to date.
+Findroid is a fantastic app and the foundation for everything here. CE isn't trying to replace it —
+it's a faster-moving companion for people who want the latest community work sooner.
 
-## Installing
+- 🚀 **Moves faster** — merges community PRs and ships new features without waiting on the upstream release cadence.
+- 🔧 **Adds CE-only enhancements** — a rewritten download engine, Dolby Vision playback, richer
+  subtitle support, and more (see below).
+- 📦 **Stays current** — dependencies and the Jellyfin SDK are kept up to date via Renovate.
+- 🤝 **Two-way street** — we sync improvements *from* upstream regularly, and upstream is welcome to
+  take anything from here. It's all GPLv3.
+- 📲 **Installs side-by-side** — a separate app ID (`nl.midasvo.findroid.ce`) means you can run it
+  next to the original and switch back any time.
+
+If you like living a bit closer to the edge, CE gets community features into your hands sooner. If you
+prefer rock-solid stability, stick with upstream — and know that the good stuff here can flow back to it.
+
+## What you get over stock Findroid
+
+### Downloads
+
+- **OkHttp resumable download engine** — replaces Android's `DownloadManager` for reliable, resumable downloads (including SD card support)
+- **Per-episode download progress & inline buttons** — real-time status (pending, downloading, completed, failed) and tap-to-download/delete right in the season episode list, Netflix/Disney+ style
+- **Bulk season & series download** — download an entire season or series with one tap, with queued concurrent downloading
+- **Configurable max concurrent downloads** — limit how many episodes download at once (default: 2)
+- **Season download status on the show screen** — see "3/10 downloaded" per season in the season selection dialog
+- **Redesigned downloads screen** — active downloads with progress on top, completed items below, storage usage at the bottom
+
+### Playback & player
+
+- **Dolby Vision transcoding** — DV content plays everywhere via device-profile-aware transcoding
+- **Wider subtitle delivery** — PGS, VobSub, and DVB subtitles delivered without transcoding
+- **Configurable subtitle styling** — colors, outline, font, and size
+- **Media segments** — per-type skip / ask / ignore actions
+- **Chapters in the player UI**
+- **"Are you still watching?"** inactivity prompt
+- **Trickplay** loader behind a developer toggle
+
+### Library & UI
+
+- **Hide-watched filter** in the library view — persisted and shared across libraries
+- **Long-press to copy text** on the movie/show/episode/season/person detail screens
+- **Auto offline mode** — automatically enabled when there is no connectivity
+
+### Diagnostics
+
+- **Export device profile** from the About screen — handy for debugging playback/transcoding
+
+See the [changelog](CHANGELOG.md) for the full release-by-release history.
+
+## Install
 
 ### Via Obtainium (recommended)
 
-Add this repo URL in [Obtainium](https://github.com/ImranR98/Obtainium): `https://github.com/midasvo/findroid-ce`
+Add this repo URL in [Obtainium](https://github.com/ImranR98/Obtainium):
 
-Obtainium will automatically check for new releases and notify you of updates.
+```
+https://github.com/midasvo/findroid-ce
+```
+
+Obtainium then checks for new releases automatically and notifies you of updates.
 
 ### Manual
 
-Download the latest APK from the [Releases](https://github.com/midasvo/findroid-ce/releases) page.
+Grab the latest APK from the [Releases](https://github.com/midasvo/findroid-ce/releases) page.
 
-Findroid CE uses a different application ID (`nl.midasvo.findroid.ce`) so it can be installed alongside the original Findroid.
+> Findroid CE uses its own application ID (`nl.midasvo.findroid.ce`), so it installs alongside the
+> original Findroid rather than replacing it.
 
-## Screenshots
+## Built on Findroid
 
-| Home | Library | Movie | Season | Episode |
-|------|---------|-------|--------|---------|
-| ![Home](fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.png) | ![Library](fastlane/metadata/android/en-US/images/phoneScreenshots/2_en-US.png) | ![Movie](fastlane/metadata/android/en-US/images/phoneScreenshots/3_en-US.png) | ![Season](fastlane/metadata/android/en-US/images/phoneScreenshots/4_en-US.png) | ![Episode](fastlane/metadata/android/en-US/images/phoneScreenshots/5_en-US.png) |
+Findroid CE is a fork — all the core functionality (the native UI, ExoPlayer & mpv playback, offline
+downloads, picture-in-picture, etc.) comes from upstream Findroid. We sync with it regularly; the
+process is documented in [docs/upstream-sync.md](docs/upstream-sync.md).
 
-## Features
-
-- Completely native interface
-- Supported media: movies, series, seasons, episodes (direct play, no transcoding)
-- Offline playback / downloads (including SD card support)
-- ExoPlayer
-  - Video: H.263, H.264, H.265, VP8, VP9, AV1
-  - Audio: Vorbis, Opus, FLAC, ALAC, PCM, MP3, AAC, AC-3, E-AC-3, DTS, DTS-HD, TrueHD
-  - Subtitles: SRT, VTT, SSA/ASS, PGSSUB
-- mpv
-  - Containers: mkv, mov, mp4, avi
-  - Video: H.264, H.265, H.266, VP8, VP9, AV1
-  - Audio: Opus, FLAC, MP3, AAC, AC-3, E-AC-3, TrueHD, DTS, DTS-HD
-  - Subtitles: SRT, VTT, SSA/ASS, DVDSUB
-- Picture-in-picture mode
-- Media chapters (timeline markers, chapter navigation)
-- Trickplay (requires Jellyfin 10.9+)
-- Media segments with skip button and auto-skip (requires Jellyfin 10.10+)
-
-## What's different from upstream?
-
-Findroid CE adds the following on top of upstream Findroid:
-
-- **Per-episode download progress** — see real-time download status (pending, downloading, completed, failed) directly in the season episode list, no need to open each episode
-- **Interactive download buttons per episode** — tap to download or delete individual episodes inline, Netflix/Disney+ style
-- **Bulk season & series download** — download an entire season or series with one tap, with queued concurrent downloading
-- **Configurable max concurrent downloads** — limit how many episodes download simultaneously (default: 2), configurable in settings
-- **Download feedback** — toast messages summarizing bulk download results (started, skipped, failed)
-- **Season download status on show screen** — see "3/10 downloaded" per season in the season selection dialog
-- **Redesigned downloads screen** — active downloads with progress at the top, completed items below, storage usage info at the bottom
-- **Dependency updates** — kept up to date via Renovate
-
-## Upstream sync
-
-This fork is periodically synced with upstream.
+**All credit** to [Jarne Demeulemeester](https://github.com/jarnedemeulemeester) and the
+[Findroid contributors](https://github.com/jarnedemeulemeester/findroid/graphs/contributors) for
+building the app this fork stands on.
 
 ## License
 
 GPLv3 — same as upstream. See [LICENSE](LICENSE).
 
-The logo is a combination of the Jellyfin logo and the Android robot. The Android robot is reproduced or modified from work created and shared by Google and used according to terms described in the Creative Commons 3.0 Attribution License.
-
-## Credits
-
-All credit to [Jarne Demeulemeester](https://github.com/jarnedemeulemeester) and the [Findroid contributors](https://github.com/jarnedemeulemeester/findroid/graphs/contributors).
+The logo is a combination of the Jellyfin logo and the Android robot. The Android robot is reproduced
+or modified from work created and shared by Google and used according to terms described in the
+Creative Commons 3.0 Attribution License.

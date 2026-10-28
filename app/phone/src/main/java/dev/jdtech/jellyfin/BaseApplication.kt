@@ -76,10 +76,16 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
             DynamicColors.applyToActivitiesIfAvailable(this)
         }
 
+        // Issue #52: correct an "aaudio" value left in preferences by the old default.
+        appPreferences.migrateMpvAudioOutput()
+
         val workManager = WorkManager.getInstance(applicationContext)
 
         scheduleUserDataSync(workManager)
-        scheduleMpvCleanup(workManager)
+
+        if (!appPreferences.getValue(appPreferences.mpvMigrated)) {
+            scheduleMpvCleanup(workManager)
+        }
 
         // Schedule daily orphan sweep to clean up stale downloads.
         workManager.enqueueUniquePeriodicWork(
@@ -88,12 +94,12 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
             PeriodicWorkRequestBuilder<OrphanSweepWorker>(1, TimeUnit.DAYS).build(),
         )
 
-        // Re-attach any downloads left in-flight by a previous process (survives
-        // process death because Android DownloadManager is a system service).
+        // Re-attach any downloads that were in-flight before process death. The OkHttp
+        // engine is in-process and does not survive, so partials are resumed via Range.
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
                 // Drop DB rows and files left behind by crashes / external deletions
-                // before we re-attach to live DownloadManager jobs.
+                // before restoring active downloads.
                 downloader.sweepOrphans()
             } catch (e: Exception) {
                 Timber.e(e, "Failed to sweep orphan downloads")
@@ -130,9 +136,8 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
     }
 
     private fun scheduleUserDataSync(workManager: WorkManager) {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
+        val constraints =
+            Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
 
         val syncWorkRequest =
             OneTimeWorkRequestBuilder<SyncWorker>()
@@ -140,29 +145,20 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
                 .build()
 
-        workManager
-            .enqueueUniqueWork(
-                uniqueWorkName = "syncUserData",
-                existingWorkPolicy = ExistingWorkPolicy.KEEP,
-                request = syncWorkRequest
-            )
+        workManager.enqueueUniqueWork(
+            uniqueWorkName = "syncUserData",
+            existingWorkPolicy = ExistingWorkPolicy.KEEP,
+            request = syncWorkRequest,
+        )
     }
 
     private fun scheduleMpvCleanup(workManager: WorkManager) {
-        val constraints = Constraints.Builder()
-            .setRequiresDeviceIdle(true)
-            .setRequiresBatteryNotLow(true)
-            .build()
-
-        val cleanupRequest =
-            OneTimeWorkRequestBuilder<MpvCleanupWorker>()
-                .setConstraints(constraints)
-                .build()
+        val cleanupRequest = OneTimeWorkRequestBuilder<MpvCleanupWorker>().build()
 
         workManager.enqueueUniqueWork(
             uniqueWorkName = "mpv_cleanup",
             existingWorkPolicy = ExistingWorkPolicy.KEEP,
-            request = cleanupRequest
+            request = cleanupRequest,
         )
     }
 }

@@ -55,6 +55,7 @@ import dev.jdtech.jellyfin.utils.ObserveAsEvents
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.presentation.film.components.ActorsRow
 import dev.jdtech.jellyfin.presentation.film.components.Direction
+import dev.jdtech.jellyfin.presentation.film.components.DownloadQualityDialog
 import dev.jdtech.jellyfin.presentation.film.components.InfoText
 import dev.jdtech.jellyfin.presentation.film.components.ItemButtonsBar
 import dev.jdtech.jellyfin.presentation.film.components.ItemCard
@@ -66,6 +67,7 @@ import dev.jdtech.jellyfin.presentation.film.components.SeasonSelectionDialog
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
+import dev.jdtech.jellyfin.utils.copyOnLongClick
 import dev.jdtech.jellyfin.utils.getShowDateString
 import java.util.UUID
 import org.jellyfin.sdk.model.api.BaseItemKind
@@ -142,7 +144,9 @@ fun ShowScreen(
             }
             viewModel.onAction(action)
         },
-        onDownloadSeasons = { seasonIds -> viewModel.downloadSeasons(seasonIds) },
+        onDownloadSeasons = { seasonIds, maxBitrate ->
+            viewModel.downloadSeasons(seasonIds, maxBitrate)
+        },
         onDeleteShowDownloads = { viewModel.deleteShowDownloads() },
     )
 }
@@ -151,7 +155,7 @@ fun ShowScreen(
 private fun ShowScreenLayout(
     state: ShowState,
     onAction: (ShowAction) -> Unit,
-    onDownloadSeasons: (seasonIds: Set<UUID>) -> Unit,
+    onDownloadSeasons: (seasonIds: Set<UUID>, maxBitrate: Int?) -> Unit,
     onDeleteShowDownloads: () -> Unit,
 ) {
     val safePadding = rememberSafePadding()
@@ -163,6 +167,8 @@ private fun ShowScreenLayout(
     val scrollState = rememberScrollState()
 
     var seasonSelectionDialogOpen by remember { mutableStateOf(false) }
+    // Seasons picked in the selection dialog, awaiting a quality choice.
+    var pendingDownloadSeasonIds by remember { mutableStateOf<Set<UUID>?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         state.show?.let { show ->
@@ -178,6 +184,7 @@ private fun ShowScreenLayout(
                         ) {
                             Text(
                                 text = show.name,
+                                modifier = Modifier.copyOnLongClick(show.name),
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 3,
                                 style = MaterialTheme.typography.headlineMedium,
@@ -186,6 +193,7 @@ private fun ShowScreenLayout(
                                 if (originalTitle != show.name) {
                                     Text(
                                         text = originalTitle,
+                                        modifier = Modifier.copyOnLongClick(originalTitle),
                                         overflow = TextOverflow.Ellipsis,
                                         maxLines = 1,
                                         style = MaterialTheme.typography.bodyMedium,
@@ -202,23 +210,34 @@ private fun ShowScreenLayout(
                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.small),
                         verticalAlignment = Alignment.Bottom,
                     ) {
+                        val dateText = getShowDateString(show)
                         Text(
-                            text = getShowDateString(show),
+                            text = dateText,
+                            modifier = Modifier.copyOnLongClick(dateText),
                             style = MaterialTheme.typography.bodyMedium,
                         )
+                        val runtimeText = stringResource(
+                            CoreR.string.runtime_minutes,
+                            show.runtimeTicks.div(Constants.TICKS_PER_MINUTE),
+                        )
                         Text(
-                            text =
-                                stringResource(
-                                    CoreR.string.runtime_minutes,
-                                    show.runtimeTicks.div(Constants.TICKS_PER_MINUTE),
-                                ),
+                            text = runtimeText,
+                            modifier = Modifier.copyOnLongClick(runtimeText),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         show.officialRating?.let { officialRating ->
-                            Text(text = officialRating, style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                text = officialRating,
+                                modifier = Modifier.copyOnLongClick(officialRating),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         }
                         show.communityRating?.let { communityRating ->
-                            Row(verticalAlignment = Alignment.Bottom) {
+                            val ratingText = "%.1f".format(communityRating)
+                            Row(
+                                modifier = Modifier.copyOnLongClick(ratingText),
+                                verticalAlignment = Alignment.Bottom
+                            ) {
                                 Icon(
                                     painter = painterResource(CoreR.drawable.ic_star),
                                     contentDescription = null,
@@ -317,7 +336,8 @@ private fun ShowScreenLayout(
                     }
                     LazyRow(
                         contentPadding = PaddingValues(start = paddingStart, end = paddingEnd),
-                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
+                        horizontalArrangement =
+                            Arrangement.spacedBy(MaterialTheme.spacings.default),
                     ) {
                         items(items = state.seasons, key = { item -> item.id }) { season ->
                             ItemCard(
@@ -354,11 +374,20 @@ private fun ShowScreenLayout(
             SeasonSelectionDialog(
                 seasons = state.seasons,
                 onConfirm = { selectedSeasonIds ->
-                    onDownloadSeasons(selectedSeasonIds)
+                    pendingDownloadSeasonIds = selectedSeasonIds
                     seasonSelectionDialogOpen = false
                 },
                 onDismiss = { seasonSelectionDialogOpen = false },
                 seasonDownloadInfo = state.seasonDownloadInfo,
+            )
+        }
+        pendingDownloadSeasonIds?.let { seasonIds ->
+            DownloadQualityDialog(
+                onSelect = { maxBitrate ->
+                    onDownloadSeasons(seasonIds, maxBitrate)
+                    pendingDownloadSeasonIds = null
+                },
+                onDismiss = { pendingDownloadSeasonIds = null },
             )
         }
     }
@@ -371,7 +400,7 @@ private fun EpisodeScreenLayoutPreview() {
         ShowScreenLayout(
             state = ShowState(show = dummyShow),
             onAction = {},
-            onDownloadSeasons = {},
+            onDownloadSeasons = { _, _ -> },
             onDeleteShowDownloads = {},
         )
     }

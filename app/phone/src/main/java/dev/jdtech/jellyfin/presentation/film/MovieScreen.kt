@@ -22,6 +22,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -46,6 +49,7 @@ import dev.jdtech.jellyfin.film.presentation.movie.MovieAction
 import dev.jdtech.jellyfin.film.presentation.movie.MovieState
 import dev.jdtech.jellyfin.film.presentation.movie.MovieViewModel
 import dev.jdtech.jellyfin.presentation.film.components.ActorsRow
+import dev.jdtech.jellyfin.presentation.film.components.DownloadQualityDialog
 import dev.jdtech.jellyfin.presentation.film.components.ExtraInfoText
 import dev.jdtech.jellyfin.presentation.film.components.InfoText
 import dev.jdtech.jellyfin.presentation.film.components.ItemButtonsBar
@@ -58,6 +62,7 @@ import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
 import dev.jdtech.jellyfin.utils.ObserveAsEvents
+import dev.jdtech.jellyfin.utils.copyOnLongClick
 import java.util.UUID
 import org.jellyfin.sdk.model.api.BaseItemKind
 
@@ -146,6 +151,8 @@ private fun MovieScreenLayout(
 
     val scrollState = rememberScrollState()
 
+    var downloadQualityDialogOpen by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxSize()) {
         state.movie?.let { movie ->
             Column(modifier = Modifier.fillMaxWidth().verticalScroll(scrollState)) {
@@ -160,6 +167,7 @@ private fun MovieScreenLayout(
                         ) {
                             Text(
                                 text = movie.name,
+                                modifier = Modifier.copyOnLongClick(movie.name),
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 3,
                                 style = MaterialTheme.typography.headlineMedium,
@@ -168,6 +176,7 @@ private fun MovieScreenLayout(
                                 if (originalTitle != movie.name) {
                                     Text(
                                         text = originalTitle,
+                                        modifier = Modifier.copyOnLongClick(originalTitle),
                                         overflow = TextOverflow.Ellipsis,
                                         maxLines = 1,
                                         style = MaterialTheme.typography.bodyMedium,
@@ -185,24 +194,35 @@ private fun MovieScreenLayout(
                         verticalAlignment = Alignment.Bottom,
                     ) {
                         movie.premiereDate?.let { premiereDate ->
+                            val premiereDateText = premiereDate.year.toString()
                             Text(
-                                text = premiereDate.year.toString(),
+                                text = premiereDateText,
+                                modifier = Modifier.copyOnLongClick(premiereDateText),
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                         }
+                        val runtimeText = stringResource(
+                            CoreR.string.runtime_minutes,
+                            movie.runtimeTicks.div(Constants.TICKS_PER_MINUTE),
+                        )
                         Text(
-                            text =
-                                stringResource(
-                                    CoreR.string.runtime_minutes,
-                                    movie.runtimeTicks.div(Constants.TICKS_PER_MINUTE),
-                                ),
+                            text = runtimeText,
+                            modifier = Modifier.copyOnLongClick(runtimeText),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         movie.officialRating?.let { officialRating ->
-                            Text(text = officialRating, style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                text = officialRating,
+                                modifier = Modifier.copyOnLongClick(officialRating),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         }
                         movie.communityRating?.let { communityRating ->
-                            Row(verticalAlignment = Alignment.Bottom) {
+                            val ratingText = "%.1f".format(communityRating)
+                            Row(
+                                modifier = Modifier.copyOnLongClick(ratingText),
+                                verticalAlignment = Alignment.Bottom
+                            ) {
                                 Icon(
                                     painter = painterResource(CoreR.drawable.ic_star),
                                     contentDescription = null,
@@ -240,9 +260,7 @@ private fun MovieScreenLayout(
                             }
                         },
                         onTrailerClick = { uri -> onAction(MovieAction.PlayTrailer(uri)) },
-                        onDownloadClick = {
-                            onDownloaderAction(DownloaderAction.Download(movie))
-                        },
+                        onDownloadClick = { downloadQualityDialogOpen = true },
                         onDownloadCancelClick = {
                             onDownloaderAction(DownloaderAction.CancelDownload(movie))
                         },
@@ -284,6 +302,18 @@ private fun MovieScreenLayout(
             onBackClick = { onAction(MovieAction.OnBackClick) },
             onHomeClick = { onAction(MovieAction.OnHomeClick) },
         )
+
+        if (downloadQualityDialogOpen) {
+            DownloadQualityDialog(
+                onSelect = { maxBitrate ->
+                    state.movie?.let { movie ->
+                        onDownloaderAction(DownloaderAction.Download(movie, maxBitrate))
+                    }
+                    downloadQualityDialogOpen = false
+                },
+                onDismiss = { downloadQualityDialogOpen = false },
+            )
+        }
     }
 }
 

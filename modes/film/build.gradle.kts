@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+java { toolchain { languageVersion = Versions.JAVA } }
+
 android {
     namespace = "dev.jdtech.jellyfin.film"
     compileSdk = Versions.COMPILE_SDK
@@ -13,11 +15,6 @@ android {
     buildTypes {
         named("release") { isMinifyEnabled = false }
         register("staging") { initWith(getByName("release")) }
-    }
-
-    compileOptions {
-        sourceCompatibility = Versions.JAVA
-        targetCompatibility = Versions.JAVA
     }
 }
 
@@ -41,4 +38,5 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    implementation(libs.kotlinx.coroutines.android)
 }
