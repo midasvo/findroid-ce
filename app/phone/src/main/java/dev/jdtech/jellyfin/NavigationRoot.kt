@@ -464,7 +464,8 @@ private fun EntryProviderScope<NavKey>.mainEntries(
                         item,
                         downloadsOnly = true,
                     )
-                }
+                },
+            onBrowseLibraryClick = dropUnlessResumed { navigator.navigate(MediaRoute) },
         )
     }
     entry<LibraryRoute> { key ->

@@ -24,8 +24,10 @@ import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.Downloader
 import java.io.File
+import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -47,6 +49,9 @@ constructor(
 
     private var wasBusy = false
 
+    /** Completed queue entries already scheduled to move into the library. */
+    private val handledCompletions = mutableSetOf<UUID>()
+
     init {
         // Load library sections on first open.
         loadItems()
@@ -55,9 +60,24 @@ constructor(
         viewModelScope.launch {
             downloadQueue.entries.collect { entries ->
                 val items = entries.map { it.toActiveDownload() }
-                val hasCompleted =
-                    entries.any { it.state is DownloadQueue.EntryState.Completed }
-                _state.emit(_state.value.copy(queueItems = items, hasCompleted = hasCompleted))
+                _state.emit(_state.value.copy(queueItems = items))
+
+                // Finished downloads move into the library on their own: reload so they
+                // show up there, and drop the queue entry once its row has had a moment
+                // to show the check mark.
+                handledCompletions.retainAll(entries.map { it.id }.toSet())
+                val newlyCompleted =
+                    entries.filter {
+                        it.state is DownloadQueue.EntryState.Completed &&
+                            handledCompletions.add(it.id)
+                    }
+                if (newlyCompleted.isNotEmpty()) {
+                    loadItems()
+                    viewModelScope.launch {
+                        delay(COMPLETED_LINGER_MS)
+                        newlyCompleted.forEach { downloadQueue.remove(it.id) }
+                    }
+                }
                 // When downloads finish (busy -> not busy), reload sections so newly
                 // completed items appear and removed shows disappear. The pump now
                 // finalizes downloads (rename + DB update) before flipping to
@@ -85,16 +105,25 @@ constructor(
                 reconcileStuckDownloads()
                 val items = repository.getDownloads()
                 val itemSizes = computeItemSizes(items)
-                val sections = buildCompletedSections(items, itemSizes)
+                val library = buildCompletedSections(items, itemSizes)
                 val storageInfo = calculateStorageInfo()
+                fun sectionBytes(id: Int) =
+                    library.sections
+                        .firstOrNull { it.id == id }
+                        ?.items
+                        ?.sumOf { itemSizes[it.id] ?: 0L } ?: 0L
                 _state.emit(
                     _state.value.copy(
                         isLoading = false,
-                        sections = sections,
+                        sections = library.sections,
                         itemSizes = itemSizes,
-                        storageUsedBytes = storageInfo.first,
-                        storageFreeBytes = storageInfo.second,
-                        storageIsExternal = storageInfo.third,
+                        episodeCounts = library.episodeCounts,
+                        moviesBytes = sectionBytes(Constants.FAVORITE_TYPE_MOVIES),
+                        showsBytes = sectionBytes(Constants.FAVORITE_TYPE_SHOWS),
+                        storageUsedBytes = storageInfo.usedBytes,
+                        storageFreeBytes = storageInfo.freeBytes,
+                        storageTotalBytes = storageInfo.totalBytes,
+                        storageIsExternal = storageInfo.isExternal,
                     )
                 )
             } catch (e: Exception) {
@@ -168,12 +197,6 @@ constructor(
         }
     }
 
-    fun clearCompleted() {
-        // Sections in the Downloads tab are keyed off repository.getDownloads(),
-        // not queue state, so clearing completed queue entries doesn't affect them.
-        downloadQueue.clearCompleted()
-    }
-
     private fun DownloadQueue.Entry.toActiveDownload(): ActiveDownload {
         val downloadStatus =
             when (state) {
@@ -198,10 +221,22 @@ constructor(
         )
     }
 
+    private class CompletedLibrary(
+        val sections: List<CollectionSection>,
+        val episodeCounts: Map<UUID, Int>,
+    )
+
+    private class StorageInfo(
+        val usedBytes: Long,
+        val freeBytes: Long,
+        val totalBytes: Long,
+        val isExternal: Boolean,
+    )
+
     private suspend fun buildCompletedSections(
         items: List<FindroidItem>,
         itemSizes: Map<java.util.UUID, Long>,
-    ): List<CollectionSection> =
+    ): CompletedLibrary =
         withContext(Dispatchers.IO) {
             val sortOrder = _state.value.sortOrder
             // A movie/show with ONLY a .download source is still being downloaded
@@ -222,10 +257,11 @@ constructor(
             // Fetch each show's episode list once and reuse it for both the
             // filter and sort passes below, instead of re-querying the DB.
             val episodesByShow = shows.associateWith { database.getEpisodesByShowId(it.id) }
-            val filteredShows = shows
-                .filter { show ->
-                    episodesByShow.getValue(show).any { hasCompletedSource(it.id) }
+            val episodeCounts =
+                shows.associate { show ->
+                    show.id to episodesByShow.getValue(show).count { hasCompletedSource(it.id) }
                 }
+            val filteredShows = shows.filter { show -> episodeCounts.getValue(show.id) > 0 }
             val sortedShows = when (sortOrder) {
                 DownloadSortOrder.NAME -> filteredShows.sortedBy { it.name.lowercase() }
                 DownloadSortOrder.DATE -> {
@@ -252,7 +288,7 @@ constructor(
                 sortedShows,
             )
                 .let { if (it.items.isNotEmpty()) sections.add(it) }
-            sections
+            CompletedLibrary(sections, episodeCounts)
         }
 
     private suspend fun maxSourceMtime(itemId: java.util.UUID): Long =
@@ -287,7 +323,7 @@ constructor(
         sizes
     }
 
-    private suspend fun calculateStorageInfo(): Triple<Long, Long, Boolean> =
+    private suspend fun calculateStorageInfo(): StorageInfo =
         withContext(Dispatchers.IO) {
             val storageIndex =
                 appPreferences.getValue(appPreferences.downloadStorageIndex)?.toIntOrNull() ?: 0
@@ -297,7 +333,7 @@ constructor(
                     Environment.getExternalStorageState(it) == Environment.MEDIA_MOUNTED
                 } ?: dirs.getOrNull(0)
 
-            if (storageDir == null) return@withContext Triple(0L, 0L, false)
+            if (storageDir == null) return@withContext StorageInfo(0L, 0L, 0L, false)
 
             val isExternal = Environment.isExternalStorageRemovable(storageDir)
             // Media files live in external storage, but trickplay tiles and
@@ -309,9 +345,8 @@ constructor(
             val usedBytes = videoBytes + trickplayBytes + imagesBytes
 
             val stats = StatFs(storageDir.path)
-            val freeBytes = stats.availableBytes
 
-            Triple(usedBytes, freeBytes, isExternal)
+            StorageInfo(usedBytes, stats.availableBytes, stats.totalBytes, isExternal)
         }
 
     private fun File.sizeBytesRecursive(): Long {
@@ -328,5 +363,10 @@ constructor(
             }
         }
         return total
+    }
+
+    private companion object {
+        /** How long a finished download stays in the queue showing its check mark. */
+        const val COMPLETED_LINGER_MS = 1_500L
     }
 }
