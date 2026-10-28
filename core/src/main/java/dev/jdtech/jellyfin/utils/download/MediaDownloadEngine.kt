@@ -15,6 +15,7 @@ import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -121,11 +122,29 @@ class MediaDownloadEngine @Inject constructor(
         val destFile: File,
         val allowMetered: Boolean,
         val allowRoaming: Boolean,
+        /**
+         * False when [url] is a live server-side transcode. Two consequences:
+         * no Range header is ever sent (the server cannot serve a byte offset of
+         * a transcode without silently re-encoding from zero first, which stalls
+         * the response past any timeout — restarting from byte 0 is faster and
+         * predictable), and a much longer read timeout is used (the encoder may
+         * legitimately pause the stream while it works or throttles).
+         */
+        val resumable: Boolean = true,
     )
 
     // Engine internals ---------------------------------------------------------
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    /**
+     * Client for non-resumable (transcoded) transfers: same pool/dispatcher as
+     * [client], but with a read timeout generous enough to sit through server-side
+     * encoder pauses (Jellyfin throttles or briefly stalls live transcodes).
+     */
+    private val transcodeClient by lazy {
+        client.newBuilder().readTimeout(5, TimeUnit.MINUTES).build()
+    }
 
     /** Per-task mutable state held in the registry. */
     private inner class TaskState(val request: Request) {
@@ -300,13 +319,16 @@ class MediaDownloadEngine @Inject constructor(
         val httpRequest = okhttp3.Request.Builder()
             .url(req.url)
             .apply {
-                if (existingLen > 0L) {
+                if (existingLen > 0L && req.resumable) {
                     header("Range", "bytes=$existingLen-")
                 }
             }
             .build()
 
-        val call = client.newCall(httpRequest)
+        // Transcoded streams pause while the server encodes; the regular read
+        // timeout would misread those pauses as a dead connection.
+        val effectiveClient = if (req.resumable) client else transcodeClient
+        val call = effectiveClient.newCall(httpRequest)
         // Publish the call atomically against cancel() (same monitor). If cancel() already
         // removed this task, bail before the blocking execute() — otherwise execute() would
         // run an uninterruptible network transfer to completion as an orphan. If we publish

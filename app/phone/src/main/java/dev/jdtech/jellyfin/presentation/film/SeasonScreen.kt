@@ -24,6 +24,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -46,9 +49,11 @@ import dev.jdtech.jellyfin.film.presentation.season.SeasonEvent
 import dev.jdtech.jellyfin.film.presentation.season.SeasonState
 import dev.jdtech.jellyfin.film.presentation.season.SeasonViewModel
 import dev.jdtech.jellyfin.utils.ObserveAsEvents
+import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.isDownloaded
 import dev.jdtech.jellyfin.presentation.film.components.Direction
+import dev.jdtech.jellyfin.presentation.film.components.DownloadQualityDialog
 import dev.jdtech.jellyfin.presentation.film.components.EpisodeCard
 import dev.jdtech.jellyfin.presentation.film.components.ItemButtonsBar
 import dev.jdtech.jellyfin.presentation.film.components.ItemHeader
@@ -126,7 +131,7 @@ fun SeasonScreen(
             }
             viewModel.onAction(action)
         },
-        onDownloadSeason = { viewModel.downloadSeason() },
+        onDownloadSeason = { maxBitrate -> viewModel.downloadSeason(maxBitrate) },
         onDeleteSeasonDownloads = { viewModel.deleteSeasonDownloads() },
     )
 }
@@ -135,7 +140,7 @@ fun SeasonScreen(
 private fun SeasonScreenLayout(
     state: SeasonState,
     onAction: (SeasonAction) -> Unit,
-    onDownloadSeason: () -> Unit,
+    onDownloadSeason: (maxBitrate: Int?) -> Unit,
     onDeleteSeasonDownloads: () -> Unit,
 ) {
     val safePadding = rememberSafePadding()
@@ -145,6 +150,9 @@ private fun SeasonScreenLayout(
     val paddingBottom = safePadding.bottom + MaterialTheme.spacings.default
 
     val lazyListState = rememberLazyListState()
+
+    var seasonQualityDialogOpen by remember { mutableStateOf(false) }
+    var episodeQualityTarget by remember { mutableStateOf<FindroidEpisode?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         state.season?.let { season ->
@@ -213,7 +221,7 @@ private fun SeasonScreenLayout(
                             }
                         },
                         onTrailerClick = {},
-                        onDownloadClick = onDownloadSeason,
+                        onDownloadClick = { seasonQualityDialogOpen = true },
                         onDownloadCancelClick = {},
                         onDownloadDeleteClick = onDeleteSeasonDownloads,
                         modifier =
@@ -269,9 +277,7 @@ private fun SeasonScreenLayout(
                         onClick = { onAction(SeasonAction.NavigateToItem(episode)) },
                         modifier = Modifier.padding(start = paddingStart, end = paddingEnd),
                         downloadProgress = state.episodeDownloadProgress[episode.id],
-                        onDownloadClick = {
-                            onAction(SeasonAction.DownloadEpisode(episode))
-                        },
+                        onDownloadClick = { episodeQualityTarget = episode },
                         onDownloadedClick = {
                             onAction(SeasonAction.DeleteEpisodeDownload(episode))
                         },
@@ -299,6 +305,25 @@ private fun SeasonScreenLayout(
                     Text(text = season.seriesName, overflow = TextOverflow.Ellipsis, maxLines = 1)
                 }
             }
+        }
+
+        if (seasonQualityDialogOpen) {
+            DownloadQualityDialog(
+                onSelect = { maxBitrate ->
+                    onDownloadSeason(maxBitrate)
+                    seasonQualityDialogOpen = false
+                },
+                onDismiss = { seasonQualityDialogOpen = false },
+            )
+        }
+        episodeQualityTarget?.let { episode ->
+            DownloadQualityDialog(
+                onSelect = { maxBitrate ->
+                    onAction(SeasonAction.DownloadEpisode(episode, maxBitrate))
+                    episodeQualityTarget = null
+                },
+                onDismiss = { episodeQualityTarget = null },
+            )
         }
     }
 }

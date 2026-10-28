@@ -13,6 +13,13 @@ data class FindroidSourceDto(
     val type: FindroidSourceType,
     val path: String,
     val downloadId: Long? = null,
+    /**
+     * The download-quality bitrate cap (bits/sec) this source was requested with,
+     * or null for original quality. Persisted so a resume after process death
+     * re-resolves the *same* URL kind — resuming a partial transcode with an
+     * original-file URL (or vice versa) would append mismatched bytes.
+     */
+    val downloadMaxBitrate: Int? = null,
 )
 
 fun FindroidSource.toFindroidSourceDto(itemId: UUID, path: String): FindroidSourceDto {

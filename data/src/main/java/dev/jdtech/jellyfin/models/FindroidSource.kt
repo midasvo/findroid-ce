@@ -16,9 +16,9 @@ data class FindroidSource(
     val mediaStreams: List<FindroidMediaStream>,
     val downloadId: Long? = null,
     /**
-     * True when [path] points at a server-side transcode (an HLS manifest) rather
-     * than the original file. Only the playback path ever produces this — downloads
-     * always fetch the original.
+     * True when [path] points at a server-side transcode rather than the original
+     * file: an HLS manifest on the playback path, or a progressive stream on the
+     * download path (Dolby Vision conversion or a user-picked quality cap).
      */
     val transcoded: Boolean = false,
 )
@@ -29,9 +29,8 @@ suspend fun MediaSourceInfo.toFindroidSource(
     includePath: Boolean = false,
 ): FindroidSource {
     // When the server decided this source needs transcoding it returns a (relative)
-    // transcodingUrl — an HLS manifest. Honor it over the original file. This only
-    // happens on the playback path; downloads request a profile with no transcoding
-    // profiles, so transcodingUrl is always null there.
+    // transcodingUrl — an HLS manifest on the playback path, a progressive stream
+    // on the download path. Honor it over the original file.
     val transcodeUrl = transcodingUrl
     val transcoded = !transcodeUrl.isNullOrBlank()
     val path =

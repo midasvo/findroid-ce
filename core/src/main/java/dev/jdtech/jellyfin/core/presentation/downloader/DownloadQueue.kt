@@ -89,6 +89,11 @@ constructor(
         val totalBytesEstimated: Boolean = false,
         /** True when the server is transcoding this download (e.g. Dolby Vision). */
         val isTranscode: Boolean = false,
+        /**
+         * User-selected download quality cap (bits/sec) for this entry, or null
+         * for original quality. Carried through retries and smart downloads.
+         */
+        val maxBitrate: Int? = null,
         /** Moving-average bytes/sec, or 0 if not computed yet. */
         val bytesPerSecond: Long = 0L,
         /** How many times this entry has been auto-retried. */
@@ -112,7 +117,7 @@ constructor(
     /** Previous bytes + wall-clock (ms) sample per downloadId, for speed calc. */
     private val lastSamples = mutableMapOf<Long, Pair<Long, Long>>()
 
-    suspend fun enqueue(item: FindroidItem) {
+    suspend fun enqueue(item: FindroidItem, maxBitrate: Int? = null) {
         var persisted = false
         mutex.withLock {
             if (_entries.value.any { it.id == item.id && it.state !is EntryState.Failed && it.state !is EntryState.Completed }) {
@@ -126,13 +131,14 @@ constructor(
                     item = item,
                     addedAt = System.currentTimeMillis(),
                     state = EntryState.Pending,
+                    maxBitrate = maxBitrate,
                 )
             _entries.value = sort(filtered + newEntry)
             persisted = true
         }
         if (persisted) {
             try {
-                downloader.savePendingDownload(item)
+                downloader.savePendingDownload(item, maxBitrate)
             } catch (e: Exception) {
                 Timber.e(e, "Failed to persist pending download ${item.name}")
             }
@@ -205,25 +211,27 @@ constructor(
             // through downloadItem (which detects the existing source row and does Range resume).
             // Use addedAt = now - 1 so they sort before brand-new pending entries.
             val addedActive =
-                active.filter { (item, _) -> item.id !in known }.map { (item, _) ->
+                active.filter { it.item.id !in known }.map { restored ->
                     Entry(
-                        id = item.id,
-                        item = item,
+                        id = restored.item.id,
+                        item = restored.item,
                         addedAt = now - 1,
                         state = EntryState.Pending,
+                        maxBitrate = restored.maxBitrate,
                     )
                 }
             // Pending items entered after active downloads so they don't cut in line.
             val activeIds = addedActive.map { it.id }.toSet()
             val addedPending =
                 pending
-                    .filter { (item, _) -> item.id !in known && item.id !in activeIds }
-                    .map { (item, addedAt) ->
+                    .filter { it.item.id !in known && it.item.id !in activeIds }
+                    .map { restored ->
                         Entry(
-                            id = item.id,
-                            item = item,
-                            addedAt = addedAt,
+                            id = restored.item.id,
+                            item = restored.item,
+                            addedAt = restored.addedAt,
                             state = EntryState.Pending,
+                            maxBitrate = restored.maxBitrate,
                         )
                     }
             val added = addedActive + addedPending
@@ -233,7 +241,7 @@ constructor(
         ensurePump()
     }
 
-    suspend fun enqueueAll(items: List<FindroidItem>) {
+    suspend fun enqueueAll(items: List<FindroidItem>, maxBitrate: Int? = null) {
         val persistedItems = mutableListOf<FindroidItem>()
         mutex.withLock {
             val existingIds =
@@ -251,6 +259,7 @@ constructor(
                             item = item,
                             addedAt = now + idx, // preserve insertion order
                             state = EntryState.Pending,
+                            maxBitrate = maxBitrate,
                         )
                     }
             if (newEntries.isEmpty()) return@withLock
@@ -261,7 +270,7 @@ constructor(
         }
         for (item in persistedItems) {
             try {
-                downloader.savePendingDownload(item)
+                downloader.savePendingDownload(item, maxBitrate)
             } catch (e: Exception) {
                 Timber.e(e, "Failed to persist pending download ${item.name}")
             }
@@ -301,13 +310,13 @@ constructor(
     /** Re-queues a failed entry. */
     fun retry(id: UUID) {
         scope.launch {
-            var retried: FindroidItem? = null
+            var retried: Entry? = null
             mutex.withLock {
                 _entries.value =
                     sort(
                         _entries.value.map { entry ->
                             if (entry.id == id && entry.state is EntryState.Failed) {
-                                retried = entry.item
+                                retried = entry
                                 entry.copy(
                                     state = EntryState.Pending,
                                     addedAt = System.currentTimeMillis(),
@@ -323,11 +332,11 @@ constructor(
                         }
                     )
             }
-            retried?.let { item ->
+            retried?.let { entry ->
                 try {
-                    downloader.savePendingDownload(item)
+                    downloader.savePendingDownload(entry.item, entry.maxBitrate)
                 } catch (e: Exception) {
-                    Timber.e(e, "Failed to persist retried download ${item.name}")
+                    Timber.e(e, "Failed to persist retried download ${entry.item.name}")
                 }
             }
             ensurePump()
@@ -555,7 +564,7 @@ constructor(
                             )
                             Timber.i("Auto-retry #${failed.retryCount + 1} for ${failed.item.name} in ${backoffMs / 1000}s")
                             try {
-                                downloader.savePendingDownload(failed.item)
+                                downloader.savePendingDownload(failed.item, failed.maxBitrate)
                             } catch (e: Exception) {
                                 Timber.e(e, "Failed to re-persist auto-retried download ${failed.item.name}")
                             }
@@ -574,10 +583,10 @@ constructor(
                         updates.values.filter { it.state is EntryState.Completed }
                     for (entry in completedEntries) {
                         entry.downloadId?.let { lastSamples.remove(it) }
-                        // Smart Downloads: auto-queue next episode
+                        // Smart Downloads: auto-queue next episode at the same quality
                         val item = entry.item
                         if (item is FindroidEpisode) {
-                            scope.launch { smartEnqueueNext(item) }
+                            scope.launch { smartEnqueueNext(item, entry.maxBitrate) }
                         }
                     }
                 }
@@ -627,11 +636,13 @@ constructor(
     private suspend fun startDownload(entry: Entry) {
         val storageIndex =
             appPreferences.getValue(appPreferences.downloadStorageIndex)?.toIntOrNull() ?: 0
-        // A Dolby Vision item is transcoded server-side when the setting is on, which
-        // makes the download's length unknown up front — flag it so the UI can say so.
+        // A Dolby Vision item (with the setting on) or a quality-capped download may
+        // be transcoded server-side, which makes the download's length unknown up
+        // front — flag it so the UI can say so.
         val isTranscode =
-            appPreferences.getValue(appPreferences.downloadTranscodeDolbyVision) &&
-                entry.item.hasDolbyVision()
+            entry.maxBitrate != null ||
+                (appPreferences.getValue(appPreferences.downloadTranscodeDolbyVision) &&
+                    entry.item.hasDolbyVision())
         // Drop the pending row *before* running setup. If the process dies
         // mid-setup, restoreAll() on next launch would otherwise resurrect the
         // pending entry and start a duplicate engine task + duplicate source row
@@ -643,7 +654,11 @@ constructor(
         }
         val (downloadId, errorText) =
             try {
-                downloader.downloadItem(item = entry.item, storageIndex = storageIndex)
+                downloader.downloadItem(
+                    item = entry.item,
+                    storageIndex = storageIndex,
+                    maxBitrate = entry.maxBitrate,
+                )
             } catch (e: Exception) {
                 Timber.e(e, "downloadItem threw for ${entry.item.name}")
                 // Surface something to the Queue UI instead of a blank error — the
@@ -719,9 +734,9 @@ constructor(
     /**
      * Smart Downloads: when an episode finishes downloading, automatically
      * queue the next episode in the same season (if it exists and isn't
-     * already downloaded or queued).
+     * already downloaded or queued), at the same quality as the finished one.
      */
-    private suspend fun smartEnqueueNext(episode: FindroidEpisode) {
+    private suspend fun smartEnqueueNext(episode: FindroidEpisode, maxBitrate: Int?) {
         if (!appPreferences.getValue(appPreferences.smartDownloads)) return
         try {
             val episodes = repository.getEpisodes(
@@ -744,7 +759,7 @@ constructor(
                 return
             }
             Timber.i("Smart Downloads: auto-queueing next episode ${next.seriesName} S%02dE%02d".format(next.parentIndexNumber, next.indexNumber))
-            enqueue(next)
+            enqueue(next, maxBitrate)
         } catch (e: Exception) {
             Timber.e(e, "Smart Downloads: failed to fetch next episode after ${episode.name}")
         }

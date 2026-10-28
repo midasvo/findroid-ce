@@ -23,6 +23,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +51,7 @@ import dev.jdtech.jellyfin.film.presentation.episode.EpisodeAction
 import dev.jdtech.jellyfin.film.presentation.episode.EpisodeState
 import dev.jdtech.jellyfin.film.presentation.episode.EpisodeViewModel
 import dev.jdtech.jellyfin.presentation.film.components.ActorsRow
+import dev.jdtech.jellyfin.presentation.film.components.DownloadQualityDialog
 import dev.jdtech.jellyfin.presentation.film.components.ExtraInfoText
 import dev.jdtech.jellyfin.presentation.film.components.ItemButtonsBar
 import dev.jdtech.jellyfin.presentation.film.components.ItemHeader
@@ -145,6 +149,8 @@ private fun EpisodeScreenLayout(
     val paddingBottom = safePadding.bottom + MaterialTheme.spacings.default
 
     val scrollState = rememberScrollState()
+
+    var downloadQualityDialogOpen by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         state.episode?.let { episode ->
@@ -254,9 +260,7 @@ private fun EpisodeScreenLayout(
                             }
                         },
                         onTrailerClick = {},
-                        onDownloadClick = {
-                            onDownloaderAction(DownloaderAction.Download(episode))
-                        },
+                        onDownloadClick = { downloadQualityDialogOpen = true },
                         onDownloadCancelClick = {
                             onDownloaderAction(DownloaderAction.CancelDownload(episode))
                         },
@@ -313,6 +317,18 @@ private fun EpisodeScreenLayout(
                         }
                 }
             }
+        }
+
+        if (downloadQualityDialogOpen) {
+            DownloadQualityDialog(
+                onSelect = { maxBitrate ->
+                    state.episode?.let { episode ->
+                        onDownloaderAction(DownloaderAction.Download(episode, maxBitrate))
+                    }
+                    downloadQualityDialogOpen = false
+                },
+                onDismiss = { downloadQualityDialogOpen = false },
+            )
         }
     }
 }

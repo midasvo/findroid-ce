@@ -96,7 +96,7 @@ constructor(
         }
     }
 
-    fun downloadSeasons(seasonIds: Set<UUID>) {
+    fun downloadSeasons(seasonIds: Set<UUID>, maxBitrate: Int? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             // Episodes already in flight count as skipped so the toast count
             // matches what actually got added to the queue.
@@ -118,7 +118,7 @@ constructor(
                     else toQueue.add(episode)
                 }
             }
-            downloadQueue.enqueueAll(toQueue)
+            downloadQueue.enqueueAll(toQueue, maxBitrate)
             eventsChannel.send(ShowEvent.DownloadResult(toQueue.size, skipped, 0))
             loadShow(showId)
         }

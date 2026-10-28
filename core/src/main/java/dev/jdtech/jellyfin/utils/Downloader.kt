@@ -5,10 +5,18 @@ import dev.jdtech.jellyfin.models.FindroidSource
 import dev.jdtech.jellyfin.models.UiText
 
 interface Downloader {
+    /**
+     * [maxBitrate] (bits/sec) is the user-selected download quality cap — files
+     * above it get a progressive server-side transcode down to the cap, files
+     * below it download as the original. Null = original quality. When resuming
+     * an existing partial, the cap the partial was started with (persisted on the
+     * source row) wins over this parameter.
+     */
     suspend fun downloadItem(
         item: FindroidItem,
         sourceId: String,
         storageIndex: Int = 0,
+        maxBitrate: Int? = null,
     ): Pair<Long, UiText?>
 
     /**
@@ -18,6 +26,7 @@ interface Downloader {
     suspend fun downloadItem(
         item: FindroidItem,
         storageIndex: Int = 0,
+        maxBitrate: Int? = null,
     ): Pair<Long, UiText?>
 
     suspend fun cancelDownload(item: FindroidItem, downloadId: Long)
@@ -53,30 +62,47 @@ interface Downloader {
      */
     suspend fun getProgress(downloadIds: List<Long>): Map<Long, Progress>
 
+    /** An in-flight download restored from the DB after process death. */
+    data class ActiveDownload(
+        val item: FindroidItem,
+        val downloadId: Long,
+        /** Quality cap the download was started with; null = original quality. */
+        val maxBitrate: Int?,
+    )
+
+    /** A persisted queued-but-not-started download. */
+    data class PendingDownload(
+        val item: FindroidItem,
+        /** Timestamp the item was originally queued (ms since epoch). */
+        val addedAt: Long,
+        /** Quality cap chosen when the item was queued; null = original quality. */
+        val maxBitrate: Int?,
+    )
+
     /**
-     * Returns every in-flight download known to the DB as (item, downloadId) pairs.
-     * Used on app startup to re-attach the queue to partial downloads that survived
-     * process death. The engine (OkHttp) does not persist across processes, so these
-     * entries are restored as Pending and resumed via Range request on the next pump cycle.
+     * Returns every in-flight download known to the DB. Used on app startup to
+     * re-attach the queue to partial downloads that survived process death. The
+     * engine (OkHttp) does not persist across processes, so these entries are
+     * restored as Pending and resumed via Range request on the next pump cycle.
      */
-    suspend fun getActiveDownloads(): List<Pair<FindroidItem, Long>>
+    suspend fun getActiveDownloads(): List<ActiveDownload>
 
     /** Persists a pending queue entry so it can be re-queued after process death. */
-    suspend fun savePendingDownload(item: FindroidItem)
+    suspend fun savePendingDownload(item: FindroidItem, maxBitrate: Int? = null)
 
     /** Removes a persisted pending entry (on start/remove/retry). */
     suspend fun removePendingDownload(itemId: java.util.UUID)
 
     /**
-     * Returns previously queued but not-yet-started items paired with the timestamp
-     * they were originally added (ms since epoch).
+     * Returns previously queued but not-yet-started items with the timestamp they
+     * were originally added and the quality they were queued at.
      *
      * If an item cannot be resolved (server unreachable, offline mode, item deleted),
      * the row is **kept** for retry on the next app start. Rows are only deleted when
      * their [itemKind] is unrecognized, or when the row is older than 30 days and still
      * cannot be resolved (indicating the item was likely permanently deleted server-side).
      */
-    suspend fun getPendingDownloads(): List<Pair<FindroidItem, Long>>
+    suspend fun getPendingDownloads(): List<PendingDownload>
 
     /**
      * Drops DB rows and on-disk files whose state no longer matches reality:

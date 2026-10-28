@@ -111,11 +111,11 @@ constructor(
             }
     }
 
-    private fun download(item: FindroidItem) {
+    private fun download(item: FindroidItem, maxBitrate: Int?) {
         trackedItemId = item.id
         wasCompleted = false
         wasFailed = false
-        viewModelScope.launch { downloadQueue.enqueue(item) }
+        viewModelScope.launch { downloadQueue.enqueue(item, maxBitrate) }
         startObserving(item.id)
     }
 
@@ -136,7 +136,7 @@ constructor(
 
     fun onAction(action: DownloaderAction) {
         when (action) {
-            is DownloaderAction.Download -> download(action.item)
+            is DownloaderAction.Download -> download(action.item, action.maxBitrate)
             is DownloaderAction.DeleteDownload -> deleteDownload(action.item)
             is DownloaderAction.CancelDownload -> cancelDownload(action.item)
         }

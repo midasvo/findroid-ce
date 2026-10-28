@@ -94,11 +94,17 @@ interface JellyfinRepository {
      * file, except — when [transcodeDolbyVision] is set — Dolby Vision files, which
      * the server then transcodes to a device-compatible H.264 copy so they play
      * offline. Every non-DV file is still the original regardless of the flag.
+     *
+     * [maxBitrate] (bits/sec) is the user-selected download quality cap. Files
+     * whose bitrate exceeds it get a progressive server-side transcode down to
+     * the cap; files under it still download as the original. Null = original
+     * quality for everything.
      */
     suspend fun getMediaSources(
         itemId: UUID,
         includePath: Boolean = false,
         transcodeDolbyVision: Boolean = false,
+        maxBitrate: Int? = null,
     ): List<FindroidSource>
 
     /**

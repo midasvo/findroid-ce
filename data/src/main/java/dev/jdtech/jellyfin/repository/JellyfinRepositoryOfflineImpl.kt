@@ -364,6 +364,7 @@ class JellyfinRepositoryOfflineImpl(
         itemId: UUID,
         includePath: Boolean,
         transcodeDolbyVision: Boolean,
+        maxBitrate: Int?,
     ): List<FindroidSource> =
         withContext(Dispatchers.IO) {
             database.getSources(itemId).map { it.toFindroidSource(database) }

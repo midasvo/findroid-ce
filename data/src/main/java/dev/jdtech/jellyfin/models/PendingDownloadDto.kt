@@ -15,4 +15,6 @@ data class PendingDownloadDto(
     @PrimaryKey val itemId: UUID,
     val itemKind: String,
     val addedAt: Long,
+    /** Download-quality bitrate cap (bits/sec) chosen for this item; null = original. */
+    val maxBitrate: Int? = null,
 )

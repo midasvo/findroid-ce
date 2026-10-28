@@ -55,6 +55,7 @@ import dev.jdtech.jellyfin.utils.ObserveAsEvents
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.presentation.film.components.ActorsRow
 import dev.jdtech.jellyfin.presentation.film.components.Direction
+import dev.jdtech.jellyfin.presentation.film.components.DownloadQualityDialog
 import dev.jdtech.jellyfin.presentation.film.components.InfoText
 import dev.jdtech.jellyfin.presentation.film.components.ItemButtonsBar
 import dev.jdtech.jellyfin.presentation.film.components.ItemCard
@@ -143,7 +144,9 @@ fun ShowScreen(
             }
             viewModel.onAction(action)
         },
-        onDownloadSeasons = { seasonIds -> viewModel.downloadSeasons(seasonIds) },
+        onDownloadSeasons = { seasonIds, maxBitrate ->
+            viewModel.downloadSeasons(seasonIds, maxBitrate)
+        },
         onDeleteShowDownloads = { viewModel.deleteShowDownloads() },
     )
 }
@@ -152,7 +155,7 @@ fun ShowScreen(
 private fun ShowScreenLayout(
     state: ShowState,
     onAction: (ShowAction) -> Unit,
-    onDownloadSeasons: (seasonIds: Set<UUID>) -> Unit,
+    onDownloadSeasons: (seasonIds: Set<UUID>, maxBitrate: Int?) -> Unit,
     onDeleteShowDownloads: () -> Unit,
 ) {
     val safePadding = rememberSafePadding()
@@ -164,6 +167,8 @@ private fun ShowScreenLayout(
     val scrollState = rememberScrollState()
 
     var seasonSelectionDialogOpen by remember { mutableStateOf(false) }
+    // Seasons picked in the selection dialog, awaiting a quality choice.
+    var pendingDownloadSeasonIds by remember { mutableStateOf<Set<UUID>?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         state.show?.let { show ->
@@ -369,11 +374,20 @@ private fun ShowScreenLayout(
             SeasonSelectionDialog(
                 seasons = state.seasons,
                 onConfirm = { selectedSeasonIds ->
-                    onDownloadSeasons(selectedSeasonIds)
+                    pendingDownloadSeasonIds = selectedSeasonIds
                     seasonSelectionDialogOpen = false
                 },
                 onDismiss = { seasonSelectionDialogOpen = false },
                 seasonDownloadInfo = state.seasonDownloadInfo,
+            )
+        }
+        pendingDownloadSeasonIds?.let { seasonIds ->
+            DownloadQualityDialog(
+                onSelect = { maxBitrate ->
+                    onDownloadSeasons(seasonIds, maxBitrate)
+                    pendingDownloadSeasonIds = null
+                },
+                onDismiss = { pendingDownloadSeasonIds = null },
             )
         }
     }
@@ -386,7 +400,7 @@ private fun EpisodeScreenLayoutPreview() {
         ShowScreenLayout(
             state = ShowState(show = dummyShow),
             onAction = {},
-            onDownloadSeasons = {},
+            onDownloadSeasons = { _, _ -> },
             onDeleteShowDownloads = {},
         )
     }
