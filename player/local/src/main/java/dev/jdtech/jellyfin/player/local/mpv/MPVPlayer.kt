@@ -427,6 +427,11 @@ class MPVPlayer(
                                 MEDIA_ITEM_TRANSITION_REASON_AUTO,
                             )
                         }
+                        // The media session reads the notification's title and artwork from
+                        // getMediaMetadata(), which follows the current item.
+                        listeners.sendEvent(EVENT_MEDIA_METADATA_CHANGED) { listener ->
+                            listener.onMediaMetadataChanged(mediaMetadata)
+                        }
                     }
                 }
             }
@@ -1210,7 +1215,7 @@ class MPVPlayer(
      * dynamic metadata sourced from [Player.Listener.onMediaMetadataChanged].
      */
     override fun getMediaMetadata(): MediaMetadata {
-        return MediaMetadata.EMPTY
+        return currentMediaItem?.mediaMetadata ?: MediaMetadata.EMPTY
     }
 
     override fun getPlaylistMetadata(): MediaMetadata {

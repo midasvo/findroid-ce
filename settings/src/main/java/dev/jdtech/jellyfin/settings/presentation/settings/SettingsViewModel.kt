@@ -823,7 +823,6 @@ class SettingsViewModel @Inject constructor(
                                                 ),
                                             ),
                                     ),
-
                                 ),
                         )
                     )

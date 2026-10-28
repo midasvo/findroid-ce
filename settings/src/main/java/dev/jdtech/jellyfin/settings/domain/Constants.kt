@@ -7,7 +7,6 @@ object Constants {
         const val PIP = "pip"
     }
 
-    const val PREF_PLAYER_BACKGROUND_AUDIO = "pref_player_background_audio"
     // Player - "Play next episode automatically". The values stored in
     // pref_player_autoplay_next and R.array.player_autoplay_next_values.
     object PlayerAutoPlayNext {

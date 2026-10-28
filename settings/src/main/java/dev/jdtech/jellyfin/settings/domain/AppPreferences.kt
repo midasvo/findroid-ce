@@ -28,8 +28,7 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     // Player
     val playerBackend = Preference("pref_player_backend", "exoplayer")
     val playerBrightness = Preference("pref_player_brightness", -1.0f)
-    val playerBackgroundAudio = Preference(Constants.PREF_PLAYER_BACKGROUND_AUDIO, false)
-
+    val playerBackgroundAudio = Preference("pref_player_background_audio", false)
 
     // Maximum streaming bitrate in bits per second; the server transcodes
     // anything above it. 0 means no cap (original quality). Set from the

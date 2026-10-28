@@ -1,9 +1,11 @@
 package dev.jdtech.jellyfin.player.local.presentation
 
 import android.app.Application
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.widget.Toast
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -16,12 +18,10 @@ import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
-import android.content.Intent
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.session.MediaSession
-import dev.jdtech.jellyfin.player.local.PlaybackService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.jdtech.jellyfin.models.FindroidSegment
 import dev.jdtech.jellyfin.models.FindroidSegmentType
@@ -29,6 +29,7 @@ import dev.jdtech.jellyfin.models.MediaSegmentAction
 import dev.jdtech.jellyfin.player.core.domain.models.PlayerChapter
 import dev.jdtech.jellyfin.player.core.domain.models.PlayerItem
 import dev.jdtech.jellyfin.player.core.domain.models.Trickplay
+import dev.jdtech.jellyfin.player.local.PlaybackService
 import dev.jdtech.jellyfin.player.local.R
 import dev.jdtech.jellyfin.player.local.domain.PlaylistManager
 import dev.jdtech.jellyfin.player.local.domain.StillWatchingTracker
@@ -72,10 +73,15 @@ constructor(
 ) : ViewModel(), Player.Listener {
     val player: Player
 
+    /**
+     * The only media session for [player], on phone and TV alike. Media3 does not allow two
+     * sessions with the same ID, so the activities and screens must not build their own.
+     */
     private var mediaSession: MediaSession? = null
 
-    val isBackgroundAudioEnabled: Boolean
-        get() = appPreferences.getValue(appPreferences.playerBackgroundAudio)
+    /** Read once per player session. The setting is only offered on phones. */
+    val isBackgroundAudioEnabled: Boolean =
+        appPreferences.getValue(appPreferences.playerBackgroundAudio)
 
     private val _uiState =
         MutableStateFlow(
@@ -334,9 +340,13 @@ constructor(
         }
 
         mediaSession = MediaSession.Builder(application, player).build()
-        PlaybackService.mediaSession = mediaSession
-        val intent = Intent(application, PlaybackService::class.java)
-        application.startService(intent)
+        // PlaybackService keeps the process alive, with a media notification, while the player
+        // activity is in the background. Without background audio the player pauses when the
+        // activity does, so the service is not needed.
+        if (isBackgroundAudioEnabled) {
+            PlaybackService.mediaSession = mediaSession
+            application.startService(Intent(application, PlaybackService::class.java))
+        }
     }
 
     fun initializePlayer(itemId: UUID, itemKind: String, startFromBeginning: Boolean) {
@@ -405,7 +415,13 @@ constructor(
             MediaItem.Builder()
                 .setMediaId(itemId.toString())
                 .setUri(streamUrl)
-                .setMediaMetadata(MediaMetadata.Builder().setTitle(name).build())
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setTitle(name)
+                        .setArtist(seriesName)
+                        .setArtworkUri(artworkUri?.let { resolveArtworkUri(it) })
+                        .build()
+                )
                 .setSubtitleConfigurations(mediaSubtitles)
                 .apply {
                     // A transcode is delivered as an HLS manifest. Tell ExoPlayer
@@ -415,6 +431,28 @@ constructor(
                 .build()
 
         return mediaItem
+    }
+
+    /** Downloaded items store their images relative to filesDir; the session needs a file URI. */
+    private fun resolveArtworkUri(uri: Uri): Uri =
+        if (uri.scheme == null) {
+            Uri.fromFile(application.filesDir.resolve(uri.path.orEmpty().removePrefix("/")))
+        } else {
+            uri
+        }
+
+    /**
+     * Turn video decoding off while the activity is in the background with background audio
+     * playing, and back on when it returns. Nothing is drawn then, so decoding only costs battery.
+     */
+    fun setVideoEnabled(enabled: Boolean) {
+        val isEnabled = C.TRACK_TYPE_VIDEO !in player.trackSelectionParameters.disabledTrackTypes
+        if (isEnabled == enabled) return
+        player.trackSelectionParameters =
+            player.trackSelectionParameters
+                .buildUpon()
+                .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, !enabled)
+                .build()
     }
 
     private fun releasePlayer() {
@@ -434,12 +472,13 @@ constructor(
 
         mediaSession?.release()
         mediaSession = null
-        PlaybackService.mediaSession = null
-        try {
-            val intent = Intent(application, PlaybackService::class.java)
-            application.stopService(intent)
-        } catch (e: Exception) {
-            Timber.e(e)
+        if (isBackgroundAudioEnabled) {
+            PlaybackService.mediaSession = null
+            try {
+                application.stopService(Intent(application, PlaybackService::class.java))
+            } catch (e: Exception) {
+                Timber.e(e)
+            }
         }
 
         stopped?.let { reportStopped(it) }

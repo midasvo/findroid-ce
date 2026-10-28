@@ -505,12 +505,15 @@ class PlayerActivity : BasePlayerActivity() {
         if (binding.playerView.player == null) {
             binding.playerView.player = viewModel.player
         }
+        viewModel.setVideoEnabled(true)
     }
 
     override fun onStop() {
         super.onStop()
+        // Background audio: keep playing without a picture.
         if (viewModel.isBackgroundAudioEnabled && viewModel.player.isPlaying) {
             binding.playerView.player = null
+            viewModel.setVideoEnabled(false)
         }
     }
 
