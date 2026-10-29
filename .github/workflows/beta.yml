@@ -1,0 +1,104 @@
+name: Beta
+
+# Publishes the phone app's `staging` build type ("Findroid Staging", app id
+# nl.midasvo.findroid.ce.staging) as a GitHub prerelease, so it can be followed in Obtainium
+# next to the stable app. Run it for any branch with:
+#   gh workflow run beta.yml --ref <branch>
+#
+# Beta tags look like v1.2.0-beta.<run_number>; they must never match release.yml's `v*-ce.*`.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: beta-release
+  cancel-in-progress: false
+
+env:
+  # Number of beta prereleases (and their tags) to keep; older ones are deleted.
+  KEEP_BETAS: 10
+
+jobs:
+  beta:
+    name: Build and publish beta APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Compute beta version
+        id: version
+        run: |
+          app_name=$(grep -oP 'APP_NAME = "\K[^"]+' buildSrc/src/main/kotlin/Versions.kt)
+          if [ -z "$app_name" ]; then
+            echo "Could not read APP_NAME from Versions.kt" >&2
+            exit 1
+          fi
+          version="${app_name}-beta.${GITHUB_RUN_NUMBER}"
+          case "v${version}" in
+            v*-ce.*)
+              echo "Beta tag v${version} would trigger the stable release workflow" >&2
+              exit 1
+              ;;
+          esac
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${version}" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > "$GITHUB_WORKSPACE/findroid-ce.jks"
+
+      - name: Assemble staging APKs
+        run: ./gradlew :app:phone:assembleLibreStaging
+        env:
+          BETA_BUILD: ${{ github.run_number }}
+          KEYSTORE_FILE: ${{ github.workspace }}/findroid-ce.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Create GitHub prerelease
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Beta ${{ steps.version.outputs.version }} (${{ github.ref_name }} @ ${{ steps.version.outputs.short_sha }})
+          prerelease: true
+          make_latest: false
+          body: |
+            Beta build of **${{ github.ref_name }}** at ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}.
+
+            This is the "Findroid Staging" app (`nl.midasvo.findroid.ce.staging`). It installs next to the
+            stable Findroid CE app and keeps its own data. Betas are untested; expect bugs.
+          files: app/phone/build/outputs/apk/libre/staging/*.apk
+          fail_on_unmatched_files: true
+
+      - name: Delete old beta prereleases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release list --repo "$GITHUB_REPOSITORY" --limit 1000 \
+            --json tagName,isPrerelease,createdAt \
+            --jq '[.[] | select(.isPrerelease and (.tagName | test("^v.+-beta[.][0-9]+$")))]
+                  | sort_by(.createdAt) | reverse | .[(env.KEEP_BETAS | tonumber):] | .[].tagName' \
+          | while read -r tag; do
+              echo "Deleting $tag"
+              gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes
+            done

@@ -19,6 +19,10 @@ val keystoreProps: Properties? =
         Properties().apply { load(keystorePropertiesFile.inputStream()) }
     } else null
 
+// CE-owned: beta channel. .github/workflows/beta.yml sets BETA_BUILD to its run number, which
+// marks the staging build as a beta and keeps its versionCode increasing across branches.
+val betaBuild: Int? = System.getenv("BETA_BUILD")?.toIntOrNull()
+
 java { toolchain { languageVersion = Versions.JAVA } }
 
 android {
@@ -69,6 +73,7 @@ android {
         register("staging") {
             initWith(getByName("release"))
             applicationIdSuffix = ".staging"
+            versionNameSuffix = betaBuild?.let { "-beta.$it" } ?: "-staging"
         }
     }
 
@@ -110,8 +115,14 @@ android {
 }
 
 androidComponents {
-    onVariants(selector().withBuildType("release")) { variant ->
+    onVariants { variant ->
+        if (variant.buildType != "release" && variant.buildType != "staging") return@onVariants
         variant.outputs.forEach { output ->
+            // Betas from different branches may carry an older APP_CODE, so derive the code from
+            // the run number instead. Offset keeps it above any stable code.
+            if (variant.buildType == "staging" && betaBuild != null) {
+                output.versionCode.set(1_000_000 + betaBuild)
+            }
             val abi =
                 output.filters
                     .firstOrNull { it.filterType == FilterConfiguration.FilterType.ABI }
