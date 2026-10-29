@@ -47,6 +47,7 @@ import dev.jdtech.jellyfin.models.FindroidShow
 import dev.jdtech.jellyfin.navigation.navigateOrReuse
 import dev.jdtech.jellyfin.navigation.resumedAction
 import dev.jdtech.jellyfin.presentation.film.CollectionScreen
+import dev.jdtech.jellyfin.presentation.film.DownloadedShowScreen
 import dev.jdtech.jellyfin.presentation.film.DownloadsScreen
 import dev.jdtech.jellyfin.presentation.film.EpisodeScreen
 import dev.jdtech.jellyfin.presentation.film.FavoritesScreen
@@ -464,7 +465,26 @@ private fun EntryProviderScope<NavKey>.mainEntries(
                         item,
                         downloadsOnly = true,
                     )
-                }
+                },
+            onShowClick =
+                resumedAction { show ->
+                    navigator.navigate(
+                        DownloadedShowRoute(showId = show.id.toString(), showName = show.name)
+                    )
+                },
+            onBrowseLibraryClick = dropUnlessResumed { navigator.navigate(MediaRoute) },
+            onStorageClick =
+                dropUnlessResumed {
+                    navigator.navigate(SettingsRoute(indexes = listOf(CoreR.string.title_download)))
+                },
+        )
+    }
+    entry<DownloadedShowRoute> { key ->
+        DownloadedShowScreen(
+            showId = UUID.fromString(key.showId),
+            showName = key.showName,
+            navigateBack = dropUnlessResumed { navigator.goBack() },
+            onEpisodeClick = resumedAction { item -> navigateToItem(navigator, item) },
         )
     }
     entry<LibraryRoute> { key ->
