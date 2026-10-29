@@ -32,7 +32,7 @@ prefer rock-solid stability, stick with upstream — and know that the good stuf
 - **Bulk season & series download** — download an entire season or series with one tap, with queued concurrent downloading
 - **Configurable max concurrent downloads** — limit how many episodes download at once (default: 2)
 - **Season download status on the show screen** — see "3/10 downloaded" per season in the season selection dialog
-- **Redesigned downloads screen** — active downloads with progress on top, completed items below, storage usage at the bottom
+- **Redesigned downloads screen** — one scrolling list with progress rings and time left for active downloads, artwork-led shows and movies, a per-show episode page, multi-select, undo instead of confirm dialogs, and a storage breakdown
 
 ### Playback & player
 

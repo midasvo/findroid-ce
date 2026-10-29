@@ -10,6 +10,45 @@ _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.2.0-ce.1] — 2026-10-29
+
+A redesigned Downloads screen, and a beta channel you can follow in Obtainium.
+
+### Added
+- Downloaded show page. Tapping a show on the Downloads screen lists its downloaded episodes by
+  season, with sizes, swipe to remove and "Remove all downloads" (#84, #81).
+- Multi-select on the Downloads screen. Tap "Select" or long-press a movie or show, then remove
+  everything selected at once.
+- Play from the Downloads screen. The ▶ on movie and episode artwork resumes playback straight
+  away, from the downloaded copy.
+- Undo instead of confirmation dialogs. Cancelling or removing a download shows an Undo snackbar.
+  A cancelled download keeps running until the snackbar goes away, so undoing loses no progress
+  (#82, #84).
+- Beta channel. Builds of `main` and of work in progress are published as GitHub prereleases and
+  install as a separate app, "Findroid CE Beta", with its own data. The README explains how to
+  follow them in Obtainium (#83, #85, #86, #87).
+
+### Changed
+- The Downloads screen is now one scrolling list instead of tabs: a storage summary, then
+  Downloading, TV Shows and Movies. Sort by recently downloaded, name or size from the ⇅ menu
+  (#84, #81).
+- Active downloads show a progress ring you can tap to stop, and one status line such as
+  "164 MB of 498 MB · 3 min left", "Waiting for network" or the failure reason. The section header
+  shows the count and combined speed, and the time-left estimate is smoothed so it settles instead
+  of jumping around.
+- Finished downloads get a check mark and then move into the library on their own; "Clear
+  completed" is gone. Completing, cancelling and removing a download give a short haptic tick.
+- Movies and shows on the Downloads screen have 16:9 artwork with watch progress, plus year,
+  runtime and size (episode count and size for shows).
+- The storage card shows a bar split into movies, TV shows, other files and free space, turns red
+  under 10 % free, and opens the download settings. An empty Downloads screen explains what goes
+  there and links to the library.
+
+### Fixed
+- In the download queue, the percentage no longer wraps onto several lines, red no longer shows at
+  the corners of the cards, a long series name no longer hides which episode is downloading, and
+  failed downloads show a retry icon instead of a download arrow (#82).
+
 ## [v1.2.0-ce.0] — 2026-10-28
 
 An upstream sync to findroid 1.2.0, a download quality picker, and a batch of player fixes.
