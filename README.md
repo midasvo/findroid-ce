@@ -78,6 +78,8 @@ Beta builds of `main` and of work in progress are published as GitHub prerelease
 To follow them, add the same repo URL in Obtainium a second time with these settings:
 
 - **Include prereleases**: on
+- **Filter release titles by regular expression**: `^Beta`
+  (skips stable releases, which can be newer than the latest beta right after a release)
 - **Filter APKs by regular expression**: `-beta\.\d+-libre-arm64-v8a\.apk$`
   (swap `arm64-v8a` for your device's ABI if needed)
 
