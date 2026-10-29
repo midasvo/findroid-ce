@@ -72,7 +72,7 @@ Obtainium then checks for new releases automatically and notifies you of updates
 ### Beta channel (Obtainium)
 
 Beta builds of `main` and of work in progress are published as GitHub prereleases tagged
-`v<version>-beta.<n>`. They install as a separate app, **Findroid Staging**
+`v<version>-beta.<n>`. They install as a separate app, **Findroid CE Beta**
 (`nl.midasvo.findroid.ce.staging`), with its own data, so they never replace the stable app.
 
 To follow them, add the same repo URL in Obtainium a second time with these settings:

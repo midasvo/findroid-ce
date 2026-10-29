@@ -1,6 +1,6 @@
 name: Beta
 
-# Publishes the phone app's `staging` build type ("Findroid Staging", app id
+# Publishes the phone app's `staging` build type ("Findroid CE Beta", app id
 # nl.midasvo.findroid.ce.staging) as a GitHub prerelease, so it can be followed in Obtainium
 # next to the stable app. Run it for an open pull request with:
 #   gh workflow run beta.yml -f pr=<number>
@@ -142,7 +142,7 @@ jobs:
           body: |
             Beta build of **${{ steps.source.outputs.label }}** (${{ steps.source.outputs.link }}) at commit ${{ steps.version.outputs.sha }}.
 
-            This is the "Findroid Staging" app (`nl.midasvo.findroid.ce.staging`). It installs next to the
+            This is the "Findroid CE Beta" app (`nl.midasvo.findroid.ce.staging`). It installs next to the
             stable Findroid CE app and keeps its own data. Betas are untested; expect bugs.
           files: app/phone/build/outputs/apk/libre/staging/*.apk
           fail_on_unmatched_files: true
