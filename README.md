@@ -81,8 +81,9 @@ To follow them, add the same repo URL in Obtainium a second time with these sett
 - **Filter APKs by regular expression**: `-beta\.\d+-libre-arm64-v8a\.apk$`
   (swap `arm64-v8a` for your device's ABI if needed)
 
-Betas are untested builds — expect bugs. Maintainers can publish any branch as a beta with
-`gh workflow run beta.yml --ref <branch>`; every push to `main` publishes one too.
+Betas are untested builds — expect bugs. Every push to `main` publishes one. Maintainers can
+publish an open pull request (built merged into `main`) with `gh workflow run beta.yml -f pr=<number>`,
+or a branch as-is with `gh workflow run beta.yml --ref <branch>`.
 
 ### Manual
 
