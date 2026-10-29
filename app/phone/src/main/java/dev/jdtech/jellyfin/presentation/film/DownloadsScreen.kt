@@ -24,6 +24,11 @@ import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,12 +49,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.background
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -77,6 +85,9 @@ import dev.jdtech.jellyfin.presentation.film.components.Direction
 import dev.jdtech.jellyfin.presentation.film.components.ItemCard
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
+import java.util.UUID
+import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.launch
 
 private enum class DownloadsTab { LIBRARY, QUEUE }
 
@@ -125,6 +136,43 @@ private fun DownloadsScreenLayout(
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     var selectedTab by rememberSaveable { mutableIntStateOf(DownloadsTab.LIBRARY.ordinal) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    // Cancelling throws away progress, so it is deferred behind an Undo snackbar.
+    // Until the snackbar resolves the download keeps running but is hidden here.
+    var pendingCancelIds by remember { mutableStateOf(emptySet<UUID>()) }
+    LaunchedEffect(state.queueItems) {
+        // Forget committed cancels once the queue has dropped them, so a later
+        // re-download of the same item is not hidden.
+        val queuedIds = state.queueItems.map { it.item.id }.toSet()
+        pendingCancelIds = pendingCancelIds intersect queuedIds
+    }
+    val requestCancel: (ActiveDownload) -> Unit = { download ->
+        pendingCancelIds = pendingCancelIds + download.item.id
+        scope.launch {
+            // Resolve any earlier snackbar first; dismissing it commits that cancel.
+            snackbarHostState.currentSnackbarData?.dismiss()
+            val result =
+                try {
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(CoreR.string.download_cancelled, download.item.name),
+                        actionLabel = context.getString(CoreR.string.undo),
+                        duration = SnackbarDuration.Short,
+                    )
+                } catch (e: CancellationException) {
+                    // Leaving the screen counts as not undoing.
+                    onCancelDownload(download)
+                    throw e
+                }
+            if (result == SnackbarResult.ActionPerformed) {
+                pendingCancelIds = pendingCancelIds - download.item.id
+            } else {
+                onCancelDownload(download)
+            }
+        }
+    }
+    val queueItems = state.queueItems.filterNot { it.item.id in pendingCancelIds }
 
     Scaffold(
         modifier =
@@ -138,6 +186,7 @@ private fun DownloadsScreenLayout(
                 scrollBehavior = scrollBehavior,
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         contentWindowInsets = WindowInsets.statusBars.union(WindowInsets.displayCutout),
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
@@ -145,7 +194,7 @@ private fun DownloadsScreenLayout(
             // Queue tab so the user can see at a glance that downloads are
             // running without switching tabs.
             val activeCount =
-                state.queueItems.count {
+                queueItems.count {
                     it.progress.status == DownloadStatus.QUEUED ||
                         it.progress.status == DownloadStatus.PENDING ||
                         it.progress.status == DownloadStatus.DOWNLOADING ||
@@ -194,7 +243,8 @@ private fun DownloadsScreenLayout(
                 )
                 DownloadsTab.QUEUE -> QueueTabContent(
                     state = state,
-                    onCancelDownload = onCancelDownload,
+                    queueItems = queueItems,
+                    onCancelDownload = requestCancel,
                     onDismissDownload = onDismissDownload,
                     onRetryDownload = onRetryDownload,
                     onClearCompleted = onClearCompleted,
@@ -361,12 +411,13 @@ private fun DownloadsTabContent(
 @Composable
 private fun QueueTabContent(
     state: DownloadsState,
+    queueItems: List<ActiveDownload>,
     onCancelDownload: (ActiveDownload) -> Unit,
     onDismissDownload: (ActiveDownload) -> Unit,
     onRetryDownload: (ActiveDownload) -> Unit,
     onClearCompleted: () -> Unit,
 ) {
-    val allItems = state.queueItems
+    val allItems = queueItems
 
     if (allItems.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -421,9 +472,12 @@ private fun QueueTabContent(
                 SwipeToDismissBox(
                     state = dismissState,
                     backgroundContent = {
+                        // Clipped to the card's shape so the red doesn't show
+                        // past its rounded corners while the card is at rest.
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
+                                .clip(CardDefaults.outlinedShape)
                                 .background(MaterialTheme.colorScheme.errorContainer),
                             contentAlignment = Alignment.CenterEnd,
                         ) {

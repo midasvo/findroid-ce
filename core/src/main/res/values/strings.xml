@@ -134,6 +134,8 @@
     <string name="clear_completed">Clear completed</string>
     <string name="dismiss_download">Dismiss download</string>
     <string name="retry_download">Retry download</string>
+    <string name="download_cancelled">Download of %1$s cancelled</string>
+    <string name="undo">Undo</string>
     <string name="sort_name">Name</string>
     <string name="sort_date">Date</string>
     <string name="sort_size">Size</string>

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -23,6 +24,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -46,6 +48,7 @@ fun ActiveDownloadCard(
     onDismissClick: () -> Unit,
     onRetryClick: () -> Unit = {},
     modifier: Modifier = Modifier,
+    shape: Shape = CardDefaults.outlinedShape,
 ) {
     val progress = activeDownload.progress
     val isCompleted = progress.status == DownloadStatus.COMPLETED
@@ -115,23 +118,23 @@ fun ActiveDownloadCard(
         }
 
     val item = activeDownload.item
-    val itemName =
-        when (item) {
-            is FindroidEpisode -> {
-                val episodeLabel =
-                    stringResource(
-                        CoreR.string.episode_name_extended,
-                        item.parentIndexNumber,
-                        item.indexNumber,
-                        item.name,
-                    )
-                if (item.seriesName.isNotEmpty()) "${item.seriesName} - $episodeLabel"
-                else episodeLabel
-            }
-            else -> item.name
+    // Episodes get the series name on its own line so a long series name can't
+    // truncate away which episode this is.
+    val episodeLabel =
+        (item as? FindroidEpisode)?.let {
+            stringResource(
+                CoreR.string.episode_name_extended,
+                it.parentIndexNumber,
+                it.indexNumber,
+                it.name,
+            )
         }
+    val title =
+        if (item is FindroidEpisode && item.seriesName.isNotEmpty()) item.seriesName
+        else episodeLabel ?: item.name
+    val subtitle = episodeLabel?.takeIf { it != title }
 
-    OutlinedCard(modifier = modifier) {
+    OutlinedCard(modifier = modifier, shape = shape) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(MaterialTheme.spacings.medium),
             verticalAlignment = Alignment.CenterVertically,
@@ -139,18 +142,29 @@ fun ActiveDownloadCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = itemName,
+                    text = title,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyMedium,
                 )
+                subtitle?.let {
+                    Text(
+                        text = it,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
                 Spacer(Modifier.height(4.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.small),
                 ) {
+                    // Weighted so the percentage keeps its natural width instead of
+                    // being squeezed into a one-character column by a long status.
                     Text(
                         text = statusText,
+                        modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -162,6 +176,8 @@ fun ActiveDownloadCard(
                         val pct = animatedProgress.times(100).roundToInt()
                         Text(
                             text = if (activeDownload.totalBytesEstimated) "~$pct%" else "$pct%",
+                            maxLines = 1,
+                            softWrap = false,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -211,7 +227,7 @@ fun ActiveDownloadCard(
                     DownloadStatus.FAILED -> {
                         FilledTonalIconButton(onClick = onRetryClick) {
                             Icon(
-                                painter = painterResource(CoreR.drawable.ic_download),
+                                painter = painterResource(CoreR.drawable.ic_rotate_ccw),
                                 contentDescription = stringResource(CoreR.string.retry_download),
                             )
                         }
