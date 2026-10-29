@@ -28,12 +28,18 @@ enum class DownloadSortOrder { NAME, DATE, SIZE }
 
 data class DownloadsState(
     val queueItems: List<ActiveDownload> = emptyList(),
-    val hasCompleted: Boolean = false,
     val sortOrder: DownloadSortOrder = DownloadSortOrder.DATE,
     val sections: List<CollectionSection> = emptyList(),
     val itemSizes: Map<UUID, Long> = emptyMap(),
+    /** Number of downloaded episodes per show id. */
+    val episodeCounts: Map<UUID, Int> = emptyMap(),
+    /** Bytes taken by downloaded movies and shows, for the storage bar segments. */
+    val moviesBytes: Long = 0L,
+    val showsBytes: Long = 0L,
     val storageUsedBytes: Long = 0L,
     val storageFreeBytes: Long = 0L,
+    /** Size of the volume downloads are stored on, or 0 if unknown. */
+    val storageTotalBytes: Long = 0L,
     val storageIsExternal: Boolean = false,
     val isLoading: Boolean = false,
     val error: Exception? = null,
