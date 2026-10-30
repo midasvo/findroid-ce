@@ -332,10 +332,18 @@ class MPVPlayer(
         handler.post {
             when (property) {
                 "track-list" -> {
+                    val hadVideo = currentTracks.isTypeSelected(C.TRACK_TYPE_VIDEO)
                     val newTracks = getTracks(value)
                     currentTracks = newTracks
                     listeners.sendEvent(EVENT_TRACKS_CHANGED) { listener ->
                         listener.onTracksChanged(currentTracks)
+                    }
+                    // PlayerView covers the surface with a black shutter while no video track is
+                    // selected, and only lifts it on onRenderedFirstFrame.
+                    if (isPlayerReady && !hadVideo && newTracks.isTypeSelected(C.TRACK_TYPE_VIDEO)) {
+                        for (videoListener in videoListeners) {
+                            videoListener.onRenderedFirstFrame()
+                        }
                     }
                 }
             }

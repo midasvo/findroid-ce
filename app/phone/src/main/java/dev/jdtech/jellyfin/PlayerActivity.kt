@@ -502,17 +502,14 @@ class PlayerActivity : BasePlayerActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (binding.playerView.player == null) {
-            binding.playerView.player = viewModel.player
-        }
         viewModel.setVideoEnabled(true)
     }
 
     override fun onStop() {
         super.onStop()
-        // Background audio: keep playing without a picture.
+        // Background audio: keep playing without a picture. The player stays attached to
+        // PlayerView: detaching it drops mpv's surface callbacks and closes the shutter.
         if (viewModel.isBackgroundAudioEnabled && viewModel.player.isPlaying) {
-            binding.playerView.player = null
             viewModel.setVideoEnabled(false)
         }
     }
