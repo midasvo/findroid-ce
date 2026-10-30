@@ -2,6 +2,7 @@ package dev.jdtech.jellyfin.presentation.film
 
 import android.content.Intent
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,12 +15,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,8 +62,13 @@ import dev.jdtech.jellyfin.presentation.film.components.ItemButtonsBar
 import dev.jdtech.jellyfin.presentation.film.components.ItemHeader
 import dev.jdtech.jellyfin.presentation.film.components.ItemPoster
 import dev.jdtech.jellyfin.presentation.film.components.ItemTopBar
+import dev.jdtech.jellyfin.presentation.film.components.groupedItemShape
+import dev.jdtech.jellyfin.presentation.film.components.playDownloadedItem
+import dev.jdtech.jellyfin.presentation.film.components.rememberTopBarBackgroundAlpha
+import dev.jdtech.jellyfin.presentation.film.components.rememberUndoController
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
+import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
 import dev.jdtech.jellyfin.utils.copyOnLongClick
 import java.util.UUID
@@ -143,6 +151,7 @@ private fun SeasonScreenLayout(
     onDownloadSeason: (maxBitrate: Int?) -> Unit,
     onDeleteSeasonDownloads: () -> Unit,
 ) {
+    val context = LocalContext.current
     val safePadding = rememberSafePadding()
 
     val paddingStart = safePadding.start + MaterialTheme.spacings.default
@@ -154,16 +163,37 @@ private fun SeasonScreenLayout(
     var seasonQualityDialogOpen by remember { mutableStateOf(false) }
     var episodeQualityTarget by remember { mutableStateOf<FindroidEpisode?>(null) }
 
+    // Removing a download is deferred behind an Undo snackbar. Until it resolves the episode
+    // already shows as not downloaded. Ids stay in the list afterwards, so they are released
+    // once the download itself is gone.
+    val snackbarHostState = remember { SnackbarHostState() }
+    val undo = rememberUndoController(snackbarHostState)
+    LaunchedEffect(state.episodeDownloadProgress) {
+        undo.retainHidden(
+            state.episodeDownloadProgress.filterValues { it.status != DownloadStatus.NONE }.keys
+        )
+    }
+    val episodeProgress = state.episodeDownloadProgress - undo.hiddenIds
+    val episodes =
+        if (LocalOfflineMode.current) state.episodes.filterNot { it.id in undo.hiddenIds }
+        else state.episodes
+    fun removeDownload(episode: FindroidEpisode, @StringRes message: Int) {
+        undo.run(ids = setOf(episode.id), message = context.getString(message, episode.name)) {
+            onAction(SeasonAction.DeleteEpisodeDownload(episode))
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         state.season?.let { season ->
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 state = lazyListState,
                 contentPadding = PaddingValues(bottom = paddingBottom),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 item {
-                    val hasDownloads = state.episodes.any { it.isDownloaded() }
+                    val hasDownloads =
+                        episodes.any { it.isDownloaded() && it.id !in undo.hiddenIds }
                     ItemHeader(
                         item = season,
                         lazyListState = lazyListState,
@@ -203,8 +233,7 @@ private fun SeasonScreenLayout(
                     Spacer(Modifier.height(MaterialTheme.spacings.default.div(2)))
                     ItemButtonsBar(
                         item = season,
-                        downloaderState =
-                            if (state.episodes.isNotEmpty()) DownloaderState() else null,
+                        downloaderState = if (episodes.isNotEmpty()) DownloaderState() else null,
                         onPlayClick = { startFromBeginning ->
                             onAction(SeasonAction.Play(startFromBeginning = startFromBeginning))
                         },
@@ -226,12 +255,20 @@ private fun SeasonScreenLayout(
                         onDownloadDeleteClick = onDeleteSeasonDownloads,
                         modifier =
                             Modifier.padding(start = paddingStart, end = paddingEnd).fillMaxWidth(),
-                        canPlay = state.episodes.isNotEmpty(),
-                        canDownload = state.episodes.any { it.canDownload },
+                        canPlay = episodes.isNotEmpty(),
+                        canDownload = episodes.any { it.canDownload },
                         isDownloaded = hasDownloads,
+                        hasMoreToDownload =
+                            episodes.any {
+                                it.canDownload &&
+                                    (episodeProgress[it.id]?.status ?: DownloadStatus.NONE) ==
+                                        DownloadStatus.NONE
+                            },
                     )
+                    Spacer(Modifier.height(MaterialTheme.spacings.default))
                 }
-                // Download summary
+                // Download summary. Counts episodes behind an Undo snackbar too, so the list
+                // doesn't jump when the only download is being removed.
                 val downloadedCount =
                     state.episodeDownloadProgress.values.count {
                         it.status == DownloadStatus.COMPLETED
@@ -243,7 +280,7 @@ private fun SeasonScreenLayout(
                             it.status == DownloadStatus.QUEUED ||
                             it.status == DownloadStatus.PAUSED
                     }
-                val totalCount = state.episodes.size
+                val totalCount = episodes.size
 
                 if (downloadedCount > 0 || downloadingCount > 0) {
                     item {
@@ -264,22 +301,45 @@ private fun SeasonScreenLayout(
                         Text(
                             text = summaryText,
                             modifier =
-                                Modifier.padding(start = paddingStart, end = paddingEnd)
+                                Modifier.padding(
+                                        start = paddingStart,
+                                        end = paddingEnd,
+                                        bottom = MaterialTheme.spacings.default,
+                                    )
                                     .alpha(0.7f),
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
                 }
 
-                items(items = state.episodes, key = { episode -> episode.id }) { episode ->
+                itemsIndexed(
+                    items = episodes,
+                    key = { _, episode -> episode.id },
+                ) { index, episode ->
                     EpisodeCard(
                         episode = episode,
+                        shape = groupedItemShape(index, episodes.size),
                         onClick = { onAction(SeasonAction.NavigateToItem(episode)) },
                         modifier = Modifier.padding(start = paddingStart, end = paddingEnd),
-                        downloadProgress = state.episodeDownloadProgress[episode.id],
-                        onDownloadClick = { episodeQualityTarget = episode },
-                        onDownloadedClick = {
-                            onAction(SeasonAction.DeleteEpisodeDownload(episode))
+                        downloadProgress = episodeProgress[episode.id],
+                        onPlayClick =
+                            if (episode.canPlay) {
+                                { context.playDownloadedItem(episode) }
+                            } else null,
+                        // A pending removal would stop a download started now.
+                        onDownloadClick =
+                            if (episode.id in undo.hiddenIds) null
+                            else {
+                                { episodeQualityTarget = episode }
+                            },
+                        onDownloadCancelClick = {
+                            removeDownload(episode, CoreR.string.download_cancelled)
+                        },
+                        onDownloadRetryClick = {
+                            onAction(SeasonAction.RetryEpisodeDownload(episode))
+                        },
+                        onDownloadRemoveClick = {
+                            removeDownload(episode, CoreR.string.download_removed)
                         },
                     )
                 }
@@ -289,6 +349,7 @@ private fun SeasonScreenLayout(
         ItemTopBar(
             hasBackButton = true,
             hasHomeButton = true,
+            backgroundAlpha = rememberTopBarBackgroundAlpha(lazyListState),
             onBackClick = { onAction(SeasonAction.OnBackClick) },
             onHomeClick = { onAction(SeasonAction.OnHomeClick) },
         ) {
@@ -325,6 +386,11 @@ private fun SeasonScreenLayout(
                 onDismiss = { episodeQualityTarget = null },
             )
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = safePadding.bottom),
+        )
     }
 }
 

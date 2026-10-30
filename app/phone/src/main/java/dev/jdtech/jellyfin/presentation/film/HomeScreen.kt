@@ -42,6 +42,7 @@ import dev.jdtech.jellyfin.presentation.film.components.HomeHeader
 import dev.jdtech.jellyfin.presentation.film.components.HomeSection
 import dev.jdtech.jellyfin.presentation.film.components.HomeView
 import dev.jdtech.jellyfin.presentation.film.components.ServerSelectionBottomSheet
+import dev.jdtech.jellyfin.presentation.film.components.TopContentScrim
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
@@ -140,6 +141,7 @@ private fun HomeScreenLayout(state: HomeState, onAction: (HomeAction) -> Unit) {
                     )
                 }
             }
+            TopContentScrim(height = contentPaddingTop)
         }
 
         if (state.error != null && showErrorDialog) {

@@ -64,6 +64,7 @@ import dev.jdtech.jellyfin.presentation.film.components.ItemPoster
 import dev.jdtech.jellyfin.presentation.film.components.ItemTopBar
 import dev.jdtech.jellyfin.presentation.film.components.OverviewText
 import dev.jdtech.jellyfin.presentation.film.components.SeasonSelectionDialog
+import dev.jdtech.jellyfin.presentation.film.components.rememberTopBarBackgroundAlpha
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
@@ -283,6 +284,10 @@ private fun ShowScreenLayout(
                         canPlay = state.seasons.isNotEmpty(),
                         canDownload = state.seasons.isNotEmpty(),
                         isDownloaded = state.hasDownloads,
+                        hasMoreToDownload =
+                            state.seasonDownloadInfo.values.any {
+                                it.downloadedCount < it.totalCount
+                            },
                     )
                     Spacer(Modifier.height(MaterialTheme.spacings.small))
                     OverviewText(text = show.overview, maxCollapsedLines = 3)
@@ -366,6 +371,7 @@ private fun ShowScreenLayout(
         ItemTopBar(
             hasBackButton = true,
             hasHomeButton = true,
+            backgroundAlpha = rememberTopBarBackgroundAlpha(scrollState),
             onBackClick = { onAction(ShowAction.OnBackClick) },
             onHomeClick = { onAction(ShowAction.OnHomeClick) },
         )

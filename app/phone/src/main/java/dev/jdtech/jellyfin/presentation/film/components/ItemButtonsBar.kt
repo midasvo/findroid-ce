@@ -56,6 +56,7 @@ fun ItemButtonsBar(
     canPlay: Boolean = true,
     canDownload: Boolean = item.canDownload,
     isDownloaded: Boolean = item.isDownloaded(),
+    hasMoreToDownload: Boolean = false,
 ) {
     val context = LocalContext.current
     val isOfflineMode = LocalOfflineMode.current
@@ -157,18 +158,19 @@ fun ItemButtonsBar(
                     }
                 }
                 if (downloaderState != null && !downloaderState.isDownloading) {
+                    if (canDownload && !isOfflineMode && (!isDownloaded || hasMoreToDownload)) {
+                        FilledTonalIconButton(onClick = onDownloadClick) {
+                            Icon(
+                                painter = painterResource(CoreR.drawable.ic_download),
+                                contentDescription = stringResource(CoreR.string.download_button_description),
+                            )
+                        }
+                    }
                     if (isDownloaded) {
                         FilledTonalIconButton(onClick = { deleteDownloadDialogOpen = true }) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_trash),
                                 contentDescription = stringResource(CoreR.string.delete_download),
-                            )
-                        }
-                    } else if (canDownload && !isOfflineMode) {
-                        FilledTonalIconButton(onClick = onDownloadClick) {
-                            Icon(
-                                painter = painterResource(CoreR.drawable.ic_download),
-                                contentDescription = stringResource(CoreR.string.download_button_description),
                             )
                         }
                     }

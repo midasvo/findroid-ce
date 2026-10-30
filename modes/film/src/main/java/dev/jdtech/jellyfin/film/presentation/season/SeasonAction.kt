@@ -27,4 +27,6 @@ sealed interface SeasonAction {
         SeasonAction
 
     data class DeleteEpisodeDownload(val episode: FindroidItem) : SeasonAction
+
+    data class RetryEpisodeDownload(val episode: FindroidItem) : SeasonAction
 }
