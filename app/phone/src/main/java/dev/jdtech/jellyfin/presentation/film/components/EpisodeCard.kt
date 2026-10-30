@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin.presentation.film.components
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,7 +40,7 @@ fun EpisodeCard(
 ) {
     val meta =
         buildList {
-                add(stringResource(CoreR.string.episode_number, episode.indexNumber))
+                add(stringResource(CoreR.string.episode_number_short, episode.indexNumber))
                 if (episode.runtimeTicks > 0) {
                     add(
                         stringResource(
@@ -54,6 +55,8 @@ fun EpisodeCard(
     DownloadRow(
         item = episode,
         title = episode.name,
+        // The download control leaves little width; a smaller title keeps long words whole.
+        titleStyle = MaterialTheme.typography.titleSmall,
         meta = meta,
         shape = shape,
         showPlaybackProgress = true,
@@ -93,6 +96,9 @@ private fun EpisodeDownloadControl(
                     modifier = Modifier.size(20.dp),
                 )
             }
+        } else {
+            // Keeps the text from reflowing while a removal waits on its Undo snackbar.
+            Spacer(Modifier.size(48.dp))
         }
         return
     }

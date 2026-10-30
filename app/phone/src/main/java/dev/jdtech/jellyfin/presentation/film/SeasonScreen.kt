@@ -267,11 +267,14 @@ private fun SeasonScreenLayout(
                     )
                     Spacer(Modifier.height(MaterialTheme.spacings.default))
                 }
-                // Download summary
+                // Download summary. Counts episodes behind an Undo snackbar too, so the list
+                // doesn't jump when the only download is being removed.
                 val downloadedCount =
-                    episodeProgress.values.count { it.status == DownloadStatus.COMPLETED }
+                    state.episodeDownloadProgress.values.count {
+                        it.status == DownloadStatus.COMPLETED
+                    }
                 val downloadingCount =
-                    episodeProgress.values.count {
+                    state.episodeDownloadProgress.values.count {
                         it.status == DownloadStatus.DOWNLOADING ||
                             it.status == DownloadStatus.PENDING ||
                             it.status == DownloadStatus.QUEUED ||

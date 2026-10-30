@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -72,6 +73,7 @@ fun DownloadRow(
     shape: Shape,
     modifier: Modifier = Modifier,
     supporting: String? = null,
+    titleStyle: TextStyle = MaterialTheme.typography.titleMedium,
     metaColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     showPlaybackProgress: Boolean = false,
     showPlayedBadge: Boolean = false,
@@ -117,10 +119,13 @@ fun DownloadRow(
                     onPlayClick = onPlayClick,
                     modifier = Modifier.width(112.dp),
                 )
-                Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                Column(
+                    modifier =
+                        Modifier.weight(1f).padding(end = if (trailing == null) 8.dp else 0.dp)
+                ) {
                     Text(
                         text = title,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = titleStyle,
                         maxLines = if (supporting == null) 2 else 1,
                         overflow = TextOverflow.Ellipsis,
                     )
