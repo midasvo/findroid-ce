@@ -1,6 +1,5 @@
 package dev.jdtech.jellyfin.presentation.film.components
 
-import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,15 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyMovie
 import dev.jdtech.jellyfin.models.FindroidEpisode
@@ -78,9 +74,11 @@ fun DownloadRow(
     supporting: String? = null,
     metaColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     showPlaybackProgress: Boolean = false,
+    showPlayedBadge: Boolean = false,
     onPlayClick: (() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
+    footer: String? = null,
     trailing: (@Composable () -> Unit)? = null,
 ) {
     Surface(
@@ -88,7 +86,7 @@ fun DownloadRow(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         modifier = modifier,
     ) {
-        Row(
+        Column(
             modifier =
                 Modifier.fillMaxWidth()
                     .then(
@@ -99,42 +97,64 @@ fun DownloadRow(
                             )
                         } else Modifier
                     )
-                    .padding(start = 12.dp, top = 12.dp, bottom = 12.dp, end = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            DownloadArtwork(
-                item = item,
-                showPlaybackProgress = showPlaybackProgress,
-                onPlayClick = onPlayClick,
-                modifier = Modifier.width(112.dp),
-            )
-            Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = if (supporting == null) 2 else 1,
-                    overflow = TextOverflow.Ellipsis,
+            Row(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .padding(
+                            start = 12.dp,
+                            top = 12.dp,
+                            bottom = if (footer == null) 12.dp else 8.dp,
+                            end = 4.dp,
+                        ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                DownloadArtwork(
+                    item = item,
+                    showPlaybackProgress = showPlaybackProgress,
+                    showPlayedBadge = showPlayedBadge,
+                    onPlayClick = onPlayClick,
+                    modifier = Modifier.width(112.dp),
                 )
-                supporting?.let {
+                Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
                     Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodyMedium,
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = if (supporting == null) 2 else 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    supporting?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = meta,
+                        // Tabular figures keep sizes and times from jittering as they update.
+                        style =
+                            MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
+                        color = metaColor,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
-                Spacer(Modifier.height(2.dp))
+                trailing?.invoke()
+            }
+            footer?.let {
                 Text(
-                    text = meta,
-                    // Tabular figures keep sizes and times from jittering as they update.
-                    style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
-                    color = metaColor,
-                    maxLines = 1,
+                    text = it,
+                    modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            trailing?.invoke()
         }
     }
 }
@@ -148,22 +168,14 @@ fun DownloadArtwork(
     item: FindroidItem,
     modifier: Modifier = Modifier,
     showPlaybackProgress: Boolean = false,
+    showPlayedBadge: Boolean = false,
     onPlayClick: (() -> Unit)? = null,
 ) {
-    val context = LocalContext.current
-    var imageUri =
+    val sources =
         when (item) {
-            is FindroidEpisode -> item.images.primary ?: item.images.showBackdrop
-            else -> item.images.backdrop ?: item.images.primary
+            is FindroidEpisode -> listOf(item.images.primary, item.images.showBackdrop)
+            else -> listOf(item.images.backdrop, item.images.primary)
         }
-    // Downloaded images are stored as paths relative to the files directory.
-    if (imageUri != null && imageUri.scheme == null) {
-        imageUri =
-            Uri.Builder()
-                .appendEncodedPath("${context.filesDir}")
-                .appendEncodedPath(imageUri.path)
-                .build()
-    }
     val playLabel = stringResource(CoreR.string.play)
     Box(
         modifier =
@@ -181,12 +193,14 @@ fun DownloadArtwork(
                     } else Modifier
                 )
     ) {
-        AsyncImage(
-            model = imageUri,
+        ArtworkImage(
+            sources = sources,
             contentDescription = null,
-            contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
         )
+        if (showPlayedBadge && item.played) {
+            PlayedBadge(modifier = Modifier.align(Alignment.TopEnd).padding(4.dp))
+        }
         if (onPlayClick != null) {
             Box(
                 modifier =

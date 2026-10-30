@@ -39,6 +39,7 @@ import dev.jdtech.jellyfin.presentation.film.components.ErrorCard
 import dev.jdtech.jellyfin.presentation.film.components.FavoritesCard
 import dev.jdtech.jellyfin.presentation.film.components.FilmSearchBar
 import dev.jdtech.jellyfin.presentation.film.components.ItemCard
+import dev.jdtech.jellyfin.presentation.film.components.TopContentScrim
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
@@ -154,6 +155,7 @@ private fun MediaScreenLayout(
                 )
             }
         }
+        TopContentScrim(height = safePadding.top + 88.dp)
         if (state.error != null) {
             ErrorCard(
                 onShowStacktrace = { showErrorDialog = true },

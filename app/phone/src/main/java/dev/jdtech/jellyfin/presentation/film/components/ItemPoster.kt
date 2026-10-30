@@ -1,19 +1,16 @@
 package dev.jdtech.jellyfin.presentation.film.components
 
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import coil3.compose.AsyncImage
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidMovie
+import dev.jdtech.jellyfin.models.FindroidSeason
 
 enum class Direction {
     HORIZONTAL,
@@ -22,33 +19,25 @@ enum class Direction {
 
 @Composable
 fun ItemPoster(item: FindroidItem, direction: Direction, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    var imageUri = item.images.primary
-
-    when (direction) {
-        Direction.HORIZONTAL -> {
-            if (item is FindroidMovie) imageUri = item.images.backdrop
+    val sources =
+        when (direction) {
+            Direction.HORIZONTAL ->
+                when (item) {
+                    is FindroidMovie -> listOf(item.images.backdrop, item.images.primary)
+                    is FindroidEpisode -> listOf(item.images.primary, item.images.showBackdrop)
+                    else -> listOf(item.images.primary)
+                }
+            Direction.VERTICAL ->
+                when (item) {
+                    is FindroidEpisode -> listOf(item.images.showPrimary)
+                    is FindroidSeason -> listOf(item.images.primary, item.images.showPrimary)
+                    else -> listOf(item.images.primary)
+                }
         }
-        Direction.VERTICAL -> {
-            when (item) {
-                is FindroidEpisode -> imageUri = item.images.showPrimary
-            }
-        }
-    }
 
-    // Ugly workaround to append the files directory when loading local images
-    if (imageUri != null && imageUri.scheme == null) {
-        imageUri =
-            Uri.Builder()
-                .appendEncodedPath("${context.filesDir}")
-                .appendEncodedPath(imageUri.path)
-                .build()
-    }
-
-    AsyncImage(
-        model = imageUri,
+    ArtworkImage(
+        sources = sources,
         contentDescription = stringResource(CoreR.string.image_description_poster, item.name),
-        contentScale = ContentScale.Crop,
         modifier =
             modifier
                 .aspectRatio(if (direction == Direction.HORIZONTAL) 1.77f else 0.66f)
