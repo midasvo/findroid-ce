@@ -116,6 +116,7 @@ fun MovieScreen(
                     intent.putExtra("itemId", movieId.toString())
                     intent.putExtra("itemKind", BaseItemKind.MOVIE.serialName)
                     intent.putExtra("startFromBeginning", action.startFromBeginning)
+                    intent.putExtra("mediaSourceId", action.mediaSourceId)
                     context.startActivity(intent)
                 }
                 is MovieAction.PlayTrailer -> {
@@ -246,6 +247,14 @@ private fun MovieScreenLayout(
                         downloaderState = downloaderState,
                         onPlayClick = { startFromBeginning ->
                             onAction(MovieAction.Play(startFromBeginning = startFromBeginning))
+                        },
+                        onPlayVersionClick = { startFromBeginning, mediaSourceId ->
+                            onAction(
+                                MovieAction.Play(
+                                    startFromBeginning = startFromBeginning,
+                                    mediaSourceId = mediaSourceId,
+                                )
+                            )
                         },
                         onMarkAsPlayedClick = {
                             when (movie.played) {

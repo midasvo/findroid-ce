@@ -121,6 +121,7 @@ fun EpisodeScreen(
                     intent.putExtra("itemId", episodeId.toString())
                     intent.putExtra("itemKind", BaseItemKind.EPISODE.serialName)
                     intent.putExtra("startFromBeginning", action.startFromBeginning)
+                    intent.putExtra("mediaSourceId", action.mediaSourceId)
                     context.startActivity(intent)
                 }
                 is EpisodeAction.OnBackClick -> navigateBack()
@@ -246,6 +247,14 @@ private fun EpisodeScreenLayout(
                         downloaderState = downloaderState,
                         onPlayClick = { startFromBeginning ->
                             onAction(EpisodeAction.Play(startFromBeginning = startFromBeginning))
+                        },
+                        onPlayVersionClick = { startFromBeginning, mediaSourceId ->
+                            onAction(
+                                EpisodeAction.Play(
+                                    startFromBeginning = startFromBeginning,
+                                    mediaSourceId = mediaSourceId,
+                                )
+                            )
                         },
                         onMarkAsPlayedClick = {
                             when (episode.played) {

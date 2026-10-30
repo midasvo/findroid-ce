@@ -31,7 +31,12 @@ data class LibraryRoute(
 
 @Serializable data class SeasonRoute(val seasonId: String) : NavKey
 
-@Serializable data class PlayerRoute(val itemId: String, val itemKind: String) : NavKey
+@Serializable
+data class PlayerRoute(
+    val itemId: String,
+    val itemKind: String,
+    val mediaSourceId: String? = null,
+) : NavKey
 
 @Serializable data object SettingsRoute : NavKey
 

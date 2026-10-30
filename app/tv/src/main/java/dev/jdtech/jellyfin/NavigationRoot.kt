@@ -238,11 +238,12 @@ private fun EntryProviderScope<NavKey>.tvEntries(
         MovieScreen(
             movieId = UUID.fromString(key.itemId),
             navigateToPlayer =
-                resumedAction { itemId ->
+                resumedAction { itemId, mediaSourceId ->
                     navigate(
                         PlayerRoute(
                             itemId = itemId.toString(),
                             itemKind = BaseItemKind.MOVIE.serialName,
+                            mediaSourceId = mediaSourceId,
                         )
                     )
                 },
@@ -288,6 +289,7 @@ private fun EntryProviderScope<NavKey>.tvEntries(
             itemId = UUID.fromString(key.itemId),
             itemKind = key.itemKind,
             startFromBeginning = false,
+            mediaSourceId = key.mediaSourceId,
             navigateBack = { navigateBackFrom(key) },
         )
     }
