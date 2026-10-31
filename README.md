@@ -36,7 +36,7 @@ prefer rock-solid stability, stick with upstream — and know that the good stuf
 
 ### Playback & player
 
-- **Dolby Vision transcoding** — DV content plays everywhere via device-profile-aware transcoding
+- **Dolby Vision** — direct play on devices with a DV decoder, device-profile-aware transcoding on the rest
 - **Wider subtitle delivery** — PGS, VobSub, and DVB subtitles delivered without transcoding
 - **Configurable subtitle styling** — colors, outline, font, and size
 - **Media segments** — per-type skip / ask / ignore actions

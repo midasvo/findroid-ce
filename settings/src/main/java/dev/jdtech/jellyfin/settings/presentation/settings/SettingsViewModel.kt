@@ -377,6 +377,14 @@ class SettingsViewModel @Inject constructor(
                                                     options = R.array.player_backends,
                                                     optionValues = R.array.player_backends
                                                 ),
+                                                PreferenceSwitch(
+                                                    nameStringResource =
+                                                        R.string.pref_player_direct_play_dovi,
+                                                    descriptionStringRes =
+                                                        R.string.pref_player_direct_play_dovi_summary,
+                                                    backendPreference =
+                                                        appPreferences.playerDirectPlayDolbyVision,
+                                                ),
                                                 PreferenceCategory(
                                                     nameStringResource = R.string.mpv_options,
                                                     onClick = {
