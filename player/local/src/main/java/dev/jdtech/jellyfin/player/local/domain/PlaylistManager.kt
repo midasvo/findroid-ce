@@ -171,6 +171,10 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
                 is FindroidMovie -> null
                 is FindroidEpisode -> {
                     if (currentItemIndex == items.lastIndex) {
+                        appendNextSeason()
+                    }
+
+                    if (currentItemIndex == items.lastIndex) {
                         null
                     } else {
                         val item = items[itemIndex]
@@ -194,6 +198,41 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
         }
 
         return playerItem
+    }
+
+    /**
+     * Queue the episodes of the next season, so playback continues into it. Seasons are fetched
+     * only when the current one runs out. Specials (season 0) do not roll over into season 1.
+     */
+    private suspend fun appendNextSeason() {
+        val lastEpisode = items.lastOrNull() as? FindroidEpisode ?: return
+
+        try {
+            val seasons = repository.getSeasons(lastEpisode.seriesId).sortedBy { it.indexNumber }
+            val seasonNumber =
+                seasons.firstOrNull { it.id == lastEpisode.seasonId }?.indexNumber ?: return
+            if (seasonNumber == 0) {
+                return
+            }
+
+            val nextEpisodes =
+                seasons
+                    .filter { it.indexNumber > seasonNumber }
+                    .firstNotNullOfOrNull { season ->
+                        repository
+                            .getEpisodes(
+                                seriesId = lastEpisode.seriesId,
+                                seasonId = season.id,
+                                fields = listOf(ItemFields.CHAPTERS, ItemFields.TRICKPLAY),
+                            )
+                            .filter { !it.missing }
+                            .ifEmpty { null }
+                    } ?: return
+
+            items = items + nextEpisodes
+        } catch (e: Exception) {
+            Timber.e("Failed to retrieve next season: $e")
+        }
     }
 
     fun setCurrentMediaItemIndex(itemId: UUID) {
