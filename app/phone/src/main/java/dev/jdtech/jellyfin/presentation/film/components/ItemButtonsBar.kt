@@ -137,7 +137,7 @@ fun ItemButtonsBar(
                     Icon(
                         painter = painterResource(CoreR.drawable.ic_check),
                         contentDescription = stringResource(CoreR.string.check_button_description),
-                        tint = if (item.played) MaterialTheme.colorScheme.error else LocalContentColor.current,
+                        tint = if (item.played) MaterialTheme.colorScheme.primary else LocalContentColor.current,
                     )
                 }
                 FilledTonalIconButton(onClick = onMarkAsFavoriteClick) {

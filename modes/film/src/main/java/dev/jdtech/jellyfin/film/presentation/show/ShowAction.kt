@@ -16,6 +16,8 @@ sealed interface ShowAction {
 
     data object UnmarkAsFavorite : ShowAction
 
+    data object OnRetryClick : ShowAction
+
     data object OnBackClick : ShowAction
 
     data object OnHomeClick : ShowAction

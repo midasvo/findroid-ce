@@ -14,6 +14,8 @@ sealed interface SeasonAction {
 
     data object UnmarkAsFavorite : SeasonAction
 
+    data object OnRetryClick : SeasonAction
+
     data object OnBackClick : SeasonAction
 
     data object OnHomeClick : SeasonAction

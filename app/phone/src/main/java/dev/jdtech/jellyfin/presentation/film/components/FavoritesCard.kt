@@ -27,7 +27,7 @@ fun FavoritesCard(onClick: () -> Unit, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.small),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(painter = painterResource(CoreR.drawable.ic_star), contentDescription = null)
+            Icon(painter = painterResource(CoreR.drawable.ic_heart), contentDescription = null)
             Text(text = stringResource(CoreR.string.title_favorite))
         }
     }

@@ -47,10 +47,11 @@ constructor(
             UUID.fromString("18bfced5-f237-4d42-aa72-d9d7fed19279")
     }
 
-    fun loadData() {
+    /** With [silent] the refresh indicator stays hidden, for reloads the user didn't ask for. */
+    fun loadData(silent: Boolean = false) {
         Timber.i("Loading data")
         viewModelScope.launch(Dispatchers.Default) {
-            _state.update { it.copy(isLoading = true, error = null) }
+            if (!silent) _state.update { it.copy(isLoading = true, error = null) }
             try {
                 appPreferences.getValue(appPreferences.currentServer)?.let { serverId ->
                     loadServerName(serverId)
@@ -68,6 +69,7 @@ constructor(
                         async { loadViews() },
                     )
                 }
+                _state.update { it.copy(error = null) }
             } catch (e: Exception) {
                 _state.update { it.copy(error = e) }
             }
