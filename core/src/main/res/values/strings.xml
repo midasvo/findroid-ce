@@ -12,6 +12,7 @@
     <string name="title_download">Downloads</string>
     <string name="view_all">View all</string>
     <string name="error_loading_data">Error loading data</string>
+    <string name="error_loading_data_body">Check your connection and try again.</string>
     <string name="show_stacktrace">Show stacktrace</string>
     <string name="retry">Retry</string>
     <string name="genres">Genres</string>
@@ -151,6 +152,10 @@
     <string name="downloads_empty_title">No downloads yet</string>
     <string name="downloads_empty_body">Download movies and episodes to watch without a connection, on a plane, a train, or anywhere else.</string>
     <string name="browse_library">Browse library</string>
+    <string name="nothing_here_yet">Nothing here yet</string>
+    <string name="home_empty_body">Recently added titles and what you\'re watching will show up here.</string>
+    <string name="library_no_unwatched">Nothing unwatched here</string>
+    <string name="show_watched">Show watched</string>
     <string name="select">Select</string>
     <string name="downloads_selected_count">%1$d selected</string>
     <string name="download_removed">Removed %1$s</string>

@@ -33,9 +33,12 @@ fun FavoritesScreen(
         onAction = { action ->
             when (action) {
                 is CollectionAction.OnItemClick -> onItemClick(action.item)
+                is CollectionAction.OnRetryClick -> viewModel.loadItems()
                 is CollectionAction.OnBackClick -> navigateBack()
             }
         },
+        emptyIcon = CoreR.drawable.ic_heart,
+        emptyTitle = stringResource(CoreR.string.no_favorites),
     )
 }
 

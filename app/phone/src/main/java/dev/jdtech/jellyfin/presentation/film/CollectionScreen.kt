@@ -1,8 +1,11 @@
 package dev.jdtech.jellyfin.presentation.film
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.recalculateWindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
@@ -32,6 +35,8 @@ import dev.jdtech.jellyfin.models.CollectionSection
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.UiText
 import dev.jdtech.jellyfin.presentation.film.components.CollectionGrid
+import dev.jdtech.jellyfin.presentation.film.components.EmptyState
+import dev.jdtech.jellyfin.presentation.film.components.LoadingOrError
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import java.util.UUID
 
@@ -53,6 +58,7 @@ fun CollectionScreen(
         onAction = { action ->
             when (action) {
                 is CollectionAction.OnItemClick -> onItemClick(action.item)
+                is CollectionAction.OnRetryClick -> viewModel.loadItems(collectionId)
                 is CollectionAction.OnBackClick -> navigateBack()
             }
         },
@@ -65,6 +71,8 @@ fun CollectionScreenLayout(
     collectionName: String,
     state: CollectionState,
     onAction: (CollectionAction) -> Unit,
+    @DrawableRes emptyIcon: Int = CoreR.drawable.ic_film,
+    emptyTitle: String = stringResource(CoreR.string.collection_no_media),
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
@@ -90,7 +98,23 @@ fun CollectionScreenLayout(
         },
         contentWindowInsets = WindowInsets.statusBars.union(WindowInsets.displayCutout),
     ) { innerPadding ->
-        CollectionGrid(sections = state.sections, innerPadding = innerPadding, onAction = onAction)
+        val contentModifier = Modifier.padding(innerPadding).fillMaxSize()
+        when {
+            state.sections.isNotEmpty() ->
+                CollectionGrid(
+                    sections = state.sections,
+                    innerPadding = innerPadding,
+                    onAction = onAction,
+                )
+            state.isLoading || state.error != null ->
+                Box(modifier = contentModifier) {
+                    LoadingOrError(
+                        error = state.error,
+                        onRetryClick = { onAction(CollectionAction.OnRetryClick) },
+                    )
+                }
+            else -> EmptyState(icon = emptyIcon, title = emptyTitle, modifier = contentModifier)
+        }
     }
 }
 
