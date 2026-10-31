@@ -23,7 +23,8 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideDeviceProfileBuilder(): DeviceProfileBuilder = DeviceProfileBuilder()
+    fun provideDeviceProfileBuilder(application: Application): DeviceProfileBuilder =
+        DeviceProfileBuilder(application)
 
     @Singleton
     @Provides

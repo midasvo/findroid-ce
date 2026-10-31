@@ -34,6 +34,11 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     // player's quality selector.
     val playerMaxBitrate = Preference("pref_player_max_bitrate", 0)
 
+    // ExoPlayer direct-plays the Dolby Vision profiles the device's decoders and
+    // display advertise. They can advertise DV and still give a bad picture, so
+    // this can hand DV back to the server. mpv always direct-plays.
+    val playerDirectPlayDolbyVision = Preference("pref_player_direct_play_dovi", true)
+
     // Player - mpv
     val playerMpv = Preference("pref_player_mpv", false)
     val playerMpvHwdec = Preference("pref_player_mpv_hwdec", "mediacodec")

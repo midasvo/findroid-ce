@@ -52,6 +52,7 @@ class DeviceCapabilityReportTest {
                 "hevc" to listOf("Main", "Main 10"),
             ),
             audioCodecs = listOf("aac", "ac3", "eac3"),
+            dolbyVisionProfiles = sortedMapOf(5 to "3840x2160@60", 8 to "3840x2160@60"),
         ),
         deviceProfile = DeviceProfile(
             name = "Findroid Device Profile",
@@ -85,6 +86,7 @@ class DeviceCapabilityReportTest {
             subtitleProfiles = emptyList(),
         ),
         downloadTranscodeDolbyVision = true,
+        directPlayDolbyVision = true,
     )
 
     @Test
@@ -133,10 +135,12 @@ class DeviceCapabilityReportTest {
             "hdrCapabilities",
             "supportedTypes",
             "probedCodecs",
+            "dolbyVisionProfiles",
             "deviceProfile",
             "directPlayProfile",
             "downloadProfile",
             "downloadTranscodeDolbyVision",
+            "directPlayDolbyVision",
         ).forEach { field ->
             assertTrue("expected JSON to contain $field", json.contains("\"$field\""))
         }
@@ -177,6 +181,7 @@ class DeviceCapabilityReportTest {
                 // Deliberately out of order — toJson must sort the entries.
                 videoCodecProfiles = sortedMapOf("hevc" to listOf("Main 10", "Main")),
                 audioCodecs = listOf("ac3", "aac"),
+                dolbyVisionProfiles = emptyMap(),
             ),
         )
 
@@ -188,6 +193,7 @@ class DeviceCapabilityReportTest {
                 videoCodecProfiles = report.probedCodecs.videoCodecProfiles
                     .mapValues { (_, list) -> list.sorted() },
                 audioCodecs = report.probedCodecs.audioCodecs.sorted(),
+                dolbyVisionProfiles = report.probedCodecs.dolbyVisionProfiles,
             ),
         )
         val json = DeviceCapabilityReportBuilder.toJson(sorted)
