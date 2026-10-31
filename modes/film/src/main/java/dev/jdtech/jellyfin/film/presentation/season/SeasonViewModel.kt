@@ -79,6 +79,7 @@ constructor(
         this.seasonId = seasonId
         this.downloadsOnly = downloadsOnly
         viewModelScope.launch {
+            _state.emit(_state.value.copy(error = null))
             try {
                 val season = repository.getSeason(seasonId)
                 val episodes =
@@ -188,6 +189,7 @@ constructor(
 
     fun onAction(action: SeasonAction) {
         when (action) {
+            is SeasonAction.OnRetryClick -> loadSeason(seasonId)
             is SeasonAction.MarkAsPlayed -> {
                 viewModelScope.launch {
                     try {

@@ -35,6 +35,7 @@ constructor(
     fun loadMovie(movieId: UUID) {
         this.movieId = movieId
         viewModelScope.launch {
+            _state.emit(_state.value.copy(error = null))
             try {
                 val movie = repository.getMovie(movieId)
                 val videoMetadata = movie.sources.firstOrNull()?.let { videoMetadataParser.parse(it) }
@@ -78,6 +79,7 @@ constructor(
 
     fun onAction(action: MovieAction) {
         when (action) {
+            is MovieAction.OnRetryClick -> loadMovie(movieId)
             is MovieAction.MarkAsPlayed -> {
                 viewModelScope.launch {
                     try {

@@ -6,6 +6,7 @@ import dev.jdtech.jellyfin.settings.domain.Constants
 import java.util.UUID
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
+import org.jellyfin.sdk.android.androidDevice
 import org.jellyfin.sdk.api.client.HttpClientOptions
 import org.jellyfin.sdk.api.client.extensions.authenticationApi
 import org.jellyfin.sdk.api.client.extensions.brandingApi
@@ -24,6 +25,7 @@ import org.jellyfin.sdk.api.client.extensions.userViewApi
 import org.jellyfin.sdk.api.client.extensions.videoApi
 import org.jellyfin.sdk.createJellyfin
 import org.jellyfin.sdk.model.ClientInfo
+import org.jellyfin.sdk.model.DeviceInfo
 
 /**
  * Jellyfin API class using org.jellyfin.sdk:jellyfin-core
@@ -48,6 +50,7 @@ class JellyfinApi(
                 version = BuildConfig.VERSION_NAME,
             )
         context = androidContext
+        deviceInfo = buildDeviceInfo(androidContext)
     }
     val api =
         jellyfin.createApi(
@@ -75,6 +78,20 @@ class JellyfinApi(
     val userDataApi = api.userDataApi
     val videoApi = api.videoApi
     val userViewApi = api.userViewApi
+
+    /**
+     * Android gives apps with the same signing key the same ID, and a login makes Jellyfin end the
+     * user's other sessions on that ID. Release and staging share a key, so without the suffix
+     * logging in to one logs the other out. Release keeps the plain ID its tokens are stored under.
+     */
+    private fun buildDeviceInfo(context: Context): DeviceInfo {
+        val device = androidDevice(context)
+        return if (BuildConfig.BUILD_TYPE == "release") {
+            device
+        } else {
+            device.copy(id = "${device.id}-${BuildConfig.BUILD_TYPE}")
+        }
+    }
 
     companion object {
         @Volatile private var INSTANCE: JellyfinApi? = null

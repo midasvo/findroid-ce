@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin.presentation.film
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -12,7 +13,9 @@ import androidx.compose.foundation.layout.recalculateWindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
@@ -49,6 +53,7 @@ import dev.jdtech.jellyfin.models.CollectionType
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.presentation.components.ErrorDialog
 import dev.jdtech.jellyfin.presentation.film.components.Direction
+import dev.jdtech.jellyfin.presentation.film.components.EmptyState
 import dev.jdtech.jellyfin.presentation.film.components.ErrorCard
 import dev.jdtech.jellyfin.presentation.film.components.ItemCard
 import dev.jdtech.jellyfin.presentation.film.components.SortByDialog
@@ -151,22 +156,39 @@ private fun LibraryScreenLayout(
                 onRefresh = { items.refresh() },
                 modifier = Modifier.fillMaxWidth().padding(contentPadding + innerPadding),
             )
-            LazyVerticalGrid(
-                columns = GridCellsAdaptiveWithMinColumns(minSize = 160.dp, minColumns = 2),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = contentPadding + innerPadding,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
-            ) {
-                items(count = items.itemCount, key = items.itemKey { it.id }) {
-                    val item = items[it]
-                    item?.let { item ->
-                        ItemCard(
-                            item = item,
-                            direction = Direction.VERTICAL,
-                            onClick = { onAction(LibraryAction.OnItemClick(item)) },
-                            modifier = Modifier.animateItem(),
-                        )
+            Box(modifier = Modifier.fillMaxSize()) {
+                LazyVerticalGrid(
+                    columns = GridCellsAdaptiveWithMinColumns(minSize = 160.dp, minColumns = 2),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = contentPadding + innerPadding,
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
+                ) {
+                    items(count = items.itemCount, key = items.itemKey { it.id }) {
+                        val item = items[it]
+                        item?.let { item ->
+                            ItemCard(
+                                item = item,
+                                direction = Direction.VERTICAL,
+                                onClick = { onAction(LibraryAction.OnItemClick(item)) },
+                                modifier = Modifier.animateItem(),
+                            )
+                        }
+                    }
+                }
+                if (items.itemCount == 0) {
+                    when (items.loadState.refresh) {
+                        is LoadState.Loading ->
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        is LoadState.NotLoading ->
+                            LibraryEmptyState(
+                                filterWatched = state.filterWatched,
+                                onShowWatchedClick = {
+                                    onAction(LibraryAction.ToggleWatchedFilter(false))
+                                },
+                                modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                            )
+                        is LoadState.Error -> Unit
                     }
                 }
             }
@@ -181,6 +203,32 @@ private fun LibraryScreenLayout(
                 onAction(LibraryAction.ChangeSorting(sortBy, sortOrder))
             },
             onDismissRequest = { showSortByDialog = false },
+        )
+    }
+}
+
+@Composable
+private fun LibraryEmptyState(
+    filterWatched: Boolean,
+    onShowWatchedClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (filterWatched) {
+        EmptyState(
+            icon = CoreR.drawable.ic_eye_off,
+            title = stringResource(CoreR.string.library_no_unwatched),
+            modifier = modifier,
+            actions = {
+                FilledTonalButton(onClick = onShowWatchedClick) {
+                    Text(stringResource(CoreR.string.show_watched))
+                }
+            },
+        )
+    } else {
+        EmptyState(
+            icon = CoreR.drawable.ic_library,
+            title = stringResource(CoreR.string.nothing_here_yet),
+            modifier = modifier,
         )
     }
 }

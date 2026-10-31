@@ -15,11 +15,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
+import dev.jdtech.jellyfin.presentation.utils.LocalPlaybackStopped
+import dev.jdtech.jellyfin.repository.PlaybackEvents
 import dev.jdtech.jellyfin.viewmodels.MainViewModel
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
+
+    @Inject lateinit var playbackEvents: PlaybackEvents
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* no-op either way */ }
@@ -40,7 +45,10 @@ class MainActivity : AppCompatActivity() {
 
             FindroidTheme(dynamicColor = state.isDynamicColors) {
                 if (!state.isLoading) {
-                    CompositionLocalProvider(LocalOfflineMode provides state.isOfflineMode) {
+                    CompositionLocalProvider(
+                        LocalOfflineMode provides state.isOfflineMode,
+                        LocalPlaybackStopped provides playbackEvents.stopped,
+                    ) {
                         NavigationRoot(
                             hasServers = state.hasServers,
                             hasCurrentServer = state.hasCurrentServer,
