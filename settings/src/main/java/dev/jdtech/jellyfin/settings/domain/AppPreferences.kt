@@ -34,6 +34,11 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     // player's quality selector.
     val playerMaxBitrate = Preference("pref_player_max_bitrate", 0)
 
+    // Platform audio decoders that failed during playback on this device, see
+    // AudioDecoderFallback. Not a user setting.
+    val playerBrokenAudioDecoders =
+        Preference("pref_player_broken_audio_decoders", emptySet<String>())
+
     // Player - mpv
     val playerMpv = Preference("pref_player_mpv", false)
     val playerMpvHwdec = Preference("pref_player_mpv_hwdec", "mediacodec")

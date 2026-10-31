@@ -1,9 +1,9 @@
 package dev.jdtech.jellyfin.player.local.presentation
 
 import android.app.Application
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.widget.Toast
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -27,6 +27,7 @@ import dev.jdtech.jellyfin.player.core.domain.models.PlayerChapter
 import dev.jdtech.jellyfin.player.core.domain.models.PlayerItem
 import dev.jdtech.jellyfin.player.core.domain.models.Trickplay
 import dev.jdtech.jellyfin.player.local.R
+import dev.jdtech.jellyfin.player.local.domain.AudioDecoderFallback
 import dev.jdtech.jellyfin.player.local.domain.PlaylistManager
 import dev.jdtech.jellyfin.player.local.domain.StillWatchingTracker
 import dev.jdtech.jellyfin.player.local.domain.TrickplayLoader
@@ -109,6 +110,14 @@ constructor(
     private var items: MutableList<PlayerItem> = mutableListOf()
 
     private val trackSelector = DefaultTrackSelector(application)
+    private val audioDecoderFallback =
+        AudioDecoderFallback(
+            build = Build.FINGERPRINT,
+            broken = appPreferences.getValue(appPreferences.playerBrokenAudioDecoders),
+            onBrokenChanged = {
+                appPreferences.setValue(appPreferences.playerBrokenAudioDecoders, it)
+            },
+        )
     var playWhenReady = true
     private var currentMediaItemIndex = savedStateHandle["mediaItemIndex"] ?: 0
     private var playbackPosition: Long = savedStateHandle["position"] ?: 0
@@ -273,28 +282,17 @@ constructor(
         val playerBackend = appPreferences.getValue(appPreferences.playerBackend)
         player = when (playerBackend) {
             "exoplayer" -> {
-                // PREFER (not ON) so the bundled ffmpeg extension decodes audio ahead of
-                // the platform MediaCodec: hardware Dolby decoders can advertise eac3
-                // support yet fatally reject DD+ Atmos streams ("unsupported DDP-JOC
-                // frame" on Pixel 8), killing playback. ffmpeg decodes the DD+ core and
-                // ignores the JOC extension, like mpv. Only audio is affected — the
-                // ffmpeg extension has no video decoders, so video stays on hardware.
-                // Not on TV: ffmpeg always decodes to PCM, which would break E-AC-3/Atmos
-                // passthrough to a soundbar or receiver over HDMI. TVs keep ON so
-                // MediaCodec (and its passthrough path) stays first.
-                val isTv =
-                    application.packageManager.hasSystemFeature(
-                        PackageManager.FEATURE_LEANBACK
-                    )
+                // ON (not PREFER) so the platform MediaCodec decodes audio ahead of the
+                // bundled ffmpeg extension: only the platform pipeline does Atmos spatial
+                // audio and E-AC-3/Atmos passthrough over HDMI, and it costs less battery.
+                // ffmpeg always decodes to PCM. It picks up what no platform decoder
+                // handles, and what a broken one fails on, see AudioDecoderFallback.
                 val renderersFactory =
                     DefaultRenderersFactory(application)
                         .setExtensionRendererMode(
-                            if (isTv) {
-                                DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
-                            } else {
-                                DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
-                            }
+                            DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
                         )
+                        .setMediaCodecSelector(audioDecoderFallback)
                 ExoPlayer.Builder(application, renderersFactory)
                     .setAudioAttributes(audioAttributes, true)
                     .setTrackSelector(trackSelector)
@@ -820,6 +818,12 @@ constructor(
 
     override fun onPlayerError(error: PlaybackException) {
         Timber.e(error, "Player error: ${error.errorCodeName}")
+        if (audioDecoderFallback.onPlayerError(error)) {
+            // Stays on the same item and position, and keeps playing if it was.
+            Timber.w("Audio decoder failed, continuing without it")
+            player.prepare()
+            return
+        }
         eventsChannel.trySend(PlayerEvents.PlayerError(error))
     }
 
