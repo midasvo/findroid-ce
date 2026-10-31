@@ -34,6 +34,11 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     // player's quality selector.
     val playerMaxBitrate = Preference("pref_player_max_bitrate", 0)
 
+    // Platform audio decoders that failed during playback on this device, see
+    // AudioDecoderFallback. Not a user setting.
+    val playerBrokenAudioDecoders =
+        Preference("pref_player_broken_audio_decoders", emptySet<String>())
+
     // ExoPlayer direct-plays the Dolby Vision profiles the device's decoders and
     // display advertise. They can advertise DV and still give a bad picture, so
     // this can hand DV back to the server. mpv always direct-plays.
