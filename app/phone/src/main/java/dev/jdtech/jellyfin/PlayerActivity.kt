@@ -500,6 +500,20 @@ class PlayerActivity : BasePlayerActivity() {
         } catch (_: IllegalArgumentException) {}
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.setVideoEnabled(true)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Background audio: keep playing without a picture. The player stays attached to
+        // PlayerView: detaching it drops mpv's surface callbacks and closes the shutter.
+        if (viewModel.isBackgroundAudioEnabled && viewModel.player.isPlaying) {
+            viewModel.setVideoEnabled(false)
+        }
+    }
+
     override fun onDestroy() {
         // Cancel both trickplay MainScopes so any in-flight tile fetches don't outlive the
         // activity. onDestroy is the right hook here: previewScrubListener and

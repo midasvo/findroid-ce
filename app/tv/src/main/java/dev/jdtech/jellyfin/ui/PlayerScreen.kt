@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,7 +35,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.session.MediaSession
 import androidx.media3.ui.PlayerView
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
@@ -65,7 +63,6 @@ import dev.jdtech.jellyfin.utils.handleDPadKeyEvents
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
-import timber.log.Timber
 
 @Composable
 fun PlayerScreen(
@@ -89,7 +86,6 @@ fun PlayerScreen(
         }
     }
 
-    val context = LocalContext.current
     val currentView = LocalView.current
 
     // Keep the screen on while player is show
@@ -98,28 +94,12 @@ fun PlayerScreen(
         onDispose { currentView.keepScreenOn = false }
     }
 
+    // The media session is owned by PlayerViewModel; building a second one here would crash,
+    // as Media3 requires session IDs to be unique.
     var lifecycle by remember { mutableStateOf(Lifecycle.Event.ON_CREATE) }
-    var mediaSession by remember { mutableStateOf<MediaSession?>(null) }
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            lifecycle = event
-
-            // Handle creation and release of media session
-            when (lifecycle) {
-                Lifecycle.Event.ON_STOP -> {
-                    Timber.d("ON_STOP")
-                    mediaSession?.release()
-                }
-
-                Lifecycle.Event.ON_START -> {
-                    Timber.d("ON_START")
-                    mediaSession = MediaSession.Builder(context, viewModel.player).build()
-                }
-
-                else -> {}
-            }
-        }
+        val observer = LifecycleEventObserver { _, event -> lifecycle = event }
         lifecycleOwner.lifecycle.addObserver(observer)
 
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }

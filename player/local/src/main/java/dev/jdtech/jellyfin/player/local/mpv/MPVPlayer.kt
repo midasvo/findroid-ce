@@ -332,10 +332,18 @@ class MPVPlayer(
         handler.post {
             when (property) {
                 "track-list" -> {
+                    val hadVideo = currentTracks.isTypeSelected(C.TRACK_TYPE_VIDEO)
                     val newTracks = getTracks(value)
                     currentTracks = newTracks
                     listeners.sendEvent(EVENT_TRACKS_CHANGED) { listener ->
                         listener.onTracksChanged(currentTracks)
+                    }
+                    // PlayerView covers the surface with a black shutter while no video track is
+                    // selected, and only lifts it on onRenderedFirstFrame.
+                    if (isPlayerReady && !hadVideo && newTracks.isTypeSelected(C.TRACK_TYPE_VIDEO)) {
+                        for (videoListener in videoListeners) {
+                            videoListener.onRenderedFirstFrame()
+                        }
                     }
                 }
             }
@@ -426,6 +434,11 @@ class MPVPlayer(
                                 newMediaItem,
                                 MEDIA_ITEM_TRANSITION_REASON_AUTO,
                             )
+                        }
+                        // The media session reads the notification's title and artwork from
+                        // getMediaMetadata(), which follows the current item.
+                        listeners.sendEvent(EVENT_MEDIA_METADATA_CHANGED) { listener ->
+                            listener.onMediaMetadataChanged(mediaMetadata)
                         }
                     }
                 }
@@ -1210,7 +1223,7 @@ class MPVPlayer(
      * dynamic metadata sourced from [Player.Listener.onMediaMetadataChanged].
      */
     override fun getMediaMetadata(): MediaMetadata {
-        return MediaMetadata.EMPTY
+        return currentMediaItem?.mediaMetadata ?: MediaMetadata.EMPTY
     }
 
     override fun getPlaylistMetadata(): MediaMetadata {

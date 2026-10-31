@@ -291,6 +291,8 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
             externalSubtitles = externalSubtitles,
             chapters = chapters.toPlayerChapters(),
             trickplayInfo = trickplayInfo,
+            seriesName = if (this is FindroidEpisode) seriesName else null,
+            artworkUri = images.primary ?: images.showPrimary,
         )
     }
 
