@@ -1,7 +1,6 @@
 package dev.jdtech.jellyfin.utils
 
 import android.annotation.SuppressLint
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.media.AudioManager
 import android.os.Build
@@ -69,9 +68,6 @@ class PlayerGestureHelper(
 
     private var playbackSpeedIncrease: Float = 2f
     private var lastPlaybackSpeed: Float = 0f
-
-    private val screenWidth = Resources.getSystem().displayMetrics.widthPixels
-    private val screenHeight = Resources.getSystem().displayMetrics.heightPixels
 
     var currentTrickplay: Trickplay? = null
     private val trickplayRoundedCorners = RoundedCornersTransformation(10f)
@@ -524,7 +520,16 @@ class PlayerGestureHelper(
         )
     }
 
-    /** Check if [firstEvent] is in the gesture exclusion area */
+    /**
+     * Check if [firstEvent] is in the gesture exclusion area.
+     *
+     * Bounds come from [playerView], not from the display: [firstEvent] is delivered by a touch
+     * listener on that view, so its coordinates are view-local. Measuring them against the
+     * physical display only agrees when the player happens to fill the screen, which stops being
+     * true in split-screen, in freeform/desktop windows, and in tabletop posture on a foldable.
+     * Reading the view every time also keeps this correct across resizes — PlayerActivity swallows
+     * screenSize/screenLayout/orientation in configChanges, so this helper is never rebuilt.
+     */
     private fun inExclusionArea(firstEvent: MotionEvent): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val insets =
@@ -534,21 +539,21 @@ class PlayerGestureHelper(
 
             if (
                 (firstEvent.x < insets.left) ||
-                    (firstEvent.x > (screenWidth - insets.right)) ||
+                    (firstEvent.x > (playerView.width - insets.right)) ||
                     (firstEvent.y < insets.top) ||
-                    (firstEvent.y > (screenHeight - insets.bottom))
+                    (firstEvent.y > (playerView.height - insets.bottom))
             ) {
                 return true
             }
         } else if (
             firstEvent.y < playerView.resources.dip(Constants.GESTURE_EXCLUSION_AREA_VERTICAL) ||
                 firstEvent.y >
-                    screenHeight -
+                    playerView.height -
                         playerView.resources.dip(Constants.GESTURE_EXCLUSION_AREA_VERTICAL) ||
                 firstEvent.x <
                     playerView.resources.dip(Constants.GESTURE_EXCLUSION_AREA_HORIZONTAL) ||
                 firstEvent.x >
-                    screenWidth -
+                    playerView.width -
                         playerView.resources.dip(Constants.GESTURE_EXCLUSION_AREA_HORIZONTAL)
         ) {
             return true
