@@ -328,7 +328,12 @@ constructor(
         }
     }
 
-    fun initializePlayer(itemId: UUID, itemKind: String, startFromBeginning: Boolean) {
+    fun initializePlayer(
+        itemId: UUID,
+        itemKind: String,
+        startFromBeginning: Boolean,
+        mediaSourceId: String? = null,
+    ) {
         player.addListener(this)
 
         viewModelScope.launch {
@@ -337,7 +342,7 @@ constructor(
                     playlistManager.getInitialItem(
                         itemId = itemId,
                         itemKind = BaseItemKind.fromName(itemKind),
-                        mediaSourceIndex = null,
+                        mediaSourceId = mediaSourceId,
                         startFromBeginning = startFromBeginning,
                     )
                 } catch (e: Exception) {

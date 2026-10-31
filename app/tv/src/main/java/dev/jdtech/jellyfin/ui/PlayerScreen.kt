@@ -72,6 +72,7 @@ fun PlayerScreen(
     itemId: UUID,
     itemKind: String,
     startFromBeginning: Boolean,
+    mediaSourceId: String? = null,
     navigateBack: () -> Unit,
 ) {
     val viewModel = hiltViewModel<PlayerViewModel>()
@@ -189,6 +190,7 @@ fun PlayerScreen(
                         itemId = itemId,
                         itemKind = itemKind,
                         startFromBeginning = startFromBeginning,
+                        mediaSourceId = mediaSourceId,
                     )
                     playerView.setBackgroundColor(
                         context.resources.getColor(android.R.color.black, context.theme)
