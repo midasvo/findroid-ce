@@ -34,6 +34,7 @@ import dev.jdtech.jellyfin.player.local.domain.autoPlayNextFollowsServer
 import dev.jdtech.jellyfin.player.local.domain.resolveAutoPlayNext
 import dev.jdtech.jellyfin.player.local.mpv.MPVPlayer
 import dev.jdtech.jellyfin.repository.JellyfinRepository
+import dev.jdtech.jellyfin.repository.PlaybackEvents
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.settings.domain.Constants
 import java.util.UUID
@@ -66,6 +67,7 @@ constructor(
     private val repository: JellyfinRepository,
     private val appPreferences: AppPreferences,
     private val savedStateHandle: SavedStateHandle,
+    private val playbackEvents: PlaybackEvents,
 ) : ViewModel(), Player.Listener {
     val player: Player
 
@@ -468,6 +470,8 @@ constructor(
                 )
             } catch (e: Exception) {
                 Timber.e(e)
+            } finally {
+                playbackEvents.onStopped()
             }
         }
     }

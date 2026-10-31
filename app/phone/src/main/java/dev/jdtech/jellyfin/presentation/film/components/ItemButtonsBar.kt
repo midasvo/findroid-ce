@@ -58,6 +58,7 @@ fun ItemButtonsBar(
     canDownload: Boolean = item.canDownload,
     isDownloaded: Boolean = item.isDownloaded(),
     onPlayVersionClick: ((startFromBeginning: Boolean, mediaSourceId: String) -> Unit)? = null,
+    hasMoreToDownload: Boolean = false,
 ) {
     val context = LocalContext.current
     val isOfflineMode = LocalOfflineMode.current
@@ -148,7 +149,7 @@ fun ItemButtonsBar(
                     Icon(
                         painter = painterResource(CoreR.drawable.ic_check),
                         contentDescription = stringResource(CoreR.string.check_button_description),
-                        tint = if (item.played) MaterialTheme.colorScheme.error else LocalContentColor.current,
+                        tint = if (item.played) MaterialTheme.colorScheme.primary else LocalContentColor.current,
                     )
                 }
                 FilledTonalIconButton(onClick = onMarkAsFavoriteClick) {
@@ -169,18 +170,19 @@ fun ItemButtonsBar(
                     }
                 }
                 if (downloaderState != null && !downloaderState.isDownloading) {
+                    if (canDownload && !isOfflineMode && (!isDownloaded || hasMoreToDownload)) {
+                        FilledTonalIconButton(onClick = onDownloadClick) {
+                            Icon(
+                                painter = painterResource(CoreR.drawable.ic_download),
+                                contentDescription = stringResource(CoreR.string.download_button_description),
+                            )
+                        }
+                    }
                     if (isDownloaded) {
                         FilledTonalIconButton(onClick = { deleteDownloadDialogOpen = true }) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_trash),
                                 contentDescription = stringResource(CoreR.string.delete_download),
-                            )
-                        }
-                    } else if (canDownload && !isOfflineMode) {
-                        FilledTonalIconButton(onClick = onDownloadClick) {
-                            Icon(
-                                painter = painterResource(CoreR.drawable.ic_download),
-                                contentDescription = stringResource(CoreR.string.download_button_description),
                             )
                         }
                     }

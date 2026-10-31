@@ -14,6 +14,8 @@ sealed interface SeasonAction {
 
     data object UnmarkAsFavorite : SeasonAction
 
+    data object OnRetryClick : SeasonAction
+
     data object OnBackClick : SeasonAction
 
     data object OnHomeClick : SeasonAction
@@ -27,4 +29,6 @@ sealed interface SeasonAction {
         SeasonAction
 
     data class DeleteEpisodeDownload(val episode: FindroidItem) : SeasonAction
+
+    data class RetryEpisodeDownload(val episode: FindroidItem) : SeasonAction
 }

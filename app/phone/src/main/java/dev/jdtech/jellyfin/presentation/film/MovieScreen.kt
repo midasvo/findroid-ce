@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -55,11 +54,14 @@ import dev.jdtech.jellyfin.presentation.film.components.InfoText
 import dev.jdtech.jellyfin.presentation.film.components.ItemButtonsBar
 import dev.jdtech.jellyfin.presentation.film.components.ItemHeader
 import dev.jdtech.jellyfin.presentation.film.components.ItemTopBar
+import dev.jdtech.jellyfin.presentation.film.components.LoadingOrError
 import dev.jdtech.jellyfin.presentation.film.components.OverviewText
 import dev.jdtech.jellyfin.presentation.film.components.VideoMetadataBar
+import dev.jdtech.jellyfin.presentation.film.components.rememberTopBarBackgroundAlpha
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
+import dev.jdtech.jellyfin.presentation.utils.ReloadOnResume
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
 import dev.jdtech.jellyfin.utils.ObserveAsEvents
 import dev.jdtech.jellyfin.utils.copyOnLongClick
@@ -82,7 +84,7 @@ fun MovieScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val downloaderState by downloaderViewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(movieId) { viewModel.loadMovie(movieId = movieId) }
+    ReloadOnResume { viewModel.loadMovie(movieId = movieId) }
 
     LaunchedEffect(state.movie) { state.movie?.let { movie -> downloaderViewModel.update(movie) } }
 
@@ -303,11 +305,17 @@ private fun MovieScreenLayout(
                 }
                 Spacer(Modifier.height(paddingBottom))
             }
-        } ?: run { CircularProgressIndicator(modifier = Modifier.align(Alignment.Center)) }
+        } ?: run {
+            LoadingOrError(
+                error = state.error,
+                onRetryClick = { onAction(MovieAction.OnRetryClick) },
+            )
+        }
 
         ItemTopBar(
             hasBackButton = true,
             hasHomeButton = true,
+            backgroundAlpha = rememberTopBarBackgroundAlpha(scrollState),
             onBackClick = { onAction(MovieAction.OnBackClick) },
             onHomeClick = { onAction(MovieAction.OnHomeClick) },
         )
