@@ -46,6 +46,7 @@ data class DeviceCapabilityReport(
     val directPlayProfile: DeviceProfile,
     val downloadProfile: DeviceProfile,
     val downloadTranscodeDolbyVision: Boolean,
+    val directPlayDolbyVision: Boolean,
 )
 
 @Serializable
@@ -87,6 +88,8 @@ data class HdrInfo(
 data class ProbedCodecsReport(
     val videoCodecProfiles: Map<String, List<String>>,
     val audioCodecs: List<String>,
+    /** Dolby Vision profile number -> the highest resolution and frame rate advertised for it. */
+    val dolbyVisionProfiles: Map<Int, String>,
 )
 
 /**
@@ -117,6 +120,7 @@ object DeviceCapabilityReportBuilder {
         findroidVersion: String,
         findroidBuildType: String,
         transcodeDolbyVision: Boolean,
+        directPlayDolbyVision: Boolean,
         clock: () -> Long = System::currentTimeMillis,
     ): DeviceCapabilityReport {
         val display = currentDisplay(context)
@@ -142,11 +146,17 @@ object DeviceCapabilityReportBuilder {
                     .mapValues { (_, profiles) -> profiles.sorted() }
                     .toSortedMap(),
                 audioCodecs = probed.audioCodecs.sorted(),
+                dolbyVisionProfiles = probed.dolbyVisionProfiles
+                    .mapValues { (_, limit) ->
+                        "${limit.maxWidth}x${limit.maxHeight}@${limit.maxFramerate}"
+                    }
+                    .toSortedMap(),
             ),
-            deviceProfile = deviceProfileBuilder.getDeviceProfile(),
+            deviceProfile = deviceProfileBuilder.getDeviceProfile(directPlayDolbyVision),
             directPlayProfile = deviceProfileBuilder.getDirectPlayProfile(),
             downloadProfile = deviceProfileBuilder.getDownloadProfile(transcodeDolbyVision),
             downloadTranscodeDolbyVision = transcodeDolbyVision,
+            directPlayDolbyVision = directPlayDolbyVision,
         )
     }
 
@@ -165,6 +175,7 @@ object DeviceCapabilityReportBuilder {
         findroidVersion: String,
         findroidBuildType: String,
         transcodeDolbyVision: Boolean,
+        directPlayDolbyVision: Boolean,
         clock: () -> Long = System::currentTimeMillis,
     ): String = withContext(Dispatchers.Default) {
         val report = build(
@@ -173,6 +184,7 @@ object DeviceCapabilityReportBuilder {
             findroidVersion = findroidVersion,
             findroidBuildType = findroidBuildType,
             transcodeDolbyVision = transcodeDolbyVision,
+            directPlayDolbyVision = directPlayDolbyVision,
             clock = clock,
         )
         toJson(report)

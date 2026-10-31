@@ -50,6 +50,8 @@ import dev.jdtech.jellyfin.core.presentation.theme.Yellow
 import dev.jdtech.jellyfin.film.presentation.movie.MovieAction
 import dev.jdtech.jellyfin.film.presentation.movie.MovieState
 import dev.jdtech.jellyfin.film.presentation.movie.MovieViewModel
+import dev.jdtech.jellyfin.models.getVersions
+import dev.jdtech.jellyfin.presentation.film.components.VersionDialog
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.utils.format
@@ -58,7 +60,7 @@ import java.util.UUID
 @Composable
 fun MovieScreen(
     movieId: UUID,
-    navigateToPlayer: (itemId: UUID) -> Unit,
+    navigateToPlayer: (itemId: UUID, mediaSourceId: String?) -> Unit,
     viewModel: MovieViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -70,7 +72,7 @@ fun MovieScreen(
         onAction = { action ->
             when (action) {
                 is MovieAction.Play -> {
-                    navigateToPlayer(movieId)
+                    navigateToPlayer(movieId, action.mediaSourceId)
                 }
                 else -> Unit
             }
@@ -85,8 +87,11 @@ private fun MovieScreenLayout(state: MovieState, onAction: (MovieAction) -> Unit
     val configuration = LocalConfiguration.current
     val locale = configuration.locales.get(0)
 
+    var versionDialogOpen by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxSize()) {
         state.movie?.let { movie ->
+            val versions = remember(movie.sources) { movie.getVersions() }
             var size by remember { mutableStateOf(Size.Zero) }
             Box(
                 modifier =
@@ -177,7 +182,13 @@ private fun MovieScreenLayout(state: MovieState, onAction: (MovieAction) -> Unit
                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium)
                     ) {
                         Button(
-                            onClick = { onAction(MovieAction.Play(startFromBeginning = false)) },
+                            onClick = {
+                                if (versions.size > 1) {
+                                    versionDialogOpen = true
+                                } else {
+                                    onAction(MovieAction.Play(startFromBeginning = false))
+                                }
+                            },
                             modifier = Modifier.focusRequester(focusRequester),
                         ) {
                             Icon(
@@ -300,6 +311,17 @@ private fun MovieScreenLayout(state: MovieState, onAction: (MovieAction) -> Unit
             }
 
             LaunchedEffect(true) { focusRequester.requestFocus() }
+
+            if (versionDialogOpen) {
+                VersionDialog(
+                    versions = versions,
+                    onSelect = { mediaSourceId ->
+                        versionDialogOpen = false
+                        onAction(MovieAction.Play(mediaSourceId = mediaSourceId))
+                    },
+                    onDismiss = { versionDialogOpen = false },
+                )
+            }
         } ?: run { CircularProgressIndicator(modifier = Modifier.align(Alignment.Center)) }
     }
 }

@@ -76,6 +76,9 @@ constructor(
                     transcodeDolbyVision = appPreferences.getValue(
                         appPreferences.downloadTranscodeDolbyVision,
                     ),
+                    directPlayDolbyVision = appPreferences.getValue(
+                        appPreferences.playerDirectPlayDolbyVision,
+                    ),
                 )
                 eventsChannel.send(
                     when (target) {

@@ -367,7 +367,8 @@ class JellyfinRepositoryImpl(
         withContext(Dispatchers.IO) {
             // mpv software-decodes practically everything, so keep it on the permissive
             // direct-play profile. ExoPlayer gets the honest, hardware-probed profile so
-            // the server transcodes anything it cannot direct-play — notably Dolby Vision.
+            // the server transcodes anything it cannot direct-play, such as Dolby Vision
+            // without a DV decoder.
             val useDirectPlay = appPreferences.getValue(appPreferences.playerBackend) == "mpv"
             // User-selected bitrate cap (player quality selector). 0 = original quality.
             // Files above the cap get a server-side transcode; files below it still
@@ -380,7 +381,10 @@ class JellyfinRepositoryImpl(
                     useDirectPlay && maxBitrate != null ->
                         deviceProfileBuilder.getDirectPlayTranscodeFallbackProfile()
                     useDirectPlay -> deviceProfileBuilder.getDirectPlayProfile()
-                    else -> deviceProfileBuilder.getDeviceProfile()
+                    else ->
+                        deviceProfileBuilder.getDeviceProfile(
+                            appPreferences.getValue(appPreferences.playerDirectPlayDolbyVision),
+                        )
                 }
             val enableTranscoding = !useDirectPlay || maxBitrate != null
             val sources = mutableListOf<FindroidSource>()

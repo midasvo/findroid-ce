@@ -9,15 +9,24 @@
  * Findroid-specific changes:
  *  - The MediaCodecList hardware probe is split from the (pure) profile assembly so
  *    the assembly can be unit-tested without a device — see [buildDeviceProfile].
- *  - Dolby Vision is deliberately excluded from direct play (see [buildDeviceProfile]):
- *    ExoPlayer does not reliably forward DV RPU/EL metadata even on DV-capable
- *    hardware, so the server is asked to transcode DV to HDR10/SDR instead.
+ *  - Dolby Vision is only direct-played for the profiles and levels a decoder advertises,
+ *    on a display that supports it (see [buildDeviceProfile]); everything else is left to
+ *    a server transcode. Profiles 5 and 10.0 have no fallback layer, so that transcode has
+ *    wrong colors, and decoding them without DV support does too. A decoder advertising DV
+ *    is still no proof the whole pipeline works, so the user can turn this off
+ *    (`playerDirectPlayDolbyVision`).
  *  - The "direct play everything" profile ([buildDirectPlayProfile]) is kept for the
  *    mpv backend, which software-decodes practically anything.
  */
 package dev.jdtech.jellyfin.player
 
+import android.content.Context
+import android.hardware.display.DisplayManager
+import android.media.MediaCodecInfo.CodecCapabilities
 import android.media.MediaCodecList
+import android.media.MediaFormat
+import android.view.Display
+import kotlin.math.max
 import org.jellyfin.sdk.model.api.CodecProfile
 import org.jellyfin.sdk.model.api.CodecType
 import org.jellyfin.sdk.model.api.ContainerProfile
@@ -32,6 +41,13 @@ import org.jellyfin.sdk.model.api.SubtitleDeliveryMethod
 import org.jellyfin.sdk.model.api.SubtitleProfile
 import org.jellyfin.sdk.model.api.TranscodingProfile
 
+/** The largest picture a Dolby Vision level allows. */
+data class DolbyVisionLimit(
+    val maxWidth: Int,
+    val maxHeight: Int,
+    val maxFramerate: Int,
+)
+
 /**
  * Result of the [MediaCodecList] hardware probe, reduced to plain types so the
  * profile assembly stays pure and testable.
@@ -41,17 +57,36 @@ data class ProbedCodecs(
     val videoCodecProfiles: Map<String, Set<String>>,
     /** ffmpeg audio codec names the device can decode. */
     val audioCodecs: Set<String>,
+    /** Dolby Vision profile number -> the highest level a decoder advertises for it. */
+    val dolbyVisionProfiles: Map<Int, DolbyVisionLimit> = emptyMap(),
 )
 
-class DeviceProfileBuilder {
+class DeviceProfileBuilder(context: Context) {
+
+    private val displayManager = context.getSystemService(DisplayManager::class.java)
 
     private val probedCodecs: ProbedCodecs = probeCodecs()
 
     /**
      * Honest, hardware-probed profile for ExoPlayer. Files the device cannot
-     * direct-play (including all Dolby Vision) get a server-side transcode.
+     * direct-play get a server-side transcode. With [directPlayDolbyVision] off
+     * that includes all Dolby Vision, whatever the decoders advertise.
      */
-    fun getDeviceProfile(): DeviceProfile = buildDeviceProfile(probedCodecs)
+    fun getDeviceProfile(directPlayDolbyVision: Boolean): DeviceProfile =
+        buildDeviceProfile(probedCodecs, directPlayDolbyVision && displaySupportsDolbyVision())
+
+    /**
+     * A DV decoder only helps on a display that takes DV: a TV box can have the
+     * decoder and be plugged into an HDR10 TV. Not probed once like the decoders,
+     * because that box can be plugged into another TV at any time.
+     */
+    private fun displaySupportsDolbyVision(): Boolean {
+        val capabilities = displayManager.getDisplay(Display.DEFAULT_DISPLAY)?.hdrCapabilities
+        // Soft-deprecated like in DeviceCapabilityReportBuilder, same reason.
+        @Suppress("DEPRECATION")
+        val hdrTypes = capabilities?.supportedHdrTypes ?: return false
+        return Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION in hdrTypes
+    }
 
     /**
      * Permissive "direct play everything" profile for the mpv backend, which
@@ -108,13 +143,18 @@ class DeviceProfileBuilder {
     private fun probeCodecs(): ProbedCodecs {
         val videoCodecs: MutableMap<String, DeviceCodec.Video> = HashMap()
         val audioCodecs: MutableMap<String, DeviceCodec.Audio> = HashMap()
+        val dolbyVisionLevels: MutableMap<Int, Int> = HashMap()
         val androidCodecs = MediaCodecList(MediaCodecList.REGULAR_CODECS)
         for (codecInfo in androidCodecs.codecInfos) {
             if (codecInfo.isEncoder) continue
 
             for (mimeType in codecInfo.supportedTypes) {
                 val codec = try {
-                    DeviceCodec.from(codecInfo.getCapabilitiesForType(mimeType))
+                    val capabilities = codecInfo.getCapabilitiesForType(mimeType)
+                    if (mimeType.equals(MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION, ignoreCase = true)) {
+                        collectDolbyVisionLevels(capabilities, dolbyVisionLevels)
+                    }
+                    DeviceCodec.from(capabilities)
                 } catch (_: Exception) {
                     // Some OEM codecs throw on getCapabilitiesForType — skip them.
                     null
@@ -134,7 +174,27 @@ class DeviceProfileBuilder {
         return ProbedCodecs(
             videoCodecProfiles = videoCodecs.mapValues { (_, codec) -> codec.profiles },
             audioCodecs = audioCodecs.keys.toSet(),
+            dolbyVisionProfiles = dolbyVisionLevels
+                .mapNotNull { (profile, level) ->
+                    CodecHelpers.getDolbyVisionLimit(level)?.let { limit -> profile to limit }
+                }
+                .toMap(),
         )
+    }
+
+    /** Keeps the highest level per Dolby Vision profile across decoders in [levels]. */
+    private fun collectDolbyVisionLevels(
+        capabilities: CodecCapabilities,
+        levels: MutableMap<Int, Int>,
+    ) {
+        // ExoPlayer can't use a secure-only decoder for a clear stream.
+        if (capabilities.isFeatureRequired(CodecCapabilities.FEATURE_SecurePlayback)) return
+
+        for (profileLevel in capabilities.profileLevels) {
+            val profile = CodecHelpers.getDolbyVisionProfile(profileLevel.profile) ?: continue
+            // The level constants are bit flags in ascending order.
+            levels[profile] = max(levels[profile] ?: 0, profileLevel.level)
+        }
     }
 
     companion object {
@@ -238,12 +298,37 @@ class DeviceProfileBuilder {
         private val EXO_BURNIN_IMAGE_SUBTITLES = arrayOf("dvbsub", "dvdsub", "pgssub")
 
         /**
-         * Video range types that may be direct-played. Every Dolby Vision range
-         * (DOVI, DOVIWith*) is intentionally absent so the server transcodes it —
-         * see the file header for why. `Unknown` is kept so HEVC streams whose
-         * range the server cannot classify are not needlessly transcoded.
+         * Video range types that may be direct-played on any device. Every Dolby
+         * Vision range (DOVI, DOVIWith*) is absent: [DOLBY_VISION_RANGE_TYPES] adds
+         * those per device. `Unknown` is kept so streams whose range the server
+         * cannot classify are not needlessly transcoded.
          */
         private const val DIRECT_PLAY_VIDEO_RANGE_TYPES = "SDR|HDR10|HDR10Plus|HLG|Unknown"
+
+        /**
+         * The range types the server gives each Dolby Vision profile, per ffmpeg
+         * codec name — see `MediaStream.GetVideoColorRange` in Jellyfin. `DOVIInvalid`
+         * (out-of-spec files) is never direct-played.
+         */
+        private val DOLBY_VISION_RANGE_TYPES = mapOf(
+            "hevc" to mapOf(
+                5 to listOf("DOVI"),
+                7 to listOf("DOVIWithEL", "DOVIWithELHDR10Plus"),
+                8 to listOf("DOVIWithHDR10", "DOVIWithHLG", "DOVIWithSDR", "DOVIWithHDR10Plus"),
+            ),
+            "av1" to mapOf(
+                10 to listOf(
+                    "DOVI", "DOVIWithHDR10", "DOVIWithHLG", "DOVIWithSDR", "DOVIWithHDR10Plus",
+                ),
+            ),
+        )
+
+        /**
+         * Containers media3 reads the Dolby Vision configuration from. Without it
+         * (MPEG-TS, for one) ExoPlayer sees a plain HEVC or AV1 stream and never
+         * picks the DV decoder.
+         */
+        private val DOLBY_VISION_CONTAINERS = setOf("mp4", "fmp4", "webm", "mkv")
 
         // Bitrate ceilings, taken from jellyfin-web's browserDeviceProfile.js.
         private const val MAX_STREAMING_BITRATE = 120_000_000
@@ -287,7 +372,12 @@ class DeviceProfileBuilder {
          * Pure assembly of the honest device profile from a [ProbedCodecs] snapshot.
          * Kept side-effect-free and Android-free so it can be unit-tested.
          */
-        internal fun buildDeviceProfile(probed: ProbedCodecs): DeviceProfile {
+        internal fun buildDeviceProfile(
+            probed: ProbedCodecs,
+            directPlayDolbyVision: Boolean = true,
+        ): DeviceProfile {
+            val dolbyVisionProfiles =
+                if (directPlayDolbyVision) probed.dolbyVisionProfiles else emptyMap()
             val containerProfiles = ArrayList<ContainerProfile>()
             val directPlayProfiles = ArrayList<DirectPlayProfile>()
             val codecProfiles = ArrayList<CodecProfile>()
@@ -318,8 +408,17 @@ class DeviceProfileBuilder {
                         ),
                     )
                     for (videoCodec in videoCodecs) {
-                        generateCodecProfile(container, videoCodec, probed.videoCodecProfiles)
-                            ?.let(codecProfiles::add)
+                        val dolbyVision =
+                            supportedDolbyVision(container, videoCodec, dolbyVisionProfiles)
+                        generateCodecProfile(
+                            container,
+                            videoCodec,
+                            probed.videoCodecProfiles,
+                            dolbyVision.keys.flatten(),
+                        )?.let(codecProfiles::add)
+                        dolbyVision.mapTo(codecProfiles) { (rangeTypes, limit) ->
+                            generateDolbyVisionLimit(container, videoCodec, rangeTypes, limit)
+                        }
                     }
                 }
                 if (audioCodecs.isNotEmpty()) {
@@ -353,20 +452,36 @@ class DeviceProfileBuilder {
             )
         }
 
+        /** The Dolby Vision range types this device can direct-play, with their limit. */
+        private fun supportedDolbyVision(
+            container: String,
+            videoCodec: String,
+            dolbyVisionProfiles: Map<Int, DolbyVisionLimit>,
+        ): Map<List<String>, DolbyVisionLimit> {
+            if (container !in DOLBY_VISION_CONTAINERS) return emptyMap()
+            return buildMap {
+                for ((profile, rangeTypes) in DOLBY_VISION_RANGE_TYPES[videoCodec].orEmpty()) {
+                    dolbyVisionProfiles[profile]?.let { limit -> put(rangeTypes, limit) }
+                }
+            }
+        }
+
         /**
          * Builds the codec profile for one (container, videoCodec) pair. The
          * `VIDEO_PROFILE` condition restricts direct play to decoder-supported
-         * profiles; for HEVC an extra `VIDEO_RANGE_TYPE` condition excludes every
-         * Dolby Vision range so the server always transcodes DV.
+         * profiles; for codecs that can carry Dolby Vision an extra `VIDEO_RANGE_TYPE`
+         * condition leaves out every DV range except [dolbyVisionRangeTypes], so the
+         * server transcodes those.
          */
         private fun generateCodecProfile(
             container: String,
             videoCodec: String,
             videoCodecProfiles: Map<String, Set<String>>,
+            dolbyVisionRangeTypes: List<String>,
         ): CodecProfile? {
             val profilesSet = videoCodecProfiles[videoCodec].orEmpty()
-            val isHevc = videoCodec == "hevc"
-            if (profilesSet.isEmpty() && !isHevc) {
+            val isRangeRestricted = videoCodec in DOLBY_VISION_RANGE_TYPES
+            if (profilesSet.isEmpty() && !isRangeRestricted) {
                 return null
             }
 
@@ -381,12 +496,13 @@ class DeviceProfileBuilder {
                         ),
                     )
                 }
-                if (isHevc) {
+                if (isRangeRestricted) {
                     add(
                         ProfileCondition(
                             condition = ProfileConditionType.EQUALS_ANY,
                             property = ProfileConditionValue.VIDEO_RANGE_TYPE,
-                            value = DIRECT_PLAY_VIDEO_RANGE_TYPES,
+                            value = (listOf(DIRECT_PLAY_VIDEO_RANGE_TYPES) + dolbyVisionRangeTypes)
+                                .joinToString("|"),
                             isRequired = false,
                         ),
                     )
@@ -401,6 +517,50 @@ class DeviceProfileBuilder {
                 conditions = conditions,
             )
         }
+
+        /**
+         * Holds [rangeTypes] to the [limit] of the decoder's Dolby Vision level; the
+         * server has no condition for the DV level itself. The apply condition is
+         * required so that streams with an `Unknown` range are left out of it.
+         */
+        private fun generateDolbyVisionLimit(
+            container: String,
+            videoCodec: String,
+            rangeTypes: List<String>,
+            limit: DolbyVisionLimit,
+        ): CodecProfile = CodecProfile(
+            type = CodecType.VIDEO,
+            container = container,
+            codec = videoCodec,
+            applyConditions = listOf(
+                ProfileCondition(
+                    condition = ProfileConditionType.EQUALS_ANY,
+                    property = ProfileConditionValue.VIDEO_RANGE_TYPE,
+                    value = rangeTypes.joinToString("|"),
+                    isRequired = true,
+                ),
+            ),
+            conditions = listOf(
+                ProfileCondition(
+                    condition = ProfileConditionType.LESS_THAN_EQUAL,
+                    property = ProfileConditionValue.WIDTH,
+                    value = limit.maxWidth.toString(),
+                    isRequired = false,
+                ),
+                ProfileCondition(
+                    condition = ProfileConditionType.LESS_THAN_EQUAL,
+                    property = ProfileConditionValue.HEIGHT,
+                    value = limit.maxHeight.toString(),
+                    isRequired = false,
+                ),
+                ProfileCondition(
+                    condition = ProfileConditionType.LESS_THAN_EQUAL,
+                    property = ProfileConditionValue.VIDEO_FRAMERATE,
+                    value = limit.maxFramerate.toString(),
+                    isRequired = false,
+                ),
+            ),
+        )
 
         /**
          * The permissive profile: direct-play any container/codec, never transcode.

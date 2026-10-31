@@ -49,3 +49,8 @@ fun FindroidItem.isDownloaded(): Boolean {
         .filter { it.type == FindroidSourceType.LOCAL }
         .any { !it.path.endsWith(".download") }
 }
+
+/** The versions a user can pick from. A downloaded copy keeps the id of its server version. */
+fun FindroidItem.getVersions(): List<FindroidSource> {
+    return sources.distinctBy { it.id }
+}
