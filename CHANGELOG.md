@@ -10,6 +10,64 @@ _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.2.0-ce.2] — 2026-11-01
+
+Picking between versions, playback that carries on into the next season, Dolby Vision direct play
+and Atmos on phones, and a round of phone UI work.
+
+### Added
+- Version picker. Movies and episodes with more than one version now ask which one to play, for
+  both Play and play from beginning. On TV this works on the movie screen. Items with a single
+  version start straight away, as before (#28, #93).
+- Finishing the last episode of a season continues into the next one, and the Next button works
+  there too. Seasons with only missing episodes are skipped, and specials don't roll over into
+  season 1 (#29, #92).
+- "Direct play Dolby Vision" player setting, on by default (#96, #100).
+- A partly downloaded season or show now offers both download and delete, so you can finish the
+  download instead of only removing it (#94).
+- Error screens with Retry. Movie, show, season, episode and person pages used to spin forever on a
+  failed load, and Favorites and Collection stayed blank. Search, an empty Home and Downloads show
+  the same error, and a failed background reload keeps what's on screen (#95).
+
+### Changed
+- Dolby Vision is direct-played when the device can show it: the decoder, profile, level, container
+  and display must all support it. Anything else is transcoded as before. Profiles 5 and 10.0 have
+  no fallback layer, so their transcode shows green and purple; on capable devices that's now
+  avoided (#96, #100).
+- Phones now try the platform audio decoder first, so those with a working Atmos decoder get spatial
+  audio and hardware decoding again. If an audio decoder fails during playback, on phone or TV, the
+  player switches to ffmpeg at the same position and remembers that decoder for next time. Phones
+  with no Atmos decoder stay on ffmpeg for E-AC-3 (#97, #99).
+- Season lists use the Downloads row style: titles on up to two lines, a play button on the artwork,
+  watch progress and a download button that can stop a download. A failed download retries at its
+  chosen quality instead of asking again (#94).
+- Home, movie, show, season and episode pages refresh after you leave the player (#95).
+- Favorites, Collection, search, Library and Home have proper empty states, and "No search results"
+  no longer flashes while typing. Library has a first-load spinner, and a "Show watched" button when
+  the watched filter hides everything (#95).
+- The downloaded badge has its own download icon, so it no longer looks like the watched check. The
+  watched check no longer uses the error colour, and Favorites uses the same heart as the item
+  buttons. My media has at least two columns, like Library (#95).
+
+### Fixed
+- The check mark on an episode no longer deletes the download on one tap. Removing or cancelling
+  now shows Undo, and the delete still finishes if you leave the screen (#94).
+- Artwork moves on to the next image when one fails to load, and seasons without a poster use the
+  show's (#94).
+- Content no longer runs through the status bar and floating headers on Home, My media and item
+  pages (#94).
+- Home no longer opens partly scrolled when the carousel loads last (#95).
+- Player controls stay usable in a narrow window such as split-screen: the Next button no longer
+  gets cut off, the back button is always visible, and the other buttons scroll when they don't fit
+  (#101).
+- Swipe gestures no longer fire inside the system gesture area in split-screen and freeform windows
+  (#55, #91).
+- Stable and beta builds no longer log each other out. Beta builds now have their own device ID; log
+  in once more on the beta to separate them fully (#98).
+
+### Maintenance
+- From upstream: Android Gradle Plugin 9.5.0, Jellyfin SDK 1.9.4, fastlane update.
+
 ## [v1.2.0-ce.1] — 2026-10-29
 
 A redesigned Downloads screen, and a beta channel you can follow in Obtainium.
