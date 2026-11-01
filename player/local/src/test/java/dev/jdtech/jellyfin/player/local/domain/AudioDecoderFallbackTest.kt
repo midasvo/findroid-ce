@@ -1,11 +1,12 @@
 package dev.jdtech.jellyfin.player.local.domain
 
+import androidx.media3.common.MimeTypes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** Unit tests for what [AudioDecoderFallback] remembers about broken decoders. */
+/** Unit tests for what [AudioDecoderFallback] remembers and which decoders it leaves to ffmpeg. */
 class AudioDecoderFallbackTest {
 
     private val decoder = "c2.dolby.eac3.decoder"
@@ -61,5 +62,26 @@ class AudioDecoderFallbackTest {
         AudioDecoderFallback("build-2", stored) { stored = it }.markBroken(decoder)
 
         assertEquals(2, stored.size)
+    }
+
+    @Test
+    fun `a phone with no JOC decoder leaves E-AC-3 to ffmpeg`() {
+        assertTrue(leavesEAc3ToFfmpeg(MimeTypes.AUDIO_E_AC3, isTv = false) { false })
+    }
+
+    @Test
+    fun `a phone with a JOC decoder keeps its E-AC-3 decoder`() {
+        assertFalse(leavesEAc3ToFfmpeg(MimeTypes.AUDIO_E_AC3, isTv = false) { true })
+    }
+
+    @Test
+    fun `a TV keeps its E-AC-3 decoder without a JOC decoder`() {
+        assertFalse(leavesEAc3ToFfmpeg(MimeTypes.AUDIO_E_AC3, isTv = true) { false })
+    }
+
+    @Test
+    fun `other formats keep their platform decoders`() {
+        assertFalse(leavesEAc3ToFfmpeg(MimeTypes.AUDIO_AAC, isTv = false) { false })
+        assertFalse(leavesEAc3ToFfmpeg(MimeTypes.AUDIO_E_AC3_JOC, isTv = false) { false })
     }
 }

@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin.player.local.presentation
 
 import android.app.Application
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -114,6 +115,7 @@ constructor(
         AudioDecoderFallback(
             build = Build.FINGERPRINT,
             broken = appPreferences.getValue(appPreferences.playerBrokenAudioDecoders),
+            isTv = application.packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK),
             onBrokenChanged = {
                 appPreferences.setValue(appPreferences.playerBrokenAudioDecoders, it)
             },
