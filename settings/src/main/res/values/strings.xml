@@ -86,6 +86,8 @@
     <string name="dynamic_colors_summary">Use Material You Dynamic colors (only available on Android 12+)</string>
     <string name="extra_info">Display Extra Info</string>
     <string name="extra_info_summary">Displays detailed information about Audio, Video and Subtitles</string>
+    <string name="cast_and_crew">Display cast and crew</string>
+    <string name="cast_and_crew_summary">Shows actors, directors and writers on movie, show and episode pages</string>
     <string name="mb">MB</string>
     <string name="ms">ms</string>
     <string name="seconds">s</string>

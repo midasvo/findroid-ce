@@ -11,6 +11,7 @@ import dev.jdtech.jellyfin.models.FindroidSourceType
 import dev.jdtech.jellyfin.models.isDownloaded
 import dev.jdtech.jellyfin.models.mergeDuplicateRoles
 import dev.jdtech.jellyfin.repository.JellyfinRepository
+import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.Downloader
 import java.util.UUID
 import javax.inject.Inject
@@ -32,6 +33,7 @@ class ShowViewModel
 @Inject
 constructor(
     private val repository: JellyfinRepository,
+    private val appPreferences: AppPreferences,
     private val downloader: Downloader,
     private val downloadQueue: DownloadQueue,
 ) : ViewModel() {
@@ -53,9 +55,10 @@ constructor(
                 val show = repository.getShow(showId)
                 val nextUp = if (downloadsOnly) null else getNextUp(showId)
                 val seasons = repository.getSeasons(showId, offline = downloadsOnly)
-                val actors = getActors(show)
-                val director = getDirector(show)
-                val writers = getWriters(show)
+                val displayCastAndCrew = appPreferences.getValue(appPreferences.displayCastAndCrew)
+                val actors = if (displayCastAndCrew) getActors(show) else emptyList()
+                val director = if (displayCastAndCrew) getDirector(show) else null
+                val writers = if (displayCastAndCrew) getWriters(show) else emptyList()
                 val seasonDownloadInfo = mutableMapOf<UUID, SeasonDownloadInfo>()
                 var hasDownloads = false
                 coroutineScope {

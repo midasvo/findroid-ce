@@ -352,16 +352,18 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                         )
                                     }
                                 }
-                                Column {
-                                    Text(
-                                        text = stringResource(id = CoreR.string.writers),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = Color.White.copy(alpha = .5f),
-                                    )
-                                    Text(
-                                        text = state.writers.joinToString { it.name },
-                                        style = MaterialTheme.typography.bodyMedium,
-                                    )
+                                if (state.writers.isNotEmpty()) {
+                                    Column {
+                                        Text(
+                                            text = stringResource(id = CoreR.string.writers),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = Color.White.copy(alpha = .5f),
+                                        )
+                                        Text(
+                                            text = state.writers.joinToString { it.name },
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                    }
                                 }
                             }
                             Spacer(modifier = Modifier.height(MaterialTheme.spacings.large))
