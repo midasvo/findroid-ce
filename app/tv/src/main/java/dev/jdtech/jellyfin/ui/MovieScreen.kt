@@ -288,16 +288,18 @@ private fun MovieScreenLayout(state: MovieState, onAction: (MovieAction) -> Unit
                                 )
                             }
                         }
-                        Column {
-                            Text(
-                                text = stringResource(id = CoreR.string.writers),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White.copy(alpha = .5f),
-                            )
-                            Text(
-                                text = state.writers.joinToString { it.name },
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
+                        if (state.writers.isNotEmpty()) {
+                            Column {
+                                Text(
+                                    text = stringResource(id = CoreR.string.writers),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White.copy(alpha = .5f),
+                                )
+                                Text(
+                                    text = state.writers.joinToString { it.name },
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                            }
                         }
                     }
                     //                    Spacer(modifier =

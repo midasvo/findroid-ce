@@ -39,7 +39,8 @@ constructor(
             try {
                 val episode = repository.getEpisode(episodeId)
                 val videoMetadata = episode.sources.firstOrNull()?.let { videoMetadataParser.parse(it) }
-                val actors = getActors(episode)
+                val displayCastAndCrew = appPreferences.getValue(appPreferences.displayCastAndCrew)
+                val actors = if (displayCastAndCrew) getActors(episode) else emptyList()
                 val displayExtraInfo = appPreferences.getValue(appPreferences.displayExtraInfo)
                 _state.emit(
                     _state.value.copy(

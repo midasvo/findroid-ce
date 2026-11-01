@@ -228,7 +228,14 @@ class SettingsViewModel @Inject constructor(
                                                         R.string.extra_info_summary,
                                                     backendPreference =
                                                         appPreferences.displayExtraInfo,
-                                                )
+                                                ),
+                                                PreferenceSwitch(
+                                                    nameStringResource = R.string.cast_and_crew,
+                                                    descriptionStringRes =
+                                                        R.string.cast_and_crew_summary,
+                                                    backendPreference =
+                                                        appPreferences.displayCastAndCrew,
+                                                ),
                                             )
                                     ),
                                 ),
