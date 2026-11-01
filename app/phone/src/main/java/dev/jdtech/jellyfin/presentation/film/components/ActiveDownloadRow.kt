@@ -27,7 +27,7 @@ import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import kotlin.math.roundToInt
 
-/** A download in progress: artwork, title, one status fact and the progress ring. */
+/** A download in progress: artwork, title, two lines of status and the progress ring. */
 @Composable
 fun ActiveDownloadRow(
     activeDownload: ActiveDownload,
@@ -77,6 +77,7 @@ fun ActiveDownloadRow(
         metaColor =
             if (status == DownloadStatus.FAILED) MaterialTheme.colorScheme.error
             else MaterialTheme.colorScheme.onSurfaceVariant,
+        metaMinLines = 2,
         shape = shape,
         modifier = modifier,
         trailing = {
@@ -123,7 +124,7 @@ fun downloadTitles(item: FindroidItem): Pair<String, String?> {
     else episodeLabel to null
 }
 
-/** The single most useful fact about a download right now. */
+/** The most useful facts about a download right now, one per line so neither gets cut off. */
 @Composable
 private fun statusLine(download: ActiveDownload): String {
     val context = LocalContext.current
@@ -141,14 +142,14 @@ private fun statusLine(download: ActiveDownload): String {
             if (total <= 0L) {
                 // A transcode still being produced: at least show that bytes are arriving.
                 val preparing = stringResource(CoreR.string.download_preparing_on_server)
-                if (done > 0) "$preparing · ${size(done)}" else preparing
+                if (done > 0) "$preparing\n${size(done)}" else preparing
             } else {
                 // The total of a transcode is estimated from the original file.
                 val totalText = (if (download.totalBytesEstimated) "~" else "") + size(total)
                 val bytes = stringResource(CoreR.string.download_bytes_of, size(done), totalText)
                 val remaining = total - done
                 if (download.bytesPerSecond > 0 && remaining > 0) {
-                    "$bytes · ${timeLeft(remaining / download.bytesPerSecond)}"
+                    "$bytes\n${timeLeft(remaining / download.bytesPerSecond)}"
                 } else bytes
             }
         }
