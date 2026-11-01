@@ -526,9 +526,9 @@ class PlayerGestureHelper(
      * Bounds come from [playerView], not from the display: [firstEvent] is delivered by a touch
      * listener on that view, so its coordinates are view-local. Measuring them against the
      * physical display only agrees when the player happens to fill the screen, which stops being
-     * true in split-screen, in freeform/desktop windows, and in tabletop posture on a foldable.
-     * Reading the view every time also keeps this correct across resizes — PlayerActivity swallows
-     * screenSize/screenLayout/orientation in configChanges, so this helper is never rebuilt.
+     * true in split-screen and in freeform/desktop windows. Reading the view every time also keeps
+     * this correct across resizes — PlayerActivity swallows screenSize/screenLayout/orientation in
+     * configChanges, so this helper is never rebuilt.
      */
     private fun inExclusionArea(firstEvent: MotionEvent): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
