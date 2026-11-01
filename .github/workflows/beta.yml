@@ -31,7 +31,7 @@ concurrency:
 
 env:
   # Number of beta prereleases (and their tags) to keep; older ones are deleted.
-  KEEP_BETAS: 10
+  KEEP_BETAS: 3
 
 jobs:
   beta:
