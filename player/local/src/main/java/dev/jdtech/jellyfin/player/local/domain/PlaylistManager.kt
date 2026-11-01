@@ -205,12 +205,16 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
      * only when the current one runs out. Specials (season 0) do not roll over into season 1.
      */
     private suspend fun appendNextSeason() {
-        val lastEpisode = items.lastOrNull() as? FindroidEpisode ?: return
+        val queuedEpisodes = items.filterIsInstance<FindroidEpisode>()
+        val seriesId = queuedEpisodes.lastOrNull()?.seriesId ?: return
 
         try {
-            val seasons = repository.getSeasons(lastEpisode.seriesId).sortedBy { it.indexNumber }
+            val seasons = repository.getSeasons(seriesId).sortedBy { it.indexNumber }
+            // The highest queued season, not the last episode's: the server can end a season's
+            // list with a special that airs after it, and that episode belongs to season 0.
+            val queuedSeasonIds = queuedEpisodes.map { it.seasonId }
             val seasonNumber =
-                seasons.firstOrNull { it.id == lastEpisode.seasonId }?.indexNumber ?: return
+                seasons.lastOrNull { it.id in queuedSeasonIds }?.indexNumber ?: return
             if (seasonNumber == 0) {
                 return
             }
@@ -221,7 +225,7 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
                     .firstNotNullOfOrNull { season ->
                         repository
                             .getEpisodes(
-                                seriesId = lastEpisode.seriesId,
+                                seriesId = seriesId,
                                 seasonId = season.id,
                                 fields = listOf(ItemFields.CHAPTERS, ItemFields.TRICKPLAY),
                             )
