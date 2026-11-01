@@ -23,15 +23,18 @@ prefer rock-solid stability, stick with upstream — and know that the good stuf
 
 ## A look at CE
 
-<p>
+<p align="center">
   <img src="images/screenshots/downloads.webp" width="240" alt="Downloads screen with a storage bar, two active downloads with progress rings, and a downloaded movie">
   <img src="images/screenshots/season.webp" width="240" alt="Season episode list showing downloaded, downloading and not yet downloaded episodes">
   <img src="images/screenshots/download-quality.webp" width="240" alt="Download quality dialog listing original quality and bitrates from 4K down">
+  <img src="images/screenshots/downloaded-show.webp" width="240" alt="Downloaded show page listing episodes by season with their sizes">
+  <img src="images/screenshots/subtitle-style.webp" width="240" alt="Subtitle style screen with a live preview of yellow subtitles">
   <img src="images/screenshots/player-quality.webp" width="728" alt="Video quality dialog open over the player">
 </p>
 
 The Downloads screen with its storage breakdown, download progress in the season list, a quality
-choice for every download, and video quality during playback.
+choice for every download, a page for each downloaded show, subtitle styling with a live preview,
+and video quality during playback.
 
 <sub>All artwork shown belongs to its respective owners.</sub>
 
