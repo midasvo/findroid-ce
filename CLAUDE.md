@@ -22,7 +22,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./gradlew clean
 ```
 
-There are no lint or test commands currently in use — the project has minimal test infrastructure.
+```bash
+# Formatting check (runs in CI)
+./gradlew ktfmtCheck
+
+# Format the tree
+./gradlew ktfmtFormat
+
+# Unit tests (coverage is limited to a few modules)
+./gradlew testDebugUnitTest
+```
 
 ## Module Structure
 
@@ -54,13 +63,13 @@ Events that fire once (navigation, toasts) use a `Channel<FooEvent>` exposed as 
 
 **Dependency Injection:** Hilt throughout. DI modules are in `core/src/main/java/dev/jdtech/jellyfin/di/`.
 
-**Navigation:** Type-safe Compose Navigation with `@Serializable` route objects. `NavigationRoot.kt` in `app/phone` is the single source of truth for the nav graph.
+**Navigation:** Navigation 3 with `@Serializable` route objects. `NavigationRoot.kt` in `app/phone` is the single source of truth for the nav graph.
 
 **Offline mode:** A `LocalOfflineMode` CompositionLocal toggles the app between online (`JellyfinRepositoryImpl`) and offline (`OfflineJellyfinRepositoryImpl`) data sources. The repository is switched at the DI level.
 
 ## Key Patterns
 
-**Downloading:** `Downloader` interface (in `core`) is injected into ViewModels that need it. `DownloaderViewModel` (also in `core`) handles progress polling via `Handler` and exposes `DownloaderState`. Storage index is read from `AppPreferences.downloadStorageIndex` — there is no per-download dialog.
+**Downloading:** `Downloader` interface (in `core`) is injected into ViewModels that need it. `DownloaderViewModel` (also in `core`) handles progress polling via `Handler` and exposes `DownloaderState`. Storage index is read from `AppPreferences.downloadStorageIndex`, so downloads don't ask for a storage location. Each download does ask for a quality, through `DownloadQualityDialog`.
 
 **ItemButtonsBar:** The shared download/play/favorite buttons component. Accepts `canDownload` and `isDownloaded` overrides so aggregate items (seasons, shows) can pass computed values instead of deriving from the item directly.
 

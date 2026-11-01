@@ -1,5 +1,3 @@
-![Findroid banner](images/findroid-banner.png)
-
 # Findroid CE (Community Edition)
 
 A community-driven fork of [Findroid](https://github.com/jarnedemeulemeester/findroid) — the native
@@ -23,32 +21,50 @@ it's a faster-moving companion for people who want the latest community work soo
 If you like living a bit closer to the edge, CE gets community features into your hands sooner. If you
 prefer rock-solid stability, stick with upstream — and know that the good stuff here can flow back to it.
 
+## A look at CE
+
+<p align="center">
+  <img src="images/screenshots/downloads.webp" width="240" alt="Downloads screen with a storage bar, two active downloads with progress rings, and a downloaded movie">
+  <img src="images/screenshots/season.webp" width="240" alt="Season episode list showing downloaded, downloading and not yet downloaded episodes">
+  <img src="images/screenshots/download-quality.webp" width="240" alt="Download quality dialog listing original quality and bitrates from 4K down">
+  <img src="images/screenshots/downloaded-show.webp" width="240" alt="Downloaded show page listing episodes by season with their sizes">
+  <img src="images/screenshots/subtitle-style.webp" width="240" alt="Subtitle style screen with a live preview of yellow subtitles">
+  <img src="images/screenshots/player-quality.webp" width="728" alt="Video quality dialog open over the player">
+</p>
+
+The Downloads screen with its storage breakdown, download progress in the season list, a quality
+choice for every download, a page for each downloaded show, subtitle styling with a live preview,
+and video quality during playback.
+
+<sub>All artwork shown belongs to its respective owners.</sub>
+
 ## What you get over stock Findroid
 
 ### Downloads
 
-- **OkHttp resumable download engine** — replaces Android's `DownloadManager` for reliable, resumable downloads (including SD card support)
-- **Per-episode download progress & inline buttons** — real-time status (pending, downloading, completed, failed) and tap-to-download/delete right in the season episode list, Netflix/Disney+ style
-- **Bulk season & series download** — download an entire season or series with one tap, with queued concurrent downloading
-- **Configurable max concurrent downloads** — limit how many episodes download at once (default: 2)
-- **Season download status on the show screen** — see "3/10 downloaded" per season in the season selection dialog
-- **Redesigned downloads screen** — one scrolling list with progress rings and time left for active downloads, artwork-led shows and movies, a per-show episode page, multi-select, undo instead of confirm dialogs, and a storage breakdown
+- **Resumable download engine** — built on OkHttp instead of Android's `DownloadManager`, with SD card support
+- **Download quality picker** — keep the original, or have the server convert it, from 4K 120 Mbps down to 360p
+- **Redesigned downloads screen** — one list with progress rings, a per-show page, multi-select, undo, and a storage breakdown
+- **Season list built for downloads** — live progress and download, stop and delete buttons on each episode
+- **Bulk season & series download** — with a configurable limit on concurrent downloads and per-season status such as "3/10 downloaded"
 
 ### Playback & player
 
-- **Dolby Vision** — direct play on devices with a DV decoder, device-profile-aware transcoding on the rest
-- **Wider subtitle delivery** — PGS, VobSub, and DVB subtitles delivered without transcoding
-- **Configurable subtitle styling** — colors, outline, font, and size
+- **Dolby Vision** — direct play where the device supports it, device-profile-aware transcoding on the rest
+- **Better audio decoding** — tries the platform decoder first for Atmos, and falls back to ffmpeg if a decoder fails
+- **Version picker & quality selector** — choose a version before playing, and change the video quality during playback
+- **Next-season playback** — carries on into the next season, and autoplay can follow your server or be forced on or off
+- **Wider subtitle support** — PGS, VobSub, and DVB without transcoding, plus configurable colors, outline, font, and size
 - **Media segments** — per-type skip / ask / ignore actions
-- **Chapters in the player UI**
-- **"Are you still watching?"** inactivity prompt
-- **Trickplay** loader behind a developer toggle
+- **Chapter list** in the player, and an **"Are you still watching?"** inactivity prompt
 
 ### Library & UI
 
 - **Hide-watched filter** in the library view — persisted and shared across libraries
 - **Long-press to copy text** on the movie/show/episode/season/person detail screens
 - **Auto offline mode** — automatically enabled when there is no connectivity
+- **Error screens with Retry** and proper empty states, instead of endless spinners and blank pages
+- **Option to hide cast and crew** on detail screens
 
 ### Diagnostics
 
@@ -69,7 +85,8 @@ https://github.com/midasvo/findroid-ce
 Obtainium then checks for new releases automatically and notifies you of updates. Leave
 **Include prereleases** off for this entry so it only follows stable releases.
 
-### Beta channel (Obtainium)
+<details>
+<summary><strong>Beta channel (Obtainium)</strong></summary>
 
 Beta builds of `main` and of work in progress are published as GitHub prereleases tagged
 `v<version>-beta.<n>`. They install as a separate app, **Findroid CE Beta**
@@ -83,13 +100,15 @@ To follow them, add the same repo URL in Obtainium a second time with these sett
 - **Filter APKs by regular expression**: `-beta\.\d+-libre-arm64-v8a\.apk$`
   (swap `arm64-v8a` for your device's ABI if needed)
 
-Betas are untested builds — expect bugs. Every push to `main` publishes one. Maintainers can
-publish an open pull request (built merged into `main`) with `gh workflow run beta.yml -f pr=<number>`,
-or a branch as-is with `gh workflow run beta.yml --ref <branch>`.
+Betas are untested builds — expect bugs. Every push to `main` publishes one.
+
+</details>
 
 ### Manual
 
-Grab the latest APK from the [Releases](https://github.com/midasvo/findroid-ce/releases) page.
+Grab the latest APK from the [Releases](https://github.com/midasvo/findroid-ce/releases) page:
+`findroid-ce-v<version>-libre-<abi>.apk` for phones and tablets, or `tv-libre-<abi>-release.apk` for
+Android TV.
 
 > Findroid CE uses its own application ID (`nl.midasvo.findroid.ce`), so it installs alongside the
 > original Findroid rather than replacing it.

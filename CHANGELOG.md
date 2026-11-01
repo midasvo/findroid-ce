@@ -398,7 +398,15 @@ Initial CE fork off findroid `1.0.2`. These rapid early iterations established t
 `nl.midasvo.findroid.ce` application ID, downloads and SD-card storage improvements, and ongoing
 tracking of upstream. See the git history between the corresponding tags for commit-level detail.
 
+[v1.2.0-ce.2]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.2
+[v1.2.0-ce.1]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.1
 [v1.2.0-ce.0]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.0
+[v1.1.0-ce.5]: https://github.com/midasvo/findroid-ce/releases/tag/v1.1.0-ce.5
+[v1.1.0-ce.4]: https://github.com/midasvo/findroid-ce/releases/tag/v1.1.0-ce.4
+[v1.1.0-ce.3]: https://github.com/midasvo/findroid-ce/releases/tag/v1.1.0-ce.3
+[v1.1.0-ce.2]: https://github.com/midasvo/findroid-ce/releases/tag/v1.1.0-ce.2
+[v1.1.0-ce.1]: https://github.com/midasvo/findroid-ce/releases/tag/v1.1.0-ce.1
+[v1.1.0-ce.0]: https://github.com/midasvo/findroid-ce/releases/tag/v1.1.0-ce.0
 [v1.0.2-ce.36]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.36
 [v1.0.2-ce.35]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.35
 [v1.0.2-ce.34]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.34
