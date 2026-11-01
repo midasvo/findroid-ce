@@ -127,7 +127,6 @@
     <string name="download_completed">Completed</string>
     <string name="download_summary_downloaded">%1$d of %2$d downloaded</string>
     <string name="download_summary_downloading">Downloading %1$d of %2$d…</string>
-    <string name="active_downloads">Active downloads</string>
     <string name="retry_download">Retry download</string>
     <string name="download_cancelled">Download of %1$s cancelled</string>
     <string name="undo">Undo</string>
@@ -167,7 +166,6 @@
     <string name="sort_name">Name</string>
     <string name="sort_size">Size</string>
     <string name="remove_download">Remove download</string>
-    <string name="remove_download_message">Remove the downloaded file for \"%1$s\"?</string>
     <string name="download_started">Started downloading %1$d episodes</string>
     <string name="download_started_with_skipped">Started downloading %1$d episodes, %2$d already downloaded</string>
     <string name="download_started_with_errors">Started %1$d downloads, %2$d failed</string>
@@ -179,8 +177,6 @@
     <string name="download_failed_indicator">Download failed</string>
     <string name="downloading_indicator">Downloading</string>
     <string name="person_image_description">Photo of %1$s</string>
-    <string name="smart_downloads">Smart Downloads</string>
-    <string name="smart_downloads_summary">Automatically download the next episode when one finishes</string>
     <string name="downloads_channel_name">Downloads</string>
     <string name="downloads_channel_description">Ongoing download activity</string>
     <string name="download_failures_channel_name">Download failures</string>
