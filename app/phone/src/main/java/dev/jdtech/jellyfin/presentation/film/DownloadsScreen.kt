@@ -83,6 +83,7 @@ import dev.jdtech.jellyfin.presentation.film.components.ErrorState
 import dev.jdtech.jellyfin.presentation.film.components.StorageSummary
 import dev.jdtech.jellyfin.presentation.film.components.SwipeActionBackground
 import dev.jdtech.jellyfin.presentation.film.components.canPlayDirectly
+import dev.jdtech.jellyfin.presentation.film.components.downloadRowSize
 import dev.jdtech.jellyfin.presentation.film.components.downloadTitles
 import dev.jdtech.jellyfin.presentation.film.components.groupedItemShape
 import dev.jdtech.jellyfin.presentation.film.components.playDownloadedItem
@@ -471,7 +472,7 @@ private fun LibraryRow(
                     }
                     else -> Unit
                 }
-                sizeBytes?.let { add(Formatter.formatShortFileSize(context, it)) }
+                sizeBytes?.let { add(downloadRowSize(context, it)) }
             }
             .joinToString(" · ")
     val (title, supporting) = downloadTitles(item)

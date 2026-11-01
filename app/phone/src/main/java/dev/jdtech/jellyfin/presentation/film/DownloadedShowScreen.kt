@@ -53,6 +53,7 @@ import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.presentation.film.components.DownloadRow
 import dev.jdtech.jellyfin.presentation.film.components.SwipeActionBackground
+import dev.jdtech.jellyfin.presentation.film.components.downloadRowSize
 import dev.jdtech.jellyfin.presentation.film.components.groupedItemShape
 import dev.jdtech.jellyfin.presentation.film.components.playDownloadedItem
 import dev.jdtech.jellyfin.presentation.film.components.rememberUndoController
@@ -219,7 +220,7 @@ private fun EpisodeRow(
                         )
                     )
                 }
-                sizeBytes?.let { add(Formatter.formatShortFileSize(context, it)) }
+                sizeBytes?.let { add(downloadRowSize(context, it)) }
             }
             .joinToString(" · ")
     SwipeToDismissBox(

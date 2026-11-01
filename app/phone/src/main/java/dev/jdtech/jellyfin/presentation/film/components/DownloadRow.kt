@@ -1,5 +1,7 @@
 package dev.jdtech.jellyfin.presentation.film.components
 
+import android.content.Context
+import android.text.format.Formatter
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -60,9 +62,14 @@ fun groupedItemShape(index: Int, count: Int): Shape {
     )
 }
 
+/** A file size for row metadata that stays in one piece when the metadata wraps. */
+fun downloadRowSize(context: Context, bytes: Long): String =
+    Formatter.formatShortFileSize(context, bytes).replace(' ', ' ')
+
 /**
- * One row of the Downloads screen: 16:9 artwork, up to three lines of text and an optional
- * trailing control. Shared by in-progress downloads and the downloaded library.
+ * One row of the Downloads screen: 16:9 artwork, up to four lines of text and an optional
+ * trailing control. Shared by in-progress downloads and the downloaded library. [metaMinLines]
+ * reserves room for a [meta] that changes, so the row keeps its height as the text updates.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -75,6 +82,7 @@ fun DownloadRow(
     supporting: String? = null,
     titleStyle: TextStyle = MaterialTheme.typography.titleMedium,
     metaColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    metaMinLines: Int = 1,
     showPlaybackProgress: Boolean = false,
     showPlayedBadge: Boolean = false,
     onPlayClick: (() -> Unit)? = null,
@@ -144,7 +152,8 @@ fun DownloadRow(
                         style =
                             MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
                         color = metaColor,
-                        maxLines = 1,
+                        minLines = metaMinLines,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
