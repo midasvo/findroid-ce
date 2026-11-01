@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">第 %1$d 章</string>
+    <string name="player_controls_chapters">章節</string>
+    <string name="select_chapter">章節</string>
+    <string name="select_video_quality">選擇影片畫質</string>
+    <string name="still_watching_continue">是，繼續播放</string>
+    <string name="still_watching_message">若無回應，將在 %1$d 秒後暫停。</string>
+    <string name="still_watching_pause">停止</string>
+    <string name="still_watching_title">您還在觀看嗎？</string>
+    <string name="video_quality_original">原始畫質</string>
+</resources>

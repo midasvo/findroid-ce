@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">Hoofdstuk %1$d</string>
+    <string name="player_controls_chapters">Hoofdstukken</string>
+    <string name="select_chapter">Hoofdstukken</string>
+    <string name="select_video_quality">Videokwaliteit selecteren</string>
+    <string name="still_watching_continue">Ja, blijf afspelen</string>
+    <string name="still_watching_message">Pauzeren over %1$ds als er geen reactie is.</string>
+    <string name="still_watching_pause">Stoppen</string>
+    <string name="still_watching_title">Kijk je nog?</string>
+    <string name="video_quality_original">Originele kwaliteit</string>
+</resources>

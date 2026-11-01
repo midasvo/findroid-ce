@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">Poglavje %1$d</string>
+    <string name="player_controls_chapters">Poglavja</string>
+    <string name="select_chapter">Poglavja</string>
+    <string name="select_video_quality">Izberite kakovost videa</string>
+    <string name="still_watching_continue">Da, nadaljuj s predvajanjem</string>
+    <string name="still_watching_message">Začasna ustavitev čez %1$ds, če ni odziva.</string>
+    <string name="still_watching_pause">Ustavi</string>
+    <string name="still_watching_title">Ali še vedno gledate?</string>
+    <string name="video_quality_original">Izvirna kakovost</string>
+</resources>

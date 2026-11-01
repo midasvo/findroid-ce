@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">Kapitola %1$d</string>
+    <string name="player_controls_chapters">Kapitoly</string>
+    <string name="select_chapter">Kapitoly</string>
+    <string name="select_video_quality">Vybrat kvalitu videa</string>
+    <string name="still_watching_continue">Ano, pokračovat</string>
+    <string name="still_watching_message">Bez odpovědi bude přehrávání pozastaveno za %1$ds.</string>
+    <string name="still_watching_pause">Zastavit</string>
+    <string name="still_watching_title">Stále sledujete?</string>
+    <string name="video_quality_original">Původní kvalita</string>
+</resources>

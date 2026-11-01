@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">अध्याय %1$d</string>
+    <string name="player_controls_chapters">अध्याय</string>
+    <string name="select_chapter">अध्याय</string>
+    <string name="select_video_quality">वीडियो गुणवत्ता चुनें</string>
+    <string name="still_watching_continue">हाँ, चलाते रहें</string>
+    <string name="still_watching_message">यदि कोई प्रतिक्रिया नहीं मिलती है तो %1$d सेकंड में रुक जाएगा।</string>
+    <string name="still_watching_pause">रोकें</string>
+    <string name="still_watching_title">क्या आप अभी भी देख रहे हैं?</string>
+    <string name="video_quality_original">मूल गुणवत्ता</string>
+</resources>

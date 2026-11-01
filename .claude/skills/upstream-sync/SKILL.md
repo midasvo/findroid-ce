@@ -74,6 +74,8 @@ git merge upstream/main
 Resolve any conflicts per step 2. CE behavior wins unless the upstream change is a deliberate
 fix we want.
 
+- **CE Translations Collision:** If upstream has added a string or plural with the same key as a CE string in `strings_ce.xml`, the build will fail on duplicate resource definitions. In that case, delete the key from `strings_ce.xml` across all languages so upstream's Weblate translation takes precedence.
+
 ### 4. Build (gate)
 
 ```bash

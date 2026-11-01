@@ -146,8 +146,6 @@
     <string name="media_segments_type_recap">Recap</string>
     <string name="media_segments_type_outro">Outro</string>
     <string name="media_segments_type_intro">Intro</string>
-    <string name="pref_player_media_segments_per_type_action">Per-type segment action</string>
-    <string name="pref_player_media_segments_per_type_action_summary">Pick what happens for each segment type: skip automatically, ask before skipping, or do nothing</string>
     <string name="pref_player_media_segments_action_intro">Intros</string>
     <string name="pref_player_media_segments_action_outro">Outros</string>
     <string name="pref_player_media_segments_action_recap">Recaps</string>
@@ -168,7 +166,6 @@
     <string name="player_autoplay_next_server">Use server setting</string>
     <string name="player_autoplay_next_on">Always</string>
     <string name="player_autoplay_next_off">Never</string>
-    <string name="still_watching">Are you still watching?</string>
     <string name="pref_player_still_watching">Still watching prompt</string>
     <string name="pref_player_still_watching_after_episodes">Auto-played episodes before prompt</string>
     <string name="pref_player_still_watching_after_episodes_summary">Show a confirmation after this many episodes auto-play in a row. Set to 0 to disable.</string>

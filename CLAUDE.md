@@ -76,3 +76,14 @@ Events that fire once (navigation, toasts) use a `Channel<FooEvent>` exposed as 
 **Build variants:** Only one flavor (`libre`). Build types are `debug`, `release`, `staging`. Always use `Libre` variants (e.g. `assembleLibreDebug`, `compileLibreDebugKotlin`).
 
 **App ID:** `nl.midasvo.findroid.ce` (this is a fork — do not revert to the upstream `dev.jdtech.jellyfin` ID).
+
+## Translations & Localization
+
+All user-visible strings and plurals that CE adds must be translated into all 36 supported languages.
+- Upstream translations are managed on Weblate in `values-<lang>/strings.xml`.
+- CE-only translations live in separate `<module>/src/main/res/values-<lang>/strings_ce.xml` files per module to prevent merge conflicts on upstream syncs.
+- When adding or changing a user-visible string:
+  1. Add or edit the English string in default `<module>/src/main/res/values/strings.xml`.
+  2. Add or update translations across all 36 languages in `<module>/src/main/res/values-<lang>/strings_ce.xml`.
+  3. Run `python3 .claude/skills/translate-strings/scripts/check-translations.py` to verify all keys, format placeholders, and plural quantities.
+  CI will fail on any PR that adds or changes a CE-only string without complete translations.

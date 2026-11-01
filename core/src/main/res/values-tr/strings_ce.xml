@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="browse_library">Kütüphaneye göz at</string>
+    <string name="cancel_download_button">İndirmeyi iptal et</string>
+    <string name="copied_text_label">Kopyalanan metin</string>
+    <string name="copy_text_action">Metni kopyala</string>
+    <string name="download_all_already_downloaded">Tüm bölümler zaten indirilmiş</string>
+    <string name="download_bytes_of">%1$s / %2$s</string>
+    <string name="download_cancelled">%1$s indirmesi iptal edildi</string>
+    <string name="download_completed">Tamamlandı</string>
+    <string name="download_error_network">Ağ hatası — bağlantınızı kontrol edin</string>
+    <string name="download_error_no_sources">Bu öge için oynatılabilir kaynak bulunamadı</string>
+    <string name="download_error_server_unreachable">Jellyfin sunucusuna ulaşılamıyor</string>
+    <string name="download_error_timeout">Bağlantı zaman aşımına uğradı</string>
+    <string name="download_failed_indicator">İndirme başarısız</string>
+    <string name="download_failures_channel_name">Başarısız indirmeler</string>
+    <string name="download_preparing_on_server">Sunucuda hazırlanıyor</string>
+    <string name="download_quality">İndirme kalitesi</string>
+    <string name="download_quality_original">Orijinal kalite</string>
+    <string name="download_queued">Bekleniyor…</string>
+    <string name="download_removed">%1$s kaldırıldı</string>
+    <string name="download_started">%1$d bölüm indirilmeye başlandı</string>
+    <string name="download_started_with_errors">%1$d indirme başlatıldı, %2$d başarısız oldu</string>
+    <string name="download_started_with_skipped">%1$d bölüm indirilmeye başlandı, %2$d zaten indirilmiş</string>
+    <string name="download_summary_downloaded">%1$d / %2$d indirildi</string>
+    <string name="download_summary_downloading">%1$d / %2$d indiriliyor…</string>
+    <string name="download_time_left_hours">%1$d sa %2$d dk kaldı</string>
+    <string name="download_time_left_minutes">%1$d dk kaldı</string>
+    <string name="download_time_left_under_minute">Bir dakikadan az kaldı</string>
+    <string name="download_waiting_for_network">Ağ bekleniyor</string>
+    <string name="downloaded_to">Kaydedildiği yer: %s</string>
+    <string name="downloading_indicator">İndiriliyor</string>
+    <string name="downloads_channel_description">Devam eden indirme etkinliği</string>
+    <string name="downloads_channel_name">İndirmeler</string>
+    <string name="downloads_downloading">İndiriliyor</string>
+    <string name="downloads_empty_body">Uçakta, trende veya herhangi bir yerde internetsiz izlemek için film ve dizi bölümleri indirin.</string>
+    <string name="downloads_empty_title">Henüz indirme yok</string>
+    <string name="downloads_remove_all">Tüm indirmeleri kaldır</string>
+    <string name="downloads_selected_count">%1$d seçildi</string>
+    <string name="downloads_show_all">Tümünü göster (%1$d)</string>
+    <string name="downloads_show_less">Daha az göster</string>
+    <string name="downloads_storage_summary">%1$s indirme · %2$s boş</string>
+    <string name="episode_number_short">B%1$d</string>
+    <string name="episodes_downloaded_count">%1$d/%2$d indirildi</string>
+    <string name="error_loading_data_body">Bağlantınızı kontrol edip tekrar deneyin.</string>
+    <string name="home_empty_body">Son eklenen başlıklar ve izledikleriniz burada görünecektir.</string>
+    <string name="library_no_unwatched">Burada izlenmemiş bir şey yok</string>
+    <string name="navigate_back">Geri dön</string>
+    <string name="nothing_here_yet">Burada henüz bir şey yok</string>
+    <string name="offline">Çevrimdışı</string>
+    <string name="person_image_description">%1$s fotoğrafı</string>
+    <string name="play_from_beginning">Baştan oynat</string>
+    <string name="remove_download">İndirmeyi kaldır</string>
+    <string name="retry_download">İndirmeyi yeniden dene</string>
+    <string name="select">Seç</string>
+    <string name="select_seasons">Sezonları seçin</string>
+    <string name="show_watched">İzlenenleri göster</string>
+    <string name="sort_name">Ad</string>
+    <string name="sort_recently_downloaded">Son indirilenler</string>
+    <string name="sort_size">Boyut</string>
+    <string name="storage_legend_free">Boş</string>
+    <string name="storage_legend_other">Diğer</string>
+    <string name="storage_sd_card">SD kart</string>
+    <string name="toggle_watched">İzlenenleri gizle</string>
+    <string name="undo">Geri al</string>
+    <plurals name="downloaded_episode_count">
+        <item quantity="other">%d bölüm</item>
+    </plurals>
+    <plurals name="downloads_in_progress_title">
+        <item quantity="other">%d öge indiriliyor</item>
+    </plurals>
+    <plurals name="downloads_removed">
+        <item quantity="other">%d indirme kaldırıldı</item>
+    </plurals>
+</resources>

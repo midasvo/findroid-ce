@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">Fəsil %1$d</string>
+    <string name="player_controls_chapters">Fəsillər</string>
+    <string name="select_chapter">Fəsillər</string>
+    <string name="select_video_quality">Video keyfiyyətini seçin</string>
+    <string name="still_watching_continue">Bəli, oxutmağa davam et</string>
+    <string name="still_watching_message">Cavab verilməsə %1$d saniyəyə fasilə veriləcək.</string>
+    <string name="still_watching_pause">Dayandır</string>
+    <string name="still_watching_title">Hələ də baxırsınız?</string>
+    <string name="video_quality_original">Orijinal keyfiyyət</string>
+</resources>

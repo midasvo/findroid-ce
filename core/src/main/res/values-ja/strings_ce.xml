@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="browse_library">ライブラリを表示</string>
+    <string name="cancel_download_button">ダウンロードをキャンセル</string>
+    <string name="copied_text_label">コピーされたテキスト</string>
+    <string name="copy_text_action">テキストをコピー</string>
+    <string name="download_all_already_downloaded">すべてのエピソードがすでにダウンロードされています</string>
+    <string name="download_bytes_of">%1$s / %2$s</string>
+    <string name="download_cancelled">%1$s のダウンロードをキャンセルしました</string>
+    <string name="download_completed">完了</string>
+    <string name="download_error_network">ネットワークエラー — 接続を確認してください</string>
+    <string name="download_error_no_sources">このアイテムには再生可能なソースがありません</string>
+    <string name="download_error_server_unreachable">Jellyfin サーバーに接続できません</string>
+    <string name="download_error_timeout">接続がタイムアウトしました</string>
+    <string name="download_failed_indicator">ダウンロード失敗</string>
+    <string name="download_failures_channel_name">ダウンロード失敗</string>
+    <string name="download_preparing_on_server">サーバーで準備中</string>
+    <string name="download_quality">ダウンロード画質</string>
+    <string name="download_quality_original">オリジナル画質</string>
+    <string name="download_queued">待機中…</string>
+    <string name="download_removed">%1$s を削除しました</string>
+    <string name="download_started">%1$d 件のエピソードのダウンロードを開始しました</string>
+    <string name="download_started_with_errors">%1$d 件のダウンロードを開始しました（%2$d 件失敗）</string>
+    <string name="download_started_with_skipped">%1$d 件のエピソードのダウンロードを開始しました（%2$d 件はダウンロード済み）</string>
+    <string name="download_summary_downloaded">%2$d 件中 %1$d 件ダウンロード済み</string>
+    <string name="download_summary_downloading">%2$d 件中 %1$d 件をダウンロード中…</string>
+    <string name="download_time_left_hours">残り %1$d 時間 %2$d 分</string>
+    <string name="download_time_left_minutes">残り %1$d 分</string>
+    <string name="download_time_left_under_minute">残り1分未満</string>
+    <string name="download_waiting_for_network">ネットワーク待機中</string>
+    <string name="downloaded_to">保存先: %s</string>
+    <string name="downloading_indicator">ダウンロード中</string>
+    <string name="downloads_channel_description">進行中のダウンロード状況</string>
+    <string name="downloads_channel_name">ダウンロード</string>
+    <string name="downloads_downloading">ダウンロード中</string>
+    <string name="downloads_empty_body">映画やエピソードをダウンロードしておけば、飛行機や電車の中など、インターネット接続のない場所でも視聴できます。</string>
+    <string name="downloads_empty_title">ダウンロードはまだありません</string>
+    <string name="downloads_remove_all">すべてのダウンロードを削除</string>
+    <string name="downloads_selected_count">%1$d 件選択中</string>
+    <string name="downloads_show_all">全 %1$d 件を表示</string>
+    <string name="downloads_show_less">少なく表示</string>
+    <string name="downloads_storage_summary">ダウンロード %1$s · 空き %2$s</string>
+    <string name="episode_number_short">E%1$d</string>
+    <string name="episodes_downloaded_count">%1$d/%2$d ダウンロード済み</string>
+    <string name="error_loading_data_body">接続を確認して、もう一度お試しください。</string>
+    <string name="home_empty_body">最近追加された作品や視聴中のコンテンツがここに表示されます。</string>
+    <string name="library_no_unwatched">未視聴のコンテンツはありません</string>
+    <string name="navigate_back">戻る</string>
+    <string name="nothing_here_yet">ここにはまだ何もありません</string>
+    <string name="offline">オフライン</string>
+    <string name="person_image_description">%1$sの写真</string>
+    <string name="play_from_beginning">最初から再生</string>
+    <string name="remove_download">ダウンロードを削除</string>
+    <string name="retry_download">ダウンロードを再試行</string>
+    <string name="select">選択</string>
+    <string name="select_seasons">シーズンを選択</string>
+    <string name="show_watched">視聴済みを表示</string>
+    <string name="sort_name">名前</string>
+    <string name="sort_recently_downloaded">最近ダウンロードした順</string>
+    <string name="sort_size">サイズ</string>
+    <string name="storage_legend_free">空き</string>
+    <string name="storage_legend_other">その他</string>
+    <string name="storage_sd_card">SDカード</string>
+    <string name="toggle_watched">視聴済みを非表示</string>
+    <string name="undo">元に戻す</string>
+    <plurals name="downloaded_episode_count">
+        <item quantity="other">%dエピソード</item>
+    </plurals>
+    <plurals name="downloads_in_progress_title">
+        <item quantity="other">%d件のアイテムをダウンロード中</item>
+    </plurals>
+    <plurals name="downloads_removed">
+        <item quantity="other">%d件のダウンロードを削除しました</item>
+    </plurals>
+</resources>

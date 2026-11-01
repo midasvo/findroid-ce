@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">الفصل %1$d</string>
+    <string name="player_controls_chapters">الفصول</string>
+    <string name="select_chapter">الفصول</string>
+    <string name="select_video_quality">تحديد جودة الفيديو</string>
+    <string name="still_watching_continue">نعم، تابع التشغيل</string>
+    <string name="still_watching_message">سيتم الإيقاف المؤقت بعد %1$d ثوانٍ إذا لم تكن هناك استجابة.</string>
+    <string name="still_watching_pause">إيقاف</string>
+    <string name="still_watching_title">هل ما زلت تشاهد؟</string>
+    <string name="video_quality_original">الجودة الأصلية</string>
+</resources>

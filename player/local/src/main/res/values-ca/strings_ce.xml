@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">Capítol %1$d</string>
+    <string name="player_controls_chapters">Capítols</string>
+    <string name="select_chapter">Capítols</string>
+    <string name="select_video_quality">Selecciona la qualitat del vídeo</string>
+    <string name="still_watching_continue">Sí, continua reproduint</string>
+    <string name="still_watching_message">Es posarà en pausa en %1$ds si no hi ha resposta.</string>
+    <string name="still_watching_pause">Atura</string>
+    <string name="still_watching_title">Encara ho estàs mirant?</string>
+    <string name="video_quality_original">Qualitat original</string>
+</resources>

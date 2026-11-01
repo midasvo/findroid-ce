@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="browse_library">라이브러리 둘러보기</string>
+    <string name="cancel_download_button">다운로드 취소</string>
+    <string name="copied_text_label">복사된 텍스트</string>
+    <string name="copy_text_action">텍스트 복사</string>
+    <string name="download_all_already_downloaded">모든 에피소드가 이미 다운로드되었습니다</string>
+    <string name="download_bytes_of">%1$s / %2$s</string>
+    <string name="download_cancelled">%1$s 다운로드가 취소되었습니다</string>
+    <string name="download_completed">완료됨</string>
+    <string name="download_error_network">네트워크 오류 — 연결 상태를 확인하세요</string>
+    <string name="download_error_no_sources">이 항목에 대해 재생 가능한 소스가 없습니다</string>
+    <string name="download_error_server_unreachable">Jellyfin 서버에 연결할 수 없습니다</string>
+    <string name="download_error_timeout">연결 시간이 초과되었습니다</string>
+    <string name="download_failed_indicator">다운로드 실패</string>
+    <string name="download_failures_channel_name">다운로드 실패</string>
+    <string name="download_preparing_on_server">서버에서 준비 중</string>
+    <string name="download_quality">다운로드 화질</string>
+    <string name="download_quality_original">원본 화질</string>
+    <string name="download_queued">대기 중…</string>
+    <string name="download_removed">%1$s 삭제됨</string>
+    <string name="download_started">에피소드 %1$d개 다운로드를 시작했습니다</string>
+    <string name="download_started_with_errors">다운로드 %1$d개 시작됨 (%2$d개 실패)</string>
+    <string name="download_started_with_skipped">에피소드 %1$d개 다운로드 시작됨 (%2$d개 이미 다운로드됨)</string>
+    <string name="download_summary_downloaded">%2$d개 중 %1$d개 다운로드됨</string>
+    <string name="download_summary_downloading">%2$d개 중 %1$d개 다운로드 중…</string>
+    <string name="download_time_left_hours">%1$d시간 %2$d분 남음</string>
+    <string name="download_time_left_minutes">%1$d분 남음</string>
+    <string name="download_time_left_under_minute">1분 미만 남음</string>
+    <string name="download_waiting_for_network">네트워크 대기 중</string>
+    <string name="downloaded_to">저장 위치: %s</string>
+    <string name="downloading_indicator">다운로드 중</string>
+    <string name="downloads_channel_description">진행 중인 다운로드 활동</string>
+    <string name="downloads_channel_name">다운로드</string>
+    <string name="downloads_downloading">다운로드 중</string>
+    <string name="downloads_empty_body">영화와 에피소드를 다운로드하여 비행기, 기차 등 인터넷 연결이 없는 곳에서도 시청하세요.</string>
+    <string name="downloads_empty_title">아직 다운로드된 항목이 없습니다</string>
+    <string name="downloads_remove_all">모든 다운로드 삭제</string>
+    <string name="downloads_selected_count">%1$d개 선택됨</string>
+    <string name="downloads_show_all">전체 %1$d개 표시</string>
+    <string name="downloads_show_less">간략히 표시</string>
+    <string name="downloads_storage_summary">다운로드 %1$s · 여유 %2$s</string>
+    <string name="episode_number_short">E%1$d</string>
+    <string name="episodes_downloaded_count">%1$d/%2$d 다운로드됨</string>
+    <string name="error_loading_data_body">연결 상태를 확인하고 다시 시도하세요.</string>
+    <string name="home_empty_body">최근 추가된 항목과 시청 중인 콘텐츠가 여기에 표시됩니다.</string>
+    <string name="library_no_unwatched">시청하지 않은 항목이 없습니다</string>
+    <string name="navigate_back">뒤로 가기</string>
+    <string name="nothing_here_yet">아직 여기에 아무것도 없습니다</string>
+    <string name="offline">오프라인</string>
+    <string name="person_image_description">%1$s의 사진</string>
+    <string name="play_from_beginning">처음부터 재생</string>
+    <string name="remove_download">다운로드 삭제</string>
+    <string name="retry_download">다운로드 다시 시도</string>
+    <string name="select">선택</string>
+    <string name="select_seasons">시즌 선택</string>
+    <string name="show_watched">시청한 항목 표시</string>
+    <string name="sort_name">이름</string>
+    <string name="sort_recently_downloaded">최근 다운로드 순</string>
+    <string name="sort_size">크기</string>
+    <string name="storage_legend_free">여유 공간</string>
+    <string name="storage_legend_other">기타</string>
+    <string name="storage_sd_card">SD 카드</string>
+    <string name="toggle_watched">시청한 항목 숨기기</string>
+    <string name="undo">실행 취소</string>
+    <plurals name="downloaded_episode_count">
+        <item quantity="other">에피소드 %d개</item>
+    </plurals>
+    <plurals name="downloads_in_progress_title">
+        <item quantity="other">%d개 항목 다운로드 중</item>
+    </plurals>
+    <plurals name="downloads_removed">
+        <item quantity="other">다운로드 %d개 삭제됨</item>
+    </plurals>
+</resources>
