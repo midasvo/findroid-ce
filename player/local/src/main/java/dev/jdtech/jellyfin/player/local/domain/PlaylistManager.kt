@@ -29,7 +29,7 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
     suspend fun getInitialItem(
         itemId: UUID,
         itemKind: BaseItemKind,
-        mediaSourceIndex: Int? = null,
+        mediaSourceId: String? = null,
         startFromBeginning: Boolean = false,
     ): PlayerItem? {
         Timber.d("Retrieving initial player item")
@@ -122,7 +122,7 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
 
         val playbackPosition =
             if (!startFromBeginning) initialItem.playbackPositionTicks.div(10000) else 0
-        val playerItem = initialItem.toPlayerItem(mediaSourceIndex, playbackPosition)
+        val playerItem = initialItem.toPlayerItem(mediaSourceId, playbackPosition)
         playerItems.add(playerItem)
 
         return playerItem
@@ -209,25 +209,25 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
      */
     suspend fun recreatePlayerItem(playerItem: PlayerItem): PlayerItem {
         val item = items.firstOrNull { it.id == playerItem.itemId } ?: return playerItem
-        val recreated = item.toPlayerItem(null, playerItem.playbackPosition)
+        val recreated = item.toPlayerItem(playerItem.mediaSourceId, playerItem.playbackPosition)
         playerItems.removeAll { it.itemId == playerItem.itemId }
         playerItems.add(recreated)
         return recreated
     }
 
     private suspend fun FindroidItem.toPlayerItem(
-        mediaSourceIndex: Int?,
+        mediaSourceId: String?,
         playbackPosition: Long,
     ): PlayerItem {
         Timber.d("Converting FindroidItem ${this.id} to PlayerItem")
 
-        val mediaSources = repository.getPlaybackSources(id)
-        val mediaSource =
-            if (mediaSourceIndex == null) {
-                mediaSources.firstOrNull { it.type == FindroidSourceType.LOCAL } ?: mediaSources[0]
-            } else {
-                mediaSources[mediaSourceIndex]
+        // A downloaded copy shares its id with the server version, so it wins for that version too.
+        val mediaSources =
+            repository.getPlaybackSources(id).let { sources ->
+                sources.filter { it.id == mediaSourceId }.ifEmpty { sources }
             }
+        val mediaSource =
+            mediaSources.firstOrNull { it.type == FindroidSourceType.LOCAL } ?: mediaSources[0]
         val externalSubtitles =
             mediaSource.mediaStreams
                 .filter { mediaStream ->

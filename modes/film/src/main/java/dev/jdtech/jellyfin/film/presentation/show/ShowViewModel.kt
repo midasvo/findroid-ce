@@ -48,6 +48,7 @@ constructor(
         this.showId = showId
         this.downloadsOnly = downloadsOnly
         viewModelScope.launch {
+            _state.emit(_state.value.copy(error = null))
             try {
                 val show = repository.getShow(showId)
                 val nextUp = if (downloadsOnly) null else getNextUp(showId)
@@ -170,6 +171,7 @@ constructor(
 
     fun onAction(action: ShowAction) {
         when (action) {
+            is ShowAction.OnRetryClick -> loadShow(showId)
             is ShowAction.MarkAsPlayed -> {
                 viewModelScope.launch {
                     try {

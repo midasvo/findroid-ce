@@ -3,7 +3,10 @@ package dev.jdtech.jellyfin.film.presentation.movie
 import java.util.UUID
 
 sealed interface MovieAction {
-    data class Play(val startFromBeginning: Boolean = false) : MovieAction
+    data class Play(
+        val startFromBeginning: Boolean = false,
+        val mediaSourceId: String? = null,
+    ) : MovieAction
 
     data class PlayTrailer(val trailer: String) : MovieAction
 
@@ -14,6 +17,8 @@ sealed interface MovieAction {
     data object MarkAsFavorite : MovieAction
 
     data object UnmarkAsFavorite : MovieAction
+
+    data object OnRetryClick : MovieAction
 
     data object OnBackClick : MovieAction
 

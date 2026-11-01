@@ -182,6 +182,8 @@
     <string name="pref_developer_enable_trickplay_summary">Decode scrubber preview thumbnails on demand instead of pre-loading every tile up-front. Reduces memory use on long videos but may briefly miss the first frame when scrubbing into a new sprite-sheet. Off by default.</string>
     <string name="edit_file_title">Edit %1$s</string>
     <string name="pref_player_backend">Player backend</string>
+    <string name="pref_player_direct_play_dovi">Direct play Dolby Vision</string>
+    <string name="pref_player_direct_play_dovi_summary">Play Dolby Vision files directly when this device and its screen support them. If they show a black screen or wrong colors, turn this off and the server transcodes them instead. ExoPlayer only.</string>
     <string name="mpv_options">mpv options</string>
     <string name="advanced">Advanced</string>
     <string name="discard_changes_dialog_title">Discard changes?</string>

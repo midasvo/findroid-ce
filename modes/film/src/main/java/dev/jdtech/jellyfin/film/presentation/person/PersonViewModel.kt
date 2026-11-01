@@ -21,7 +21,7 @@ class PersonViewModel @Inject internal constructor(private val repository: Jelly
 
     fun loadPerson(personId: UUID) {
         viewModelScope.launch {
-            _state.emit(_state.value.copy(isLoading = true))
+            _state.emit(_state.value.copy(isLoading = true, error = null))
             try {
                 val person = repository.getPerson(personId)
 

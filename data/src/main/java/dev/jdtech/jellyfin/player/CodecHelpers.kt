@@ -238,6 +238,31 @@ internal object CodecHelpers {
         else -> null
     }
 
+    /** Dolby Vision profile number, as the server reports it in `DvProfile`. */
+    fun getDolbyVisionProfile(profile: Int): Int? = when (profile) {
+        CodecProfileLevel.DolbyVisionProfileDvheStn -> 5
+        CodecProfileLevel.DolbyVisionProfileDvheDtb -> 7
+        CodecProfileLevel.DolbyVisionProfileDvheSt -> 8
+        CodecProfileLevel.DolbyVisionProfileDvav110 -> 10
+        else -> null
+    }
+
+    fun getDolbyVisionLimit(level: Int): DolbyVisionLimit? = when (level) {
+        CodecProfileLevel.DolbyVisionLevelHd24 -> DolbyVisionLimit(1280, 720, 24)
+        CodecProfileLevel.DolbyVisionLevelHd30 -> DolbyVisionLimit(1280, 720, 30)
+        CodecProfileLevel.DolbyVisionLevelFhd24 -> DolbyVisionLimit(1920, 1080, 24)
+        CodecProfileLevel.DolbyVisionLevelFhd30 -> DolbyVisionLimit(1920, 1080, 30)
+        CodecProfileLevel.DolbyVisionLevelFhd60 -> DolbyVisionLimit(1920, 1080, 60)
+        CodecProfileLevel.DolbyVisionLevelUhd24 -> DolbyVisionLimit(3840, 2160, 24)
+        CodecProfileLevel.DolbyVisionLevelUhd30 -> DolbyVisionLimit(3840, 2160, 30)
+        CodecProfileLevel.DolbyVisionLevelUhd48 -> DolbyVisionLimit(3840, 2160, 48)
+        CodecProfileLevel.DolbyVisionLevelUhd60 -> DolbyVisionLimit(3840, 2160, 60)
+        CodecProfileLevel.DolbyVisionLevelUhd120 -> DolbyVisionLimit(3840, 2160, 120)
+        CodecProfileLevel.DolbyVisionLevel8k30 -> DolbyVisionLimit(7680, 4320, 30)
+        CodecProfileLevel.DolbyVisionLevel8k60 -> DolbyVisionLimit(7680, 4320, 60)
+        else -> null
+    }
+
     fun getAudioProfile(codec: String, profile: Int): String? = when (codec) {
         "aac" -> getAACProfile(profile)
         else -> null
