@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">챕터 %1$d</string>
+    <string name="player_controls_chapters">챕터</string>
+    <string name="select_chapter">챕터</string>
+    <string name="select_video_quality">비디오 화질 선택</string>
+    <string name="still_watching_continue">계속 시청</string>
+    <string name="still_watching_message">응답이 없으면 %1$d초 후에 일시정지됩니다.</string>
+    <string name="still_watching_pause">중지</string>
+    <string name="still_watching_title">아직 시청 중이신가요?</string>
+    <string name="video_quality_original">원본 화질</string>
+</resources>

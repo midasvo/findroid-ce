@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">チャプター %1$d</string>
+    <string name="player_controls_chapters">チャプター</string>
+    <string name="select_chapter">チャプター</string>
+    <string name="select_video_quality">画質を選択</string>
+    <string name="still_watching_continue">続けて視聴する</string>
+    <string name="still_watching_message">応答がない場合、%1$d秒後に一時停止します。</string>
+    <string name="still_watching_pause">停止</string>
+    <string name="still_watching_title">まだ視聴していますか？</string>
+    <string name="video_quality_original">オリジナル画質</string>
+</resources>

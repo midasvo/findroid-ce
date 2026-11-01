@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">פרק %1$d</string>
+    <string name="player_controls_chapters">פרקים</string>
+    <string name="select_chapter">פרקים</string>
+    <string name="select_video_quality">בחר איכות וידאו</string>
+    <string name="still_watching_continue">כן, המשך לנגן</string>
+    <string name="still_watching_message">יושהה בעוד %1$d שניות אם אין תגובה.</string>
+    <string name="still_watching_pause">עצור</string>
+    <string name="still_watching_title">האם אתה עדיין צופה?</string>
+    <string name="video_quality_original">איכות מקורית</string>
+</resources>

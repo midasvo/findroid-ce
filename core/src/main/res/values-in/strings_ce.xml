@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="browse_library">Jelajahi pustaka</string>
+    <string name="cancel_download_button">Batalkan unduhan</string>
+    <string name="copied_text_label">Teks disalin</string>
+    <string name="copy_text_action">Salin teks</string>
+    <string name="download_all_already_downloaded">Semua episode sudah diunduh</string>
+    <string name="download_bytes_of">%1$s dari %2$s</string>
+    <string name="download_cancelled">Unduhan %1$s dibatalkan</string>
+    <string name="download_completed">Selesai</string>
+    <string name="download_error_network">Kesalahan jaringan — periksa koneksi Anda</string>
+    <string name="download_error_no_sources">Tidak ada sumber yang dapat diputar untuk item ini</string>
+    <string name="download_error_server_unreachable">Tidak dapat menjangkau server Jellyfin</string>
+    <string name="download_error_timeout">Waktu koneksi habis</string>
+    <string name="download_failed_indicator">Unduhan gagal</string>
+    <string name="download_failures_channel_name">Unduhan gagal</string>
+    <string name="download_preparing_on_server">Menyiapkan di server</string>
+    <string name="download_quality">Kualitas unduhan</string>
+    <string name="download_quality_original">Kualitas asli</string>
+    <string name="download_queued">Menunggu…</string>
+    <string name="download_removed">%1$s dihapus</string>
+    <string name="download_started">Mulai mengunduh %1$d episode</string>
+    <string name="download_started_with_errors">Memulai %1$d unduhan, %2$d gagal</string>
+    <string name="download_started_with_skipped">Mulai mengunduh %1$d episode, %2$d sudah diunduh</string>
+    <string name="download_summary_downloaded">%1$d dari %2$d diunduh</string>
+    <string name="download_summary_downloading">Mengunduh %1$d dari %2$d…</string>
+    <string name="download_time_left_hours">Tersisa %1$d j %2$d mnt</string>
+    <string name="download_time_left_minutes">Tersisa %1$d mnt</string>
+    <string name="download_time_left_under_minute">Kurang dari satu menit tersisa</string>
+    <string name="download_waiting_for_network">Menunggu jaringan</string>
+    <string name="downloaded_to">Disimpan ke: %s</string>
+    <string name="downloading_indicator">Mengunduh</string>
+    <string name="downloads_channel_description">Aktivitas unduhan yang sedang berlangsung</string>
+    <string name="downloads_channel_name">Unduhan</string>
+    <string name="downloads_downloading">Mengunduh</string>
+    <string name="downloads_empty_body">Unduh film dan episode untuk ditonton tanpa koneksi internet, di pesawat, kereta, atau di mana saja.</string>
+    <string name="downloads_empty_title">Belum ada unduhan</string>
+    <string name="downloads_remove_all">Hapus semua unduhan</string>
+    <string name="downloads_selected_count">%1$d dipilih</string>
+    <string name="downloads_show_all">Tampilkan semua %1$d</string>
+    <string name="downloads_show_less">Tampilkan lebih sedikit</string>
+    <string name="downloads_storage_summary">%1$s unduhan · %2$s kosong</string>
+    <string name="episode_number_short">E%1$d</string>
+    <string name="episodes_downloaded_count">%1$d/%2$d diunduh</string>
+    <string name="error_loading_data_body">Periksa koneksi Anda dan coba lagi.</string>
+    <string name="home_empty_body">Judul yang baru ditambahkan dan yang sedang Anda tonton akan muncul di sini.</string>
+    <string name="library_no_unwatched">Tidak ada yang belum ditonton di sini</string>
+    <string name="navigate_back">Kembali</string>
+    <string name="nothing_here_yet">Belum ada apa-apa di sini</string>
+    <string name="offline">Offline</string>
+    <string name="person_image_description">Foto %1$s</string>
+    <string name="play_from_beginning">Putar dari awal</string>
+    <string name="remove_download">Hapus unduhan</string>
+    <string name="retry_download">Coba lagi unduhan</string>
+    <string name="select">Pilih</string>
+    <string name="select_seasons">Pilih musim</string>
+    <string name="show_watched">Tampilkan yang sudah ditonton</string>
+    <string name="sort_name">Nama</string>
+    <string name="sort_recently_downloaded">Baru saja diunduh</string>
+    <string name="sort_size">Ukuran</string>
+    <string name="storage_legend_free">Kosong</string>
+    <string name="storage_legend_other">Lainnya</string>
+    <string name="storage_sd_card">Kartu SD</string>
+    <string name="toggle_watched">Sembunyikan yang sudah ditonton</string>
+    <string name="undo">Urungkan</string>
+    <plurals name="downloaded_episode_count">
+        <item quantity="other">%d episode</item>
+    </plurals>
+    <plurals name="downloads_in_progress_title">
+        <item quantity="other">Mengunduh %d item</item>
+    </plurals>
+    <plurals name="downloads_removed">
+        <item quantity="other">%d unduhan dihapus</item>
+    </plurals>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">Глава %1$d</string>
+    <string name="player_controls_chapters">Главы</string>
+    <string name="select_chapter">Главы</string>
+    <string name="select_video_quality">Выбрать качество видео</string>
+    <string name="still_watching_continue">Да, продолжить</string>
+    <string name="still_watching_message">Воспроизведение будет приостановлено через %1$d с при отсутствии ответа.</string>
+    <string name="still_watching_pause">Остановить</string>
+    <string name="still_watching_title">Вы ещё смотрите?</string>
+    <string name="video_quality_original">Оригинальное качество</string>
+</resources>

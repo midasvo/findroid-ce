@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">Kapittel %1$d</string>
+    <string name="player_controls_chapters">Kapittel</string>
+    <string name="select_chapter">Kapittel</string>
+    <string name="select_video_quality">Vel videokvalitet</string>
+    <string name="still_watching_continue">Ja, hald fram med å spele</string>
+    <string name="still_watching_message">Pausar om %1$ds viss det ikkje kjem svar.</string>
+    <string name="still_watching_pause">Stopp</string>
+    <string name="still_watching_title">Ser du framleis på?</string>
+    <string name="video_quality_original">Opphavleg kvalitet</string>
+</resources>

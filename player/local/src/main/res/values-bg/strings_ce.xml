@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">Глава %1$d</string>
+    <string name="player_controls_chapters">Глави</string>
+    <string name="select_chapter">Глави</string>
+    <string name="select_video_quality">Избор на качество на видеото</string>
+    <string name="still_watching_continue">Да, продължаване на възпроизвеждането</string>
+    <string name="still_watching_message">Поставяне на пауза след %1$ds при липса на отговор.</string>
+    <string name="still_watching_pause">Спиране</string>
+    <string name="still_watching_title">Все още ли гледате?</string>
+    <string name="video_quality_original">Оригинално качество</string>
+</resources>

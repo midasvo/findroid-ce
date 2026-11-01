@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="browse_library">Duyệt thư viện</string>
+    <string name="cancel_download_button">Huỷ tải về</string>
+    <string name="copied_text_label">Đã sao chép văn bản</string>
+    <string name="copy_text_action">Sao chép văn bản</string>
+    <string name="download_all_already_downloaded">Tất cả các tập đều đã được tải về</string>
+    <string name="download_bytes_of">%1$s / %2$s</string>
+    <string name="download_cancelled">Đã huỷ tải về %1$s</string>
+    <string name="download_completed">Đã hoàn tất</string>
+    <string name="download_error_network">Lỗi mạng — kiểm tra kết nối của bạn</string>
+    <string name="download_error_no_sources">Không có nguồn phát nào cho mục này</string>
+    <string name="download_error_server_unreachable">Không thể kết nối đến máy chủ Jellyfin</string>
+    <string name="download_error_timeout">Hết thời gian kết nối</string>
+    <string name="download_failed_indicator">Tải về thất bại</string>
+    <string name="download_failures_channel_name">Tải về thất bại</string>
+    <string name="download_preparing_on_server">Đang chuẩn bị trên máy chủ</string>
+    <string name="download_quality">Chất lượng tải về</string>
+    <string name="download_quality_original">Chất lượng gốc</string>
+    <string name="download_queued">Đang chờ…</string>
+    <string name="download_removed">Đã xóa %1$s</string>
+    <string name="download_started">Đã bắt đầu tải về %1$d tập</string>
+    <string name="download_started_with_errors">Đã bắt đầu %1$d lượt tải, %2$d lượt thất bại</string>
+    <string name="download_started_with_skipped">Đã bắt đầu tải về %1$d tập, %2$d tập đã được tải về</string>
+    <string name="download_summary_downloaded">Đã tải về %1$d / %2$d</string>
+    <string name="download_summary_downloading">Đang tải về %1$d / %2$d…</string>
+    <string name="download_time_left_hours">Còn %1$d giờ %2$d phút</string>
+    <string name="download_time_left_minutes">Còn %1$d phút</string>
+    <string name="download_time_left_under_minute">Còn dưới một phút</string>
+    <string name="download_waiting_for_network">Đang chờ mạng</string>
+    <string name="downloaded_to">Đã lưu vào: %s</string>
+    <string name="downloading_indicator">Đang tải về</string>
+    <string name="downloads_channel_description">Hoạt động tải về đang diễn ra</string>
+    <string name="downloads_channel_name">Tải về</string>
+    <string name="downloads_downloading">Đang tải về</string>
+    <string name="downloads_empty_body">Tải phim và các tập để xem không cần mạng, trên máy bay, tàu hỏa hoặc bất cứ nơi nào.</string>
+    <string name="downloads_empty_title">Chưa có bản tải về nào</string>
+    <string name="downloads_remove_all">Xóa tất cả bản tải về</string>
+    <string name="downloads_selected_count">Đã chọn %1$d</string>
+    <string name="downloads_show_all">Hiện tất cả %1$d</string>
+    <string name="downloads_show_less">Hiện bớt</string>
+    <string name="downloads_storage_summary">%1$s bản tải về · còn trống %2$s</string>
+    <string name="episode_number_short">T%1$d</string>
+    <string name="episodes_downloaded_count">Đã tải về %1$d/%2$d</string>
+    <string name="error_loading_data_body">Kiểm tra kết nối của bạn và thử lại.</string>
+    <string name="home_empty_body">Các tiêu đề mới thêm và nội dung bạn đang xem sẽ xuất hiện tại đây.</string>
+    <string name="library_no_unwatched">Không có nội dung chưa xem nào ở đây</string>
+    <string name="navigate_back">Quay lại</string>
+    <string name="nothing_here_yet">Chưa có gì ở đây</string>
+    <string name="offline">Ngoại tuyến</string>
+    <string name="person_image_description">Ảnh của %1$s</string>
+    <string name="play_from_beginning">Phát từ đầu</string>
+    <string name="remove_download">Xóa bản tải về</string>
+    <string name="retry_download">Thử tải lại</string>
+    <string name="select">Chọn</string>
+    <string name="select_seasons">Chọn mùa</string>
+    <string name="show_watched">Hiện nội dung đã xem</string>
+    <string name="sort_name">Tên</string>
+    <string name="sort_recently_downloaded">Tải về gần đây</string>
+    <string name="sort_size">Kích thước</string>
+    <string name="storage_legend_free">Trống</string>
+    <string name="storage_legend_other">Khác</string>
+    <string name="storage_sd_card">Thẻ SD</string>
+    <string name="toggle_watched">Ẩn nội dung đã xem</string>
+    <string name="undo">Hoàn tác</string>
+    <plurals name="downloaded_episode_count">
+        <item quantity="other">%d tập</item>
+    </plurals>
+    <plurals name="downloads_in_progress_title">
+        <item quantity="other">Đang tải về %d mục</item>
+    </plurals>
+    <plurals name="downloads_removed">
+        <item quantity="other">Đã xóa %d bản tải về</item>
+    </plurals>
+</resources>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="browse_library">瀏覽媒體庫</string>
+    <string name="cancel_download_button">取消下載</string>
+    <string name="copied_text_label">已複製文字</string>
+    <string name="copy_text_action">複製文字</string>
+    <string name="download_all_already_downloaded">所有劇集均已下載</string>
+    <string name="download_bytes_of">%1$s / %2$s</string>
+    <string name="download_cancelled">已取消下載 %1$s</string>
+    <string name="download_completed">已完成</string>
+    <string name="download_error_network">網路錯誤 — 請檢查您的連線</string>
+    <string name="download_error_no_sources">此項目沒有可播放的來源</string>
+    <string name="download_error_server_unreachable">無法連線至 Jellyfin 伺服器</string>
+    <string name="download_error_timeout">連線逾時</string>
+    <string name="download_failed_indicator">下載失敗</string>
+    <string name="download_failures_channel_name">下載失敗</string>
+    <string name="download_preparing_on_server">正在伺服器端準備</string>
+    <string name="download_quality">下載畫質</string>
+    <string name="download_quality_original">原始畫質</string>
+    <string name="download_queued">等候中…</string>
+    <string name="download_removed">已移除 %1$s</string>
+    <string name="download_started">已開始下載 %1$d 集</string>
+    <string name="download_started_with_errors">已開始 %1$d 個下載，%2$d 個失敗</string>
+    <string name="download_started_with_skipped">已開始下載 %1$d 集，%2$d 集已下載</string>
+    <string name="download_summary_downloaded">已下載 %2$d 項中的 %1$d 項</string>
+    <string name="download_summary_downloading">正在下載 %2$d 項中的 %1$d 項…</string>
+    <string name="download_time_left_hours">剩餘 %1$d 小時 %2$d 分鐘</string>
+    <string name="download_time_left_minutes">剩餘 %1$d 分鐘</string>
+    <string name="download_time_left_under_minute">剩餘時間少於 1 分鐘</string>
+    <string name="download_waiting_for_network">等待網路連線</string>
+    <string name="downloaded_to">已儲存至：%s</string>
+    <string name="downloading_indicator">正在下載</string>
+    <string name="downloads_channel_description">進行中的下載活動</string>
+    <string name="downloads_channel_name">下載</string>
+    <string name="downloads_downloading">正在下載</string>
+    <string name="downloads_empty_body">下載電影與劇集，即可在飛機、火車或任何沒有網路連線的場所離線觀看。</string>
+    <string name="downloads_empty_title">尚無下載項目</string>
+    <string name="downloads_remove_all">移除所有下載</string>
+    <string name="downloads_selected_count">已選取 %1$d 項</string>
+    <string name="downloads_show_all">顯示全部 %1$d 項</string>
+    <string name="downloads_show_less">顯示較少</string>
+    <string name="downloads_storage_summary">已下載 %1$s · 剩餘 %2$s</string>
+    <string name="episode_number_short">E%1$d</string>
+    <string name="episodes_downloaded_count">已下載 %1$d/%2$d</string>
+    <string name="error_loading_data_body">請檢查連線並再試一次。</string>
+    <string name="home_empty_body">最近新增的內容和正在觀看的項目將顯示於此。</string>
+    <string name="library_no_unwatched">沒有未觀看的內容</string>
+    <string name="navigate_back">返回</string>
+    <string name="nothing_here_yet">這裡空空如也</string>
+    <string name="offline">離線</string>
+    <string name="person_image_description">%1$s 的相片</string>
+    <string name="play_from_beginning">從頭播放</string>
+    <string name="remove_download">移除下載</string>
+    <string name="retry_download">重試下載</string>
+    <string name="select">選取</string>
+    <string name="select_seasons">選擇季度</string>
+    <string name="show_watched">顯示已觀看</string>
+    <string name="sort_name">名稱</string>
+    <string name="sort_recently_downloaded">依最近下載排序</string>
+    <string name="sort_size">大小</string>
+    <string name="storage_legend_free">可用空間</string>
+    <string name="storage_legend_other">其他</string>
+    <string name="storage_sd_card">SD 卡</string>
+    <string name="toggle_watched">隱藏已觀看</string>
+    <string name="undo">復原</string>
+    <plurals name="downloaded_episode_count">
+        <item quantity="other">%d 集</item>
+    </plurals>
+    <plurals name="downloads_in_progress_title">
+        <item quantity="other">正在下載 %d 個項目</item>
+    </plurals>
+    <plurals name="downloads_removed">
+        <item quantity="other">已移除 %d 個下載</item>
+    </plurals>
+</resources>

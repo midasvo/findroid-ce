@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="browse_library">瀏覽媒體庫</string>
+    <string name="cancel_download_button">取消下載</string>
+    <string name="copied_text_label">已複製文字</string>
+    <string name="copy_text_action">複製文字</string>
+    <string name="download_all_already_downloaded">所有劇集都已經下載咗</string>
+    <string name="download_bytes_of">%1$s / %2$s</string>
+    <string name="download_cancelled">已取消下載 %1$s</string>
+    <string name="download_completed">已完成</string>
+    <string name="download_error_network">網絡錯誤 — 請檢查你嘅網絡連線</string>
+    <string name="download_error_no_sources">呢個項目冇可以播放嘅來源</string>
+    <string name="download_error_server_unreachable">連接唔到 Jellyfin 伺服器</string>
+    <string name="download_error_timeout">連線逾時</string>
+    <string name="download_failed_indicator">下載失敗</string>
+    <string name="download_failures_channel_name">下載失敗</string>
+    <string name="download_preparing_on_server">伺服器準備緊</string>
+    <string name="download_quality">下載畫質</string>
+    <string name="download_quality_original">原始畫質</string>
+    <string name="download_queued">等候緊…</string>
+    <string name="download_removed">已移除 %1$s</string>
+    <string name="download_started">開始下載 %1$d 集</string>
+    <string name="download_started_with_errors">開始咗 %1$d 個下載，有 %2$d 個失敗</string>
+    <string name="download_started_with_skipped">開始下載 %1$d 集，有 %2$d 集已經下載咗</string>
+    <string name="download_summary_downloaded">已下載 %2$d 項入面嘅 %1$d 項</string>
+    <string name="download_summary_downloading">正在下載 %2$d 項入面嘅 %1$d 項…</string>
+    <string name="download_time_left_hours">仲有 %1$d 個鐘 %2$d 分鐘</string>
+    <string name="download_time_left_minutes">仲有 %1$d 分鐘</string>
+    <string name="download_time_left_under_minute">剩低少過 1 分鐘</string>
+    <string name="download_waiting_for_network">等候網絡連線</string>
+    <string name="downloaded_to">儲存至：%s</string>
+    <string name="downloading_indicator">正在下載</string>
+    <string name="downloads_channel_description">進行中嘅下載活動</string>
+    <string name="downloads_channel_name">下載</string>
+    <string name="downloads_downloading">正在下載</string>
+    <string name="downloads_empty_body">下載電影同劇集，就算喺飛機、火車或者任何冇網絡連線嘅地方都可以離線觀看。</string>
+    <string name="downloads_empty_title">仲未有任何下載</string>
+    <string name="downloads_remove_all">移除所有下載</string>
+    <string name="downloads_selected_count">已揀選 %1$d 個</string>
+    <string name="downloads_show_all">顯示全部 %1$d 個</string>
+    <string name="downloads_show_less">顯示較少</string>
+    <string name="downloads_storage_summary">已下載 %1$s · 仲有 %2$s 可用</string>
+    <string name="episode_number_short">E%1$d</string>
+    <string name="episodes_downloaded_count">已下載 %1$d/%2$d</string>
+    <string name="error_loading_data_body">請檢查你嘅網絡連線並再試一次。</string>
+    <string name="home_empty_body">最近新增嘅內容同埋你睇緊嘅影片會喺呢度顯示。</string>
+    <string name="library_no_unwatched">呢度冇未睇過嘅內容</string>
+    <string name="navigate_back">返回</string>
+    <string name="nothing_here_yet">呢度仲未有任何嘢</string>
+    <string name="offline">離線</string>
+    <string name="person_image_description">%1$s 嘅相片</string>
+    <string name="play_from_beginning">由頭開始播放</string>
+    <string name="remove_download">移除下載</string>
+    <string name="retry_download">重試下載</string>
+    <string name="select">選取</string>
+    <string name="select_seasons">選擇季度</string>
+    <string name="show_watched">顯示已睇過</string>
+    <string name="sort_name">名稱</string>
+    <string name="sort_recently_downloaded">按最近下載排序</string>
+    <string name="sort_size">大小</string>
+    <string name="storage_legend_free">可用空間</string>
+    <string name="storage_legend_other">其他</string>
+    <string name="storage_sd_card">SD 卡</string>
+    <string name="toggle_watched">隱藏已睇過</string>
+    <string name="undo">復原</string>
+    <plurals name="downloaded_episode_count">
+        <item quantity="other">%d 集</item>
+    </plurals>
+    <plurals name="downloads_in_progress_title">
+        <item quantity="other">正在下載 %d 個項目</item>
+    </plurals>
+    <plurals name="downloads_removed">
+        <item quantity="other">已移除 %d 個下載</item>
+    </plurals>
+</resources>

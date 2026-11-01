@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">Chương %1$d</string>
+    <string name="player_controls_chapters">Chương</string>
+    <string name="select_chapter">Chương</string>
+    <string name="select_video_quality">Chọn chất lượng video</string>
+    <string name="still_watching_continue">Có, tiếp tục phát</string>
+    <string name="still_watching_message">Sẽ tạm dừng sau %1$d giây nếu không có phản hồi.</string>
+    <string name="still_watching_pause">Dừng lại</string>
+    <string name="still_watching_title">Bạn vẫn đang xem chứ?</string>
+    <string name="video_quality_original">Chất lượng gốc</string>
+</resources>

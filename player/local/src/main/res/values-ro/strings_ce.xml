@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">Capitolul %1$d</string>
+    <string name="player_controls_chapters">Capitole</string>
+    <string name="select_chapter">Capitole</string>
+    <string name="select_video_quality">Selectează calitatea video</string>
+    <string name="still_watching_continue">Da, continuă redarea</string>
+    <string name="still_watching_message">Se pune pauză în %1$ds dacă nu există răspuns.</string>
+    <string name="still_watching_pause">Oprește</string>
+    <string name="still_watching_title">Încă vizionezi?</string>
+    <string name="video_quality_original">Calitate originală</string>
+</resources>

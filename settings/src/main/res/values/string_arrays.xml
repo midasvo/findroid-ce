@@ -5,25 +5,25 @@
         <item>@string/theme_light</item>
         <item>@string/theme_dark</item>
     </string-array>
-    <string-array name="theme_values">
+    <string-array name="theme_values" translatable="false">
         <item>system</item>
         <item>light</item>
         <item>dark</item>
     </string-array>
-    <string-array name="player_backends">
+    <string-array name="player_backends" translatable="false">
         <item>exoplayer</item>
         <item>mpv</item>
     </string-array>
-    <string-array name="mpv_hwdec">
+    <string-array name="mpv_hwdec" translatable="false">
         <item>no</item>
         <item>mediacodec</item>
         <item>mediacodec-copy</item>
     </string-array>
-    <string-array name="mpv_vos">
+    <string-array name="mpv_vos" translatable="false">
         <item>gpu</item>
         <item>gpu-next</item>
     </string-array>
-    <string-array name="mpv_aos">
+    <string-array name="mpv_aos" translatable="false">
         <item>audiotrack</item>
         <item>opensles</item>
         <item>aaudio</item>
@@ -33,7 +33,7 @@
         <item>@string/player_gestures_hold_speed</item>
         <item>@string/player_gestures_hold_disabled</item>
     </string-array>
-    <string-array name="player_gestures_hold_values">
+    <string-array name="player_gestures_hold_values" translatable="false">
         <item>chapter</item>
         <item>speed</item>
         <item>disabled</item>
@@ -43,7 +43,7 @@
         <item>@string/player_autoplay_next_on</item>
         <item>@string/player_autoplay_next_off</item>
     </string-array>
-    <string-array name="player_autoplay_next_values">
+    <string-array name="player_autoplay_next_values" translatable="false">
         <item>server</item>
         <item>on</item>
         <item>off</item>
@@ -52,7 +52,7 @@
         <item>@string/media_segments_auto_skip_pip</item>
         <item>@string/media_segments_auto_skip_always</item>
     </string-array>
-    <string-array name="media_segments_auto_skip_values">
+    <string-array name="media_segments_auto_skip_values" translatable="false">
         <item>pip</item>
         <item>always</item>
     </string-array>
@@ -64,7 +64,7 @@
         <item>@string/media_segments_type_commercial</item>
         <item>@string/media_segments_type_unknown</item>
     </string-array>
-    <string-array name="media_segments_type_values">
+    <string-array name="media_segments_type_values" translatable="false">
         <item>INTRO</item>
         <item>OUTRO</item>
         <item>RECAP</item>
@@ -79,7 +79,7 @@
         <item>@string/subtitle_edge_type_depressed</item>
         <item>@string/subtitle_edge_type_raised</item>
     </string-array>
-    <string-array name="subtitle_edge_type_values">
+    <string-array name="subtitle_edge_type_values" translatable="false">
         <item>none</item>
         <item>outline</item>
         <item>drop_shadow</item>
@@ -92,7 +92,7 @@
         <item>@string/subtitle_font_sans_serif</item>
         <item>@string/subtitle_font_monospace</item>
     </string-array>
-    <string-array name="subtitle_font_family_values">
+    <string-array name="subtitle_font_family_values" translatable="false">
         <item>default</item>
         <item>serif</item>
         <item>sans_serif</item>
@@ -106,7 +106,7 @@
         <item>@string/subtitle_color_green</item>
         <item>@string/subtitle_color_black</item>
     </string-array>
-    <string-array name="subtitle_foreground_color_values">
+    <string-array name="subtitle_foreground_color_values" translatable="false">
         <item>#FFFFFFFF</item>
         <item>#FFFFFF00</item>
         <item>#FFFF0000</item>
@@ -121,7 +121,7 @@
         <item>@string/subtitle_color_white</item>
         <item>@string/subtitle_color_transparent</item>
     </string-array>
-    <string-array name="subtitle_background_color_values">
+    <string-array name="subtitle_background_color_values" translatable="false">
         <item>#80000000</item>
         <item>#FF000000</item>
         <item>#80FFFFFF</item>
@@ -134,7 +134,7 @@
         <item>@string/subtitle_color_yellow</item>
         <item>@string/subtitle_color_red</item>
     </string-array>
-    <string-array name="subtitle_edge_color_values">
+    <string-array name="subtitle_edge_color_values" translatable="false">
         <item>#FF000000</item>
         <item>#FFFFFFFF</item>
         <item>#FFFFFF00</item>
@@ -145,7 +145,7 @@
         <item>@string/media_segments_action_ask</item>
         <item>@string/media_segments_action_ignore</item>
     </string-array>
-    <string-array name="media_segments_action_values">
+    <string-array name="media_segments_action_values" translatable="false">
         <item>SKIP</item>
         <item>ASK</item>
         <item>IGNORE</item>

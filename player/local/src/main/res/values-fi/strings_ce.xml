@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chapter_number">Luku %1$d</string>
+    <string name="player_controls_chapters">Luvut</string>
+    <string name="select_chapter">Luvut</string>
+    <string name="select_video_quality">Valitse videon laatu</string>
+    <string name="still_watching_continue">Kyllä, jatka toistoa</string>
+    <string name="still_watching_message">Keskeytetään %1$ds kuluttua, jos vastausta ei saada.</string>
+    <string name="still_watching_pause">Lopeta</string>
+    <string name="still_watching_title">Katseletko vielä?</string>
+    <string name="video_quality_original">Alkuperäinen laatu</string>
+</resources>
