@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">Baixant %1$d de %2$d…</string>
     <string name="download_time_left_hours">Queden %1$d h %2$d min</string>
     <string name="download_time_left_minutes">Queden %1$d min</string>
-    <string name="download_time_left_under_minute">Resta menys d\'un minut</string>
+    <string name="download_time_left_under_minute">Menys d\'1 min</string>
     <string name="download_waiting_for_network">Esperant la xarxa</string>
     <string name="downloaded_to">Desat a: %s</string>
     <string name="downloading_indicator">Baixant</string>

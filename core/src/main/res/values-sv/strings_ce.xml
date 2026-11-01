@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">Laddar ner %1$d av %2$d…</string>
     <string name="download_time_left_hours">%1$d tim %2$d min kvar</string>
     <string name="download_time_left_minutes">%1$d min kvar</string>
-    <string name="download_time_left_under_minute">Mindre än en minut kvar</string>
+    <string name="download_time_left_under_minute">Under 1 min kvar</string>
     <string name="download_waiting_for_network">Väntar på nätverk</string>
     <string name="downloaded_to">Sparad till: %s</string>
     <string name="downloading_indicator">Laddar ner</string>

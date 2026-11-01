@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">Téléchargement de %1$d sur %2$d…</string>
     <string name="download_time_left_hours">Encore %1$d h %2$d min</string>
     <string name="download_time_left_minutes">%1$d min restante(s)</string>
-    <string name="download_time_left_under_minute">Moins d\'une minute restante</string>
+    <string name="download_time_left_under_minute">Moins de 1 min</string>
     <string name="download_waiting_for_network">En attente du réseau</string>
     <string name="downloaded_to">Enregistré dans : %s</string>
     <string name="downloading_indicator">Téléchargement</string>

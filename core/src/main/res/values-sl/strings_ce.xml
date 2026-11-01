@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">Prenašanje %1$d od %2$d…</string>
     <string name="download_time_left_hours">Še %1$d h %2$d min</string>
     <string name="download_time_left_minutes">Še %1$d min</string>
-    <string name="download_time_left_under_minute">Preostala manj kot minuta</string>
+    <string name="download_time_left_under_minute">Manj kot 1 min</string>
     <string name="download_waiting_for_network">Čakanje na omrežje</string>
     <string name="downloaded_to">Shranjeno v: %s</string>
     <string name="downloading_indicator">Prenašanje</string>

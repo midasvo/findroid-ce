@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">%1$d / %2$d indiriliyor…</string>
     <string name="download_time_left_hours">%1$d sa %2$d dk kaldı</string>
     <string name="download_time_left_minutes">%1$d dk kaldı</string>
-    <string name="download_time_left_under_minute">Bir dakikadan az kaldı</string>
+    <string name="download_time_left_under_minute">1 dk\'dan az kaldı</string>
     <string name="download_waiting_for_network">Ağ bekleniyor</string>
     <string name="downloaded_to">Kaydedildiği yer: %s</string>
     <string name="downloading_indicator">İndiriliyor</string>

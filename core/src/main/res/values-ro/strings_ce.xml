@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">Se descarcă %1$d din %2$d…</string>
     <string name="download_time_left_hours">%1$d h %2$d min rămase</string>
     <string name="download_time_left_minutes">%1$d min rămase</string>
-    <string name="download_time_left_under_minute">Mai puțin de un minut rămas</string>
+    <string name="download_time_left_under_minute">Sub 1 min rămas</string>
     <string name="download_waiting_for_network">Se așteaptă rețeaua</string>
     <string name="downloaded_to">Salvat în: %s</string>
     <string name="downloading_indicator">Se descarcă</string>

@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">%1$d में से %2$d डाउनलोड हो रहे हैं…</string>
     <string name="download_time_left_hours">%1$d घंटा %2$d मिनट शेष</string>
     <string name="download_time_left_minutes">%1$d मिनट शेष</string>
-    <string name="download_time_left_under_minute">एक मिनट से कम समय बचा है</string>
+    <string name="download_time_left_under_minute">1 मिनट से कम शेष</string>
     <string name="download_waiting_for_network">नेटवर्क की प्रतीक्षा की जा रही है</string>
     <string name="downloaded_to">यहाँ सहेजा गया: %s</string>
     <string name="downloading_indicator">डाउनलोड हो रहा है</string>

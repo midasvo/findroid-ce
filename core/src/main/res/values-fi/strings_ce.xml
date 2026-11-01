@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">Ladataan %1$d/%2$d…</string>
     <string name="download_time_left_hours">%1$d t %2$d min jäljellä</string>
     <string name="download_time_left_minutes">%1$d min jäljellä</string>
-    <string name="download_time_left_under_minute">Alle minuutti jäljellä</string>
+    <string name="download_time_left_under_minute">Alle 1 min jäljellä</string>
     <string name="download_waiting_for_network">Odotetaan verkkoa</string>
     <string name="downloaded_to">Tallennettu kohteeseen: %s</string>
     <string name="downloading_indicator">Ladataan</string>

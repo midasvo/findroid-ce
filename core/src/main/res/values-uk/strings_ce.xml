@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">Завантаження %1$d з %2$d…</string>
     <string name="download_time_left_hours">Залишилося %1$d год %2$d хв</string>
     <string name="download_time_left_minutes">Залишилося %1$d хв</string>
-    <string name="download_time_left_under_minute">Залишилося менше хвилини</string>
+    <string name="download_time_left_under_minute">Менш ніж 1 хв</string>
     <string name="download_waiting_for_network">Очікування мережі</string>
     <string name="downloaded_to">Збережено в: %s</string>
     <string name="downloading_indicator">Завантаження</string>
