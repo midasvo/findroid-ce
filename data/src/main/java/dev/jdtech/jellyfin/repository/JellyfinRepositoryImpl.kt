@@ -239,6 +239,7 @@ class JellyfinRepositoryImpl(
                 .getResumeItems(
                     currentUserId,
                     limit = 12,
+                    mediaTypes = listOf(MediaType.VIDEO),
                     includeItemTypes = listOf(BaseItemKind.MOVIE, BaseItemKind.EPISODE),
                     imageTypeLimit = 1,
                     enableImageTypes = ROW_IMAGE_TYPES,
