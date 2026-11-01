@@ -109,8 +109,9 @@ git log --no-merges --format='- %s' <previous-tag>..HEAD
 ```
 
 Group into **Added / Changed / Fixed**, and collapse routine dependency bumps and translations
-under **Maintenance** to keep the signal high. Commit and push to `main` **before tagging**, so
-the tag includes the changelog entry:
+under **Maintenance** to keep the signal high. Add the tag's release link to the top of the link
+list at the bottom of the file, or the new heading renders as plain bracketed text. Commit and
+push to `main` **before tagging**, so the tag includes the changelog entry:
 
 ```bash
 git add CHANGELOG.md
