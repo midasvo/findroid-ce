@@ -33,7 +33,6 @@
     <string name="title_media">Mijn media</string>
     <string name="view_all">Alles bekijken</string>
     <string name="error_loading_data">Fout bij het laden van data</string>
-    <string name="error_loading_data_body">Controleer je verbinding en probeer het opnieuw.</string>
     <string name="retry">Opnieuw proberen</string>
     <string name="genres">Categorieën</string>
     <string name="director">Regisseur</string>
@@ -103,8 +102,4 @@
     <string name="show_stacktrace">Toon stacktrace</string>
     <string name="runtime_minutes_left">nog %1$d minuten</string>
     <string name="none">Geen</string>
-    <string name="nothing_here_yet">Nog niets te zien</string>
-    <string name="home_empty_body">Nieuwe titels en wat je aan het kijken bent verschijnen hier.</string>
-    <string name="library_no_unwatched">Geen ongekeken titels</string>
-    <string name="show_watched">Bekeken titels tonen</string>
 </resources>
