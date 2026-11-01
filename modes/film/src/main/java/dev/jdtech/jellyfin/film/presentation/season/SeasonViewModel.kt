@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadProgress
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadQueue
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadStatus
+import dev.jdtech.jellyfin.film.presentation.downloads.downloadDeletionScope
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidSourceType
 import dev.jdtech.jellyfin.models.isDownloaded
@@ -78,6 +79,7 @@ constructor(
         this.seasonId = seasonId
         this.downloadsOnly = downloadsOnly
         viewModelScope.launch {
+            _state.emit(_state.value.copy(error = null))
             try {
                 val season = repository.getSeason(seasonId)
                 val episodes =
@@ -187,6 +189,7 @@ constructor(
 
     fun onAction(action: SeasonAction) {
         when (action) {
+            is SeasonAction.OnRetryClick -> loadSeason(seasonId)
             is SeasonAction.MarkAsPlayed -> {
                 viewModelScope.launch {
                     try {
@@ -236,7 +239,7 @@ constructor(
                 }
             }
             is SeasonAction.DeleteEpisodeDownload -> {
-                viewModelScope.launch(Dispatchers.IO) {
+                downloadDeletionScope.launch {
                     val item = action.episode
                     downloadQueue.remove(item.id)
                     val localSource =
@@ -247,6 +250,7 @@ constructor(
                     loadSeason(seasonId)
                 }
             }
+            is SeasonAction.RetryEpisodeDownload -> downloadQueue.retry(action.episode.id)
             else -> Unit
         }
     }

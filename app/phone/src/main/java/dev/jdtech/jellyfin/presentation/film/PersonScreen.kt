@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -45,7 +44,9 @@ import dev.jdtech.jellyfin.models.FindroidPerson
 import dev.jdtech.jellyfin.presentation.film.components.Direction
 import dev.jdtech.jellyfin.presentation.film.components.ItemCard
 import dev.jdtech.jellyfin.presentation.film.components.ItemTopBar
+import dev.jdtech.jellyfin.presentation.film.components.LoadingOrError
 import dev.jdtech.jellyfin.presentation.film.components.OverviewText
+import dev.jdtech.jellyfin.presentation.film.components.rememberTopBarBackgroundAlpha
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
@@ -68,6 +69,7 @@ fun PersonScreen(
         state = state,
         onAction = { action ->
             when (action) {
+                is PersonAction.OnRetryClick -> viewModel.loadPerson(personId)
                 is PersonAction.NavigateBack -> navigateBack()
                 is PersonAction.NavigateHome -> navigateHome()
                 is PersonAction.NavigateToItem -> navigateToItem(action.item)
@@ -88,9 +90,11 @@ private fun PersonScreenLayout(state: PersonState, onAction: (PersonAction) -> U
 
     val itemsPadding = PaddingValues(start = paddingStart, end = paddingEnd)
 
+    val scrollState = rememberScrollState()
+
     Box(modifier = Modifier.fillMaxSize()) {
         state.person?.let { person ->
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            Column(modifier = Modifier.verticalScroll(scrollState)) {
                 Spacer(Modifier.height(paddingTop))
                 when {
                     windowSizeClass.isWidthAtLeastBreakpoint(
@@ -191,11 +195,17 @@ private fun PersonScreenLayout(state: PersonState, onAction: (PersonAction) -> U
 
                 Spacer(Modifier.height(paddingBottom))
             }
-        } ?: run { CircularProgressIndicator(modifier = Modifier.align(Alignment.Center)) }
+        } ?: run {
+            LoadingOrError(
+                error = state.error,
+                onRetryClick = { onAction(PersonAction.OnRetryClick) },
+            )
+        }
 
         ItemTopBar(
             hasBackButton = true,
             hasHomeButton = true,
+            backgroundAlpha = rememberTopBarBackgroundAlpha(scrollState),
             onBackClick = { onAction(PersonAction.NavigateBack) },
             onHomeClick = { onAction(PersonAction.NavigateHome) },
         )

@@ -35,6 +35,7 @@ constructor(
     fun loadEpisode(episodeId: UUID) {
         this.episodeId = episodeId
         viewModelScope.launch {
+            _state.emit(_state.value.copy(error = null))
             try {
                 val episode = repository.getEpisode(episodeId)
                 val videoMetadata = episode.sources.firstOrNull()?.let { videoMetadataParser.parse(it) }
@@ -62,6 +63,7 @@ constructor(
 
     fun onAction(action: EpisodeAction) {
         when (action) {
+            is EpisodeAction.OnRetryClick -> loadEpisode(episodeId)
             is EpisodeAction.MarkAsPlayed -> {
                 viewModelScope.launch {
                     try {

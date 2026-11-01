@@ -1,5 +1,6 @@
 package dev.jdtech.jellyfin.player
 
+import org.jellyfin.sdk.model.api.DeviceProfile
 import org.jellyfin.sdk.model.api.MediaStreamProtocol
 import org.jellyfin.sdk.model.api.ProfileConditionValue
 import org.jellyfin.sdk.model.api.SubtitleDeliveryMethod
@@ -14,12 +15,170 @@ import org.junit.Test
  */
 class DeviceProfileBuilderTest {
 
+    private val uhd60 = DolbyVisionLimit(3840, 2160, 60)
+
+    private fun probedWithDolbyVision(vararg profiles: Pair<Int, DolbyVisionLimit>) = ProbedCodecs(
+        videoCodecProfiles = mapOf("hevc" to setOf("Main 10"), "av1" to emptySet()),
+        audioCodecs = setOf("aac"),
+        dolbyVisionProfiles = mapOf(*profiles),
+    )
+
+    private fun rangeTypes(profile: DeviceProfile, codec: String, container: String = "mkv") =
+        profile.codecProfiles
+            .filter { it.codec == codec && it.container == container }
+            .flatMap { it.conditions }
+            .first { it.property == ProfileConditionValue.VIDEO_RANGE_TYPE }
+            .value.orEmpty()
+            .split("|")
+
+    private fun dolbyVisionLimits(profile: DeviceProfile, codec: String, container: String = "mkv") =
+        profile.codecProfiles.filter {
+            it.codec == codec && it.container == container && it.applyConditions.isNotEmpty()
+        }
+
     private fun hevcRangeCondition(probed: ProbedCodecs) =
         DeviceProfileBuilder.buildDeviceProfile(probed)
             .codecProfiles
             .filter { it.codec == "hevc" }
             .flatMap { it.conditions }
             .firstOrNull { it.property == ProfileConditionValue.VIDEO_RANGE_TYPE }
+
+    @Test
+    fun `dolby vision stays out of direct play without a dolby vision decoder`() {
+        val profile = DeviceProfileBuilder.buildDeviceProfile(probedWithDolbyVision())
+
+        for (codec in listOf("hevc", "av1")) {
+            val rangeTypes = rangeTypes(profile, codec)
+            assertTrue("$codec must allow HDR10", "HDR10" in rangeTypes)
+            assertFalse(
+                "DV ranges leaked into $codec direct play: $rangeTypes",
+                rangeTypes.any { it.startsWith("DOVI") },
+            )
+            assertEquals(emptyList<Any>(), dolbyVisionLimits(profile, codec))
+        }
+    }
+
+    @Test
+    fun `an advertised dolby vision profile only opens its own range types`() {
+        val cases = mapOf(
+            5 to listOf("DOVI"),
+            7 to listOf("DOVIWithEL", "DOVIWithELHDR10Plus"),
+            8 to listOf("DOVIWithHDR10", "DOVIWithHLG", "DOVIWithSDR", "DOVIWithHDR10Plus"),
+        )
+
+        for ((dvProfile, expected) in cases) {
+            val profile = DeviceProfileBuilder.buildDeviceProfile(
+                probedWithDolbyVision(dvProfile to uhd60),
+            )
+
+            assertEquals(
+                "hevc range types for DV profile $dvProfile",
+                expected,
+                rangeTypes(profile, "hevc").filter { it.startsWith("DOVI") },
+            )
+            assertFalse(
+                "an HEVC DV decoder says nothing about AV1",
+                rangeTypes(profile, "av1").any { it.startsWith("DOVI") },
+            )
+        }
+    }
+
+    @Test
+    fun `dolby vision profile 10 opens av1 and leaves hevc closed`() {
+        val profile = DeviceProfileBuilder.buildDeviceProfile(probedWithDolbyVision(10 to uhd60))
+
+        assertEquals(
+            listOf("DOVI", "DOVIWithHDR10", "DOVIWithHLG", "DOVIWithSDR", "DOVIWithHDR10Plus"),
+            rangeTypes(profile, "av1").filter { it.startsWith("DOVI") },
+        )
+        assertFalse(rangeTypes(profile, "hevc").any { it.startsWith("DOVI") })
+    }
+
+    @Test
+    fun `av1 is range restricted even though no av1 profiles are probed`() {
+        // AV1 used to get no codec profile at all, so profile 10.0 was direct-played
+        // on devices that can only show it with wrong colors.
+        val profile = DeviceProfileBuilder.buildDeviceProfile(probedWithDolbyVision())
+
+        assertFalse("DOVI" in rangeTypes(profile, "av1"))
+        assertFalse("DOVI" in rangeTypes(profile, "av1", container = "mp4"))
+    }
+
+    @Test
+    fun `out-of-spec dolby vision is never direct-played`() {
+        val profile = DeviceProfileBuilder.buildDeviceProfile(
+            probedWithDolbyVision(5 to uhd60, 7 to uhd60, 8 to uhd60, 10 to uhd60),
+        )
+
+        assertFalse("DOVIInvalid" in rangeTypes(profile, "hevc"))
+        assertFalse("DOVIInvalid" in rangeTypes(profile, "av1"))
+    }
+
+    @Test
+    fun `dolby vision needs a container media3 reads the configuration from`() {
+        val profile = DeviceProfileBuilder.buildDeviceProfile(probedWithDolbyVision(5 to uhd60))
+
+        assertTrue("DOVI" in rangeTypes(profile, "hevc", container = "mkv"))
+        assertTrue("DOVI" in rangeTypes(profile, "hevc", container = "mp4"))
+        assertFalse("DOVI" in rangeTypes(profile, "hevc", container = "mpegts"))
+        assertFalse("DOVI" in rangeTypes(profile, "hevc", container = "3gp"))
+    }
+
+    @Test
+    fun `the switch keeps all dolby vision out of direct play whatever is advertised`() {
+        val probed = probedWithDolbyVision(5 to uhd60, 8 to uhd60, 10 to uhd60)
+
+        val profile = DeviceProfileBuilder.buildDeviceProfile(probed, directPlayDolbyVision = false)
+
+        assertEquals(
+            DeviceProfileBuilder.buildDeviceProfile(probedWithDolbyVision()).codecProfiles,
+            profile.codecProfiles,
+        )
+    }
+
+    @Test
+    fun `dolby vision is held to the advertised level`() {
+        val profile = DeviceProfileBuilder.buildDeviceProfile(
+            probedWithDolbyVision(
+                5 to DolbyVisionLimit(1920, 1080, 60),
+                8 to DolbyVisionLimit(3840, 2160, 24),
+            ),
+        )
+
+        val limits = dolbyVisionLimits(profile, "hevc").associate { limit ->
+            limit.applyConditions.single().value to limit.conditions.associate {
+                it.property to it.value
+            }
+        }
+
+        assertEquals(
+            mapOf(
+                "DOVI" to mapOf(
+                    ProfileConditionValue.WIDTH to "1920",
+                    ProfileConditionValue.HEIGHT to "1080",
+                    ProfileConditionValue.VIDEO_FRAMERATE to "60",
+                ),
+                "DOVIWithHDR10|DOVIWithHLG|DOVIWithSDR|DOVIWithHDR10Plus" to mapOf(
+                    ProfileConditionValue.WIDTH to "3840",
+                    ProfileConditionValue.HEIGHT to "2160",
+                    ProfileConditionValue.VIDEO_FRAMERATE to "24",
+                ),
+            ),
+            limits,
+        )
+    }
+
+    @Test
+    fun `the level limit leaves streams with an unknown range alone`() {
+        // The server treats a condition on an unknown value as met unless it is
+        // required, which would hold those streams to the DV limit as well.
+        val profile = DeviceProfileBuilder.buildDeviceProfile(probedWithDolbyVision(5 to uhd60))
+
+        val applyCondition = dolbyVisionLimits(profile, "hevc").single().applyConditions.single()
+
+        assertEquals(ProfileConditionValue.VIDEO_RANGE_TYPE, applyCondition.property)
+        assertTrue(applyCondition.isRequired)
+    }
 
     @Test
     fun `hevc codec profile excludes every Dolby Vision range from direct play`() {
@@ -53,7 +212,7 @@ class DeviceProfileBuilderTest {
     }
 
     @Test
-    fun `non-hevc codecs are not range restricted`() {
+    fun `codecs that cannot carry Dolby Vision are not range restricted`() {
         val probed = ProbedCodecs(
             videoCodecProfiles = mapOf("h264" to setOf("high", "main")),
             audioCodecs = setOf("aac"),

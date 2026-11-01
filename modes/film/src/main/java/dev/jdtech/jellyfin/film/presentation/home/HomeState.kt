@@ -9,6 +9,13 @@ data class HomeState(
     val resumeSection: HomeItem.Section? = null,
     val nextUpSection: HomeItem.Section? = null,
     val views: List<HomeItem.ViewItem> = emptyList(),
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val error: Exception? = null,
-)
+) {
+    val isEmpty: Boolean
+        get() =
+            suggestionsSection == null &&
+                resumeSection == null &&
+                nextUpSection == null &&
+                views.isEmpty()
+}

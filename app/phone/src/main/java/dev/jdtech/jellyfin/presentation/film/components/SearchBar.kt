@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -153,26 +154,46 @@ fun FilmSearchBar(
         onExpandedChange = { onExpand(it) },
         modifier = modifier.padding(start = searchBarPaddingStart, end = searchBarPaddingEnd),
     ) {
-        LazyVerticalGrid(
-            columns = GridCellsAdaptiveWithMinColumns(minSize = 160.dp, minColumns = 2),
-            modifier = Modifier.fillMaxSize(),
-            contentPadding =
-                PaddingValues(
-                    start = safePadding.start + MaterialTheme.spacings.default,
-                    top = MaterialTheme.spacings.default,
-                    end = safePadding.end + MaterialTheme.spacings.default,
-                    bottom = safePadding.bottom + MaterialTheme.spacings.default,
-                ),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
-        ) {
-            items(items = state.items, key = { it.id }) { item ->
-                ItemCard(
-                    item = item,
-                    direction = Direction.VERTICAL,
-                    onClick = { onAction(SearchAction.OnItemClick(item)) },
-                    modifier = Modifier.animateItem(),
-                )
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyVerticalGrid(
+                columns = GridCellsAdaptiveWithMinColumns(minSize = 160.dp, minColumns = 2),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding =
+                    PaddingValues(
+                        start = safePadding.start + MaterialTheme.spacings.default,
+                        top = MaterialTheme.spacings.default,
+                        end = safePadding.end + MaterialTheme.spacings.default,
+                        bottom = safePadding.bottom + MaterialTheme.spacings.default,
+                    ),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
+            ) {
+                items(items = state.items, key = { it.id }) { item ->
+                    ItemCard(
+                        item = item,
+                        direction = Direction.VERTICAL,
+                        onClick = { onAction(SearchAction.OnItemClick(item)) },
+                        modifier = Modifier.animateItem(),
+                    )
+                }
+            }
+            // state.query trails query during the debounce, so this can't flash while typing.
+            if (query.isNotBlank() && query == state.query && !state.loading) {
+                val contentModifier = Modifier.fillMaxSize().imePadding()
+                val error = state.error
+                if (error != null) {
+                    ErrorState(
+                        error = error,
+                        onRetryClick = { onAction(SearchAction.Search(query)) },
+                        modifier = contentModifier,
+                    )
+                } else if (state.items.isEmpty()) {
+                    EmptyState(
+                        icon = CoreR.drawable.ic_search,
+                        title = stringResource(CoreR.string.no_search_results),
+                        modifier = contentModifier,
+                    )
+                }
             }
         }
     }

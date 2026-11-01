@@ -21,11 +21,11 @@ import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 
 @Composable
 fun DownloadedBadge(modifier: Modifier = Modifier) {
-    BaseBadge(modifier = modifier) {
+    BaseBadge(modifier = modifier, color = MaterialTheme.colorScheme.secondaryContainer) {
         Icon(
-            painter = painterResource(CoreR.drawable.ic_check),
+            painter = painterResource(CoreR.drawable.ic_download),
             contentDescription = stringResource(CoreR.string.downloaded_indicator),
-            tint = MaterialTheme.colorScheme.onPrimary,
+            tint = MaterialTheme.colorScheme.onSecondaryContainer,
             modifier = Modifier.size(16.dp).align(Alignment.Center),
         )
     }

@@ -36,6 +36,7 @@ import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidMovie
 import dev.jdtech.jellyfin.models.FindroidShow
 import dev.jdtech.jellyfin.models.FindroidSourceType
+import dev.jdtech.jellyfin.models.getVersions
 import dev.jdtech.jellyfin.models.isDownloaded
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
@@ -56,6 +57,8 @@ fun ItemButtonsBar(
     canPlay: Boolean = true,
     canDownload: Boolean = item.canDownload,
     isDownloaded: Boolean = item.isDownloaded(),
+    onPlayVersionClick: ((startFromBeginning: Boolean, mediaSourceId: String) -> Unit)? = null,
+    hasMoreToDownload: Boolean = false,
 ) {
     val context = LocalContext.current
     val isOfflineMode = LocalOfflineMode.current
@@ -75,6 +78,16 @@ fun ItemButtonsBar(
     var cancelDownloadDialogOpen by remember { mutableStateOf(false) }
     var deleteDownloadDialogOpen by remember { mutableStateOf(false) }
 
+    val versions = remember(item.sources) { item.getVersions() }
+    var versionDialogStartFromBeginning by remember { mutableStateOf<Boolean?>(null) }
+    val onPlay = { startFromBeginning: Boolean ->
+        if (onPlayVersionClick != null && versions.size > 1) {
+            versionDialogStartFromBeginning = startFromBeginning
+        } else {
+            onPlayClick(startFromBeginning)
+        }
+    }
+
     val storageLocations = remember { context.getExternalFilesDirs(null) }
 
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
@@ -90,12 +103,12 @@ fun ItemButtonsBar(
                 Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.small)) {
                     PlayButton(
                         item = item,
-                        onClick = { onPlayClick(false) },
+                        onClick = { onPlay(false) },
                         modifier = Modifier.weight(weight = 1f, fill = true),
                         enabled = item.canPlay && canPlay,
                     )
                     if (item.playbackPositionTicks.div(Constants.TICKS_PER_MINUTE) > 0) {
-                        FilledTonalIconButton(onClick = { onPlayClick(true) }) {
+                        FilledTonalIconButton(onClick = { onPlay(true) }) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_rotate_ccw),
                                 contentDescription = stringResource(CoreR.string.play_from_beginning),
@@ -112,11 +125,11 @@ fun ItemButtonsBar(
                 ) {
                     PlayButton(
                         item = item,
-                        onClick = { onPlayClick(false) },
+                        onClick = { onPlay(false) },
                         enabled = item.canPlay && canPlay,
                     )
                     if (item.playbackPositionTicks.div(Constants.TICKS_PER_MINUTE) > 0) {
-                        FilledTonalIconButton(onClick = { onPlayClick(true) }) {
+                        FilledTonalIconButton(onClick = { onPlay(true) }) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_rotate_ccw),
                                 contentDescription = stringResource(CoreR.string.play_from_beginning),
@@ -136,7 +149,7 @@ fun ItemButtonsBar(
                     Icon(
                         painter = painterResource(CoreR.drawable.ic_check),
                         contentDescription = stringResource(CoreR.string.check_button_description),
-                        tint = if (item.played) MaterialTheme.colorScheme.error else LocalContentColor.current,
+                        tint = if (item.played) MaterialTheme.colorScheme.primary else LocalContentColor.current,
                     )
                 }
                 FilledTonalIconButton(onClick = onMarkAsFavoriteClick) {
@@ -157,18 +170,19 @@ fun ItemButtonsBar(
                     }
                 }
                 if (downloaderState != null && !downloaderState.isDownloading) {
+                    if (canDownload && !isOfflineMode && (!isDownloaded || hasMoreToDownload)) {
+                        FilledTonalIconButton(onClick = onDownloadClick) {
+                            Icon(
+                                painter = painterResource(CoreR.drawable.ic_download),
+                                contentDescription = stringResource(CoreR.string.download_button_description),
+                            )
+                        }
+                    }
                     if (isDownloaded) {
                         FilledTonalIconButton(onClick = { deleteDownloadDialogOpen = true }) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_trash),
                                 contentDescription = stringResource(CoreR.string.delete_download),
-                            )
-                        }
-                    } else if (canDownload && !isOfflineMode) {
-                        FilledTonalIconButton(onClick = onDownloadClick) {
-                            Icon(
-                                painter = painterResource(CoreR.drawable.ic_download),
-                                contentDescription = stringResource(CoreR.string.download_button_description),
                             )
                         }
                     }
@@ -230,6 +244,16 @@ fun ItemButtonsBar(
                     deleteDownloadDialogOpen = false
                 },
                 onDismiss = { deleteDownloadDialogOpen = false },
+            )
+        }
+        versionDialogStartFromBeginning?.let { startFromBeginning ->
+            VersionDialog(
+                versions = versions,
+                onSelect = { mediaSourceId ->
+                    versionDialogStartFromBeginning = null
+                    onPlayVersionClick?.invoke(startFromBeginning, mediaSourceId)
+                },
+                onDismiss = { versionDialogStartFromBeginning = null },
             )
         }
     }

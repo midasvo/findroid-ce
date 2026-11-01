@@ -3,6 +3,8 @@
     <string name="settings_preferred_subtitle_language">Gewenste ondertiteling taal</string>
     <string name="settings_category_servers">Servers</string>
     <string name="settings_category_player">Speler</string>
+    <string name="pref_player_direct_play_dovi">Dolby Vision direct afspelen</string>
+    <string name="pref_player_direct_play_dovi_summary">Speel Dolby Vision-bestanden direct af als dit apparaat en het scherm ze ondersteunen. Geven ze een zwart beeld of verkeerde kleuren, zet dit dan uit, dan transcodeert de server ze. Alleen voor ExoPlayer.</string>
     <string name="mpv_player">mpv speler</string>
     <string name="download_mobile_data">Download met mobiele data</string>
     <string name="download_roaming">Download met roaming</string>

@@ -33,10 +33,10 @@ class SearchViewModel @Inject constructor(private val repository: JellyfinReposi
                     _state.emit(_state.value.copy(loading = true))
                     val items = repository.getSearchItems(query)
 
-                    _state.emit(SearchState(items = items, loading = false))
+                    _state.emit(SearchState(query = query, items = items, loading = false))
                 } catch (_: CancellationException) {} catch (e: Exception) {
                     Timber.e(e)
-                    _state.emit(_state.value.copy(loading = false, error = e))
+                    _state.emit(_state.value.copy(query = query, loading = false, error = e))
                 }
             }
     }
