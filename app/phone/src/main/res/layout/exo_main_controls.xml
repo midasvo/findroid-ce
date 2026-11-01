@@ -13,160 +13,165 @@
         android:layout_margin="8dp"
         android:orientation="horizontal">
 
-        <LinearLayout
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/transparent_circle_background"
+            android:contentDescription="@string/player_controls_exit"
+            android:padding="16dp"
+            android:src="@drawable/ic_arrow_left"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/video_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@id/back_button"
             app:layout_constraintEnd_toStartOf="@id/extra_buttons"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintStart_toEndOf="@id/back_button"
+            app:layout_constraintTop_toTopOf="@id/back_button"
+            tools:text="The Dawn of Despair" />
 
-            <ImageButton
-                android:id="@+id/back_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/transparent_circle_background"
-                android:contentDescription="@string/player_controls_exit"
-                android:padding="16dp"
-                android:src="@drawable/ic_arrow_left" />
-
-            <Space
-                android:layout_width="16dp"
-                android:layout_height="0dp" />
-
-            <TextView
-                android:id="@+id/video_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="16dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                android:textColor="@android:color/white"
-                tools:text="The Dawn of Despair" />
-
-        </LinearLayout>
-
-        <LinearLayout
+        <!-- Scrolls in a window too narrow for every button, so the back button stays reachable. -->
+        <HorizontalScrollView
             android:id="@+id/extra_buttons"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:overScrollMode="never"
+            android:scrollbars="none"
+            app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintStart_toEndOf="@id/back_button"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ImageButton
-                android:id="@+id/btn_lockview"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="1"
-                android:background="@drawable/transparent_circle_background"
-                android:contentDescription="@string/player_controls_lock"
-                android:padding="16dp"
-                android:src="@drawable/ic_lock"
-                app:tint="@android:color/white" />
+                android:orientation="horizontal">
 
-            <Space
-                android:layout_width="16dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+                <ImageButton
+                    android:id="@+id/btn_lockview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_weight="1"
+                    android:background="@drawable/transparent_circle_background"
+                    android:contentDescription="@string/player_controls_lock"
+                    android:padding="16dp"
+                    android:src="@drawable/ic_lock"
+                    app:tint="@android:color/white" />
 
-            <ImageButton
-                android:id="@+id/btn_pip"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="end"
-                android:background="@drawable/transparent_circle_background"
-                android:contentDescription="@string/picture_in_picture"
-                android:padding="16dp"
-                android:src="@drawable/ic_picture_in_picture"
-                app:tint="@android:color/white" />
+                <Space
+                    android:layout_width="16dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
 
-            <Space
-                android:id="@+id/space_pip"
-                android:layout_width="16dp"
-                android:layout_height="0dp" />
+                <ImageButton
+                    android:id="@+id/btn_pip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="end"
+                    android:background="@drawable/transparent_circle_background"
+                    android:contentDescription="@string/picture_in_picture"
+                    android:padding="16dp"
+                    android:src="@drawable/ic_picture_in_picture"
+                    app:tint="@android:color/white" />
 
-            <ImageButton
-                android:id="@+id/btn_quality"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:background="@drawable/transparent_circle_background"
-                android:contentDescription="@string/select_video_quality"
-                android:padding="16dp"
-                android:src="@drawable/ic_badge_hd"
-                app:tint="@android:color/white" />
+                <Space
+                    android:id="@+id/space_pip"
+                    android:layout_width="16dp"
+                    android:layout_height="0dp" />
 
-            <Space
-                android:id="@+id/space_quality"
-                android:layout_width="16dp"
-                android:layout_height="0dp" />
+                <ImageButton
+                    android:id="@+id/btn_quality"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:background="@drawable/transparent_circle_background"
+                    android:contentDescription="@string/select_video_quality"
+                    android:padding="16dp"
+                    android:src="@drawable/ic_badge_hd"
+                    app:tint="@android:color/white" />
 
-            <ImageButton
-                android:id="@+id/btn_speed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:background="@drawable/transparent_circle_background"
-                android:contentDescription="@string/select_playback_speed"
-                android:padding="16dp"
-                android:src="@drawable/ic_gauge"
-                app:tint="@android:color/white" />
+                <Space
+                    android:id="@+id/space_quality"
+                    android:layout_width="16dp"
+                    android:layout_height="0dp" />
 
-            <Space
-                android:layout_width="16dp"
-                android:layout_height="0dp" />
+                <ImageButton
+                    android:id="@+id/btn_speed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:background="@drawable/transparent_circle_background"
+                    android:contentDescription="@string/select_playback_speed"
+                    android:padding="16dp"
+                    android:src="@drawable/ic_gauge"
+                    app:tint="@android:color/white" />
 
-            <ImageButton
-                android:id="@+id/btn_audio_track"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:background="@drawable/transparent_circle_background"
-                android:contentDescription="@string/select_audio_track"
-                android:padding="16dp"
-                android:src="@drawable/ic_speaker"
-                app:tint="@android:color/white" />
+                <Space
+                    android:layout_width="16dp"
+                    android:layout_height="0dp" />
 
-            <Space
-                android:layout_width="16dp"
-                android:layout_height="0dp" />
+                <ImageButton
+                    android:id="@+id/btn_audio_track"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:background="@drawable/transparent_circle_background"
+                    android:contentDescription="@string/select_audio_track"
+                    android:padding="16dp"
+                    android:src="@drawable/ic_speaker"
+                    app:tint="@android:color/white" />
 
-            <ImageButton
-                android:id="@+id/btn_subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:background="@drawable/transparent_circle_background"
-                android:contentDescription="@string/select_subtitle_track"
-                android:padding="16dp"
-                android:src="@drawable/ic_closed_caption"
-                app:tint="@android:color/white" />
+                <Space
+                    android:layout_width="16dp"
+                    android:layout_height="0dp" />
 
-            <Space
-                android:id="@+id/space_chapters"
-                android:layout_width="16dp"
-                android:layout_height="0dp" />
+                <ImageButton
+                    android:id="@+id/btn_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:background="@drawable/transparent_circle_background"
+                    android:contentDescription="@string/select_subtitle_track"
+                    android:padding="16dp"
+                    android:src="@drawable/ic_closed_caption"
+                    app:tint="@android:color/white" />
 
-            <ImageButton
-                android:id="@+id/btn_chapters"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:background="@drawable/transparent_circle_background"
-                android:contentDescription="@string/player_controls_chapters"
-                android:padding="16dp"
-                android:src="@drawable/ic_list"
-                android:visibility="gone"
-                app:tint="@android:color/white" />
+                <Space
+                    android:id="@+id/space_chapters"
+                    android:layout_width="16dp"
+                    android:layout_height="0dp" />
 
-        </LinearLayout>
+                <ImageButton
+                    android:id="@+id/btn_chapters"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:background="@drawable/transparent_circle_background"
+                    android:contentDescription="@string/player_controls_chapters"
+                    android:padding="16dp"
+                    android:src="@drawable/ic_list"
+                    android:visibility="gone"
+                    app:tint="@android:color/white" />
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- The weighted spaces only shrink, when the window is too narrow for all five buttons. -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -178,21 +183,29 @@
             android:id="@+id/exo_prev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
             android:background="@drawable/transparent_circle_background"
             android:padding="16dp"
             android:src="@drawable/ic_skip_back"
             android:contentDescription="@string/player_controls_skip_back" />
 
+        <Space
+            android:layout_width="32dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
         <ImageButton
             android:id="@+id/exo_rew"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
             android:background="@drawable/transparent_circle_background"
             android:padding="16dp"
             android:src="@drawable/ic_rewind"
             android:contentDescription="@string/player_controls_rewind" />
+
+        <Space
+            android:layout_width="32dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <ImageButton
             android:id="@+id/exo_play_pause"
@@ -205,21 +218,29 @@
             app:tint="@android:color/black"
             android:contentDescription="@string/player_controls_play_pause" />
 
+        <Space
+            android:layout_width="32dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
         <ImageButton
             android:id="@+id/exo_ffwd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
             android:background="@drawable/transparent_circle_background"
             android:padding="16dp"
             android:src="@drawable/ic_fast_forward"
             android:contentDescription="@string/player_controls_fast_forward" />
 
+        <Space
+            android:layout_width="32dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
         <ImageButton
             android:id="@+id/exo_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
             android:background="@drawable/transparent_circle_background"
             android:padding="16dp"
             android:src="@drawable/ic_skip_forward"
