@@ -10,6 +10,33 @@ _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.2.0-ce.3] — 2026-11-01
+
+CE's own text in every language, a lighter Continue Watching query, and download rows that stay
+readable.
+
+### Added
+- Everything CE adds is now translated into all 36 languages, so these screens no longer fall back
+  to English. The translations are machine-assisted, so corrections are welcome (#106, #110).
+- "Display cast and crew" setting under Settings → Interface, on by default. Turning it off hides
+  actors, directors and writers on movie, show and episode pages, on phone and TV (#104, #105).
+
+### Changed
+- Continue Watching now asks the server for video only, which a Jellyfin report says stops it
+  scanning the whole library for this row. In a test against one server, a Home refresh got about
+  70 ms faster and a cold start didn't change; large libraries may gain more. Thanks @DrHurt (#109,
+  #112).
+
+### Fixed
+- Active download rows no longer cut off the time left on narrow phones: the size and time left now
+  have a line each. In multi-select, a movie's size no longer disappears behind "...". "Less than a
+  minute left" is now "Under 1 min left" in English, and some translations may still be cut off
+  (#111).
+
+### Maintenance
+- The README has screenshots of CE's own screens again and an updated feature list (#107, #108).
+- Only the 3 newest beta prereleases are kept (#103).
+
 ## [v1.2.0-ce.2] — 2026-11-01
 
 Picking between versions, playback that carries on into the next season, Dolby Vision direct play
@@ -398,6 +425,7 @@ Initial CE fork off findroid `1.0.2`. These rapid early iterations established t
 `nl.midasvo.findroid.ce` application ID, downloads and SD-card storage improvements, and ongoing
 tracking of upstream. See the git history between the corresponding tags for commit-level detail.
 
+[v1.2.0-ce.3]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.3
 [v1.2.0-ce.2]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.2
 [v1.2.0-ce.1]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.1
 [v1.2.0-ce.0]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.0
