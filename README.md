@@ -1,5 +1,3 @@
-![Findroid banner](images/findroid-banner.png)
-
 # Findroid CE (Community Edition)
 
 A community-driven fork of [Findroid](https://github.com/jarnedemeulemeester/findroid) — the native
