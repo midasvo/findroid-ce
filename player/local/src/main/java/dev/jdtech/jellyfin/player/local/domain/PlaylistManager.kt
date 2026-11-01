@@ -171,6 +171,10 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
                 is FindroidMovie -> null
                 is FindroidEpisode -> {
                     if (currentItemIndex == items.lastIndex) {
+                        appendNextSeason()
+                    }
+
+                    if (currentItemIndex == items.lastIndex) {
                         null
                     } else {
                         val item = items[itemIndex]
@@ -194,6 +198,45 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
         }
 
         return playerItem
+    }
+
+    /**
+     * Queue the episodes of the next season, so playback continues into it. Seasons are fetched
+     * only when the current one runs out. Specials (season 0) do not roll over into season 1.
+     */
+    private suspend fun appendNextSeason() {
+        val queuedEpisodes = items.filterIsInstance<FindroidEpisode>()
+        val seriesId = queuedEpisodes.lastOrNull()?.seriesId ?: return
+
+        try {
+            val seasons = repository.getSeasons(seriesId).sortedBy { it.indexNumber }
+            // The highest queued season, not the last episode's: the server can end a season's
+            // list with a special that airs after it, and that episode belongs to season 0.
+            val queuedSeasonIds = queuedEpisodes.map { it.seasonId }
+            val seasonNumber =
+                seasons.lastOrNull { it.id in queuedSeasonIds }?.indexNumber ?: return
+            if (seasonNumber == 0) {
+                return
+            }
+
+            val nextEpisodes =
+                seasons
+                    .filter { it.indexNumber > seasonNumber }
+                    .firstNotNullOfOrNull { season ->
+                        repository
+                            .getEpisodes(
+                                seriesId = seriesId,
+                                seasonId = season.id,
+                                fields = listOf(ItemFields.CHAPTERS, ItemFields.TRICKPLAY),
+                            )
+                            .filter { !it.missing }
+                            .ifEmpty { null }
+                    } ?: return
+
+            items = items + nextEpisodes
+        } catch (e: Exception) {
+            Timber.e("Failed to retrieve next season: $e")
+        }
     }
 
     fun setCurrentMediaItemIndex(itemId: UUID) {
