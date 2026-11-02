@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Najv. število sočasnih prenosov</string>
     <string name="pref_download_sd_card">SD kartica %1$d (%2$s prosto)</string>
     <string name="pref_download_smart">Pametni prenosi</string>
-    <string name="pref_download_smart_summary">Samodejno prenesi naslednjo epizodo, ko se ena konča</string>
+    <string name="pref_download_smart_summary">Ohrani prenesene naslednje epizode serije, ki jo gledate, in odstrani tiste, ki jih je prenesla, ko jih pogledate</string>
+    <string name="pref_download_smart_keep">Epizode, pripravljene vnaprej</string>
+    <string name="pref_download_smart_keep_summary">Neogledane epizode, ki ostanejo prenesene za serijo, ki jo gledate</string>
     <string name="pref_download_storage_location">Mesto shranjevanja prenosov</string>
     <string name="pref_download_transcode_dovi">Prekodiraj prenose Dolby Vision</string>
     <string name="pref_download_transcode_dovi_summary">Prenesite z napravo združljivo kopijo datotek Dolby Vision za predvajanje brez povezave. Druge datoteke se še vedno prenašajo kot izvirniki.</string>

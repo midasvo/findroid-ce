@@ -111,16 +111,32 @@ interface ServerDatabaseDao {
     @Query("SELECT * FROM sources WHERE type = 'LOCAL' AND path NOT LIKE '%.download'")
     suspend fun getCompletedDownloadSources(): List<FindroidSourceDto>
 
+    @Query(
+        "SELECT DISTINCT episodes.seriesId FROM episodes " +
+            "JOIN sources ON sources.itemId = episodes.id " +
+            "WHERE sources.type = 'LOCAL' AND sources.path NOT LIKE '%.download'"
+    )
+    suspend fun getSeriesIdsWithCompletedDownloads(): List<UUID>
+
     @Query("UPDATE sources SET downloadId = :downloadId WHERE id = :id")
     suspend fun setSourceDownloadId(id: String, downloadId: Long)
 
     @Query("UPDATE sources SET path = :path WHERE id = :id")
     suspend fun setSourcePath(id: String, path: String)
 
+    @Query("UPDATE sources SET path = :path, downloadedAt = :downloadedAt WHERE id = :id")
+    suspend fun setSourceDownloaded(id: String, path: String, downloadedAt: Long)
+
+    @Query("UPDATE sources SET smartQueued = 0 WHERE itemId = :itemId")
+    suspend fun clearSourceSmartQueued(itemId: UUID)
+
     @Query("DELETE FROM sources WHERE id = :id") suspend fun deleteSource(id: String)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPendingDownload(pendingDownload: PendingDownloadDto)
+
+    @Query("UPDATE pending_downloads SET smartQueued = 0 WHERE itemId = :itemId")
+    suspend fun clearPendingDownloadSmartQueued(itemId: UUID)
 
     @Query("DELETE FROM pending_downloads WHERE itemId = :itemId")
     suspend fun deletePendingDownload(itemId: UUID)

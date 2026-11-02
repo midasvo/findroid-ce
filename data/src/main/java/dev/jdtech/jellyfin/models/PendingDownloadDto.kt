@@ -1,5 +1,6 @@
 package dev.jdtech.jellyfin.models
 
+import androidx.room3.ColumnInfo
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
 import java.util.UUID
@@ -17,4 +18,6 @@ data class PendingDownloadDto(
     val addedAt: Long,
     /** Download-quality bitrate cap (bits/sec) chosen for this item; null = original. */
     val maxBitrate: Int? = null,
+    /** True when Smart Downloads queued this item, so the download stays removable by it. */
+    @ColumnInfo(defaultValue = "0") val smartQueued: Boolean = false,
 )

@@ -32,6 +32,8 @@ data class FindroidEpisode(
     val people: List<FindroidItemPerson>,
     override val unplayedItemCount: Int? = null,
     val missing: Boolean = false,
+    /** When the server last saw this episode played; null if never, or when read offline. */
+    val lastPlayedDate: DateTime? = null,
     override val images: FindroidImages,
     override val chapters: List<FindroidChapter>,
     override val trickplayInfo: Map<String, FindroidTrickplayInfo>?,
@@ -70,6 +72,7 @@ suspend fun BaseItemDto.toFindroidEpisode(
             communityRating = communityRating,
             people = people?.map { it.toFindroidPerson(jellyfinRepository) } ?: emptyList(),
             missing = locationType == LocationType.VIRTUAL,
+            lastPlayedDate = userData?.lastPlayedDate,
             images = toFindroidImages(jellyfinRepository),
             chapters = toFindroidChapters(),
             trickplayInfo =

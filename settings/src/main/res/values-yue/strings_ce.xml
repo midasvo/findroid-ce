@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">最多同時下載數</string>
     <string name="pref_download_sd_card">SD 卡 %1$d（仲有 %2$s）</string>
     <string name="pref_download_smart">智能下載</string>
-    <string name="pref_download_smart_summary">睇完一集之後自動下載下一集</string>
+    <string name="pref_download_smart_summary">保持你而家睇緊嗰套劇集嘅下幾集已經下載，睇完之後會刪走自動下載嘅集數</string>
+    <string name="pref_download_smart_keep">預備好嘅集數</string>
+    <string name="pref_download_smart_keep_summary">你睇緊嗰套劇集要保持已下載嘅未睇集數</string>
     <string name="pref_download_storage_location">下載儲存位置</string>
     <string name="pref_download_transcode_dovi">轉碼 Dolby Vision 下載項</string>
     <string name="pref_download_transcode_dovi_summary">下載同裝置相容嘅 Dolby Vision 複本方便離線播放。其他檔案依然會下載原始版本。</string>

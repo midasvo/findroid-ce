@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Max samtidiga nedladdningar</string>
     <string name="pref_download_sd_card">SD-kort %1$d (%2$s ledigt)</string>
     <string name="pref_download_smart">Smarta nedladdningar</string>
-    <string name="pref_download_smart_summary">Ladda automatiskt ner nästa avsnitt när ett tar slut</string>
+    <string name="pref_download_smart_summary">Behåll nästa avsnitt av en serie du tittar på nedladdade och ta bort de som laddats ned automatiskt när du har sett dem</string>
+    <string name="pref_download_smart_keep">Avsnitt att ha redo</string>
+    <string name="pref_download_smart_keep_summary">Osedda avsnitt som ska behållas nedladdade för en serie du tittar på</string>
     <string name="pref_download_storage_location">Lagringsplats för nedladdningar</string>
     <string name="pref_download_transcode_dovi">Omkoda Dolby Vision-nedladdningar</string>
     <string name="pref_download_transcode_dovi_summary">Ladda ner en enhetskompatibel kopia av Dolby Vision-filer så att de kan spelas upp offline. Andra filer laddas fortfarande ner i originalformat.</string>

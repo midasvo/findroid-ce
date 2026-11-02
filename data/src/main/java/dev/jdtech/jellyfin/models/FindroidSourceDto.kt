@@ -1,5 +1,6 @@
 package dev.jdtech.jellyfin.models
 
+import androidx.room3.ColumnInfo
 import androidx.room3.Entity
 import androidx.room3.Index
 import androidx.room3.PrimaryKey
@@ -20,6 +21,13 @@ data class FindroidSourceDto(
      * original-file URL (or vice versa) would append mismatched bytes.
      */
     val downloadMaxBitrate: Int? = null,
+    /** Epoch ms at which the download finished; null while in flight and for older rows. */
+    val downloadedAt: Long? = null,
+    /**
+     * True when Smart Downloads queued this download itself, which is the only kind it may
+     * delete later. Rows from before the column existed default to false (user-owned).
+     */
+    @ColumnInfo(defaultValue = "0") val smartQueued: Boolean = false,
 )
 
 fun FindroidSource.toFindroidSourceDto(itemId: UUID, path: String): FindroidSourceDto {

@@ -92,9 +92,14 @@ constructor(
         val isTranscode: Boolean = false,
         /**
          * User-selected download quality cap (bits/sec) for this entry, or null
-         * for original quality. Carried through retries and smart downloads.
+         * for original quality. Carried through retries.
          */
         val maxBitrate: Int? = null,
+        /**
+         * True when Smart Downloads queued this entry, which is what lets it remove the
+         * download once the episode has been watched.
+         */
+        val smartQueued: Boolean = false,
         /** Moving-average bytes/sec, or 0 if not computed yet. */
         val bytesPerSecond: Long = 0L,
         /** How many times this entry has been auto-retried. */
@@ -118,10 +123,30 @@ constructor(
     /** Previous bytes + wall-clock (ms) sample per downloadId, for speed calc. */
     private val lastSamples = mutableMapOf<Long, Pair<Long, Long>>()
 
-    suspend fun enqueue(item: FindroidItem, maxBitrate: Int? = null) {
+    suspend fun enqueue(
+        item: FindroidItem,
+        maxBitrate: Int? = null,
+        smartQueued: Boolean = false,
+    ) {
         var persisted = false
+        var claimed = false
         mutex.withLock {
-            if (_entries.value.any { it.id == item.id && it.state !is EntryState.Failed && it.state !is EntryState.Completed }) {
+            val existing =
+                _entries.value.firstOrNull {
+                    it.id == item.id &&
+                        it.state !is EntryState.Failed &&
+                        it.state !is EntryState.Completed
+                }
+            if (existing != null) {
+                // The user asking for a download Smart Downloads already queued makes it theirs,
+                // so it is never removed automatically.
+                if (existing.smartQueued && !smartQueued) {
+                    _entries.value =
+                        _entries.value.map {
+                            if (it === existing) it.copy(smartQueued = false) else it
+                        }
+                    claimed = true
+                }
                 return@withLock
             }
             // If a previous Failed/Completed entry exists for this id, replace it.
@@ -133,18 +158,29 @@ constructor(
                     addedAt = System.currentTimeMillis(),
                     state = EntryState.Pending,
                     maxBitrate = maxBitrate,
+                    smartQueued = smartQueued,
                 )
             _entries.value = sort(filtered + newEntry)
             persisted = true
         }
         if (persisted) {
             try {
-                downloader.savePendingDownload(item, maxBitrate)
+                downloader.savePendingDownload(item, maxBitrate, smartQueued)
             } catch (e: Exception) {
                 Timber.e(e, "Failed to persist pending download ${item.name}")
             }
         }
+        if (claimed) claimSmartQueued(item.id)
         ensurePump()
+    }
+
+    private suspend fun claimSmartQueued(itemId: UUID) {
+        try {
+            database.clearPendingDownloadSmartQueued(itemId)
+            database.clearSourceSmartQueued(itemId)
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to mark download $itemId as user-started")
+        }
     }
 
     /**
@@ -219,6 +255,7 @@ constructor(
                         addedAt = now - 1,
                         state = EntryState.Pending,
                         maxBitrate = restored.maxBitrate,
+                        smartQueued = restored.smartQueued,
                     )
                 }
             // Pending items entered after active downloads so they don't cut in line.
@@ -233,6 +270,7 @@ constructor(
                             addedAt = restored.addedAt,
                             state = EntryState.Pending,
                             maxBitrate = restored.maxBitrate,
+                            smartQueued = restored.smartQueued,
                         )
                     }
             val added = addedActive + addedPending
@@ -244,12 +282,24 @@ constructor(
 
     suspend fun enqueueAll(items: List<FindroidItem>, maxBitrate: Int? = null) {
         val persistedItems = mutableListOf<FindroidItem>()
+        // Already queued by Smart Downloads; the user asking for them makes them theirs.
+        val claimedIds = mutableSetOf<UUID>()
         mutex.withLock {
             val existingIds =
                 _entries.value
                     .filter { it.state !is EntryState.Failed && it.state !is EntryState.Completed }
                     .map { it.id }
                     .toSet()
+            val itemIds = items.map { it.id }.toSet()
+            _entries.value.forEach {
+                if (it.smartQueued && it.id in existingIds && it.id in itemIds) claimedIds.add(it.id)
+            }
+            if (claimedIds.isNotEmpty()) {
+                _entries.value =
+                    _entries.value.map {
+                        if (it.id in claimedIds) it.copy(smartQueued = false) else it
+                    }
+            }
             val now = System.currentTimeMillis()
             val newEntries =
                 items
@@ -276,6 +326,7 @@ constructor(
                 Timber.e(e, "Failed to persist pending download ${item.name}")
             }
         }
+        claimedIds.forEach { claimSmartQueued(it) }
         ensurePump()
     }
 
@@ -335,7 +386,7 @@ constructor(
             }
             retried?.let { entry ->
                 try {
-                    downloader.savePendingDownload(entry.item, entry.maxBitrate)
+                    downloader.savePendingDownload(entry.item, entry.maxBitrate, entry.smartQueued)
                 } catch (e: Exception) {
                     Timber.e(e, "Failed to persist retried download ${entry.item.name}")
                 }
@@ -577,7 +628,11 @@ constructor(
                             )
                             Timber.i("Auto-retry #${failed.retryCount + 1} for ${failed.item.name} in ${backoffMs / 1000}s")
                             try {
-                                downloader.savePendingDownload(failed.item, failed.maxBitrate)
+                                downloader.savePendingDownload(
+                                    failed.item,
+                                    failed.maxBitrate,
+                                    failed.smartQueued,
+                                )
                             } catch (e: Exception) {
                                 Timber.e(e, "Failed to re-persist auto-retried download ${failed.item.name}")
                             }
@@ -596,11 +651,6 @@ constructor(
                         updates.values.filter { it.state is EntryState.Completed }
                     for (entry in completedEntries) {
                         entry.downloadId?.let { lastSamples.remove(it) }
-                        // Smart Downloads: auto-queue next episode at the same quality
-                        val item = entry.item
-                        if (item is FindroidEpisode) {
-                            scope.launch { smartEnqueueNext(item, entry.maxBitrate) }
-                        }
                     }
                 }
             }
@@ -671,6 +721,7 @@ constructor(
                     item = entry.item,
                     storageIndex = storageIndex,
                     maxBitrate = entry.maxBitrate,
+                    smartQueued = entry.smartQueued,
                 )
             } catch (e: Exception) {
                 Timber.e(e, "downloadItem threw for ${entry.item.name}")
@@ -742,40 +793,6 @@ constructor(
             .build()
         // Use item hashCode as id so each failed item gets its own notification.
         nm.notify(item.id.hashCode(), notification)
-    }
-
-    /**
-     * Smart Downloads: when an episode finishes downloading, automatically
-     * queue the next episode in the same season (if it exists and isn't
-     * already downloaded or queued), at the same quality as the finished one.
-     */
-    private suspend fun smartEnqueueNext(episode: FindroidEpisode, maxBitrate: Int?) {
-        if (!appPreferences.getValue(appPreferences.smartDownloads)) return
-        try {
-            val episodes = repository.getEpisodes(
-                seriesId = episode.seriesId,
-                seasonId = episode.seasonId,
-            )
-            val currentIdx = episodes.indexOfFirst { it.id == episode.id }
-            if (currentIdx == -1 || currentIdx >= episodes.lastIndex) return
-
-            val next = episodes[currentIdx + 1]
-            // Skip if already downloaded (has a source with a non-.download path)
-            val existingSources = database.getSources(next.id)
-            if (existingSources.any { !it.path.endsWith(".download") }) {
-                Timber.d("Smart Downloads: ${next.name} already downloaded, skipping")
-                return
-            }
-            // Skip if already in the queue
-            if (_entries.value.any { it.id == next.id }) {
-                Timber.d("Smart Downloads: ${next.name} already queued, skipping")
-                return
-            }
-            Timber.i("Smart Downloads: auto-queueing next episode ${next.seriesName} S%02dE%02d".format(next.parentIndexNumber, next.indexNumber))
-            enqueue(next, maxBitrate)
-        } catch (e: Exception) {
-            Timber.e(e, "Smart Downloads: failed to fetch next episode after ${episode.name}")
-        }
     }
 
     companion object {

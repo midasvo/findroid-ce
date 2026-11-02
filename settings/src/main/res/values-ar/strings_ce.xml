@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">الحد الأقصى للتنزيلات المتزامنة</string>
     <string name="pref_download_sd_card">بطاقة SD رقم %1$d (%2$s متاح)</string>
     <string name="pref_download_smart">التنزيلات الذكية</string>
-    <string name="pref_download_smart_summary">تنزيل الحلقة التالية تلقائيًا عند انتهاء حلقة</string>
+    <string name="pref_download_smart_summary">إبقاء الحلقات التالية من المسلسل الذي تشاهده منزّلة، وحذف ما نزّله التطبيق منها بعد مشاهدتها</string>
+    <string name="pref_download_smart_keep">الحلقات الجاهزة للإبقاء عليها</string>
+    <string name="pref_download_smart_keep_summary">الحلقات غير المشاهدة التي يُحتفظ بها منزّلة للمسلسل الذي تشاهده</string>
     <string name="pref_download_storage_location">موقع تخزين التنزيلات</string>
     <string name="pref_download_transcode_dovi">تحويل ترميز تنزيلات Dolby Vision</string>
     <string name="pref_download_transcode_dovi_summary">تنزيل نسخة متوافقة مع الجهاز من ملفات Dolby Vision لتشغيلها بلا اتصال. ستستمر الملفات الأخرى في التنزيل بالجودة الأصلية.</string>

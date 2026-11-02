@@ -7,6 +7,7 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dev.jdtech.jellyfin.api.JellyfinApi
+import dev.jdtech.jellyfin.core.presentation.downloader.SmartDownloads
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
 import timber.log.Timber
 import dev.jdtech.jellyfin.models.FindroidItem
@@ -26,6 +27,7 @@ constructor(
     @Assisted private val workerParams: WorkerParameters,
     val database: ServerDatabaseDao,
     val appPreferences: AppPreferences,
+    private val smartDownloads: SmartDownloads,
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -67,7 +69,17 @@ constructor(
                 }
             }
 
-            if (hadFailures) Result.retry() else Result.success()
+            if (hadFailures) {
+                Result.retry()
+            } else {
+                // Progress watched offline has reached the server, so what to remove can be told.
+                try {
+                    smartDownloads.checkAll()
+                } catch (e: Exception) {
+                    Timber.e(e, "Smart Downloads check after sync failed")
+                }
+                Result.success()
+            }
         }
     }
 

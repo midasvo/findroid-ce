@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Maks. liczba jednoczesnych pobierań</string>
     <string name="pref_download_sd_card">Karta SD %1$d (%2$s wolne)</string>
     <string name="pref_download_smart">Inteligentne pobieranie</string>
-    <string name="pref_download_smart_summary">Automatycznie pobieraj następny odcinek po zakończeniu oglądania</string>
+    <string name="pref_download_smart_summary">Utrzymuje pobrane kolejne odcinki oglądanego serialu i usuwa te, które sam pobrał, gdy już je obejrzysz</string>
+    <string name="pref_download_smart_keep">Odcinki do przygotowania</string>
+    <string name="pref_download_smart_keep_summary">Nieobejrzane odcinki, które mają pozostać pobrane dla oglądanego serialu</string>
     <string name="pref_download_storage_location">Lokalizacja pamięci pobranych</string>
     <string name="pref_download_transcode_dovi">Transkoduj pobierane pliki Dolby Vision</string>
     <string name="pref_download_transcode_dovi_summary">Pobieraj wersję Dolby Vision zgodną z urządzeniem, aby umożliwić odtwarzanie offline. Inne pliki będą pobierane w oryginale.</string>

@@ -11,6 +11,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
@@ -19,6 +20,7 @@ import dev.jdtech.jellyfin.presentation.utils.LocalPlaybackStopped
 import dev.jdtech.jellyfin.repository.PlaybackEvents
 import dev.jdtech.jellyfin.viewmodels.MainViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.flow.map
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -42,12 +44,13 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val state by viewModel.state.collectAsStateWithLifecycle()
+            val stopped = remember { playbackEvents.stopped.map {} }
 
             FindroidTheme(dynamicColor = state.isDynamicColors) {
                 if (!state.isLoading) {
                     CompositionLocalProvider(
                         LocalOfflineMode provides state.isOfflineMode,
-                        LocalPlaybackStopped provides playbackEvents.stopped,
+                        LocalPlaybackStopped provides stopped,
                     ) {
                         NavigationRoot(
                             hasServers = state.hasServers,
