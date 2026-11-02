@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -204,7 +205,8 @@ private fun EpisodeScreenLayout(
                         verticalAlignment = Alignment.Bottom,
                     ) {
                         episode.premiereDate?.let { premiereDate ->
-                            val dateText = premiereDate.format()
+                            val locale = LocalConfiguration.current.locales.get(0)
+                            val dateText = premiereDate.format(locale)
                             Text(
                                 text = dateText,
                                 modifier = Modifier.copyOnLongClick(dateText),

@@ -428,6 +428,7 @@ constructor(
         itemKind: String,
         startFromBeginning: Boolean,
         mediaSourceId: String? = null,
+        shuffle: Boolean = false,
     ) {
         player.addListener(this)
 
@@ -440,6 +441,7 @@ constructor(
                         itemKind = BaseItemKind.fromName(itemKind),
                         mediaSourceId = mediaSourceId,
                         startFromBeginning = startFromBeginning,
+                        shuffle = shuffle,
                     )
                 } catch (e: Exception) {
                     Timber.e(e)

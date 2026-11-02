@@ -31,6 +31,7 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
         itemKind: BaseItemKind,
         mediaSourceId: String? = null,
         startFromBeginning: Boolean = false,
+        shuffle: Boolean = false,
     ): PlayerItem? {
         Timber.d("Retrieving initial player item")
 
@@ -43,7 +44,31 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
                     movie
                 }
                 BaseItemKind.SERIES -> {
-                    val nextUpEpisode = repository.getNextUp(itemId).firstOrNull()
+                    if (shuffle) {
+                        val allSeasons = repository.getSeasons(itemId)
+                        val seasons = allSeasons.filter { it.indexNumber != 0 }.ifEmpty { allSeasons }
+                        val episodes =
+                            seasons
+                                .flatMap { season ->
+                                    repository
+                                        .getEpisodes(
+                                            seriesId = itemId,
+                                            seasonId = season.id,
+                                            fields = listOf(ItemFields.CHAPTERS, ItemFields.TRICKPLAY),
+                                        )
+                                        .filter { !it.missing }
+                                }
+                                .shuffled()
+
+                        if (episodes.isEmpty()) {
+                            return null
+                        }
+
+                        val episode = episodes.first()
+                        items = episodes
+                        episode
+                    } else {
+                        val nextUpEpisode = repository.getNextUp(itemId).firstOrNull()
 
                     val season =
                         if (nextUpEpisode != null) {
@@ -73,6 +98,7 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
 
                     items = episodes
                     episode
+                    }
                 }
                 BaseItemKind.SEASON -> {
                     val season = repository.getSeason(itemId)
@@ -121,7 +147,7 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
         currentItemIndex = items.indexOfFirst { it.id == initialItem.id }
 
         val playbackPosition =
-            if (!startFromBeginning) initialItem.playbackPositionTicks.div(10000) else 0
+            if (shuffle || startFromBeginning) 0L else initialItem.playbackPositionTicks.div(10000)
         val playerItem = initialItem.toPlayerItem(mediaSourceId, playbackPosition)
         playerItems.add(playerItem)
 

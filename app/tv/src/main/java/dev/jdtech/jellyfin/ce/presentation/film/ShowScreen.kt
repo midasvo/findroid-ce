@@ -81,7 +81,7 @@ import kotlinx.coroutines.launch
 fun ShowScreen(
     showId: UUID,
     navigateToItem: (item: FindroidItem) -> Unit,
-    navigateToPlayer: (itemId: UUID) -> Unit,
+    navigateToPlayer: (itemId: UUID, shuffle: Boolean) -> Unit,
     viewModel: ShowViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -96,7 +96,10 @@ fun ShowScreen(
         onAction = { action ->
             when (action) {
                 is ShowAction.Play -> {
-                    navigateToPlayer(showId)
+                    navigateToPlayer(showId, false)
+                }
+                is ShowAction.Shuffle -> {
+                    navigateToPlayer(showId, true)
                 }
                 is ShowAction.PlayTrailer -> {
                     try {
@@ -250,11 +253,22 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(text = stringResource(id = CoreR.string.play))
                                 }
+                                Button(
+                                    onClick = { onAction(ShowAction.Shuffle) },
+                                    modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 1),
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = CoreR.drawable.ic_shuffle),
+                                        contentDescription = null,
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(text = stringResource(id = CoreR.string.shuffle))
+                                }
                                 show.trailer?.let { trailerUri ->
                                     Button(
                                         onClick = { onAction(ShowAction.PlayTrailer(trailerUri)) },
                                         modifier =
-                                            Modifier.focusPosition(focusPosition, ROW_BUTTONS, 1),
+                                            Modifier.focusPosition(focusPosition, ROW_BUTTONS, 2),
                                     ) {
                                         Icon(
                                             painter = painterResource(id = CoreR.drawable.ic_film),
@@ -271,7 +285,7 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                             false -> onAction(ShowAction.MarkAsPlayed)
                                         }
                                     },
-                                    modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 2),
+                                    modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 3),
                                 ) {
                                     Icon(
                                         painter = painterResource(id = CoreR.drawable.ic_check),
@@ -297,7 +311,7 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                             false -> onAction(ShowAction.MarkAsFavorite)
                                         }
                                     },
-                                    modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 3),
+                                    modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 4),
                                 ) {
                                     Icon(
                                         painter =
