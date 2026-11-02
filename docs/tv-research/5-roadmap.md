@@ -7,7 +7,7 @@ The follow-up issues, in the order from [4-decisions.md](4-decisions.md). All ha
 | Issue | What | Gaps | ADR | Depends on |
 |---|---|---|---|---|
 | [#124](https://github.com/midasvo/findroid-ce/issues/124) | ✅ TV APK in betas, clear file names (done in #143) | G8 | 0005, 0006 | — |
-| [#125](https://github.com/midasvo/findroid-ce/issues/125) | Focus restore helper and the first CE screens (library, show, season) | G1 | 0001, 0003 | — |
+| [#125](https://github.com/midasvo/findroid-ce/issues/125) | ✅ Focus restore helper and the first CE screens (library, show, season) (done in #144) | G1 | 0001, 0003 | — |
 | [#126](https://github.com/midasvo/findroid-ce/issues/126) | Player: seek with the remote, media keys, track dialogs | G2, G3 | 0004 | #133 for the seek settings (or a temporary setting) |
 | [#127](https://github.com/midasvo/findroid-ce/issues/127) | Side navigation drawer and safe-area layout | G9, G10 | 0001, 0002, 0003 | #125 |
 
