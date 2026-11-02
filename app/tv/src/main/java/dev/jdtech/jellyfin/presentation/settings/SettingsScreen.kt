@@ -27,7 +27,6 @@ import dev.jdtech.jellyfin.presentation.settings.components.SettingsGroupCard
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.settings.R as SettingsR
-import dev.jdtech.jellyfin.settings.presentation.enums.DeviceType
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceCategory
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceGroup
 import dev.jdtech.jellyfin.settings.presentation.settings.SettingsAction
@@ -49,7 +48,7 @@ fun SettingsScreen(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(true) { viewModel.loadPreferences(emptyList(), DeviceType.TV) }
+    LaunchedEffect(true) { viewModel.loadPreferences(emptyList()) }
 
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
@@ -93,7 +92,7 @@ fun SettingsScreen(
             when (action) {
                 is SettingsAction.OnUpdate -> {
                     viewModel.onAction(action)
-                    viewModel.loadPreferences(emptyList(), DeviceType.TV)
+                    viewModel.loadPreferences(emptyList())
                 }
                 else -> Unit
             }
