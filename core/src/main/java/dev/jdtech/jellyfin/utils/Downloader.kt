@@ -11,12 +11,15 @@ interface Downloader {
      * below it download as the original. Null = original quality. When resuming
      * an existing partial, the cap the partial was started with (persisted on the
      * source row) wins over this parameter.
+     * [smartQueued] marks the download as queued by Smart Downloads, which lets it remove the
+     * download later; it is stored on the new source row.
      */
     suspend fun downloadItem(
         item: FindroidItem,
         sourceId: String,
         storageIndex: Int = 0,
         maxBitrate: Int? = null,
+        smartQueued: Boolean = false,
     ): Pair<Long, UiText?>
 
     /**
@@ -27,6 +30,7 @@ interface Downloader {
         item: FindroidItem,
         storageIndex: Int = 0,
         maxBitrate: Int? = null,
+        smartQueued: Boolean = false,
     ): Pair<Long, UiText?>
 
     suspend fun cancelDownload(item: FindroidItem, downloadId: Long)
@@ -68,6 +72,8 @@ interface Downloader {
         val downloadId: Long,
         /** Quality cap the download was started with; null = original quality. */
         val maxBitrate: Int?,
+        /** True when Smart Downloads queued it, so it stays removable by Smart Downloads. */
+        val smartQueued: Boolean,
     )
 
     /** A persisted queued-but-not-started download. */
@@ -77,6 +83,8 @@ interface Downloader {
         val addedAt: Long,
         /** Quality cap chosen when the item was queued; null = original quality. */
         val maxBitrate: Int?,
+        /** True when Smart Downloads queued it, so it stays removable by Smart Downloads. */
+        val smartQueued: Boolean,
     )
 
     /**
@@ -88,7 +96,7 @@ interface Downloader {
     suspend fun getActiveDownloads(): List<ActiveDownload>
 
     /** Persists a pending queue entry so it can be re-queued after process death. */
-    suspend fun savePendingDownload(item: FindroidItem, maxBitrate: Int? = null)
+    suspend fun savePendingDownload(item: FindroidItem, maxBitrate: Int? = null, smartQueued: Boolean = false)
 
     /** Removes a persisted pending entry (on start/remove/retry). */
     suspend fun removePendingDownload(itemId: java.util.UUID)

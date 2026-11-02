@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Maksimaalselt samaaegseid allalaadimisi</string>
     <string name="pref_download_sd_card">SD-kaart %1$d (%2$s vaba)</string>
     <string name="pref_download_smart">Nutikad allalaadimised</string>
-    <string name="pref_download_smart_summary">Laadi järgmine episood automaatselt alla, kui eelmine lõpeb</string>
+    <string name="pref_download_smart_summary">Hoiab vaatamisel oleva sarja järgmised osad alla laaditud ja eemaldab enda allalaaditud osad pärast nende vaatamist</string>
+    <string name="pref_download_smart_keep">Valmis hoitavad osad</string>
+    <string name="pref_download_smart_keep_summary">Vaatamata osad, mis jäävad vaatamisel oleva sarja jaoks alla laaditud</string>
     <string name="pref_download_storage_location">Allalaadimiste salvestuskoht</string>
     <string name="pref_download_transcode_dovi">Transkoodi Dolby Visioni allalaadimised</string>
     <string name="pref_download_transcode_dovi_summary">Laadi alla Dolby Visioni failide seadmega ühilduv koopia, et neid saaks võrguühenduseta esitada. Muud failid laaditakse endiselt alla algsel kujul.</string>

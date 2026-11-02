@@ -1,9 +1,13 @@
 package dev.jdtech.jellyfin.repository
 
+import java.util.UUID
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * Tells screens when the player has finished reporting an item. That happens after the player has
@@ -11,13 +15,19 @@ import kotlinx.coroutines.flow.asSharedFlow
  */
 class PlaybackEvents {
     private val _stopped =
-        MutableSharedFlow<Unit>(
-            extraBufferCapacity = 1,
-            onBufferOverflow = BufferOverflow.DROP_OLDEST,
-        )
-    val stopped: SharedFlow<Unit> = _stopped.asSharedFlow()
+        MutableSharedFlow<UUID>(extraBufferCapacity = 8, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    /** Emits the id of the item whose playback stop has been reported. */
+    val stopped: SharedFlow<UUID> = _stopped.asSharedFlow()
 
-    fun onStopped() {
-        _stopped.tryEmit(Unit)
+    private val _playingItemId = MutableStateFlow<UUID?>(null)
+    /** The item the local player has open right now, or null when no player is active. */
+    val playingItemId: StateFlow<UUID?> = _playingItemId.asStateFlow()
+
+    fun onStopped(itemId: UUID) {
+        _stopped.tryEmit(itemId)
+    }
+
+    fun onPlaying(itemId: UUID?) {
+        _playingItemId.value = itemId
     }
 }

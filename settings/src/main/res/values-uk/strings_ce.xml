@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Макс. одночасних завантажень</string>
     <string name="pref_download_sd_card">SD-карта %1$d (%2$s вільно)</string>
     <string name="pref_download_smart">Розумні завантаження</string>
-    <string name="pref_download_smart_summary">Автоматично завантажувати наступну серію після завершення поточної</string>
+    <string name="pref_download_smart_summary">Тримає завантаженими наступні серії серіалу, який ви дивитеся, і видаляє завантажені ним серії після перегляду</string>
+    <string name="pref_download_smart_keep">Серій про запас</string>
+    <string name="pref_download_smart_keep_summary">Непереглянуті серії, які залишаються завантаженими для серіалу, який ви дивитеся</string>
     <string name="pref_download_storage_location">Місце збереження завантажень</string>
     <string name="pref_download_transcode_dovi">Транскодувати завантаження Dolby Vision</string>
     <string name="pref_download_transcode_dovi_summary">Завантажувати сумісну з пристроєм копію файлів Dolby Vision для відтворення офлайн. Інші файли завантажуються як оригінал.</string>

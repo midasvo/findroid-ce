@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">מספר הורדות מקבילות מרבי</string>
     <string name="pref_download_sd_card">כרטיס SD %1$d (%2$s פנויים)</string>
     <string name="pref_download_smart">הורדות חכמות</string>
-    <string name="pref_download_smart_summary">הורד אוטומטית את הפרק הבא כשפרק מסתיים</string>
+    <string name="pref_download_smart_summary">שומר מורדות את הפרקים הבאים של סדרה שאתם צופים בה, ומסיר את אלה שהוא הוריד לאחר שצפיתם בהם</string>
+    <string name="pref_download_smart_keep">פרקים להכנה מראש</string>
+    <string name="pref_download_smart_keep_summary">פרקים שלא נצפו שיישארו מורדים עבור סדרה שאתם צופים בה</string>
     <string name="pref_download_storage_location">מיקום אחסון ההורדות</string>
     <string name="pref_download_transcode_dovi">קודד מחדש הורדות Dolby Vision</string>
     <string name="pref_download_transcode_dovi_summary">הורד עותק תואם למכשיר של קובצי Dolby Vision כדי שיוכלו לפעול במצב לא מקוון. קבצים אחרים עדיין יורדו באיכות המקורית.</string>

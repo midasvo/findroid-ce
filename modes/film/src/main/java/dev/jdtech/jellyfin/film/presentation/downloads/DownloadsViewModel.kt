@@ -155,7 +155,7 @@ constructor(
             val finalPath = src.path.removeSuffix(".download")
             val finalFile = File(finalPath)
             if (finalFile.exists() && finalFile.length() > 0) {
-                database.setSourcePath(src.id, finalPath)
+                database.setSourceDownloaded(src.id, finalPath, System.currentTimeMillis())
                 File(src.path).takeIf { it.exists() }?.delete()
             }
         }

@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">最大同時ダウンロード数</string>
     <string name="pref_download_sd_card">SDカード %1$d（空き %2$s）</string>
     <string name="pref_download_smart">スマートダウンロード</string>
-    <string name="pref_download_smart_summary">エピソードの視聴が完了したら、次のエピソードを自動的にダウンロードします</string>
+    <string name="pref_download_smart_summary">視聴中のシリーズの次のエピソードをダウンロードしたままにし、視聴後に自動でダウンロードした分を削除します</string>
+    <string name="pref_download_smart_keep">準備しておくエピソード数</string>
+    <string name="pref_download_smart_keep_summary">視聴中のシリーズで、ダウンロードしたままにする未視聴エピソード</string>
     <string name="pref_download_storage_location">ダウンロード保存先</string>
     <string name="pref_download_transcode_dovi">Dolby Vision のダウンロードをトランスコード</string>
     <string name="pref_download_transcode_dovi_summary">オフラインで再生できるように、Dolby Vision ファイルを端末と互換性のある形式でダウンロードします。その他のファイルはオリジナルのままダウンロードされます。</string>

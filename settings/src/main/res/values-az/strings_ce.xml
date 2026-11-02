@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Maksimal eyni vaxtda endirmə sayı</string>
     <string name="pref_download_sd_card">SD kart %1$d (%2$s boş)</string>
     <string name="pref_download_smart">Ağıllı endirmələr</string>
-    <string name="pref_download_smart_summary">Bir seriya bitdikdə növbəti seriyanı avtomatik endir</string>
+    <string name="pref_download_smart_summary">İzlədiyiniz serialın növbəti epizodlarını yüklənmiş saxla və izlədikdən sonra özünün yüklədiklərini sil</string>
+    <string name="pref_download_smart_keep">Hazır saxlanacaq epizodlar</string>
+    <string name="pref_download_smart_keep_summary">İzlədiyiniz serial üçün yüklənmiş saxlanacaq izlənməmiş epizodlar</string>
     <string name="pref_download_storage_location">Endirmə yaddaşının yeri</string>
     <string name="pref_download_transcode_dovi">Dolby Vision endirmələrini transkodlaşdır</string>
     <string name="pref_download_transcode_dovi_summary">Oflayn oxutmaq üçün Dolby Vision fayllarının cihazla uyğun surətini endirin. Digər fayllar orijinal kimi endirilir.</string>

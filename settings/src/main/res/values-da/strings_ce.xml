@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Maks. samtidige downloads</string>
     <string name="pref_download_sd_card">SD-kort %1$d (%2$s ledig)</string>
     <string name="pref_download_smart">Smarte downloads</string>
-    <string name="pref_download_smart_summary">Download automatisk næste episode, når en er færdig</string>
+    <string name="pref_download_smart_summary">Hold de næste afsnit af en serie, du ser, downloadet, og fjern dem, den har downloadet, når du har set dem</string>
+    <string name="pref_download_smart_keep">Afsnit der skal holdes klar</string>
+    <string name="pref_download_smart_keep_summary">Ikke sete afsnit, der skal holdes downloadet for en serie, du ser</string>
     <string name="pref_download_storage_location">Lagerplacering for downloads</string>
     <string name="pref_download_transcode_dovi">Transkod Dolby Vision-downloads</string>
     <string name="pref_download_transcode_dovi_summary">Download en enhedskompatibel kopi af Dolby Vision-filer, så de kan afspilles offline. Andre filer downloades stadig som den oprindelige.</string>

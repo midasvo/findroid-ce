@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Số lượng tải về đồng thời tối đa</string>
     <string name="pref_download_sd_card">Thẻ SD %1$d (trống %2$s)</string>
     <string name="pref_download_smart">Tải về thông minh</string>
-    <string name="pref_download_smart_summary">Tự động tải về tập tiếp theo khi một tập kết thúc</string>
+    <string name="pref_download_smart_summary">Giữ các tập tiếp theo của bộ phim bạn đang xem ở trạng thái đã tải xuống và xóa những tập do ứng dụng tải sau khi bạn đã xem</string>
+    <string name="pref_download_smart_keep">Số tập giữ sẵn</string>
+    <string name="pref_download_smart_keep_summary">Các tập chưa xem được giữ lại đã tải xuống cho bộ phim bạn đang xem</string>
     <string name="pref_download_storage_location">Vị trí lưu trữ bản tải về</string>
     <string name="pref_download_transcode_dovi">Chuyển mã bản tải về Dolby Vision</string>
     <string name="pref_download_transcode_dovi_summary">Tải về bản sao tương thích với thiết bị của các tệp Dolby Vision để phát ngoại tuyến. Các tệp khác được tải về ở định dạng gốc.</string>

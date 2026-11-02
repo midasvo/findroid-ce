@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">最大并发下载数</string>
     <string name="pref_download_sd_card">SD 卡 %1$d（剩余 %2$s）</string>
     <string name="pref_download_smart">智能下载</string>
-    <string name="pref_download_smart_summary">看完一集后自动下载下一集</string>
+    <string name="pref_download_smart_summary">为你正在观看的剧集保持下载后续几集，并在你看完后删除由其下载的剧集</string>
+    <string name="pref_download_smart_keep">预先准备的剧集数</string>
+    <string name="pref_download_smart_keep_summary">为你正在观看的剧集保持下载的未观看剧集数</string>
     <string name="pref_download_storage_location">下载存储位置</string>
     <string name="pref_download_transcode_dovi">转码杜比视界下载项</string>
     <string name="pref_download_transcode_dovi_summary">下载与设备兼容的杜比视界文件副本以便离线播放。其他文件仍将按原始格式下载。</string>

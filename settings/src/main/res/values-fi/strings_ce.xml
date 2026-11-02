@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Samanaikaisten latausten enimmäismäärä</string>
     <string name="pref_download_sd_card">SD-kortti %1$d (%2$s vapaana)</string>
     <string name="pref_download_smart">Älykkäät lataukset</string>
-    <string name="pref_download_smart_summary">Lataa seuraava jakso automaattisesti edellisen päätyttyä</string>
+    <string name="pref_download_smart_summary">Pitää katsomasi sarjan seuraavat jaksot ladattuina ja poistaa itse lataamansa jaksot, kun olet katsonut ne</string>
+    <string name="pref_download_smart_keep">Valmiina pidettävät jaksot</string>
+    <string name="pref_download_smart_keep_summary">Katsomattomat jaksot, jotka pidetään ladattuina katsomallesi sarjalle</string>
     <string name="pref_download_storage_location">Latausten tallennussijainti</string>
     <string name="pref_download_transcode_dovi">Muunna Dolby Vision -lataukset</string>
     <string name="pref_download_transcode_dovi_summary">Lataa laiteyhteensopiva kopio Dolby Vision -tiedostoista, jotta ne voidaan toistaa ilman verkkoyhteyttä. Muut tiedostot ladataan edelleen alkuperäisinä.</string>

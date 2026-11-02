@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Maksimum unduhan bersamaan</string>
     <string name="pref_download_sd_card">Kartu SD %1$d (%2$s kosong)</string>
     <string name="pref_download_smart">Unduhan pintar</string>
-    <string name="pref_download_smart_summary">Unduh episode berikutnya secara otomatis saat satu episode selesai</string>
+    <string name="pref_download_smart_summary">Pertahankan episode berikutnya dari serial yang Anda tonton tetap terunduh, lalu hapus yang diunduhnya setelah Anda menontonnya</string>
+    <string name="pref_download_smart_keep">Episode yang disiapkan</string>
+    <string name="pref_download_smart_keep_summary">Episode belum ditonton yang tetap diunduh untuk serial yang Anda tonton</string>
     <string name="pref_download_storage_location">Lokasi penyimpanan unduhan</string>
     <string name="pref_download_transcode_dovi">Transkode unduhan Dolby Vision</string>
     <string name="pref_download_transcode_dovi_summary">Unduh salinan file Dolby Vision yang kompatibel dengan perangkat agar dapat diputar secara offline. File lain diunduh sebagai asli.</string>
