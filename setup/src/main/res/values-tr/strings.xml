@@ -31,10 +31,10 @@
     <string name="servers">Sunucular</string>
     <string name="servers_no_servers">Sunucu bulunamadı</string>
     <string name="servers_btn_add_server">Sunucu ekle</string>
-    <string name="welcome">Findroid\'e Hoş Geldiniz</string>
+    <string name="welcome">Findroid CE\'ye Hoş Geldiniz</string>
     <string name="welcome_btn_continue">Devam et</string>
     <string name="welcome_btn_learn_more">Jellyfin hakkında daha fazla bilgi edin</string>
-    <string name="welcome_text">Findroid üçüncü pari Jellyfin istemcisidir. Findroid kendi başına hiçbir içerik barındırmamamktadır.\n\nBu istemciyi kullanabilmek için, Kendi Jellyfin sunucunuzu kurmalısınız.</string>
+    <string name="welcome_text">Findroid CE üçüncü parti Jellyfin istemcisidir. Findroid CE kendi başına hiçbir içerik barındırmamamktadır.\n\nBu istemciyi kullanabilmek için, Kendi Jellyfin sunucunuzu kurmalısınız.</string>
     <string name="confirm">Onayla</string>
     <string name="cancel">İptal et</string>
     <string name="or">veya</string>

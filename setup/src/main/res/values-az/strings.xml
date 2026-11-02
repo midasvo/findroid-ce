@@ -21,10 +21,10 @@
     <string name="servers_btn_add_server">Server əlavə edin</string>
     <string name="remove_server_dialog">Serveri silin</string>
     <string name="remove_server_dialog_text">%s serverini silmək istədiyinizə əminsinizmi?</string>
-    <string name="welcome">Findroidə Xoş Gəldiniz</string>
+    <string name="welcome">Findroid CE-yə Xoş Gəldiniz</string>
     <string name="welcome_btn_continue">Davam et</string>
     <string name="welcome_btn_learn_more">Jellyfin haqqında daha çox məlumat əldə edin</string>
-    <string name="welcome_text">Findroid, Jellyfin üçün üçüncü tərəf klientidir. Findroid özlüyündə heç bir media saxlamır.\n\nBu klientdən istifadə etmək üçün öz Jellyfin serverinizə sahib olmalısınız.</string>
+    <string name="welcome_text">Findroid CE, Jellyfin üçün üçüncü tərəf klientidir. Findroid CE özlüyündə heç bir media saxlamır.\n\nBu klientdən istifadə etmək üçün öz Jellyfin serverinizə sahib olmalısınız.</string>
     <string name="confirm">Təstiq et</string>
     <string name="cancel">Ləğv et</string>
     <string name="or">və ya</string>
