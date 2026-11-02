@@ -2,12 +2,14 @@ package dev.jdtech.jellyfin.ce.presentation.main
 
 import android.app.Application
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -19,6 +21,7 @@ import dev.jdtech.jellyfin.core.presentation.dummy.dummyCollections
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyServer
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyUser
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -46,7 +49,9 @@ class MainScreenTest {
                     libraries = dummyCollections,
                     navigateToSettings = { settingsOpened = true },
                     navigateToUsers = { usersOpened = true },
-                    homeContent = { Box(Modifier.fillMaxSize().testTag("home_screen_content")) },
+                    homeContent = {
+                        Box(Modifier.fillMaxSize().testTag("home_screen_content").focusable())
+                    },
                     libraryContent = { Box(Modifier.fillMaxSize().testTag("library_screen_content_${it.id}")) },
                 )
             }
@@ -137,5 +142,50 @@ class MainScreenTest {
         // Should return to Home
         rule.onNode(hasTestTag("placeholder_search")).assertDoesNotExist()
         rule.onNodeWithTag("home_screen_content").assertIsDisplayed()
+    }
+
+    private fun pressBack() {
+        rule.activityRule.scenario.onActivity { activity ->
+            activity.onBackPressedDispatcher.onBackPressed()
+        }
+        rule.waitForIdle()
+    }
+
+    @Test
+    fun selectingADestinationMovesFocusIntoTheContent() {
+        setUpMainScreen()
+        rule.waitForIdle()
+
+        selectDrawerItem("drawer_item_search")
+        rule.onNodeWithTag("placeholder_search").assertIsFocused()
+    }
+
+    @Test
+    fun backFromTheContentOfADestinationFocusesHome() {
+        setUpMainScreen()
+        rule.waitForIdle()
+        selectDrawerItem("drawer_item_favorites")
+        rule.onNodeWithTag("placeholder_favorites").assertIsFocused()
+
+        // The focused placeholder leaves the composition: focus must not get lost.
+        pressBack()
+        rule.onNodeWithTag("home_screen_content").assertIsFocused()
+    }
+
+    @Test
+    fun backOnHomeOpensTheDrawerOnHomeAndASecondBackExits() {
+        setUpMainScreen()
+        rule.waitForIdle()
+        rule.onNodeWithTag("home_screen_content").requestFocus()
+
+        pressBack()
+        rule.onNodeWithTag("drawer_item_home").assertIsFocused()
+        var finishing = false
+        rule.activityRule.scenario.onActivity { finishing = it.isFinishing }
+        assertFalse(finishing)
+
+        pressBack()
+        rule.activityRule.scenario.onActivity { finishing = it.isFinishing }
+        assertTrue(finishing)
     }
 }

@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,9 +29,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.focusGroup
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
@@ -61,7 +63,6 @@ import dev.jdtech.jellyfin.models.User
 import dev.jdtech.jellyfin.presentation.film.HomeScreen
 import dev.jdtech.jellyfin.viewmodels.MainViewModel
 import java.util.UUID
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jellyfin.sdk.model.api.BaseItemKind
 
@@ -106,8 +107,6 @@ fun MainScreen(
         server = normal.server
     }
 
-    var isLoading by remember { mutableStateOf(false) }
-
     MainScreenLayout(
         user = user,
         server = server,
@@ -119,7 +118,7 @@ fun MainScreen(
                 navigateToMovie = navigateToMovie,
                 navigateToShow = navigateToShow,
                 navigateToPlayer = navigateToPlayer,
-                isLoading = { isLoading = it },
+                isLoading = {},
             )
         },
         libraryContent = { library ->
@@ -140,6 +139,9 @@ const val DESTINATION_SEARCH = "search"
 const val DESTINATION_FAVORITES = "favorites"
 fun libraryDestinationKey(libraryId: UUID): String = "library:$libraryId"
 
+private const val ITEM_PROFILE = "profile"
+private const val ITEM_SETTINGS = "settings"
+
 val ClosedDrawerWidth = 80.dp
 
 @Composable
@@ -158,32 +160,48 @@ fun MainScreenLayout(
     var activeDestinationKey by rememberSaveable { mutableStateOf(DESTINATION_HOME) }
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val saveableStateHolder = rememberSaveableStateHolder()
+    val profileFocusRequester = remember { FocusRequester() }
     val homeFocusRequester = remember { FocusRequester() }
     val settingsFocusRequester = remember { FocusRequester() }
-    var focusSettingsOnResume by rememberSaveable { mutableStateOf(false) }
+    val contentFocusRequester = remember { FocusRequester() }
+    // The drawer item that opened another route (profile or settings). This screen leaves the
+    // composition while that route is shown, so the effect below runs again on the way back.
+    var returnFocusTo by rememberSaveable { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(focusSettingsOnResume) {
-        if (focusSettingsOnResume) {
-            delay(100)
-            try {
-                settingsFocusRequester.requestFocus()
-            } catch (_: Exception) {}
-            focusSettingsOnResume = false
-        }
+    LaunchedEffect(Unit) {
+        val item = returnFocusTo ?: return@LaunchedEffect
+        returnFocusTo = null
+        val requester = if (item == ITEM_PROFILE) profileFocusRequester else settingsFocusRequester
+        requestFocusWhenReady(requester)
     }
 
     val isDrawerOpen = drawerState.currentValue == DrawerValue.Open
     val isHome = activeDestinationKey == DESTINATION_HOME
 
+    // Shows [key] and moves focus into it, so focus never stays on a node that just left the
+    // composition. While the destination has nothing focusable yet (still loading), focus goes to
+    // [fallback] in the drawer instead.
+    fun showDestination(key: String, fallback: FocusRequester?) {
+        activeDestinationKey = key
+        coroutineScope.launch {
+            withFrameNanos {}
+            if (!contentFocusRequester.tryRequestFocus()) {
+                fallback?.tryRequestFocus()
+            }
+        }
+    }
+
     BackHandler(enabled = true) {
         when {
-            !isHome -> {
+            !isHome && isDrawerOpen -> {
                 activeDestinationKey = DESTINATION_HOME
+                homeFocusRequester.tryRequestFocus()
             }
+            !isHome -> showDestination(DESTINATION_HOME, fallback = homeFocusRequester)
             !isDrawerOpen -> {
                 coroutineScope.launch {
                     drawerState.setValue(DrawerValue.Open)
-                    homeFocusRequester.requestFocus()
+                    homeFocusRequester.tryRequestFocus()
                 }
             }
             else -> {
@@ -207,7 +225,10 @@ fun MainScreenLayout(
                 // Profile header: user + server, OK opens user switch
                 NavigationDrawerItem(
                     selected = false,
-                    onClick = navigateToUsers,
+                    onClick = {
+                        returnFocusTo = ITEM_PROFILE
+                        navigateToUsers()
+                    },
                     leadingContent = {
                         Icon(
                             painter = painterResource(id = CoreR.drawable.ic_user),
@@ -215,7 +236,9 @@ fun MainScreenLayout(
                             modifier = Modifier.size(24.dp),
                         )
                     },
-                    modifier = Modifier.testTag("drawer_item_profile"),
+                    modifier =
+                        Modifier.focusRequester(profileFocusRequester)
+                            .testTag("drawer_item_profile"),
                 ) {
                     Column(modifier = Modifier.padding(start = 8.dp)) {
                         Text(
@@ -249,10 +272,7 @@ fun MainScreenLayout(
                     item(key = DESTINATION_SEARCH) {
                         NavigationDrawerItem(
                             selected = activeDestinationKey == DESTINATION_SEARCH,
-                            onClick = {
-                                activeDestinationKey = DESTINATION_SEARCH
-                                coroutineScope.launch { drawerState.setValue(DrawerValue.Closed) }
-                            },
+                            onClick = { showDestination(DESTINATION_SEARCH, fallback = null) },
                             leadingContent = {
                                 Icon(
                                     painter = painterResource(id = CoreR.drawable.ic_search),
@@ -273,10 +293,7 @@ fun MainScreenLayout(
                     item(key = DESTINATION_HOME) {
                         NavigationDrawerItem(
                             selected = activeDestinationKey == DESTINATION_HOME,
-                            onClick = {
-                                activeDestinationKey = DESTINATION_HOME
-                                coroutineScope.launch { drawerState.setValue(DrawerValue.Closed) }
-                            },
+                            onClick = { showDestination(DESTINATION_HOME, fallback = null) },
                             leadingContent = {
                                 Icon(
                                     painter = painterResource(id = CoreR.drawable.ic_home),
@@ -299,10 +316,7 @@ fun MainScreenLayout(
                     item(key = DESTINATION_FAVORITES) {
                         NavigationDrawerItem(
                             selected = activeDestinationKey == DESTINATION_FAVORITES,
-                            onClick = {
-                                activeDestinationKey = DESTINATION_FAVORITES
-                                coroutineScope.launch { drawerState.setValue(DrawerValue.Closed) }
-                            },
+                            onClick = { showDestination(DESTINATION_FAVORITES, fallback = null) },
                             leadingContent = {
                                 Icon(
                                     painter = painterResource(id = CoreR.drawable.ic_heart),
@@ -324,10 +338,7 @@ fun MainScreenLayout(
                         val itemKey = libraryDestinationKey(library.id)
                         NavigationDrawerItem(
                             selected = activeDestinationKey == itemKey,
-                            onClick = {
-                                activeDestinationKey = itemKey
-                                coroutineScope.launch { drawerState.setValue(DrawerValue.Closed) }
-                            },
+                            onClick = { showDestination(itemKey, fallback = null) },
                             leadingContent = {
                                 Icon(
                                     painter = painterResource(id = library.type.drawerIconRes()),
@@ -354,7 +365,7 @@ fun MainScreenLayout(
                 NavigationDrawerItem(
                     selected = false,
                     onClick = {
-                        focusSettingsOnResume = true
+                        returnFocusTo = ITEM_SETTINGS
                         navigateToSettings()
                     },
                     leadingContent = {
@@ -378,7 +389,13 @@ fun MainScreenLayout(
         },
         modifier = modifier.fillMaxSize(),
     ) {
-        Box(modifier = Modifier.fillMaxSize().padding(start = ClosedDrawerWidth)) {
+        Box(
+            modifier =
+                Modifier.fillMaxSize()
+                    .padding(start = ClosedDrawerWidth)
+                    .focusRequester(contentFocusRequester)
+                    .focusGroup()
+        ) {
             saveableStateHolder.SaveableStateProvider(activeDestinationKey) {
                 when {
                     activeDestinationKey == DESTINATION_HOME -> {
@@ -409,6 +426,22 @@ fun MainScreenLayout(
                 }
             }
         }
+    }
+}
+
+/** Requests focus, or returns false when [this] is not attached or nothing can take focus. */
+private fun FocusRequester.tryRequestFocus(): Boolean =
+    try {
+        requestFocus(FocusDirection.Enter)
+    } catch (_: IllegalStateException) {
+        false
+    }
+
+/** Retries for a few frames, until the target has been laid out. */
+private suspend fun requestFocusWhenReady(requester: FocusRequester) {
+    repeat(10) {
+        withFrameNanos {}
+        if (requester.tryRequestFocus()) return
     }
 }
 

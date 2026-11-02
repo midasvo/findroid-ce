@@ -24,9 +24,9 @@ import dev.jdtech.jellyfin.settings.R as SettingsR
 import dev.jdtech.jellyfin.settings.domain.models.Preference as PreferenceBackend
 import dev.jdtech.jellyfin.settings.presentation.models.Preference
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceCategory
+import dev.jdtech.jellyfin.settings.presentation.models.PreferenceGroup
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceIntInput
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceLongInput
-import dev.jdtech.jellyfin.settings.presentation.models.PreferenceGroup
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceMultiSelect
 import dev.jdtech.jellyfin.settings.presentation.models.PreferencePermission
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceSelect
@@ -98,23 +98,16 @@ fun SettingsGroupCard(
                                         onFocusChange(it, preference)
                                     },
                             )
+                        // CE (#127): number inputs have no TV editor yet, so they show
+                        // their value read-only instead of being left out of the list.
                         is PreferenceIntInput ->
                             SettingsSelectCard(
                                 preference =
-                                    PreferenceSelect(
-                                        nameStringResource = preference.nameStringResource,
-                                        descriptionStringRes = preference.descriptionStringRes,
-                                        iconDrawableId = preference.iconDrawableId,
-                                        enabled = preference.enabled,
-                                        backendPreference = PreferenceBackend("", ""),
-                                        options = 0,
-                                        optionValues = 0,
-                                        value =
-                                            listOf(
-                                                preference.prefixRes?.let { stringResource(it) },
-                                                preference.value.takeIf { it >= 0 }?.toString(),
-                                                preference.suffixRes?.let { stringResource(it) },
-                                            ).filterNotNull().joinToString(" "),
+                                    readOnlyValue(
+                                        preference,
+                                        preference.value.toLong(),
+                                        preference.prefixRes,
+                                        preference.suffixRes,
                                     ),
                                 onClick = {},
                                 modifier =
@@ -125,20 +118,11 @@ fun SettingsGroupCard(
                         is PreferenceLongInput ->
                             SettingsSelectCard(
                                 preference =
-                                    PreferenceSelect(
-                                        nameStringResource = preference.nameStringResource,
-                                        descriptionStringRes = preference.descriptionStringRes,
-                                        iconDrawableId = preference.iconDrawableId,
-                                        enabled = preference.enabled,
-                                        backendPreference = PreferenceBackend("", ""),
-                                        options = 0,
-                                        optionValues = 0,
-                                        value =
-                                            listOf(
-                                                preference.prefixRes?.let { stringResource(it) },
-                                                preference.value.takeIf { it >= 0 }?.toString(),
-                                                preference.suffixRes?.let { stringResource(it) },
-                                            ).filterNotNull().joinToString(" "),
+                                    readOnlyValue(
+                                        preference,
+                                        preference.value,
+                                        preference.prefixRes,
+                                        preference.suffixRes,
                                     ),
                                 onClick = {},
                                 modifier =
@@ -163,6 +147,31 @@ fun SettingsGroupCard(
         }
     }
 }
+
+/** CE (#127): a [PreferenceSelect] without options that only shows [value]. */
+@Composable
+private fun readOnlyValue(
+    preference: Preference,
+    value: Long,
+    prefixRes: Int?,
+    suffixRes: Int?,
+): PreferenceSelect =
+    PreferenceSelect(
+        nameStringResource = preference.nameStringResource,
+        descriptionStringRes = preference.descriptionStringRes,
+        iconDrawableId = preference.iconDrawableId,
+        enabled = preference.enabled,
+        backendPreference = PreferenceBackend("", ""),
+        options = 0,
+        optionValues = 0,
+        value =
+            listOfNotNull(
+                    prefixRes?.let { stringResource(it) },
+                    value.takeIf { it >= 0 }?.toString(),
+                    suffixRes?.let { stringResource(it) },
+                )
+                .joinToString(" "),
+    )
 
 @Preview
 @Composable
