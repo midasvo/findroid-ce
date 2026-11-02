@@ -839,6 +839,21 @@ class SettingsViewModel @Inject constructor(
                                                 )
                                             ),
                                     ),
+                                    PreferenceGroup(
+                                        nameStringResource = R.string.pref_player_background_group,
+                                        preferences =
+                                            listOf(
+                                                PreferenceSwitch(
+                                                    nameStringResource =
+                                                        R.string.pref_player_background_audio,
+                                                    descriptionStringRes =
+                                                        R.string.pref_player_background_audio_summary,
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
+                                                    backendPreference =
+                                                        appPreferences.playerBackgroundAudio,
+                                                ),
+                                            ),
+                                    ),
                                 ),
                         )
                     )

@@ -82,4 +82,7 @@
     <string name="home_next_up_max_days_suffix">дни</string>
     <string name="settings_image_display_size_title">Зареждане на изображенията в размера на показване</string>
     <string name="settings_image_display_size_summary">Изисквай от сървъра изображения в размера, в който се показват. Използва по-малко данни, но сървърът трябва да преоразмери всяко изображение първия път.</string>
+    <string name="pref_player_background_group">Възпроизвеждане на заден план</string>
+    <string name="pref_player_background_audio">Възпроизвеждане на заден план</string>
+    <string name="pref_player_background_audio_summary">Звукът продължава, когато екранът е изключен, когато излезете от приложението и когато затворите прозореца картина в картина</string>
 </resources>

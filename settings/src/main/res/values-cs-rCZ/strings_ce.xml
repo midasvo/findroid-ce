@@ -82,4 +82,7 @@
     <string name="home_next_up_max_days_suffix">dní</string>
     <string name="settings_image_display_size_title">Načítat obrázky ve velikosti zobrazení</string>
     <string name="settings_image_display_size_summary">Žádat server o obrázky ve velikosti, v jaké se zobrazují. Spotřebuje méně dat, ale server musí každý obrázek poprvé zmenšit.</string>
+    <string name="pref_player_background_group">Přehrávání na pozadí</string>
+    <string name="pref_player_background_audio">Přehrávat na pozadí</string>
+    <string name="pref_player_background_audio_summary">Zvuk se přehrává dál při vypnuté obrazovce, po opuštění aplikace i po zavření okna obraz v obraze</string>
 </resources>

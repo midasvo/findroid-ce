@@ -82,4 +82,7 @@
     <string name="home_next_up_max_days_suffix">jours</string>
     <string name="settings_image_display_size_title">Charger les images à la taille d\'affichage</string>
     <string name="settings_image_display_size_summary">Demander au serveur les images à la taille où elles sont affichées. Utilise moins de données, mais le serveur doit redimensionner chaque image la première fois.</string>
+    <string name="pref_player_background_group">Lecture en arrière-plan</string>
+    <string name="pref_player_background_audio">Lire en arrière-plan</string>
+    <string name="pref_player_background_audio_summary">Continue la lecture du son lorsque l\'écran est éteint, que vous quittez l\'application ou que vous fermez la fenêtre image dans l\'image</string>
 </resources>

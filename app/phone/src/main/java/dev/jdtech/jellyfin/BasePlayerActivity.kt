@@ -8,25 +8,17 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updatePadding
-import androidx.media3.session.MediaSession
 import dev.jdtech.jellyfin.player.local.presentation.PlayerViewModel
 
 abstract class BasePlayerActivity : AppCompatActivity() {
 
     abstract val viewModel: PlayerViewModel
 
-    private lateinit var mediaSession: MediaSession
     private var wasPip: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        mediaSession = MediaSession.Builder(this, viewModel.player).build()
     }
 
     override fun onResume() {
@@ -47,7 +39,9 @@ abstract class BasePlayerActivity : AppCompatActivity() {
             wasPip = true
         } else {
             viewModel.playWhenReady = viewModel.player.playWhenReady
-            viewModel.player.playWhenReady = false
+            if (!viewModel.isBackgroundAudioEnabled) {
+                viewModel.player.playWhenReady = false
+            }
             viewModel.updatePlaybackProgress()
         }
     }
@@ -55,10 +49,14 @@ abstract class BasePlayerActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
 
-        mediaSession.release()
-
         if (wasPip) {
-            finish()
+            if (viewModel.isBackgroundAudioEnabled && viewModel.player.isPlaying) {
+                // PiP was closed while playing: carry on as background audio. The media
+                // notification brings the player back.
+                wasPip = false
+            } else {
+                finish()
+            }
         }
     }
 

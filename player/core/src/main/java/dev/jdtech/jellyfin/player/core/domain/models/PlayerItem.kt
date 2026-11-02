@@ -1,5 +1,6 @@
 package dev.jdtech.jellyfin.player.core.domain.models
 
+import android.net.Uri
 import android.os.Parcelable
 import java.util.UUID
 import kotlinx.parcelize.Parcelize
@@ -19,4 +20,8 @@ data class PlayerItem(
     val externalSubtitles: List<ExternalSubtitle> = emptyList(),
     val chapters: List<PlayerChapter> = emptyList(),
     val trickplayInfo: TrickplayInfo? = null,
+    /** Show name for episodes, shown in the media notification. */
+    val seriesName: String? = null,
+    /** Server URL, or a path relative to filesDir for downloaded items. */
+    val artworkUri: Uri? = null,
 ) : Parcelable

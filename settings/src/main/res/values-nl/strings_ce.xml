@@ -82,4 +82,7 @@
     <string name="home_next_up_max_days_suffix">dagen</string>
     <string name="settings_image_display_size_title">Afbeeldingen laden op weergavegrootte</string>
     <string name="settings_image_display_size_summary">Vraag de server om afbeeldingen op de grootte waarop ze worden getoond. Gebruikt minder data, maar de server moet elke afbeelding de eerste keer verkleinen.</string>
+    <string name="pref_player_background_group">Afspelen op de achtergrond</string>
+    <string name="pref_player_background_audio">Op de achtergrond afspelen</string>
+    <string name="pref_player_background_audio_summary">Laat het geluid doorspelen als het scherm uit gaat, als je de app verlaat en als je het beeld-in-beeld-venster sluit</string>
 </resources>

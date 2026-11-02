@@ -82,4 +82,7 @@
     <string name="home_next_up_max_days_suffix">दिन</string>
     <string name="settings_image_display_size_title">छवियाँ प्रदर्शन आकार में लोड करें</string>
     <string name="settings_image_display_size_summary">सर्वर से छवियाँ उसी आकार में माँगें जिसमें वे दिखाई जाती हैं। कम डेटा लगता है, लेकिन सर्वर को हर छवि का आकार पहली बार बदलना पड़ता है।</string>
+    <string name="pref_player_background_group">बैकग्राउंड प्लेबैक</string>
+    <string name="pref_player_background_audio">बैकग्राउंड में चलाएँ</string>
+    <string name="pref_player_background_audio_summary">स्क्रीन बंद होने, ऐप छोड़ने और पिक्चर-इन-पिक्चर विंडो बंद करने पर भी ऑडियो चलता रहेगा</string>
 </resources>

@@ -82,4 +82,7 @@
     <string name="home_next_up_max_days_suffix">dagar</string>
     <string name="settings_image_display_size_title">Last inn bilete i visingsstorleik</string>
     <string name="settings_image_display_size_summary">Be tenaren om bilete i storleiken dei blir viste i. Brukar mindre data, men tenaren må endre storleiken på kvart bilete første gongen.</string>
+    <string name="pref_player_background_group">Avspeling i bakgrunnen</string>
+    <string name="pref_player_background_audio">Spel av i bakgrunnen</string>
+    <string name="pref_player_background_audio_summary">Lyden held fram når skjermen er av, når du forlèt appen og når du lukkar bilete-i-bilete-vindauget</string>
 </resources>

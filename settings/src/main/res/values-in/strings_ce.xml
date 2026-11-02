@@ -82,4 +82,7 @@
     <string name="home_next_up_max_days_suffix">hari</string>
     <string name="settings_image_display_size_title">Muat gambar sesuai ukuran tampilan</string>
     <string name="settings_image_display_size_summary">Minta gambar dari server dalam ukuran saat ditampilkan. Menggunakan lebih sedikit data, tetapi server harus mengubah ukuran setiap gambar pada kali pertama.</string>
+    <string name="pref_player_background_group">Pemutaran latar belakang</string>
+    <string name="pref_player_background_audio">Putar di latar belakang</string>
+    <string name="pref_player_background_audio_summary">Audio tetap diputar saat layar mati, saat Anda keluar dari aplikasi, dan saat jendela picture-in-picture ditutup</string>
 </resources>

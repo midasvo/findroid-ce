@@ -82,4 +82,7 @@
     <string name="home_next_up_max_days_suffix">gün</string>
     <string name="settings_image_display_size_title">Görselleri görüntüleme boyutunda yükle</string>
     <string name="settings_image_display_size_summary">Sunucudan görselleri gösterildikleri boyutta iste. Daha az veri kullanır, ancak sunucunun her görseli ilk seferde yeniden boyutlandırması gerekir.</string>
+    <string name="pref_player_background_group">Arka planda oynatma</string>
+    <string name="pref_player_background_audio">Arka planda oynat</string>
+    <string name="pref_player_background_audio_summary">Ekran kapandığında, uygulamadan çıktığınızda ve pencere içinde pencere kapatıldığında ses çalmaya devam eder</string>
 </resources>

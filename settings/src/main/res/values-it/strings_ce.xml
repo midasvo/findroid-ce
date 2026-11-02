@@ -82,4 +82,7 @@
     <string name="home_next_up_max_days_suffix">giorni</string>
     <string name="settings_image_display_size_title">Carica le immagini alla dimensione di visualizzazione</string>
     <string name="settings_image_display_size_summary">Chiedi al server le immagini alla dimensione in cui vengono mostrate. Usa meno dati, ma il server deve ridimensionare ogni immagine la prima volta.</string>
+    <string name="pref_player_background_group">Riproduzione in background</string>
+    <string name="pref_player_background_audio">Riproduci in background</string>
+    <string name="pref_player_background_audio_summary">Continua a riprodurre l\'audio quando lo schermo è spento, quando esci dall\'app e quando chiudi la finestra picture-in-picture</string>
 </resources>

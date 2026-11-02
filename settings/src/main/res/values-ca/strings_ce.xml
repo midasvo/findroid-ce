@@ -82,4 +82,7 @@
     <string name="home_next_up_max_days_suffix">dies</string>
     <string name="settings_image_display_size_title">Carrega les imatges a la mida de visualització</string>
     <string name="settings_image_display_size_summary">Demana al servidor les imatges a la mida en què es mostren. Fa servir menys dades, però el servidor ha de redimensionar cada imatge la primera vegada.</string>
+    <string name="pref_player_background_group">Reproducció en segon pla</string>
+    <string name="pref_player_background_audio">Reprodueix en segon pla</string>
+    <string name="pref_player_background_audio_summary">Continua reproduint l\'àudio quan la pantalla està apagada, quan surts de l\'aplicació i quan tanques la finestra d\'imatge en imatge</string>
 </resources>
