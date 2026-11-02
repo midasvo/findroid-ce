@@ -1,6 +1,5 @@
 package dev.jdtech.jellyfin.ce.presentation.film
 
-import android.text.format.DateFormat
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
@@ -39,7 +38,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -61,6 +59,7 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import dev.jdtech.jellyfin.ce.ui.TvSafeArea
 import dev.jdtech.jellyfin.ce.ui.focus.RestoreFocus
+import dev.jdtech.jellyfin.ce.ui.itemInfoLine
 import dev.jdtech.jellyfin.ce.ui.focus.focusPosition
 import dev.jdtech.jellyfin.ce.ui.focus.rememberFocusPosition
 import dev.jdtech.jellyfin.core.R as CoreR
@@ -83,8 +82,6 @@ import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.ui.components.Direction
 import dev.jdtech.jellyfin.ui.components.ItemPoster
 import dev.jdtech.jellyfin.ui.components.ProgressBadge
-import dev.jdtech.jellyfin.utils.format
-import java.util.Date
 import java.util.Locale
 import java.util.UUID
 import kotlinx.coroutines.delay
@@ -283,7 +280,7 @@ private fun SeasonScreenLayout(
                 )
                 Spacer(modifier = Modifier.height(MaterialTheme.spacings.extraSmall))
                 Text(
-                    text = episodeInfoLine(episode),
+                    text = itemInfoLine(episode),
                     style = MaterialTheme.typography.labelLarge,
                     color = Color.White.copy(alpha = .8f),
                 )
@@ -460,46 +457,6 @@ private fun SeasonScreenLayout(
     }
 }
 
-/** `S1 E6 · date · runtime · time left · ends at`, leaving out what isn't known. */
-@Composable
-private fun episodeInfoLine(episode: FindroidEpisode): String {
-    val context = LocalContext.current
-    val remainingTicks = (episode.runtimeTicks - episode.playbackPositionTicks).coerceAtLeast(0)
-    val inProgress = episode.playbackPositionTicks > 0 && !episode.played
-    val parts = buildList {
-        add(
-            stringResource(
-                CoreR.string.season_episode_number,
-                episode.parentIndexNumber,
-                episode.indexNumber,
-            )
-        )
-        episode.premiereDate?.let { add(it.format()) }
-        if (episode.runtimeTicks > 0) {
-            add(stringResource(CoreR.string.runtime_minutes, minutes(episode.runtimeTicks)))
-            if (inProgress) {
-                add(
-                    stringResource(
-                        CoreR.string.runtime_minutes_left,
-                        minutes(remainingTicks),
-                    )
-                )
-            }
-            val endsAt = Date(System.currentTimeMillis() + remainingTicks / TICKS_PER_MILLISECOND)
-            add(
-                stringResource(
-                    CoreR.string.ends_at,
-                    DateFormat.getTimeFormat(context).format(endsAt),
-                )
-            )
-        }
-    }
-    return parts.joinToString(" · ")
-}
-
-/** Whole minutes, at least 1, so a short episode doesn't show "0 mins". */
-private fun minutes(ticks: Long): Long = (ticks / TICKS_PER_MINUTE).coerceAtLeast(1)
-
 /** Resolution, video codec, HDR format, and the language and format of the first audio track. */
 private fun technicalChips(episode: FindroidEpisode?, metadata: VideoMetadata?): List<String> {
     val source = episode?.sources?.firstOrNull() ?: return emptyList()
@@ -621,8 +578,6 @@ private const val ROW_BUTTONS = 1
 private const val ROW_EPISODES = 2
 
 private const val DETAILS_DELAY_MS = 300L
-private const val TICKS_PER_MILLISECOND = 10_000L
-private const val TICKS_PER_MINUTE = 600_000_000L
 private val EPISODE_CARD_WIDTH = 208.dp
 
 @Preview(device = "id:tv_1080p")
