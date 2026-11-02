@@ -16,6 +16,7 @@ import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -48,10 +49,14 @@ constructor(
             UUID.fromString("18bfced5-f237-4d42-aa72-d9d7fed19279")
     }
 
-    /** With [silent] the refresh indicator stays hidden, for reloads the user didn't ask for. */
-    fun loadData(silent: Boolean = false) {
+    /**
+     * With [silent] the refresh indicator stays hidden, for reloads the user didn't ask for. The
+     * returned job ends once every row has loaded, for screens that wait for that (TV Home puts focus
+     * back only then, so it lands on the item in its new place).
+     */
+    fun loadData(silent: Boolean = false): Job {
         Timber.i("Loading data")
-        viewModelScope.launch(Dispatchers.Default) {
+        return viewModelScope.launch(Dispatchers.Default) {
             if (!silent) _state.update { it.copy(isLoading = true, error = null) }
             try {
                 appPreferences.getValue(appPreferences.currentServer)?.let { serverId ->

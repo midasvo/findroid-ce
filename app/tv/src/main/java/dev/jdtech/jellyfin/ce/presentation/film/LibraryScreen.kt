@@ -47,6 +47,7 @@ import dev.jdtech.jellyfin.film.presentation.library.LibraryAction
 import dev.jdtech.jellyfin.film.presentation.library.LibraryState
 import dev.jdtech.jellyfin.film.presentation.library.LibraryViewModel
 import dev.jdtech.jellyfin.models.CollectionType
+import dev.jdtech.jellyfin.models.FindroidBoxSet
 import dev.jdtech.jellyfin.models.FindroidFolder
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidMovie
@@ -72,6 +73,7 @@ fun LibraryScreen(
     navigateToLibrary: (libraryId: UUID, libraryName: String, libraryType: CollectionType) -> Unit,
     navigateToMovie: (itemId: UUID) -> Unit,
     navigateToShow: (itemId: UUID) -> Unit,
+    navigateToCollection: (collectionId: UUID, collectionName: String) -> Unit,
     viewModel: LibraryViewModel = hiltViewModel(key = libraryId.toString()),
 ) {
     val state by viewModel.state.collectAsState()
@@ -97,6 +99,8 @@ fun LibraryScreen(
                         is FindroidShow -> navigateToShow(action.item.id)
                         is FindroidFolder ->
                             navigateToLibrary(action.item.id, action.item.name, libraryType)
+                        is FindroidBoxSet ->
+                            navigateToCollection(action.item.id, action.item.name)
                     }
                 }
                 else -> Unit

@@ -1,5 +1,6 @@
 package dev.jdtech.jellyfin.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -63,6 +66,9 @@ fun MovieScreen(
     navigateToPlayer: (itemId: UUID, mediaSourceId: String?) -> Unit,
     viewModel: MovieViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
+
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(true) { viewModel.loadMovie(movieId = movieId) }
@@ -73,6 +79,13 @@ fun MovieScreen(
             when (action) {
                 is MovieAction.Play -> {
                     navigateToPlayer(movieId, action.mediaSourceId)
+                }
+                is MovieAction.PlayTrailer -> {
+                    try {
+                        uriHandler.openUri(action.trailer)
+                    } catch (e: IllegalArgumentException) {
+                        Toast.makeText(context, e.localizedMessage, Toast.LENGTH_SHORT).show()
+                    }
                 }
                 else -> Unit
             }

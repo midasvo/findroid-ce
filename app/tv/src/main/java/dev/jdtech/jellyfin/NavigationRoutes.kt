@@ -25,6 +25,12 @@ data class LibraryRoute(
     val libraryType: CollectionType,
 ) : NavKey
 
+@Serializable
+data class CollectionRoute(
+    val collectionId: String,
+    val collectionName: String,
+) : NavKey
+
 @Serializable data class MovieRoute(val itemId: String) : NavKey
 
 @Serializable data class ShowRoute(val itemId: String) : NavKey

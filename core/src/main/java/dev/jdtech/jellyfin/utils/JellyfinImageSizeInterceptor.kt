@@ -51,8 +51,10 @@ class JellyfinImageSizeInterceptor(private val isEnabled: () -> Boolean) : Inter
  * Uses `fillWidth` and `fillHeight`, which return an image that covers the box, as the web client
  * does. With `maxWidth`, a wide backdrop cropped into a tall poster would come back too low to fill
  * it.
+ *
+ * Public for the TV Home hero, which always asks for a screen-sized backdrop, whatever the setting.
  */
-internal fun String.withImageSize(width: Int?, height: Int?): String {
+fun String.withImageSize(width: Int?, height: Int?): String {
     if (width == null && height == null) return this
     if (!JELLYFIN_IMAGE_URL.matches(this) || SIZED_IMAGE_URL.containsMatchIn(this)) return this
 
