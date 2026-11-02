@@ -73,4 +73,8 @@
         <item quantity="other">%d endirmə silindi</item>
     </plurals>
     <string name="collections_label">Kolleksiyalar</string>
+    <string name="resume">Davam et</string>
+    <string name="restart">Yenidən başlat</string>
+    <string name="season_episode_number">M%1$d E%2$d</string>
+    <string name="ends_at">%1$s-də bitir</string>
 </resources>

@@ -76,4 +76,8 @@
         <item quantity="other">Poistettu %d latausta</item>
     </plurals>
     <string name="collections_label">Kokoelmat</string>
+    <string name="resume">Jatka</string>
+    <string name="restart">Alusta</string>
+    <string name="season_episode_number">K%1$d J%2$d</string>
+    <string name="ends_at">Päättyy klo %1$s</string>
 </resources>

@@ -82,4 +82,8 @@
         <item quantity="other">Удалено %d загрузок</item>
     </plurals>
     <string name="collections_label">Коллекции</string>
+    <string name="resume">Продолжить</string>
+    <string name="restart">Сначала</string>
+    <string name="season_episode_number">С%1$d Э%2$d</string>
+    <string name="ends_at">Закончится в %1$s</string>
 </resources>

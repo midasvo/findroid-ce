@@ -82,4 +82,8 @@
         <item quantity="other">Odstranjenih %d prenosov</item>
     </plurals>
     <string name="collections_label">Zbirke</string>
+    <string name="resume">Nadaljuj</string>
+    <string name="restart">Od začetka</string>
+    <string name="season_episode_number">S%1$d E%2$d</string>
+    <string name="ends_at">Konec ob %1$s</string>
 </resources>

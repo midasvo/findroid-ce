@@ -31,11 +31,15 @@ data class LibraryRoute(
 
 @Serializable data class SeasonRoute(val seasonId: String) : NavKey
 
+/** CE (#130): an episode opens on the season page of its season, with that episode focused. */
+@Serializable data class EpisodeRoute(val episodeId: String) : NavKey
+
 @Serializable
 data class PlayerRoute(
     val itemId: String,
     val itemKind: String,
     val mediaSourceId: String? = null,
+    val startFromBeginning: Boolean = false,
 ) : NavKey
 
 @Serializable data object SettingsRoute : NavKey

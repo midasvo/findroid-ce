@@ -76,4 +76,8 @@
         <item quantity="other">Tog bort %d nedladdningar</item>
     </plurals>
     <string name="collections_label">Samlingar</string>
+    <string name="resume">Återuppta</string>
+    <string name="restart">Börja om</string>
+    <string name="season_episode_number">S%1$d A%2$d</string>
+    <string name="ends_at">Slutar %1$s</string>
 </resources>

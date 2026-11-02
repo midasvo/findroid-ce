@@ -76,4 +76,8 @@
         <item quantity="other">Fjerna %d nedlastingar</item>
     </plurals>
     <string name="collections_label">Samlingar</string>
+    <string name="resume">Hald fram</string>
+    <string name="restart">Start på nytt</string>
+    <string name="season_episode_number">S%1$d E%2$d</string>
+    <string name="ends_at">Sluttar kl. %1$s</string>
 </resources>

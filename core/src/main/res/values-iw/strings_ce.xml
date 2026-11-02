@@ -76,4 +76,8 @@
         <item quantity="other">%d הורדות הוסרו</item>
     </plurals>
     <string name="collections_label">אוספים</string>
+    <string name="resume">המשך</string>
+    <string name="restart">התחל מחדש</string>
+    <string name="season_episode_number">ע%1$d פ%2$d</string>
+    <string name="ends_at">מסתיים ב-%1$s</string>
 </resources>

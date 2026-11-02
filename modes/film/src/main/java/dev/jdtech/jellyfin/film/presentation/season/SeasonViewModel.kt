@@ -41,6 +41,7 @@ constructor(
 
     private lateinit var seasonId: UUID
     private var downloadsOnly: Boolean = false
+    private var includeSeriesSeasons: Boolean = false
 
     private var wasBusy = false
 
@@ -75,9 +76,18 @@ constructor(
         }
     }
 
-    fun loadSeason(seasonId: UUID, downloadsOnly: Boolean = this.downloadsOnly) {
+    /**
+     * @param includeSeriesSeasons also load the other seasons of the series into
+     *   [SeasonState.seriesSeasons], so TV can switch season on the same page.
+     */
+    fun loadSeason(
+        seasonId: UUID,
+        downloadsOnly: Boolean = this.downloadsOnly,
+        includeSeriesSeasons: Boolean = this.includeSeriesSeasons,
+    ) {
         this.seasonId = seasonId
         this.downloadsOnly = downloadsOnly
+        this.includeSeriesSeasons = includeSeriesSeasons
         viewModelScope.launch {
             _state.emit(_state.value.copy(error = null))
             try {
@@ -89,10 +99,17 @@ constructor(
                         fields = seasonEpisodeFields,
                         offline = downloadsOnly,
                     )
+                val seriesSeasons =
+                    if (includeSeriesSeasons) {
+                        repository.getSeasons(season.seriesId, offline = downloadsOnly)
+                    } else {
+                        emptyList()
+                    }
                 _state.emit(
                     _state.value.copy(
                         season = season,
                         episodes = episodes,
+                        seriesSeasons = seriesSeasons,
                         episodeDownloadProgress =
                             buildDownloadProgressMap(episodes, downloadQueue.entries.value),
                     )

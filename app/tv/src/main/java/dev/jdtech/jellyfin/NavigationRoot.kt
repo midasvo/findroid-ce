@@ -120,6 +120,24 @@ fun NavigationRoot(
     }
 }
 
+/** Plays an episode from the CE season page (#130), optionally from the beginning. */
+@Composable
+private fun episodePlayerAction(
+    navigate: (NavKey) -> Unit
+): (itemId: UUID, mediaSourceId: String?, startFromBeginning: Boolean) -> Unit = resumedAction {
+    itemId,
+    mediaSourceId,
+    startFromBeginning ->
+    navigate(
+        PlayerRoute(
+            itemId = itemId.toString(),
+            itemKind = BaseItemKind.EPISODE.serialName,
+            mediaSourceId = mediaSourceId,
+            startFromBeginning = startFromBeginning,
+        )
+    )
+}
+
 /**
  * Remembers the setup mode that the back stack was last reconciled for. Deliberately not observable
  * state: it is written during composition, which must not schedule recompositions.
@@ -209,8 +227,8 @@ private fun EntryProviderScope<NavKey>.tvEntries(
                 },
             navigateToMovie = resumedAction { itemId -> navigate(MovieRoute(itemId.toString())) },
             navigateToShow = resumedAction { itemId -> navigate(ShowRoute(itemId.toString())) },
-            navigateToSeason =
-                resumedAction { seasonId -> navigate(SeasonRoute(seasonId = seasonId.toString())) },
+            navigateToEpisode =
+                resumedAction { episodeId -> navigate(EpisodeRoute(episodeId = episodeId.toString())) },
             // A collection opens as a library grid of its items until #129 adds CollectionRoute.
             navigateToCollection =
                 resumedAction { collectionId, name ->
@@ -220,12 +238,6 @@ private fun EntryProviderScope<NavKey>.tvEntries(
                             libraryName = name,
                             libraryType = CollectionType.Mixed,
                         )
-                    )
-                },
-            navigateToPlayer =
-                resumedAction { itemId, itemKind ->
-                    navigate(
-                        PlayerRoute(itemId = itemId.toString(), itemKind = itemKind.serialName)
                     )
                 },
         )
@@ -289,17 +301,15 @@ private fun EntryProviderScope<NavKey>.tvEntries(
     entry<SeasonRoute> { key ->
         SeasonScreen(
             seasonId = UUID.fromString(key.seasonId),
-            navigateToPlayer =
-                resumedAction { itemId ->
-                    navigate(
-                        PlayerRoute(
-                            itemId = itemId.toString(),
-                            // CE: the season screen passes an episode ID. As SEASON, the
-                            // playlist looked it up as a season and could end up empty.
-                            itemKind = BaseItemKind.EPISODE.serialName,
-                        )
-                    )
-                },
+            episodeId = null,
+            navigateToPlayer = episodePlayerAction(navigate),
+        )
+    }
+    entry<EpisodeRoute> { key ->
+        SeasonScreen(
+            seasonId = null,
+            episodeId = UUID.fromString(key.episodeId),
+            navigateToPlayer = episodePlayerAction(navigate),
         )
     }
     entry<PlayerRoute> { key ->
@@ -307,7 +317,7 @@ private fun EntryProviderScope<NavKey>.tvEntries(
         TvPlayerScreen(
             itemId = UUID.fromString(key.itemId),
             itemKind = key.itemKind,
-            startFromBeginning = false,
+            startFromBeginning = key.startFromBeginning,
             mediaSourceId = key.mediaSourceId,
             navigateBack = { navigateBackFrom(key) },
         )

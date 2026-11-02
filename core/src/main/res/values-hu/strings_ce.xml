@@ -76,4 +76,8 @@
         <item quantity="other">%d letöltés eltávolítva</item>
     </plurals>
     <string name="collections_label">Gyűjtemények</string>
+    <string name="resume">Folytatás</string>
+    <string name="restart">Újrakezdés</string>
+    <string name="season_episode_number">%1$d. évad %2$d. rész</string>
+    <string name="ends_at">Vége: %1$s</string>
 </resources>

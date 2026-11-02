@@ -76,4 +76,8 @@
         <item quantity="other">Se han eliminado %d descargas</item>
     </plurals>
     <string name="collections_label">Colecciones</string>
+    <string name="resume">Reanudar</string>
+    <string name="restart">Empezar de nuevo</string>
+    <string name="season_episode_number">T%1$d E%2$d</string>
+    <string name="ends_at">Termina a las %1$s</string>
 </resources>

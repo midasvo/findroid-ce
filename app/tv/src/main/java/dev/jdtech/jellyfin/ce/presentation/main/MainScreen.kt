@@ -65,7 +65,6 @@ import dev.jdtech.jellyfin.presentation.film.HomeScreen
 import dev.jdtech.jellyfin.viewmodels.MainViewModel
 import java.util.UUID
 import kotlinx.coroutines.launch
-import org.jellyfin.sdk.model.api.BaseItemKind
 
 /**
  * CE replacement for the upstream TV MainScreen and MediaScreen (ADR 0001, ADR 0002).
@@ -88,9 +87,8 @@ fun MainScreen(
     navigateToLibrary: (libraryId: UUID, libraryName: String, libraryType: CollectionType) -> Unit,
     navigateToMovie: (itemId: UUID) -> Unit,
     navigateToShow: (itemId: UUID) -> Unit,
-    navigateToSeason: (seasonId: UUID) -> Unit,
+    navigateToEpisode: (episodeId: UUID) -> Unit,
     navigateToCollection: (collectionId: UUID, name: String) -> Unit,
-    navigateToPlayer: (itemId: UUID, itemKind: BaseItemKind) -> Unit,
     mainViewModel: MainViewModel = hiltViewModel(),
     mediaViewModel: MediaViewModel = hiltViewModel(),
 ) {
@@ -120,7 +118,8 @@ fun MainScreen(
             HomeScreen(
                 navigateToMovie = navigateToMovie,
                 navigateToShow = navigateToShow,
-                navigateToPlayer = navigateToPlayer,
+                // Home only plays episodes. Since #130 they open in their season instead.
+                navigateToPlayer = { itemId, _ -> navigateToEpisode(itemId) },
                 isLoading = {},
             )
         },
@@ -128,7 +127,7 @@ fun MainScreen(
             SearchScreen(
                 navigateToMovie = navigateToMovie,
                 navigateToShow = navigateToShow,
-                navigateToSeason = navigateToSeason,
+                navigateToEpisode = navigateToEpisode,
                 navigateToCollection = navigateToCollection,
             )
         },

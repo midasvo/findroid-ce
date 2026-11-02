@@ -73,4 +73,8 @@
         <item quantity="other">已移除 %d 個下載</item>
     </plurals>
     <string name="collections_label">合集</string>
+    <string name="resume">繼續播放</string>
+    <string name="restart">從頭播放</string>
+    <string name="season_episode_number">第%1$d季 第%2$d集</string>
+    <string name="ends_at">%1$s 完結</string>
 </resources>
