@@ -94,4 +94,6 @@
     <string name="player_tv_seek_step_15">15 secunde</string>
     <string name="player_tv_seek_step_30">30 de secunde</string>
     <string name="player_tv_seek_step_60">1 minut</string>
+    <string name="pref_player_tv_match_refresh_rate">Potrivește rata de reîmprospătare</string>
+    <string name="pref_player_tv_match_refresh_rate_summary">Comută modul de afișare pentru a se potrivi cu rata de cadre a videoclipului în timpul redării</string>
 </resources>

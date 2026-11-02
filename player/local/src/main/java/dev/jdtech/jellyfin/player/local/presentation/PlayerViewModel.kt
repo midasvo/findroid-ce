@@ -8,12 +8,15 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.net.Uri
+import android.view.Window
+import dev.jdtech.jellyfin.player.local.domain.DisplayRefreshRateManager
 import android.widget.Toast
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
+import androidx.media3.common.Format
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
@@ -182,6 +185,7 @@ constructor(
     /** The item whose series audio and subtitle choice was last applied, so it happens once. */
     private var appliedTrackPreferenceItemId: String? = null
 
+    private val displayRefreshRateManager = DisplayRefreshRateManager(appPreferences)
     private val trackSelector = DefaultTrackSelector(application)
     private val audioDecoderFallback =
         AudioDecoderFallback(
@@ -369,7 +373,16 @@ constructor(
                             DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
                         )
                         .setMediaCodecSelector(audioDecoderFallback)
+                val matchRefreshRate =
+                    appPreferences.getValue(appPreferences.playerTvMatchRefreshRate)
+                val videoChangeFrameRateStrategy =
+                    if (matchRefreshRate) {
+                        C.VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS
+                    } else {
+                        C.VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF
+                    }
                 ExoPlayer.Builder(application, renderersFactory)
+                    .setVideoChangeFrameRateStrategy(videoChangeFrameRateStrategy)
                     .setAudioAttributes(audioAttributes, true)
                     .setHandleAudioBecomingNoisy(true)
                     .setMediaSourceFactory(buildMediaSourceFactory(application))
@@ -397,6 +410,9 @@ constructor(
                     .setVideoOutput(appPreferences.getValue(appPreferences.playerMpvVo))
                     .setAudioOutput(appPreferences.getValue(appPreferences.playerMpvAo))
                     .setHwDec(appPreferences.getValue(appPreferences.playerMpvHwdec))
+                    .setMatchRefreshRate(
+                        appPreferences.getValue(appPreferences.playerTvMatchRefreshRate)
+                    )
                     .build()
             }
 
@@ -421,6 +437,14 @@ constructor(
             PlaybackService.mediaSession = mediaSession
             application.startService(Intent(application, PlaybackService::class.java))
         }
+    }
+
+    fun attachWindow(window: Window) {
+        displayRefreshRateManager.attachWindow(window)
+    }
+
+    fun detachWindow() {
+        displayRefreshRateManager.detachWindow()
     }
 
     fun initializePlayer(
@@ -574,6 +598,7 @@ constructor(
     }
 
     private fun releasePlayer() {
+        displayRefreshRateManager.reset()
         // Take the exact position, then clear the snapshot so a transition fired while releasing
         // cannot report the same item a second time.
         refreshPlayingSnapshot()
@@ -785,6 +810,7 @@ constructor(
 
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
         Timber.d("Playing MediaItem: ${mediaItem?.mediaId}")
+        displayRefreshRateManager.onMediaItemTransition()
         savedStateHandle["mediaItemIndex"] = player.currentMediaItemIndex
 
         // Every item change goes through here, whatever caused it, so this is where the item being
@@ -1030,15 +1056,53 @@ constructor(
             }
             ExoPlayer.STATE_ENDED -> {
                 stateString = "ExoPlayer.STATE_ENDED     -"
+                displayRefreshRateManager.reset()
                 eventsChannel.trySend(PlayerEvents.NavigateBack)
             }
         }
         Timber.d("Changed player state to $stateString")
     }
 
+    private fun handleDisplayRefreshRate(tracks: Tracks) {
+        val format = extractVideoFormat(tracks)
+        val frameRate = format?.frameRate?.takeIf { it > 0f && !it.isNaN() } ?: return
+        displayRefreshRateManager.onVideoFrameRateDetected(frameRate)
+    }
+
+    private fun extractVideoFormat(tracks: Tracks): Format? {
+        for (group in tracks.groups) {
+            if (group.type == C.TRACK_TYPE_VIDEO) {
+                for (i in 0 until group.length) {
+                    if (group.isTrackSelected(i)) {
+                        val format = group.getTrackFormat(i)
+                        if (format.frameRate > 0f && !format.frameRate.isNaN()) {
+                            return format
+                        }
+                    }
+                }
+            }
+        }
+        for (group in tracks.groups) {
+            if (group.type == C.TRACK_TYPE_VIDEO) {
+                for (i in 0 until group.length) {
+                    val format = group.getTrackFormat(i)
+                    if (format.frameRate > 0f && !format.frameRate.isNaN()) {
+                        return format
+                    }
+                }
+            }
+        }
+        return null
+    }
+
+    override fun onVideoSizeChanged(videoSize: androidx.media3.common.VideoSize) {
+        handleDisplayRefreshRate(player.currentTracks)
+    }
+
     override fun onCleared() {
         super.onCleared()
         Timber.d("Clearing Player ViewModel")
+        displayRefreshRateManager.detachWindow()
         releasePlayer()
     }
 
@@ -1084,6 +1148,7 @@ constructor(
     }
 
     override fun onTracksChanged(tracks: Tracks) {
+        handleDisplayRefreshRate(tracks)
         val hasSelectableTracks =
             tracks.groups.any { it.type == C.TRACK_TYPE_AUDIO || it.type == C.TRACK_TYPE_TEXT }
         val itemId = player.currentMediaItem?.mediaId

@@ -94,4 +94,6 @@
     <string name="player_tv_seek_step_15">15 sekund</string>
     <string name="player_tv_seek_step_30">30 sekund</string>
     <string name="player_tv_seek_step_60">1 minuta</string>
+    <string name="pref_player_tv_match_refresh_rate">Přizpůsobit obnovovací frekvenci</string>
+    <string name="pref_player_tv_match_refresh_rate_summary">Přepnout režim zobrazení podle snímkové frekvence videa během přehrávání</string>
 </resources>

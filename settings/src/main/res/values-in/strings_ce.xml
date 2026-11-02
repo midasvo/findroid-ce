@@ -94,4 +94,6 @@
     <string name="player_tv_seek_step_15">15 detik</string>
     <string name="player_tv_seek_step_30">30 detik</string>
     <string name="player_tv_seek_step_60">1 menit</string>
+    <string name="pref_player_tv_match_refresh_rate">Cocokkan laju penyegaran layar</string>
+    <string name="pref_player_tv_match_refresh_rate_summary">Ganti mode tampilan agar cocok dengan kecepatan bingkai video saat pemutaran</string>
 </resources>

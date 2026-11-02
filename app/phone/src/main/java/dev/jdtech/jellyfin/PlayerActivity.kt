@@ -119,6 +119,7 @@ class PlayerActivity : BasePlayerActivity() {
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        viewModel.attachWindow(window)
 
         binding.playerView.player = viewModel.player
         binding.playerView.setControllerVisibilityListener(
@@ -536,6 +537,7 @@ class PlayerActivity : BasePlayerActivity() {
     }
 
     override fun onDestroy() {
+        viewModel.detachWindow()
         // Cancel both trickplay MainScopes so any in-flight tile fetches don't outlive the
         // activity. onDestroy is the right hook here: previewScrubListener and
         // playerGestureHelper are bound to this activity's view hierarchy (binding,

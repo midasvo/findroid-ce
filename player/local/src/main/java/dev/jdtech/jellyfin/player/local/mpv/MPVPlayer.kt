@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.Surface
@@ -63,6 +64,7 @@ class MPVPlayer(
     // Never observed in practice: PlayerViewModel always passes the stored preference.
     audioOutput: String = Constants.MpvAudioOutput.AUDIOTRACK,
     hwDec: String = "mediacodec",
+    private val matchRefreshRate: Boolean = false,
 ) : BasePlayer(), MPVLib.EventObserver, AudioManager.OnAudioFocusChangeListener {
     private val mpvLib: MPVLib
     private val audioManager: AudioManager by lazy { context.getSystemService()!! }
@@ -71,6 +73,8 @@ class MPVPlayer(
     private val handler: Handler = Handler(context.mainLooper)
     private val appContext: Context = context.applicationContext
     private var becomingNoisyRegistered = false
+    private var currentSurface: Surface? = null
+    private var currentFrameRate: Float = 0f
 
     // Headphones were unplugged: pause rather than carry on over the speaker.
     private val becomingNoisyReceiver =
@@ -98,6 +102,7 @@ class MPVPlayer(
         videoOutput = builder.videoOutput,
         audioOutput = builder.audioOutput,
         hwDec = builder.hwDec,
+        matchRefreshRate = builder.matchRefreshRate,
     )
 
     class Builder(val context: Context) {
@@ -128,6 +133,9 @@ class MPVPlayer(
         var hwDec: String = "mediacodec"
             private set
 
+        var matchRefreshRate: Boolean = false
+            private set
+
         fun setAudioAttributes(audioAttributes: AudioAttributes, handleAudioFocus: Boolean) =
             apply {
                 this.audioAttributes = audioAttributes
@@ -156,6 +164,10 @@ class MPVPlayer(
         fun setAudioOutput(audioOutput: String) = apply { this.audioOutput = audioOutput }
 
         fun setHwDec(hwDec: String) = apply { this.hwDec = hwDec }
+
+        fun setMatchRefreshRate(matchRefreshRate: Boolean) = apply {
+            this.matchRefreshRate = matchRefreshRate
+        }
 
         fun build() = MPVPlayer(this)
     }
@@ -353,6 +365,21 @@ class MPVPlayer(
                     val hadVideo = currentTracks.isTypeSelected(C.TRACK_TYPE_VIDEO)
                     val newTracks = getTracks(value)
                     currentTracks = newTracks
+                    if (matchRefreshRate) {
+                        for (group in newTracks.groups) {
+                            if (group.type == C.TRACK_TYPE_VIDEO) {
+                                for (i in 0 until group.length) {
+                                    val format = group.getTrackFormat(i)
+                                    val fps = format.frameRate
+                                    if (fps > 0f && !fps.isNaN()) {
+                                        currentFrameRate = fps
+                                        applyFrameRateToSurface(currentSurface, fps)
+                                        break
+                                    }
+                                }
+                            }
+                        }
+                    }
                     listeners.sendEvent(EVENT_TRACKS_CHANGED) { listener ->
                         listener.onTracksChanged(currentTracks)
                     }
@@ -1208,6 +1235,10 @@ class MPVPlayer(
      * player must not be used after calling this method.
      */
     override fun release() {
+        if (matchRefreshRate) {
+            applyFrameRateToSurface(currentSurface, 0f)
+        }
+        currentSurface = null
         if (handleAudioFocus) {
             AudioManagerCompat.abandonAudioFocusRequest(audioManager, audioFocusRequest)
         }
@@ -1601,6 +1632,25 @@ class MPVPlayer(
         TODO("Not yet implemented")
     }
 
+    private fun applyFrameRateToSurface(surface: Surface?, frameRate: Float) {
+        if (!matchRefreshRate || surface == null || !surface.isValid) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    surface.setFrameRate(
+                        frameRate,
+                        Surface.FRAME_RATE_COMPATIBILITY_DEFAULT,
+                        Surface.CHANGE_FRAME_RATE_ALWAYS,
+                    )
+                } else {
+                    surface.setFrameRate(frameRate, Surface.FRAME_RATE_COMPATIBILITY_DEFAULT)
+                }
+            } catch (e: Exception) {
+                Timber.w(e, "Failed to set surface frame rate")
+            }
+        }
+    }
+
     fun updateZoomMode(enabled: Boolean) {
         if (enabled) {
             mpvLib.setOptionString("panscan", "1")
@@ -1624,6 +1674,10 @@ class MPVPlayer(
              * @param holder The SurfaceHolder whose surface is being created.
              */
             override fun surfaceCreated(holder: SurfaceHolder) {
+                currentSurface = holder.surface
+                if (matchRefreshRate && currentFrameRate > 0f) {
+                    applyFrameRateToSurface(holder.surface, currentFrameRate)
+                }
                 mpvLib.attachSurface(holder.surface)
                 mpvLib.setOptionString("force-window", "yes")
                 mpvLib.setOptionString("vo", videoOutput)
@@ -1657,6 +1711,10 @@ class MPVPlayer(
              * @param holder The SurfaceHolder whose surface is being destroyed.
              */
             override fun surfaceDestroyed(holder: SurfaceHolder) {
+                if (matchRefreshRate) {
+                    applyFrameRateToSurface(holder.surface, 0f)
+                }
+                currentSurface = null
                 mpvLib.setOptionString("vo", "null")
                 mpvLib.setOptionString("force-window", "no")
                 mpvLib.detachSurface()

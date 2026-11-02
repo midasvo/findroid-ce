@@ -94,4 +94,6 @@
     <string name="player_tv_seek_step_15">15 секунд</string>
     <string name="player_tv_seek_step_30">30 секунд</string>
     <string name="player_tv_seek_step_60">1 хвилина</string>
+    <string name="pref_player_tv_match_refresh_rate">Підлаштовувати частоту оновлення</string>
+    <string name="pref_player_tv_match_refresh_rate_summary">Змінювати режим дисплея відповідно до частоти кадрів відео під час відтворення</string>
 </resources>

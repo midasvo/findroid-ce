@@ -23,6 +23,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -93,6 +97,17 @@ fun PlayerScreen(
     DisposableEffect(Unit) {
         currentView.keepScreenOn = true
         onDispose { currentView.keepScreenOn = false }
+    }
+
+    val context = LocalContext.current
+    val window = remember(context) { context.findActivity()?.window }
+    DisposableEffect(window) {
+        if (window != null) {
+            viewModel.attachWindow(window)
+        }
+        onDispose {
+            viewModel.detachWindow()
+        }
     }
 
     // The media session is owned by PlayerViewModel; building a second one here would crash,
@@ -344,3 +359,10 @@ private fun Modifier.dPadEvents(exoPlayer: Player, videoPlayerState: VideoPlayer
             videoPlayerState.showControls()
         },
     )
+
+private tailrec fun Context.findActivity(): Activity? =
+    when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
+    }

@@ -199,6 +199,8 @@
     <string name="settings_image_display_size_summary">Ask the server for images at the size they are shown. Uses less data, but the server has to resize each image the first time.</string>
     <string name="pref_player_tv_ok_pauses">OK pauses playback</string>
     <string name="pref_player_tv_ok_pauses_summary">Pressing OK during playback pauses it and shows the controls. When this is off, OK only shows the controls.</string>
+    <string name="pref_player_tv_match_refresh_rate">Match display refresh rate</string>
+    <string name="pref_player_tv_match_refresh_rate_summary">Switch the display mode to match the video frame rate during playback</string>
     <string name="player_tv_seek_step_5">5 seconds</string>
     <string name="player_tv_seek_step_10">10 seconds</string>
     <string name="player_tv_seek_step_15">15 seconds</string>

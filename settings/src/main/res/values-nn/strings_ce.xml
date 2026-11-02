@@ -94,4 +94,6 @@
     <string name="player_tv_seek_step_15">15 sekund</string>
     <string name="player_tv_seek_step_30">30 sekund</string>
     <string name="player_tv_seek_step_60">1 minutt</string>
+    <string name="pref_player_tv_match_refresh_rate">Tilpass oppdateringsfrekvens</string>
+    <string name="pref_player_tv_match_refresh_rate_summary">Byt skjermmodus for å matcha biletfrekvensen til videoen under avspeling</string>
 </resources>

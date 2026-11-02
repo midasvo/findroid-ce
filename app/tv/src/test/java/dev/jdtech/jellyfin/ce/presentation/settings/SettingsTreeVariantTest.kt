@@ -191,6 +191,25 @@ class SettingsTreeVariantTest {
     }
 
     @Test
+    fun `TV variant shows match refresh rate switch and Phone variant hides it`() = runTest {
+        val tvViewModel = SettingsViewModel(context, appPreferences, AppVariant.TV)
+        tvViewModel.loadPreferences(listOf(SettingsR.string.settings_category_player))
+        val tvPrefs = tvViewModel.state.value.preferenceGroups.flatMap { it.preferences }.map { it.nameStringResource }
+        assertTrue(
+            "Match refresh rate switch must be present on TV",
+            tvPrefs.contains(SettingsR.string.pref_player_tv_match_refresh_rate),
+        )
+
+        val phoneViewModel = SettingsViewModel(context, appPreferences, AppVariant.PHONE)
+        phoneViewModel.loadPreferences(listOf(SettingsR.string.settings_category_player))
+        val phonePrefs = phoneViewModel.state.value.preferenceGroups.flatMap { it.preferences }.map { it.nameStringResource }
+        assertFalse(
+            "Match refresh rate switch must be hidden on Phone",
+            phonePrefs.contains(SettingsR.string.pref_player_tv_match_refresh_rate),
+        )
+    }
+
+    @Test
     fun `dump phone and tv settings trees`() = runTest {
         fun dumpTree(variant: AppVariant): String {
             val vm = SettingsViewModel(context, appPreferences, variant)
