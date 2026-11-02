@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
+import dev.jdtech.jellyfin.ce.ui.TvSafeArea
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyHomeSection
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyHomeSuggestions
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyHomeView
@@ -67,14 +68,14 @@ fun HomeScreen(
 
 @Composable
 private fun HomeScreenLayout(state: HomeState, onAction: (HomeAction) -> Unit) {
-    val itemsPadding = PaddingValues(horizontal = MaterialTheme.spacings.large)
+    val itemsPadding = PaddingValues(horizontal = TvSafeArea.horizontal)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding =
             PaddingValues(
-                top = MaterialTheme.spacings.extraSmall,
-                bottom = MaterialTheme.spacings.large,
+                top = TvSafeArea.vertical,
+                bottom = TvSafeArea.vertical,
             ),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.large),
     ) {

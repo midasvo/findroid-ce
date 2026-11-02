@@ -36,6 +36,7 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import dev.jdtech.jellyfin.ce.ui.TvSafeArea
 import dev.jdtech.jellyfin.ce.ui.focus.FocusPosition
 import dev.jdtech.jellyfin.ce.ui.focus.RestoreFocus
 import dev.jdtech.jellyfin.ce.ui.focus.focusPosition
@@ -71,7 +72,7 @@ fun LibraryScreen(
     navigateToLibrary: (libraryId: UUID, libraryName: String, libraryType: CollectionType) -> Unit,
     navigateToMovie: (itemId: UUID) -> Unit,
     navigateToShow: (itemId: UUID) -> Unit,
-    viewModel: LibraryViewModel = hiltViewModel(),
+    viewModel: LibraryViewModel = hiltViewModel(key = libraryId.toString()),
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -130,8 +131,8 @@ internal fun LibraryScreenLayout(
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
         contentPadding =
             PaddingValues(
-                horizontal = MaterialTheme.spacings.default * 2,
-                vertical = MaterialTheme.spacings.large,
+                horizontal = TvSafeArea.horizontal,
+                vertical = TvSafeArea.vertical,
             ),
         modifier = Modifier.fillMaxSize().focusRestorer(),
     ) {

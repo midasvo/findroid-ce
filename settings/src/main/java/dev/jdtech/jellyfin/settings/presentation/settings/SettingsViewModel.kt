@@ -558,9 +558,11 @@ class SettingsViewModel @Inject constructor(
                                         nameStringResource = R.string.seeking,
                                         preferences =
                                             listOf(
+                                                // CE (#127): TV uses the step selects below.
                                                 PreferenceLongInput(
                                                     nameStringResource =
                                                         R.string.seek_back_increment,
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences.playerSeekBackInc,
                                                     suffixRes = R.string.ms,
@@ -568,6 +570,7 @@ class SettingsViewModel @Inject constructor(
                                                 PreferenceLongInput(
                                                     nameStringResource =
                                                         R.string.seek_forward_increment,
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences.playerSeekForwardInc,
                                                     suffixRes = R.string.ms,

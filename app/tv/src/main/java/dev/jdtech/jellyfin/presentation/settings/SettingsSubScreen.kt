@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,7 +29,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
+import dev.jdtech.jellyfin.ce.ui.TvSafeArea
 import dev.jdtech.jellyfin.presentation.settings.components.SettingsGroupCard
 import dev.jdtech.jellyfin.presentation.settings.components.SettingsMultiSelectDetailsCard
 import dev.jdtech.jellyfin.presentation.settings.components.SettingsSelectDetailsCard
@@ -123,9 +129,9 @@ private fun SettingsSubScreenLayout(
         modifier =
             Modifier.fillMaxSize()
                 .padding(
-                    start = MaterialTheme.spacings.large,
-                    top = MaterialTheme.spacings.default * 2,
-                    end = MaterialTheme.spacings.large,
+                    start = TvSafeArea.horizontal,
+                    top = TvSafeArea.vertical,
+                    end = TvSafeArea.horizontal,
                 )
     ) {
         Column {
@@ -153,7 +159,7 @@ private fun SettingsSubScreenLayout(
                     )
                 }
             }
-            Box(modifier = Modifier.weight(2f)) {
+            Box(modifier = Modifier.weight(1f)) {
                 focusedPreference?.let { preference ->
                     when (preference) {
                         is PreferenceSelect -> {
@@ -181,6 +187,36 @@ private fun SettingsSubScreenLayout(
                                     )
                                 },
                             )
+                        }
+                        else -> {
+                            Surface(
+                                shape = MaterialTheme.shapes.medium,
+                                colors =
+                                    SurfaceDefaults.colors(
+                                        containerColor = MaterialTheme.colorScheme.surface
+                                    ),
+                                modifier =
+                                    Modifier.fillMaxWidth()
+                                        .padding(bottom = MaterialTheme.spacings.large),
+                            ) {
+                                Column(modifier = Modifier.padding(MaterialTheme.spacings.large)) {
+                                    Text(
+                                        text = stringResource(id = preference.nameStringResource),
+                                        style = MaterialTheme.typography.headlineMedium,
+                                    )
+                                    preference.descriptionStringRes?.let { descRes ->
+                                        Spacer(
+                                            modifier =
+                                                Modifier.height(MaterialTheme.spacings.medium)
+                                        )
+                                        Text(
+                                            text = stringResource(id = descRes),
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }

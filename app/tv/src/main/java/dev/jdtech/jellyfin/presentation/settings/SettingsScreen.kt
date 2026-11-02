@@ -22,6 +22,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import dev.jdtech.jellyfin.ce.ui.TvSafeArea
 import dev.jdtech.jellyfin.presentation.settings.components.SettingsGroupCard
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
@@ -110,8 +111,8 @@ private fun SettingsScreenLayout(state: SettingsState, onAction: (SettingsAction
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
         contentPadding =
             PaddingValues(
-                horizontal = MaterialTheme.spacings.default * 2,
-                vertical = MaterialTheme.spacings.large,
+                horizontal = TvSafeArea.horizontal,
+                vertical = TvSafeArea.vertical,
             ),
         modifier = Modifier.fillMaxSize().focusRequester(focusRequester),
     ) {

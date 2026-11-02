@@ -30,7 +30,7 @@ import dev.jdtech.jellyfin.presentation.setup.users.UsersScreen
 import dev.jdtech.jellyfin.presentation.setup.welcome.WelcomeScreen
 import dev.jdtech.jellyfin.setup.presentation.permission.PermissionAction
 import dev.jdtech.jellyfin.setup.presentation.permission.PermissionViewModel
-import dev.jdtech.jellyfin.ui.MainScreen
+import dev.jdtech.jellyfin.ce.presentation.main.MainScreen
 import dev.jdtech.jellyfin.ui.MovieScreen
 import java.util.UUID
 import org.jellyfin.sdk.model.api.BaseItemKind
@@ -195,6 +195,7 @@ private fun EntryProviderScope<NavKey>.tvEntries(
     entry<MainRoute> {
         MainScreen(
             navigateToSettings = dropUnlessResumed { navigate(SettingsRoute) },
+            navigateToUsers = dropUnlessResumed { navigateOrReuse(UsersRoute) },
             navigateToLibrary =
                 resumedAction { libraryId, libraryName, libraryType ->
                     navigate(

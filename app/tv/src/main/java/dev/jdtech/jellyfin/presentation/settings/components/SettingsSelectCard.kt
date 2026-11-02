@@ -39,8 +39,12 @@ fun SettingsSelectCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    val optionValues = stringArrayResource(preference.optionValues)
-    val optionNames = stringArrayResource(preference.options)
+    val optionValues =
+        if (preference.optionValues != 0) stringArrayResource(preference.optionValues)
+        else emptyArray<String>()
+    val optionNames =
+        if (preference.options != 0) stringArrayResource(preference.options)
+        else emptyArray<String>()
     val notSetString = stringResource(CoreR.string.not_set)
 
     val options =
