@@ -58,6 +58,18 @@ interface JellyfinRepository {
         filters: List<ItemFilter>? = null,
     ): Flow<PagingData<FindroidItem>>
 
+    /**
+     * CE: the number of items that [getItems] would return, without fetching them. With
+     * [nameLessThan], only those whose sort name comes before it.
+     */
+    suspend fun getItemCount(
+        parentId: UUID? = null,
+        includeTypes: List<BaseItemKind>? = null,
+        recursive: Boolean = false,
+        filters: List<ItemFilter>? = null,
+        nameLessThan: String? = null,
+    ): Int
+
     suspend fun getPerson(personId: UUID): FindroidPerson
 
     suspend fun getPersonItems(

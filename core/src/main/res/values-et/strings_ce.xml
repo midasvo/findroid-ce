@@ -80,5 +80,6 @@
     <string name="restart">Algusest</string>
     <string name="season_episode_number">H%1$d O%2$d</string>
     <string name="ends_at">Lõpeb kell %1$s</string>
+    <string name="year_range_continuing">%1$d – praegu</string>
     <string name="shuffle">Juhuslik</string>
 </resources>

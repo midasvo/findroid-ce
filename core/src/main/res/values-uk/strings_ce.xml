@@ -86,5 +86,6 @@
     <string name="restart">Спочатку</string>
     <string name="season_episode_number">С%1$d Е%2$d</string>
     <string name="ends_at">Закінчиться о %1$s</string>
+    <string name="year_range_continuing">%1$d – тепер</string>
     <string name="shuffle">Перемішати</string>
 </resources>

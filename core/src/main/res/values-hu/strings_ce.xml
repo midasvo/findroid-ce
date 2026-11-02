@@ -80,5 +80,6 @@
     <string name="restart">Újrakezdés</string>
     <string name="season_episode_number">%1$d. évad %2$d. rész</string>
     <string name="ends_at">Vége: %1$s</string>
+    <string name="year_range_continuing">%1$d – napjainkig</string>
     <string name="shuffle">Véletlenszerű</string>
 </resources>

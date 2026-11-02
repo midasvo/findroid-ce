@@ -92,5 +92,6 @@
     <string name="restart">البدء من جديد</string>
     <string name="season_episode_number">م%1$d ح%2$d</string>
     <string name="ends_at">ينتهي في %1$s</string>
+    <string name="year_range_continuing">%1$d – حتى الآن</string>
     <string name="shuffle">خلط</string>
 </resources>

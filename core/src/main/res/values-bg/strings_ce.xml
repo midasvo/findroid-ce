@@ -80,5 +80,6 @@
     <string name="restart">Отначало</string>
     <string name="season_episode_number">С%1$d Е%2$d</string>
     <string name="ends_at">Свършва в %1$s</string>
+    <string name="year_range_continuing">%1$d – досега</string>
     <string name="shuffle">Разбъркано</string>
 </resources>

@@ -80,5 +80,6 @@
     <string name="restart">התחל מחדש</string>
     <string name="season_episode_number">ע%1$d פ%2$d</string>
     <string name="ends_at">מסתיים ב-%1$s</string>
+    <string name="year_range_continuing">%1$d – היום</string>
     <string name="shuffle">ערבב</string>
 </resources>

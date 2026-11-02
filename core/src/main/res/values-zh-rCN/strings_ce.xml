@@ -77,5 +77,6 @@
     <string name="restart">从头播放</string>
     <string name="season_episode_number">第%1$d季 第%2$d集</string>
     <string name="ends_at">%1$s 结束</string>
+    <string name="year_range_continuing">%1$d – 至今</string>
     <string name="shuffle">随机播放</string>
 </resources>

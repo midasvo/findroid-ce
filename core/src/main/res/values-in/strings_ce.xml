@@ -77,5 +77,6 @@
     <string name="restart">Mulai ulang</string>
     <string name="season_episode_number">S%1$d E%2$d</string>
     <string name="ends_at">Berakhir pukul %1$s</string>
+    <string name="year_range_continuing">%1$d – sekarang</string>
     <string name="shuffle">Acak</string>
 </resources>

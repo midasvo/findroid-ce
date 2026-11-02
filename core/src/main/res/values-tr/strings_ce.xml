@@ -77,5 +77,6 @@
     <string name="restart">Baştan başlat</string>
     <string name="season_episode_number">S%1$d B%2$d</string>
     <string name="ends_at">Bitiş: %1$s</string>
+    <string name="year_range_continuing">%1$d – günümüz</string>
     <string name="shuffle">Karışık</string>
 </resources>
