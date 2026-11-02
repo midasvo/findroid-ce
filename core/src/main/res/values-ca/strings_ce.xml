@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="browse_library">Explora la biblioteca</string>
     <string name="cancel_download_button">Cancel·la la baixada</string>
@@ -81,4 +81,5 @@
     <string name="season_episode_number">T%1$d E%2$d</string>
     <string name="ends_at">Acaba a les %1$s</string>
     <string name="year_range_continuing">%1$d – actualitat</string>
+    <string name="shuffle">Aleatori</string>
 </resources>

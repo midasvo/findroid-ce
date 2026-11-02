@@ -306,11 +306,12 @@ private fun EntryProviderScope<NavKey>.tvEntries(
                     }
                 },
             navigateToPlayer =
-                resumedAction { itemId ->
+                resumedAction { itemId, shuffle ->
                     navigate(
                         PlayerRoute(
                             itemId = itemId.toString(),
                             itemKind = BaseItemKind.SERIES.serialName,
+                            shuffle = shuffle,
                         )
                     )
                 },
@@ -337,6 +338,7 @@ private fun EntryProviderScope<NavKey>.tvEntries(
             itemKind = key.itemKind,
             startFromBeginning = key.startFromBeginning,
             mediaSourceId = key.mediaSourceId,
+            shuffle = key.shuffle,
             navigateBack = { navigateBackFrom(key) },
         )
     }

@@ -2,6 +2,7 @@ package dev.jdtech.jellyfin.ce.ui
 
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import dev.jdtech.jellyfin.core.R as CoreR
@@ -19,6 +20,7 @@ import java.util.Date
 @Composable
 fun itemInfoLine(item: FindroidItem): String {
     val context = LocalContext.current
+    val locale = LocalConfiguration.current.locales.get(0)
     val remainingTicks = (item.runtimeTicks - item.playbackPositionTicks).coerceAtLeast(0)
     val inProgress = item.playbackPositionTicks > 0 && !item.played
     val parts = buildList {
@@ -31,7 +33,7 @@ fun itemInfoLine(item: FindroidItem): String {
                         item.indexNumber,
                     )
                 )
-                item.premiereDate?.let { add(it.format()) }
+                item.premiereDate?.let { add(it.format(locale)) }
             }
             is FindroidMovie -> item.productionYear?.let { add(it.toString()) }
             is FindroidShow -> {
