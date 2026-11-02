@@ -20,14 +20,18 @@ import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
+import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.session.MediaSession
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.jdtech.jellyfin.api.JellyfinApi
+import dev.jdtech.jellyfin.database.ServerDatabaseDao
 import dev.jdtech.jellyfin.models.FindroidSegment
 import dev.jdtech.jellyfin.models.FindroidSegmentType
 import dev.jdtech.jellyfin.models.MediaSegmentAction
+import dev.jdtech.jellyfin.models.SeriesTrackPreferenceDto
 import dev.jdtech.jellyfin.player.core.domain.models.PlayerChapter
 import dev.jdtech.jellyfin.player.core.domain.models.PlayerItem
 import dev.jdtech.jellyfin.player.core.domain.models.Trickplay
@@ -36,11 +40,15 @@ import dev.jdtech.jellyfin.player.local.PlaybackSessionStore
 import dev.jdtech.jellyfin.player.local.R
 import dev.jdtech.jellyfin.player.local.domain.AudioDecoderFallback
 import dev.jdtech.jellyfin.player.local.domain.PlaylistManager
+import dev.jdtech.jellyfin.player.local.domain.StoredChoice
 import dev.jdtech.jellyfin.player.local.domain.StillWatchingTracker
+import dev.jdtech.jellyfin.player.local.domain.TrackCandidate
 import dev.jdtech.jellyfin.player.local.domain.TrickplayLoader
 import dev.jdtech.jellyfin.player.local.domain.autoPlayNextFollowsServer
 import dev.jdtech.jellyfin.player.local.domain.buildMediaSourceFactory
+import dev.jdtech.jellyfin.player.local.domain.matchSeriesTrack
 import dev.jdtech.jellyfin.player.local.domain.resolveAutoPlayNext
+import dev.jdtech.jellyfin.player.local.domain.seriesTrackChoice
 import dev.jdtech.jellyfin.player.local.mpv.MPVPlayer
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.repository.PlaybackEvents
@@ -78,6 +86,8 @@ constructor(
     private val savedStateHandle: SavedStateHandle,
     private val playbackEvents: PlaybackEvents,
     private val sessionStore: PlaybackSessionStore,
+    private val database: ServerDatabaseDao,
+    private val jellyfinApi: JellyfinApi,
 ) : ViewModel(), Player.Listener {
     val player: Player
 
@@ -127,6 +137,9 @@ constructor(
     )
 
     private var items: MutableList<PlayerItem> = mutableListOf()
+
+    /** The item whose series audio and subtitle choice was last applied, so it happens once. */
+    private var appliedTrackPreferenceItemId: String? = null
 
     private val trackSelector = DefaultTrackSelector(application)
     private val audioDecoderFallback =
@@ -941,6 +954,103 @@ constructor(
         releasePlayer()
     }
 
+    private fun currentPlayerItem(): PlayerItem? =
+        items.firstOrNull { it.itemId.toString() == player.currentMediaItem?.mediaId }
+
+    private fun supportedGroups(trackType: @C.TrackType Int) =
+        player.currentTracks.groups.filter { it.type == trackType && it.isSupported }
+
+    /** Remembers a track the user picked by hand for the rest of the series. */
+    private fun saveSeriesTrackPreference(trackType: @C.TrackType Int, index: Int) {
+        val seriesId = currentPlayerItem()?.seriesId ?: return
+        val userId = jellyfinApi.userId ?: return
+        val preference =
+            if (index == -1) {
+                SeriesTrackPreferenceDto(userId, seriesId, trackType, disabled = true)
+            } else {
+                val candidates =
+                    supportedGroups(trackType).map {
+                        val format = it.mediaTrackGroup.getFormat(0)
+                        TrackCandidate(format.language, format.label)
+                    }
+                val choice = seriesTrackChoice(candidates, index) ?: return
+                SeriesTrackPreferenceDto(
+                    userId,
+                    seriesId,
+                    trackType,
+                    disabled = false,
+                    language = choice.language,
+                    title = choice.title,
+                    positionInLanguage = choice.positionInLanguage,
+                )
+            }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                database.insertSeriesTrackPreference(preference)
+            } catch (e: Exception) {
+                Timber.e(e)
+            }
+        }
+    }
+
+    override fun onTracksChanged(tracks: Tracks) {
+        val hasSelectableTracks =
+            tracks.groups.any { it.type == C.TRACK_TYPE_AUDIO || it.type == C.TRACK_TYPE_TEXT }
+        val itemId = player.currentMediaItem?.mediaId
+        if (!hasSelectableTracks || itemId == null || itemId == appliedTrackPreferenceItemId) return
+        appliedTrackPreferenceItemId = itemId
+
+        // Back to the global behaviour first, so a choice made in an earlier episode or series does
+        // not carry over.
+        var parameters = player.trackSelectionParameters.buildUpon()
+        for (trackType in listOf(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_TEXT)) {
+            parameters = parameters.clearOverridesOfType(trackType).setTrackTypeDisabled(trackType, false)
+        }
+        player.trackSelectionParameters = parameters.build()
+
+        val seriesId = currentPlayerItem()?.seriesId ?: return
+        val userId = jellyfinApi.userId ?: return
+        viewModelScope.launch {
+            val preferences =
+                try {
+                    withContext(Dispatchers.IO) {
+                        database.getSeriesTrackPreferences(userId, seriesId)
+                    }
+                } catch (e: Exception) {
+                    Timber.e(e)
+                    return@launch
+                }
+            if (player.currentMediaItem?.mediaId != itemId) return@launch
+
+            var applied = player.trackSelectionParameters.buildUpon()
+            for (preference in preferences) {
+                val trackType = preference.trackType
+                if (preference.disabled) {
+                    applied = applied.setTrackTypeDisabled(trackType, true)
+                    continue
+                }
+                val groups = supportedGroups(trackType)
+                val candidates =
+                    groups.map {
+                        val format = it.mediaTrackGroup.getFormat(0)
+                        TrackCandidate(format.language, format.label)
+                    }
+                val stored =
+                    StoredChoice(
+                        preference.language,
+                        preference.title,
+                        preference.positionInLanguage,
+                    )
+                val group = matchSeriesTrack(stored, candidates)?.let { groups[it] } ?: continue
+                applied =
+                    applied
+                        .setOverrideForType(TrackSelectionOverride(group.mediaTrackGroup, 0))
+                        .setTrackTypeDisabled(trackType, false)
+            }
+            player.trackSelectionParameters = applied.build()
+        }
+    }
+
     fun switchToTrack(trackType: @C.TrackType Int, index: Int) {
         markUserInteraction()
         // Index -1 equals disable track
@@ -967,6 +1077,7 @@ constructor(
                     .setTrackTypeDisabled(trackType, false)
                     .build()
         }
+        saveSeriesTrackPreference(trackType, index)
     }
 
     fun selectSpeed(speed: Float) {
@@ -1021,6 +1132,7 @@ constructor(
             val currentIndex = player.currentMediaItemIndex
             val position = player.currentPosition
             items = rebuilt.toMutableList()
+            appliedTrackPreferenceItemId = null
             player.setMediaItems(rebuilt.map { it.toMediaItem() }, currentIndex, position)
             player.prepare()
         }

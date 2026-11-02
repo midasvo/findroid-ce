@@ -21,6 +21,7 @@ import dev.jdtech.jellyfin.models.FindroidUserDataDto
 import dev.jdtech.jellyfin.models.PendingDownloadDto
 import dev.jdtech.jellyfin.models.Server
 import dev.jdtech.jellyfin.models.ServerAddress
+import dev.jdtech.jellyfin.models.SeriesTrackPreferenceDto
 import dev.jdtech.jellyfin.models.User
 
 @Database(
@@ -39,8 +40,9 @@ import dev.jdtech.jellyfin.models.User
             FindroidTrickplayInfoDto::class,
             FindroidSegmentDto::class,
             PendingDownloadDto::class,
+            SeriesTrackPreferenceDto::class,
         ],
-    version = 12,
+    version = 13,
     autoMigrations =
         [
             AutoMigration(from = 2, to = 3),
@@ -52,6 +54,7 @@ import dev.jdtech.jellyfin.models.User
             AutoMigration(from = 9, to = 10),
             AutoMigration(from = 10, to = 11),
             AutoMigration(from = 11, to = 12),
+            AutoMigration(from = 12, to = 13),
         ],
 )
 @ColumnTypeConverters(Converters::class)
