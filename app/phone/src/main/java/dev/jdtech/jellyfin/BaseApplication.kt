@@ -117,7 +117,11 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         return ImageLoader.Builder(context)
             .components {
-                add(JellyfinImageSizeInterceptor())
+                add(
+                    JellyfinImageSizeInterceptor {
+                        appPreferences.getValue(appPreferences.imageDisplaySize)
+                    }
+                )
                 add(OkHttpNetworkFetcherFactory(cacheStrategy = { CacheControlCacheStrategy() }))
                 add(SvgDecoder.Factory())
             }

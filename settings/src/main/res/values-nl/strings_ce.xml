@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">De snelle bruine vos springt over de luie hond.</string>
     <string name="subtitle_style_summary">Kleur, rand, grootte en lettertype</string>
     <string name="subtitle_system_caption_settings">Systeeminstellingen voor ondertiteling</string>
+    <string name="home_next_up_max_days">Max. dagen in Volgende</string>
+    <string name="home_next_up_max_days_summary">Toon alleen series die binnen dit aantal dagen zijn bekeken. 0 betekent geen limiet.</string>
+    <string name="home_next_up_max_days_suffix">dagen</string>
+    <string name="settings_image_display_size_title">Afbeeldingen laden op weergavegrootte</string>
+    <string name="settings_image_display_size_summary">Vraag de server om afbeeldingen op de grootte waarop ze worden getoond. Gebruikt minder data, maar de server moet elke afbeelding de eerste keer verkleinen.</string>
 </resources>

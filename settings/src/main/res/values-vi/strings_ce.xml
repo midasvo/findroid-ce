@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Con cáo nâu nhanh nhẹn nhảy qua con chó lười biếng.</string>
     <string name="subtitle_style_summary">Màu sắc, viền, kích thước và phông chữ</string>
     <string name="subtitle_system_caption_settings">Cài đặt phụ đề hệ thống</string>
+    <string name="home_next_up_max_days">Số ngày tối đa trong Tiếp theo</string>
+    <string name="home_next_up_max_days_summary">Chỉ hiển thị các series đã xem trong số ngày này. 0 nghĩa là không giới hạn.</string>
+    <string name="home_next_up_max_days_suffix">ngày</string>
+    <string name="settings_image_display_size_title">Tải ảnh theo kích thước hiển thị</string>
+    <string name="settings_image_display_size_summary">Yêu cầu máy chủ gửi ảnh theo kích thước được hiển thị. Dùng ít dữ liệu hơn, nhưng máy chủ phải đổi kích thước mỗi ảnh ở lần đầu.</string>
 </resources>

@@ -289,7 +289,12 @@ class JellyfinRepositoryImpl(
                     seriesId = seriesId,
                     imageTypeLimit = 1,
                     enableImageTypes = ROW_IMAGE_TYPES,
-                    nextUpDateCutoff = nextUpDateCutoff(seriesId, LocalDateTime.now()),
+                    nextUpDateCutoff =
+                        nextUpDateCutoff(
+                            seriesId = seriesId,
+                            maxDays = appPreferences.getValue(appPreferences.homeNextUpMaxDays),
+                            now = LocalDateTime.now(),
+                        ),
                     enableTotalRecordCount = false,
                     enableResumable = false,
                 )
@@ -667,11 +672,10 @@ class JellyfinRepositoryImpl(
     }
 }
 
-private const val NEXT_UP_DAYS = 365L
-
 /**
- * Without a cutoff, the server walks the whole watch history for the Home row. A single series has
- * no such limit: a show last watched years ago still has a next episode.
+ * The Home row only shows series watched in the last [maxDays] days, as the web client's "Max days
+ * in Next Up" does. 0 is no limit. A single series has no cutoff: a show last watched years ago
+ * still has a next episode.
  */
-internal fun nextUpDateCutoff(seriesId: UUID?, now: LocalDateTime): LocalDateTime? =
-    if (seriesId == null) now.minusDays(NEXT_UP_DAYS) else null
+internal fun nextUpDateCutoff(seriesId: UUID?, maxDays: Int, now: LocalDateTime): LocalDateTime? =
+    if (seriesId == null && maxDays > 0) now.minusDays(maxDays.toLong()) else null

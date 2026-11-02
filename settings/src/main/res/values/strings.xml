@@ -187,4 +187,9 @@
     <string name="advanced">Advanced</string>
     <string name="discard_changes_dialog_title">Discard changes?</string>
     <string name="discard_changes_dialog_text">You have unsaved changes.</string>
+    <string name="home_next_up_max_days">Max days in Next Up</string>
+    <string name="home_next_up_max_days_summary">Only show series watched within this many days. 0 means no limit.</string>
+    <string name="home_next_up_max_days_suffix">days</string>
+    <string name="settings_image_display_size_title">Load artwork at display size</string>
+    <string name="settings_image_display_size_summary">Ask the server for images at the size they are shown. Uses less data, but the server has to resize each image the first time.</string>
 </resources>

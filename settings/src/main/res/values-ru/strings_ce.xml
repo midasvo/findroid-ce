@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Съешь же ещё этих мягких французских булок, да выпей чаю.</string>
     <string name="subtitle_style_summary">Цвет, контур, размер и шрифт</string>
     <string name="subtitle_system_caption_settings">Системные настройки субтитров</string>
+    <string name="home_next_up_max_days">Макс. дней в «Далее»</string>
+    <string name="home_next_up_max_days_summary">Показывать только сериалы, просмотренные за это количество дней. 0 — без ограничения.</string>
+    <string name="home_next_up_max_days_suffix">дн.</string>
+    <string name="settings_image_display_size_title">Загружать изображения в размере показа</string>
+    <string name="settings_image_display_size_summary">Запрашивать у сервера изображения в том размере, в котором они показываются. Расходует меньше данных, но серверу нужно уменьшить каждое изображение в первый раз.</string>
 </resources>

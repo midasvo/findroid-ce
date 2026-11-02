@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Portez ce vieux whisky au juge blond qui fume.</string>
     <string name="subtitle_style_summary">Couleur, contour, taille et police</string>
     <string name="subtitle_system_caption_settings">Paramètres de sous-titrage du système</string>
+    <string name="home_next_up_max_days">Jours max. dans « À suivre »</string>
+    <string name="home_next_up_max_days_summary">Afficher uniquement les séries regardées dans ce nombre de jours. 0 signifie aucune limite.</string>
+    <string name="home_next_up_max_days_suffix">jours</string>
+    <string name="settings_image_display_size_title">Charger les images à la taille d\'affichage</string>
+    <string name="settings_image_display_size_summary">Demander au serveur les images à la taille où elles sont affichées. Utilise moins de données, mais le serveur doit redimensionner chaque image la première fois.</string>
 </resources>

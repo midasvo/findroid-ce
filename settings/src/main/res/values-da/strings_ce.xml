@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Den hurtige brune ræv hopper over den dovne hund.</string>
     <string name="subtitle_style_summary">Farve, omrids, størrelse og skrifttype</string>
     <string name="subtitle_system_caption_settings">Systemindstillinger for undertekster</string>
+    <string name="home_next_up_max_days">Maks. dage i Næste</string>
+    <string name="home_next_up_max_days_summary">Vis kun serier, der er set inden for dette antal dage. 0 betyder ingen grænse.</string>
+    <string name="home_next_up_max_days_suffix">dage</string>
+    <string name="settings_image_display_size_title">Hent billeder i visningsstørrelse</string>
+    <string name="settings_image_display_size_summary">Bed serveren om billeder i den størrelse, de vises i. Bruger mindre data, men serveren skal ændre størrelsen på hvert billede første gang.</string>
 </resources>

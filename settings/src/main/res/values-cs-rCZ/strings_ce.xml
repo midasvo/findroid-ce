@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Příliš žluťoučký kůň úpěl ďábelské ódy.</string>
     <string name="subtitle_style_summary">Barva, obrys, velikost a písmo</string>
     <string name="subtitle_system_caption_settings">Systémové nastavení titulků</string>
+    <string name="home_next_up_max_days">Maximum dní v „Další na řadě“</string>
+    <string name="home_next_up_max_days_summary">Zobrazovat jen seriály sledované během tohoto počtu dní. 0 znamená bez omezení.</string>
+    <string name="home_next_up_max_days_suffix">dní</string>
+    <string name="settings_image_display_size_title">Načítat obrázky ve velikosti zobrazení</string>
+    <string name="settings_image_display_size_summary">Žádat server o obrázky ve velikosti, v jaké se zobrazují. Spotřebuje méně dat, ale server musí každý obrázek poprvé zmenšit.</string>
 </resources>

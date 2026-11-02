@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Kucing melompat cepat melewati anjing pemalas.</string>
     <string name="subtitle_style_summary">Warna, batas, ukuran, dan font</string>
     <string name="subtitle_system_caption_settings">Pengaturan teks sistem</string>
+    <string name="home_next_up_max_days">Hari maksimum di Selanjutnya</string>
+    <string name="home_next_up_max_days_summary">Hanya tampilkan serial yang ditonton dalam jumlah hari ini. 0 berarti tanpa batas.</string>
+    <string name="home_next_up_max_days_suffix">hari</string>
+    <string name="settings_image_display_size_title">Muat gambar sesuai ukuran tampilan</string>
+    <string name="settings_image_display_size_summary">Minta gambar dari server dalam ukuran saat ditampilkan. Menggunakan lebih sedikit data, tetapi server harus mengubah ukuran setiap gambar pada kali pertama.</string>
 </resources>

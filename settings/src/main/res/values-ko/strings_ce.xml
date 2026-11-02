@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">다람쥐 헌 쳇바퀴에 타고파.</string>
     <string name="subtitle_style_summary">색상, 테두리, 크기 및 글꼴</string>
     <string name="subtitle_system_caption_settings">시스템 자막 설정</string>
+    <string name="home_next_up_max_days">다음 항목 최대 일수</string>
+    <string name="home_next_up_max_days_summary">이 일수 안에 시청한 시리즈만 표시합니다. 0은 제한 없음을 의미합니다.</string>
+    <string name="home_next_up_max_days_suffix">일</string>
+    <string name="settings_image_display_size_title">표시 크기로 이미지 불러오기</string>
+    <string name="settings_image_display_size_summary">표시되는 크기의 이미지를 서버에 요청합니다. 데이터를 덜 사용하지만, 서버가 처음에 각 이미지의 크기를 조정해야 합니다.</string>
 </resources>

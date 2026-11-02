@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">色は匂へど 散りぬるを 我が世誰ぞ 常ならむ</string>
     <string name="subtitle_style_summary">色、縁取り、サイズ、フォント</string>
     <string name="subtitle_system_caption_settings">システムの字幕設定</string>
+    <string name="home_next_up_max_days">「次に再生」の最大日数</string>
+    <string name="home_next_up_max_days_summary">この日数以内に視聴したシリーズのみ表示します。0 は無制限です。</string>
+    <string name="home_next_up_max_days_suffix">日</string>
+    <string name="settings_image_display_size_title">画像を表示サイズで読み込む</string>
+    <string name="settings_image_display_size_summary">表示されるサイズの画像をサーバーに要求します。データ使用量は減りますが、サーバーは各画像を初回にリサイズする必要があります。</string>
 </resources>

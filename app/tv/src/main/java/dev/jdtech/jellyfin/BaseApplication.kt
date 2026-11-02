@@ -33,7 +33,11 @@ class BaseApplication : Application(), SingletonImageLoader.Factory {
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         return ImageLoader.Builder(this)
             .components {
-                add(JellyfinImageSizeInterceptor())
+                add(
+                    JellyfinImageSizeInterceptor {
+                        appPreferences.getValue(appPreferences.imageDisplaySize)
+                    }
+                )
                 add(OkHttpNetworkFetcherFactory(cacheStrategy = { CacheControlCacheStrategy() }))
                 add(SvgDecoder.Factory())
             }

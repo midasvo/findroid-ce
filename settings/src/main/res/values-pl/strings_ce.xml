@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Pchnąć w tę łódź jeża lub ośm skrzyń fig.</string>
     <string name="subtitle_style_summary">Kolor, obramowanie, rozmiar i czcionka</string>
     <string name="subtitle_system_caption_settings">Systemowe ustawienia napisów</string>
+    <string name="home_next_up_max_days">Maks. liczba dni w „Do obejrzenia”</string>
+    <string name="home_next_up_max_days_summary">Pokazuj tylko seriale oglądane w ciągu tej liczby dni. 0 oznacza brak limitu.</string>
+    <string name="home_next_up_max_days_suffix">dni</string>
+    <string name="settings_image_display_size_title">Wczytuj obrazy w rozmiarze wyświetlania</string>
+    <string name="settings_image_display_size_summary">Pobieraj z serwera obrazy w rozmiarze, w jakim są wyświetlane. Zużywa mniej danych, ale serwer musi za pierwszym razem przeskalować każdy obraz.</string>
 </resources>

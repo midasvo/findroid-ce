@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">ऋषियों को सताने वाले दुष्ट राक्षसों के राजा रावण का संहार राम ने किया।</string>
     <string name="subtitle_style_summary">रंग, किनारा, आकार और फ़ॉन्ट</string>
     <string name="subtitle_system_caption_settings">सिस्टम कैप्शनिंग सेटिंग्स</string>
+    <string name="home_next_up_max_days">अगला में अधिकतम दिन</string>
+    <string name="home_next_up_max_days_summary">केवल वे सीरीज़ दिखाएँ जो इतने दिनों के भीतर देखी गई हों। 0 का अर्थ है कोई सीमा नहीं।</string>
+    <string name="home_next_up_max_days_suffix">दिन</string>
+    <string name="settings_image_display_size_title">छवियाँ प्रदर्शन आकार में लोड करें</string>
+    <string name="settings_image_display_size_summary">सर्वर से छवियाँ उसी आकार में माँगें जिसमें वे दिखाई जाती हैं। कम डेटा लगता है, लेकिन सर्वर को हर छवि का आकार पहली बार बदलना पड़ता है।</string>
 </resources>

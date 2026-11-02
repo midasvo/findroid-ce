@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Árvíztűrő tükörfúrógép.</string>
     <string name="subtitle_style_summary">Szín, körvonal, méret és betűtípus</string>
     <string name="subtitle_system_caption_settings">Rendszer feliratozási beállításai</string>
+    <string name="home_next_up_max_days">Legfeljebb ennyi nap a Következik sorban</string>
+    <string name="home_next_up_max_days_summary">Csak az ennyi napon belül nézett sorozatok megjelenítése. A 0 azt jelenti, nincs korlát.</string>
+    <string name="home_next_up_max_days_suffix">nap</string>
+    <string name="settings_image_display_size_title">Képek betöltése megjelenítési méretben</string>
+    <string name="settings_image_display_size_summary">A képek kérése a szervertől abban a méretben, amelyben megjelennek. Kevesebb adatot használ, de a szervernek minden képet először át kell méreteznie.</string>
 </resources>

@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Zəfər, cəsur polislər hər yerdə ayıqdır.</string>
     <string name="subtitle_style_summary">Rəng, kənar xətt, ölçü və şrift</string>
     <string name="subtitle_system_caption_settings">Sistem altyazı parametrləri</string>
+    <string name="home_next_up_max_days">«Növbəti» üçün maksimum gün</string>
+    <string name="home_next_up_max_days_summary">Yalnız bu qədər gün ərzində baxılan serialları göstər. 0 limit olmadığını bildirir.</string>
+    <string name="home_next_up_max_days_suffix">gün</string>
+    <string name="settings_image_display_size_title">Şəkilləri göstərilən ölçüdə yüklə</string>
+    <string name="settings_image_display_size_summary">Şəkilləri serverdən göstərildikləri ölçüdə istə. Daha az məlumat istifadə edir, lakin server hər şəkli ilk dəfə yenidən ölçüləndirməlidir.</string>
 </resources>

@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">דג סקרן שט לו בים זך אך לפתע פגש חבורה נחמדה.</string>
     <string name="subtitle_style_summary">צבע, מתאר, גודל וגופן</string>
     <string name="subtitle_system_caption_settings">הגדרות כתוביות של המערכת</string>
+    <string name="home_next_up_max_days">מספר ימים מרבי ב„הבא בתור“</string>
+    <string name="home_next_up_max_days_summary">הצג רק סדרות שנצפו בתוך מספר הימים הזה. 0 פירושו ללא הגבלה.</string>
+    <string name="home_next_up_max_days_suffix">ימים</string>
+    <string name="settings_image_display_size_title">טען תמונות בגודל התצוגה</string>
+    <string name="settings_image_display_size_summary">בקש מהשרת תמונות בגודל שבו הן מוצגות. צורך פחות נתונים, אבל השרת צריך לשנות את גודל כל תמונה בפעם הראשונה.</string>
 </resources>

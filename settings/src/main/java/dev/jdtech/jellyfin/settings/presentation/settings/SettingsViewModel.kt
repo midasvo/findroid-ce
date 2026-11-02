@@ -213,6 +213,16 @@ class SettingsViewModel @Inject constructor(
                                                     nameStringResource = R.string.home_next_up,
                                                     backendPreference = appPreferences.homeNextUp,
                                                 ),
+                                                PreferenceIntInput(
+                                                    nameStringResource =
+                                                        R.string.home_next_up_max_days,
+                                                    descriptionStringRes =
+                                                        R.string.home_next_up_max_days_summary,
+                                                    dependencies = listOf(appPreferences.homeNextUp),
+                                                    backendPreference =
+                                                        appPreferences.homeNextUpMaxDays,
+                                                    suffixRes = R.string.home_next_up_max_days_suffix,
+                                                ),
                                                 PreferenceSwitch(
                                                     nameStringResource = R.string.home_latest,
                                                     backendPreference = appPreferences.homeLatest,
@@ -1017,6 +1027,14 @@ class SettingsViewModel @Inject constructor(
                                                     backendPreference =
                                                         appPreferences.imageCacheSize,
                                                     suffixRes = R.string.mb,
+                                                ),
+                                                PreferenceSwitch(
+                                                    nameStringResource =
+                                                        R.string.settings_image_display_size_title,
+                                                    descriptionStringRes =
+                                                        R.string.settings_image_display_size_summary,
+                                                    backendPreference =
+                                                        appPreferences.imageDisplaySize,
                                                 ),
                                             )
                                     )

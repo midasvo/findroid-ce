@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Kŕdeľ šťastných ďatľov učí pri ústí Váhu mĺkveho koňa žrať kôru.</string>
     <string name="subtitle_style_summary">Farba, obrys, veľkosť a písmo</string>
     <string name="subtitle_system_caption_settings">Systémové nastavenia titulkov</string>
+    <string name="home_next_up_max_days">Maximum dní v „Nasleduje“</string>
+    <string name="home_next_up_max_days_summary">Zobrazovať iba seriály pozerané v rámci tohto počtu dní. 0 znamená bez obmedzenia.</string>
+    <string name="home_next_up_max_days_suffix">dní</string>
+    <string name="settings_image_display_size_title">Načítavať obrázky vo veľkosti zobrazenia</string>
+    <string name="settings_image_display_size_summary">Žiadať server o obrázky vo veľkosti, v akej sa zobrazujú. Spotrebuje menej dát, ale server musí každý obrázok prvýkrát zmenšiť.</string>
 </resources>

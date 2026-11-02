@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">A rápida raposa castanha salta sobre o cão preguiçoso.</string>
     <string name="subtitle_style_summary">Cor, contorno, tamanho e tipo de letra</string>
     <string name="subtitle_system_caption_settings">Definições de legendagem do sistema</string>
+    <string name="home_next_up_max_days">Máximo de dias em A seguir</string>
+    <string name="home_next_up_max_days_summary">Mostrar apenas séries vistas neste número de dias. 0 significa sem limite.</string>
+    <string name="home_next_up_max_days_suffix">dias</string>
+    <string name="settings_image_display_size_title">Carregar imagens no tamanho de apresentação</string>
+    <string name="settings_image_display_size_summary">Pedir ao servidor imagens no tamanho em que são mostradas. Usa menos dados, mas o servidor tem de redimensionar cada imagem da primeira vez.</string>
 </resources>

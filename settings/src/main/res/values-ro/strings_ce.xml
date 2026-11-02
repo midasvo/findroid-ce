@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Vulpea maronie sare rapid peste câinele leneș.</string>
     <string name="subtitle_style_summary">Culoare, contur, mărime și font</string>
     <string name="subtitle_system_caption_settings">Setări subtitrări de sistem</string>
+    <string name="home_next_up_max_days">Număr maxim de zile în Urmează</string>
+    <string name="home_next_up_max_days_summary">Afișează doar serialele vizionate în acest număr de zile. 0 înseamnă fără limită.</string>
+    <string name="home_next_up_max_days_suffix">zile</string>
+    <string name="settings_image_display_size_title">Încarcă imaginile la dimensiunea de afișare</string>
+    <string name="settings_image_display_size_summary">Cere serverului imaginile la dimensiunea la care sunt afișate. Folosește mai puține date, dar serverul trebuie să redimensioneze fiecare imagine prima dată.</string>
 </resources>

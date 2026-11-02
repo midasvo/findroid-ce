@@ -21,13 +21,16 @@ private val SIZED_IMAGE_URL =
     Regex("""[?&](fillWidth|fillHeight|maxWidth|maxHeight|width|height)=""", RegexOption.IGNORE_CASE)
 
 /**
- * Asks the server for artwork at the size it will be shown, instead of the full-size original.
+ * Asks the server for artwork at the size it will be shown, instead of the full-size original, while
+ * [isEnabled] says so. Off by default: the server resizes each image the first time a size is
+ * asked for, which costs a busy server more than the smaller download saves.
  *
  * Lives in the image loader so nothing else sees the sized URLs: downloads fetch the URLs in
  * `FindroidImages` directly and keep storing the original.
  */
-class JellyfinImageSizeInterceptor : Interceptor {
+class JellyfinImageSizeInterceptor(private val isEnabled: () -> Boolean) : Interceptor {
     override suspend fun intercept(chain: Interceptor.Chain): ImageResult {
+        if (!isEnabled()) return chain.proceed()
         val data = chain.request.data
         if (data !is String && data !is Uri && data !is coil3.Uri) return chain.proceed()
 
