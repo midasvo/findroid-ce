@@ -55,6 +55,7 @@ and video quality during playback.
 - **Better audio decoding** — tries the platform decoder first for Atmos, and falls back to ffmpeg if a decoder fails
 - **Version picker & quality selector** — choose a version before playing, and change the video quality during playback
 - **Next-season playback** — carries on into the next season, and autoplay can follow your server or be forced on or off
+- **Audio and subtitle choice per series** — the audio and subtitle track you pick, or subtitles off, carry over to the next episodes of that series, on ExoPlayer and mpv and for downloads. Each user on the device keeps their own choice
 - **Wider subtitle support** — PGS, VobSub, and DVB without transcoding, plus configurable colors, outline, font, and size
 - **Media segments** — per-type skip / ask / ignore actions
 - **Chapter list** in the player, and an **"Are you still watching?"** inactivity prompt
