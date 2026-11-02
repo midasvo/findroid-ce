@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="browse_library">Mediathek durchsuchen</string>
     <string name="cancel_download_button">Download abbrechen</string>
@@ -82,4 +82,5 @@
     <string name="ends_at">Endet um %1$s</string>
     <string name="year_range_continuing">%1$d – heute</string>
     <string name="shuffle">Zufallswiedergabe</string>
+    <string name="favorites_empty_body">Wähle das Herzsymbol bei einem Film, einer Serie oder Folge, um sie zu deinen Favoriten hinzuzufügen.</string>
 </resources>

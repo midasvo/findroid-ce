@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="browse_library">Explorar biblioteca</string>
     <string name="cancel_download_button">Cancelar transferência</string>
@@ -82,4 +82,5 @@
     <string name="ends_at">Termina às %1$s</string>
     <string name="year_range_continuing">%1$d – presente</string>
     <string name="shuffle">Aleatório</string>
+    <string name="favorites_empty_body">Selecione o ícone de coração em qualquer filme, série ou episódio para o adicionar aos favoritos.</string>
 </resources>

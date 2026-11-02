@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="browse_library">Gennemse bibliotek</string>
     <string name="cancel_download_button">Annuller download</string>
@@ -82,4 +82,5 @@
     <string name="ends_at">Slutter kl. %1$s</string>
     <string name="year_range_continuing">%1$d – nu</string>
     <string name="shuffle">Bland</string>
+    <string name="favorites_empty_body">Vælg hjerteikonet på en film, serie eller episode for at føje den til dine favoritter.</string>
 </resources>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="browse_library">Przeglądaj bibliotekę</string>
     <string name="cancel_download_button">Anuluj pobieranie</string>
@@ -88,4 +88,5 @@
     <string name="ends_at">Kończy się o %1$s</string>
     <string name="year_range_continuing">%1$d – obecnie</string>
     <string name="shuffle">Losowo</string>
+    <string name="favorites_empty_body">Wybierz ikonę serca na dowolnym filmie, serialu lub odcinku, aby dodać go do ulubionych.</string>
 </resources>

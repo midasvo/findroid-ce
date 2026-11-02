@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="browse_library">Kütüphaneye göz at</string>
     <string name="cancel_download_button">İndirmeyi iptal et</string>
@@ -79,4 +79,5 @@
     <string name="ends_at">Bitiş: %1$s</string>
     <string name="year_range_continuing">%1$d – günümüz</string>
     <string name="shuffle">Karışık</string>
+    <string name="favorites_empty_body">Favorilerinize eklemek için herhangi bir film, dizi veya bölümdeki kalp simgesini seçin.</string>
 </resources>
