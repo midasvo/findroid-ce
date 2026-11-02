@@ -80,4 +80,5 @@
     <string name="restart">Alusta</string>
     <string name="season_episode_number">K%1$d J%2$d</string>
     <string name="ends_at">Päättyy klo %1$s</string>
+    <string name="year_range_continuing">%1$d – nykyhetki</string>
 </resources>

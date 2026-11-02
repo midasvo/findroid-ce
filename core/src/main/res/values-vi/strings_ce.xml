@@ -77,4 +77,5 @@
     <string name="restart">Phát lại từ đầu</string>
     <string name="season_episode_number">P%1$d T%2$d</string>
     <string name="ends_at">Kết thúc lúc %1$s</string>
+    <string name="year_range_continuing">%1$d – nay</string>
 </resources>

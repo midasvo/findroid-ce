@@ -167,6 +167,31 @@ class JellyfinRepositoryImpl(
             .flow
     }
 
+    override suspend fun getItemCount(
+        parentId: UUID?,
+        includeTypes: List<BaseItemKind>?,
+        recursive: Boolean,
+        filters: List<ItemFilter>?,
+        nameLessThan: String?,
+    ): Int =
+        withContext(Dispatchers.IO) {
+            jellyfinApi.libraryApi
+                .getItems(
+                    currentUserId,
+                    parentId = parentId,
+                    includeItemTypes = includeTypes,
+                    recursive = recursive,
+                    filters = filters,
+                    nameLessThan = nameLessThan,
+                    limit = 0,
+                    enableTotalRecordCount = true,
+                    enableImages = false,
+                    enableUserData = false,
+                )
+                .content
+                .totalRecordCount
+        }
+
     override suspend fun getPerson(personId: UUID): FindroidPerson =
         withContext(Dispatchers.IO) {
             jellyfinApi.libraryApi

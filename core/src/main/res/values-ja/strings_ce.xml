@@ -77,4 +77,5 @@
     <string name="restart">最初から</string>
     <string name="season_episode_number">S%1$d E%2$d</string>
     <string name="ends_at">%1$sに終了</string>
+    <string name="year_range_continuing">%1$d – 現在</string>
 </resources>
