@@ -187,6 +187,11 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val downloadStorageIndex = Preference<String?>("pref_downloads_storage_index", null)
     val maxConcurrentDownloads = Preference("pref_downloads_max_concurrent", 2)
     val smartDownloads = Preference("pref_downloads_smart", false)
+    val smartDownloadsKeepReady = Preference("pref_downloads_smart_keep", 3)
+
+    // Epoch ms at which Smart Downloads was turned on. It only removes downloads that were
+    // watched after this moment; 0 means not recorded yet.
+    val smartDownloadsSince = Preference("pref_downloads_smart_since", 0L)
 
     // When enabled, Dolby Vision files are downloaded as a device-compatible
     // (H.264) transcode so they play offline. Non-DV files stay original.

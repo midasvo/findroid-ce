@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Máximo de downloads simultâneos</string>
     <string name="pref_download_sd_card">Cartão SD %1$d (%2$s livres)</string>
     <string name="pref_download_smart">Downloads inteligentes</string>
-    <string name="pref_download_smart_summary">Baixa automaticamente o próximo episódio ao terminar um</string>
+    <string name="pref_download_smart_summary">Mantém baixados os próximos episódios de uma série que você está assistindo e remove os que ele baixou depois que você assistir</string>
+    <string name="pref_download_smart_keep">Episódios para manter prontos</string>
+    <string name="pref_download_smart_keep_summary">Episódios não assistidos para manter baixados de uma série que você está assistindo</string>
     <string name="pref_download_storage_location">Local de armazenamento dos downloads</string>
     <string name="pref_download_transcode_dovi">Transcodificar downloads em Dolby Vision</string>
     <string name="pref_download_transcode_dovi_summary">Baixa uma cópia compatível com o dispositivo de arquivos Dolby Vision para que possam ser reproduzidos offline. Outros arquivos ainda serão baixados como originais.</string>

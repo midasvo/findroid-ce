@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Párhuzamos letöltések maximális száma</string>
     <string name="pref_download_sd_card">%1$d. SD-kártya (%2$s szabad)</string>
     <string name="pref_download_smart">Okos letöltések</string>
-    <string name="pref_download_smart_summary">Automatikusan letölti a következő epizódot, amikor egy befejeződik</string>
+    <string name="pref_download_smart_summary">A nézett sorozat következő epizódjait letöltve tartja, és a megtekintés után törli az általa letöltötteket</string>
+    <string name="pref_download_smart_keep">Készenlétben tartott epizódok</string>
+    <string name="pref_download_smart_keep_summary">A nézett sorozatból letöltve tartandó megnézetlen epizódok</string>
     <string name="pref_download_storage_location">Letöltési tárhely helye</string>
     <string name="pref_download_transcode_dovi">Dolby Vision letöltések átkódolása</string>
     <string name="pref_download_transcode_dovi_summary">Eszközkompatibilis másolat letöltése a Dolby Vision fájlokból az offline lejátszáshoz. A többi fájl eredeti formátumban töltődik le.</string>

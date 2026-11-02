@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Număr maxim de descărcări simultane</string>
     <string name="pref_download_sd_card">Card SD %1$d (%2$s liberi)</string>
     <string name="pref_download_smart">Descărcări inteligente</string>
-    <string name="pref_download_smart_summary">Descarcă automat următorul episod când unul se termină</string>
+    <string name="pref_download_smart_summary">Păstrează descărcate următoarele episoade dintr-un serial pe care îl urmărești și le șterge pe cele descărcate după ce le-ai vizionat</string>
+    <string name="pref_download_smart_keep">Episoade de păstrat pregătite</string>
+    <string name="pref_download_smart_keep_summary">Episoade nevăzute păstrate descărcate pentru un serial pe care îl urmărești</string>
     <string name="pref_download_storage_location">Locație stocare descărcări</string>
     <string name="pref_download_transcode_dovi">Transcodează descărcările Dolby Vision</string>
     <string name="pref_download_transcode_dovi_summary">Descarcă o copie compatibilă cu dispozitivul a fișierelor Dolby Vision pentru a le reda offline. Alte fișiere se descarcă ca originale.</string>

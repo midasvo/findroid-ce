@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Màx. baixades simultànies</string>
     <string name="pref_download_sd_card">Targeta SD %1$d (%2$s lliure)</string>
     <string name="pref_download_smart">Baixades intel·ligents</string>
-    <string name="pref_download_smart_summary">Baixa automàticament el següent episodi quan s\'acabi un</string>
+    <string name="pref_download_smart_summary">Mantén baixats els pròxims episodis d\'una sèrie que estàs mirant i elimina els que ha baixat quan els hagis vist</string>
+    <string name="pref_download_smart_keep">Episodis per tenir preparats</string>
+    <string name="pref_download_smart_keep_summary">Episodis no vistos que es mantenen baixats d\'una sèrie que estàs mirant</string>
     <string name="pref_download_storage_location">Ubicació d\'emmagatzematge de baixades</string>
     <string name="pref_download_transcode_dovi">Transcodifica les baixades Dolby Vision</string>
     <string name="pref_download_transcode_dovi_summary">Baixa una còpia compatible amb el dispositiu dels fitxers Dolby Vision perquè es reprodueixin fora de línia. Els altres fitxers es continuen baixant en format original.</string>

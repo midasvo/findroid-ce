@@ -26,6 +26,7 @@ import coil3.svg.SvgDecoder
 import com.google.android.material.color.DynamicColors
 import dagger.hilt.android.HiltAndroidApp
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadQueue
+import dev.jdtech.jellyfin.core.presentation.downloader.SmartDownloads
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.Downloader
 import dev.jdtech.jellyfin.utils.JellyfinImageSizeInterceptor
@@ -51,6 +52,8 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
     @Inject lateinit var downloadQueue: DownloadQueue
 
     @Inject lateinit var downloader: Downloader
+
+    @Inject lateinit var smartDownloads: SmartDownloads
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
@@ -94,6 +97,9 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
             ExistingPeriodicWorkPolicy.KEEP,
             PeriodicWorkRequestBuilder<OrphanSweepWorker>(1, TimeUnit.DAYS).build(),
         )
+
+        // Smart Downloads reacts to the player reporting a stop, which can happen at any time.
+        smartDownloads.start()
 
         // Re-attach any downloads that were in-flight before process death. The OkHttp
         // engine is in-process and does not survive, so partials are resumed via Range.

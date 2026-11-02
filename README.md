@@ -47,6 +47,7 @@ and video quality during playback.
 - **Redesigned downloads screen** — one list with progress rings, a per-show page, multi-select, undo, and a storage breakdown
 - **Season list built for downloads** — live progress and download, stop and delete buttons on each episode
 - **Bulk season & series download** — with a configurable limit on concurrent downloads and per-season status such as "3/10 downloaded"
+- **Smart Downloads** — an opt-in setting that keeps the next episodes of a series you are watching downloaded (3 by default) and removes the ones it downloaded once you have watched them
 
 ### Playback & player
 

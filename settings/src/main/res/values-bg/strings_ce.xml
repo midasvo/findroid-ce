@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Макс. едновременни изтегляния</string>
     <string name="pref_download_sd_card">SD карта %1$d (%2$s свободно)</string>
     <string name="pref_download_smart">Интелигентни изтегляния</string>
-    <string name="pref_download_smart_summary">Автоматично изтегляне на следващия епизод след завършване на предходния</string>
+    <string name="pref_download_smart_summary">Държи изтеглени следващите епизоди на сериал, който гледате, и премахва изтеглените от него, след като ги изгледате</string>
+    <string name="pref_download_smart_keep">Епизоди за подготвяне</string>
+    <string name="pref_download_smart_keep_summary">Негледани епизоди, които да останат изтеглени за сериал, който гледате</string>
     <string name="pref_download_storage_location">Място за съхранение на изтеглянията</string>
     <string name="pref_download_transcode_dovi">Транскодиране на изтегляния с Dolby Vision</string>
     <string name="pref_download_transcode_dovi_summary">Изтегляне на съвместимо с устройството копие на файлове с Dolby Vision за гледане офлайн. Другите файлове се изтеглят в оригинал.</string>

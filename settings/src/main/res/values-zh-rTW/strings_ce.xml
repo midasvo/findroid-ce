@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">上限並行下載數</string>
     <string name="pref_download_sd_card">SD 卡 %1$d（剩餘 %2$s）</string>
     <string name="pref_download_smart">智慧下載</string>
-    <string name="pref_download_smart_summary">看完一集後自動下載下一集</string>
+    <string name="pref_download_smart_summary">為你正在觀看的影集保持下載後續幾集，並在你看完後刪除由其下載的集數</string>
+    <string name="pref_download_smart_keep">預先準備的集數</string>
+    <string name="pref_download_smart_keep_summary">為你正在觀看的影集保持下載的未觀看集數</string>
     <string name="pref_download_storage_location">下載儲存位置</string>
     <string name="pref_download_transcode_dovi">轉碼杜比視界下載項目</string>
     <string name="pref_download_transcode_dovi_summary">下載與裝置相容的杜比視界複本以便離線播放。其他檔案仍會以原始格式下載。</string>

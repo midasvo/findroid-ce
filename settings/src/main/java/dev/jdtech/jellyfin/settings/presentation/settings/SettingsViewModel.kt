@@ -944,6 +944,17 @@ class SettingsViewModel @Inject constructor(
                                                     backendPreference =
                                                         appPreferences.smartDownloads,
                                                 ),
+                                                PreferenceIntInput(
+                                                    nameStringResource =
+                                                        R.string.pref_download_smart_keep,
+                                                    descriptionStringRes =
+                                                        R.string.pref_download_smart_keep_summary,
+                                                    dependencies =
+                                                        listOf(appPreferences.smartDownloads),
+                                                    backendPreference =
+                                                        appPreferences.smartDownloadsKeepReady,
+                                                    suffixRes = R.string.episodes,
+                                                ),
                                                 PreferenceSwitch(
                                                     nameStringResource =
                                                         R.string.pref_download_transcode_dovi,
@@ -1262,11 +1273,22 @@ class SettingsViewModel @Inject constructor(
         when (action) {
             is SettingsAction.OnUpdate -> {
                 when (action.preference) {
-                    is PreferenceSwitch ->
+                    is PreferenceSwitch -> {
+                        if (
+                            action.preference.backendPreference == appPreferences.smartDownloads &&
+                                action.preference.value
+                        ) {
+                            // Smart Downloads only removes what is watched from this moment on.
+                            appPreferences.setValue(
+                                appPreferences.smartDownloadsSince,
+                                System.currentTimeMillis(),
+                            )
+                        }
                         appPreferences.setValue(
                             action.preference.backendPreference,
                             action.preference.value,
                         )
+                    }
                     is PreferenceSelect ->
                         appPreferences.setValue(
                             action.preference.backendPreference,
@@ -1285,6 +1307,11 @@ class SettingsViewModel @Inject constructor(
                                     Constants.SubtitleStyle.FONT_SCALE_MIN,
                                     Constants.SubtitleStyle.FONT_SCALE_MAX,
                                 )
+                            } else if (
+                                action.preference.backendPreference ==
+                                    appPreferences.smartDownloadsKeepReady
+                            ) {
+                                action.preference.value.coerceAtLeast(1)
                             } else {
                                 action.preference.value
                             },

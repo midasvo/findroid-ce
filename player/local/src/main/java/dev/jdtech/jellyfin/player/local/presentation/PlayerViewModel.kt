@@ -519,6 +519,7 @@ constructor(
             }
         }
 
+        playbackEvents.onPlaying(null)
         stopped?.let { reportStopped(it) }
     }
 
@@ -564,7 +565,7 @@ constructor(
             } catch (e: Exception) {
                 Timber.e(e)
             } finally {
-                playbackEvents.onStopped()
+                playbackEvents.onStopped(itemId)
             }
         }
     }
@@ -719,6 +720,10 @@ constructor(
                 newId != null -> PlayingSnapshot(newId, 0L, C.TIME_UNSET)
                 else -> null
             }
+        // Smart Downloads must not delete the file that is open, even once the server has marked
+        // it played. Only releasePlayer clears this: a finished item stays open until the player
+        // closes.
+        playbackEvents.onPlaying(newId)
 
         viewModelScope.launch {
             try {

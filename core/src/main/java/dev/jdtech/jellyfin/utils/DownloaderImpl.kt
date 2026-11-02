@@ -114,6 +114,7 @@ class DownloaderImpl(
         sourceId: String,
         storageIndex: Int,
         maxBitrate: Int?,
+        smartQueued: Boolean,
     ): Pair<Long, UiText?> = coroutineScope {
         val transcodeDolbyVision =
             appPreferences.getValue(appPreferences.downloadTranscodeDolbyVision)
@@ -284,7 +285,11 @@ class DownloaderImpl(
             val sourceDto = source.toFindroidSourceDto(item.id, destFile.absolutePath)
 
             database.insertSource(
-                sourceDto.copy(downloadId = downloadId, downloadMaxBitrate = maxBitrate)
+                sourceDto.copy(
+                    downloadId = downloadId,
+                    downloadMaxBitrate = maxBitrate,
+                    smartQueued = smartQueued,
+                )
             )
             database.insertUserData(item.toFindroidUserDataDto(jellyfinRepository.getUserId()))
 
@@ -322,6 +327,7 @@ class DownloaderImpl(
         item: FindroidItem,
         storageIndex: Int,
         maxBitrate: Int?,
+        smartQueued: Boolean,
     ): Pair<Long, UiText?> {
         val sources = try {
             jellyfinRepository.getMediaSources(
@@ -342,6 +348,7 @@ class DownloaderImpl(
             sourceId = sourceId,
             storageIndex = storageIndex,
             maxBitrate = maxBitrate,
+            smartQueued = smartQueued,
         )
     }
 
@@ -697,7 +704,11 @@ class DownloaderImpl(
         }
     }
 
-    override suspend fun savePendingDownload(item: FindroidItem, maxBitrate: Int?) =
+    override suspend fun savePendingDownload(
+        item: FindroidItem,
+        maxBitrate: Int?,
+        smartQueued: Boolean,
+    ) =
         withContext(Dispatchers.IO) {
             val kind =
                 when (item) {
@@ -711,6 +722,7 @@ class DownloaderImpl(
                     itemKind = kind,
                     addedAt = System.currentTimeMillis(),
                     maxBitrate = maxBitrate,
+                    smartQueued = smartQueued,
                 ),
             )
         }
@@ -744,7 +756,12 @@ class DownloaderImpl(
             when {
                 resolved != null ->
                     result.add(
-                        Downloader.PendingDownload(resolved, row.addedAt, row.maxBitrate)
+                        Downloader.PendingDownload(
+                            resolved,
+                            row.addedAt,
+                            row.maxBitrate,
+                            row.smartQueued,
+                        )
                     )
                 row.addedAt < cutoff -> {
                     Timber.i("Dropping stale pending download ${row.itemId} (>30 days unresolvable)")
@@ -774,7 +791,12 @@ class DownloaderImpl(
                 }
             if (item != null) {
                 result.add(
-                    Downloader.ActiveDownload(item, downloadId, source.downloadMaxBitrate)
+                    Downloader.ActiveDownload(
+                        item,
+                        downloadId,
+                        source.downloadMaxBitrate,
+                        source.smartQueued,
+                    )
                 )
             }
         }
@@ -881,7 +903,7 @@ class DownloaderImpl(
         // If the rename already happened on disk (earlier finalize, manual recovery),
         // just sync the DB and exit.
         if (finalFile.exists() && finalFile.length() > 0 && !downloadFile.exists()) {
-            database.setSourcePath(source.id, finalPath)
+            database.setSourceDownloaded(source.id, finalPath, System.currentTimeMillis())
             return true
         }
 
@@ -892,7 +914,7 @@ class DownloaderImpl(
             deleteSourceItem(source)
             return false
         }
-        database.setSourcePath(source.id, finalPath)
+        database.setSourceDownloaded(source.id, finalPath, System.currentTimeMillis())
         // Drop the terminal task from the engine registry after successful finalize.
         source.downloadId?.let { engine.cancel(it) }
         Timber.d("Finalized download at: $finalPath")

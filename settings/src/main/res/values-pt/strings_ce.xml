@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Máximo de transferências simultâneas</string>
     <string name="pref_download_sd_card">Cartão SD %1$d (%2$s livres)</string>
     <string name="pref_download_smart">Transferências inteligentes</string>
-    <string name="pref_download_smart_summary">Transfere automaticamente o próximo episódio quando um terminar</string>
+    <string name="pref_download_smart_summary">Mantém transferidos os próximos episódios de uma série que está a ver e remove os que transferiu depois de os ver</string>
+    <string name="pref_download_smart_keep">Episódios a manter prontos</string>
+    <string name="pref_download_smart_keep_summary">Episódios por ver a manter transferidos para uma série que está a ver</string>
     <string name="pref_download_storage_location">Localização de armazenamento de transferências</string>
     <string name="pref_download_transcode_dovi">Transcodificar transferências em Dolby Vision</string>
     <string name="pref_download_transcode_dovi_summary">Transfere uma cópia compatível com o dispositivo de ficheiros Dolby Vision para poderem ser reproduzidos offline. Outros ficheiros continuarão a ser transferidos no formato original.</string>

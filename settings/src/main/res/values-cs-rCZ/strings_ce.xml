@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">Max. souběžných stahování</string>
     <string name="pref_download_sd_card">SD karta %1$d (%2$s volného)</string>
     <string name="pref_download_smart">Chytré stahování</string>
-    <string name="pref_download_smart_summary">Po dokončení jedné epizody automaticky stáhnout další</string>
+    <string name="pref_download_smart_summary">Udržuje stažené další epizody seriálu, který sledujete, a po zhlédnutí odstraní ty, které stáhla</string>
+    <string name="pref_download_smart_keep">Počet epizod připravených ke zhlédnutí</string>
+    <string name="pref_download_smart_keep_summary">Nezhlédnuté epizody, které zůstanou stažené u seriálu, který sledujete</string>
     <string name="pref_download_storage_location">Umístění úložiště stahování</string>
     <string name="pref_download_transcode_dovi">Překódovat stažené soubory Dolby Vision</string>
     <string name="pref_download_transcode_dovi_summary">Stahovat kopii souborů Dolby Vision kompatibilní se zařízením pro offline přehrávání. Ostatní soubory se stahují v původní kvalitě.</string>

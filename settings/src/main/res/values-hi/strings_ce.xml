@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">अधिकतम एक साथ डाउनलोड</string>
     <string name="pref_download_sd_card">एसडी कार्ड %1$d (%2$s खाली)</string>
     <string name="pref_download_smart">स्मार्ट डाउनलोड</string>
-    <string name="pref_download_smart_summary">एक एपिसोड समाप्त होने पर अगला एपिसोड स्वचालित रूप से डाउनलोड करें</string>
+    <string name="pref_download_smart_summary">आप जो सीरीज़ देख रहे हैं उसके अगले एपिसोड डाउनलोड रखें, और देख लेने के बाद ऐप द्वारा डाउनलोड किए गए एपिसोड हटा दें</string>
+    <string name="pref_download_smart_keep">तैयार रखने के लिए एपिसोड</string>
+    <string name="pref_download_smart_keep_summary">आप जो सीरीज़ देख रहे हैं उसके डाउनलोड रखे जाने वाले अनदेखे एपिसोड</string>
     <string name="pref_download_storage_location">डाउनलोड स्टोरेज स्थान</string>
     <string name="pref_download_transcode_dovi">Dolby Vision डाउनलोड ट्रांसकोड करें</string>
     <string name="pref_download_transcode_dovi_summary">Dolby Vision फ़ाइलों की डिवाइस-संगत प्रति डाउनलोड करें ताकि वे ऑफ़लाइन चल सकें। अन्य फ़ाइलें मूल रूप में डाउनलोड होती हैं।</string>

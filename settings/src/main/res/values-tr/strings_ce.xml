@@ -25,7 +25,9 @@
     <string name="pref_download_max_concurrent">En fazla eşzamanlı indirme</string>
     <string name="pref_download_sd_card">SD kart %1$d (%2$s boş)</string>
     <string name="pref_download_smart">Akıllı indirmeler</string>
-    <string name="pref_download_smart_summary">Bir bölüm bittiğinde bir sonrakini otomatik olarak indir</string>
+    <string name="pref_download_smart_summary">İzlediğiniz bir dizinin sonraki bölümlerini indirilmiş tutar ve kendi indirdiklerini izledikten sonra kaldırır</string>
+    <string name="pref_download_smart_keep">Hazır tutulacak bölümler</string>
+    <string name="pref_download_smart_keep_summary">İzlediğiniz bir dizi için indirilmiş tutulacak izlenmemiş bölümler</string>
     <string name="pref_download_storage_location">İndirme depolama konumu</string>
     <string name="pref_download_transcode_dovi">Dolby Vision indirmelerini dönüştür</string>
     <string name="pref_download_transcode_dovi_summary">Çevrimdışı oynatılabilmeleri için Dolby Vision dosyalarının cihazla uyumlu bir kopyasını indirin. Diğer dosyalar orijinal olarak indirilir.</string>
