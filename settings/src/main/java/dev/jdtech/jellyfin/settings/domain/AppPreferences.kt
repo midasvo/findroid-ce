@@ -79,6 +79,11 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val playerSeekForwardInc = Preference("pref_player_seek_forward_inc", 15_000L)
     val playerChapterMarkers = Preference("pref_player_chapter_markers", true)
 
+    // CE (#126): TV remote. The steps are strings because TV settings only have selects.
+    val playerTvSeekBackInc = Preference("pref_player_tv_seek_back_inc", "10000")
+    val playerTvSeekForwardInc = Preference("pref_player_tv_seek_forward_inc", "30000")
+    val playerTvOkPauses = Preference("pref_player_tv_ok_pauses", false)
+
     // Player - Media Segments
     val playerMediaSegmentsSkipButton
         get() = Preference("pref_player_media_segments_skip_button", true)

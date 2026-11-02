@@ -145,6 +145,20 @@
         <item>@string/media_segments_action_ask</item>
         <item>@string/media_segments_action_ignore</item>
     </string-array>
+    <string-array name="player_tv_seek_steps">
+        <item>@string/player_tv_seek_step_5</item>
+        <item>@string/player_tv_seek_step_10</item>
+        <item>@string/player_tv_seek_step_15</item>
+        <item>@string/player_tv_seek_step_30</item>
+        <item>@string/player_tv_seek_step_60</item>
+    </string-array>
+    <string-array name="player_tv_seek_steps_values" translatable="false">
+        <item>5000</item>
+        <item>10000</item>
+        <item>15000</item>
+        <item>30000</item>
+        <item>60000</item>
+    </string-array>
     <string-array name="media_segments_action_values" translatable="false">
         <item>SKIP</item>
         <item>ASK</item>

@@ -67,8 +67,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -116,6 +120,32 @@ constructor(
             )
         )
     val uiState = _uiState.asStateFlow()
+
+    /**
+     * CE (#126, ADR 0004): position, duration and play state, updated every [PROGRESS_TICK_MS]
+     * while something collects it (the TV player). Phone doesn't collect it, so there it never
+     * runs. Each tick also refreshes the playing snapshot, as the TV screen's own poll loop did.
+     */
+    val progress: StateFlow<PlaybackProgress> =
+        flow {
+                while (true) {
+                    refreshPlayingSnapshot()
+                    val duration = player.duration
+                    emit(
+                        PlaybackProgress(
+                            positionMs = player.currentPosition.coerceAtLeast(0L),
+                            durationMs = if (duration == C.TIME_UNSET) 0L else duration,
+                            isPlaying = player.isPlaying,
+                        )
+                    )
+                    delay(PROGRESS_TICK_MS)
+                }
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5_000L),
+                PlaybackProgress(positionMs = 0L, durationMs = 0L, isPlaying = false),
+            )
 
     // Buffered so transient events (e.g. NavigateBack on STATE_ENDED, error toasts) are not
     // dropped if the collector is paused mid-config-change. trySend on a rendezvous channel
