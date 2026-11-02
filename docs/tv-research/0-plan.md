@@ -18,7 +18,7 @@ We already build a TV APK, but it was never designed as a product. From a quick 
 - **CE features that never reached TV:** per-series audio/subtitle memory (#115) may work through the shared player, but the TV player has no track or quality dialogs of its own to make that visible. Smart Downloads (#116), the Downloads redesign (#81) and offline mode don't exist on TV.
 - The TV `PlayerScreen` is its own 346-line implementation. We need to check how it relates to the `PlaybackService` move from #79.
 - `app/tv` uses the same `applicationId` (`nl.midasvo.findroid.ce`) as `app/phone`. Today the two APKs replace each other on a device that can run both.
-- CI builds `app/tv` in `build.yaml`, but `beta.yml` and `release.yml` don't publish a TV APK.
+- CI builds `app/tv` in `build.yaml`. `release.yml` publishes the TV APKs as `tv-libre-<abi>-release.apk`, but `beta.yml` doesn't publish one. *(Corrected in phase 4. This first said that releases didn't publish one either.)*
 - The manifest is already correct for the Play Store TV checks: `leanback` feature, `touchscreen` not required, banner set.
 
 ## Rules for this work

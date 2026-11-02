@@ -100,7 +100,7 @@ The stacks are almost the same, so everything below can be built in our setup wi
 | | Theme music | n/a | no | yes |
 | Account | Quick Connect | yes | yes | yes |
 | | PIN per user | no | no | yes |
-| Release | Published APK | yes | no | yes |
+| Release | Published APK | yes | in releases only (`tv-libre-*`), not in betas | yes |
 
 ### Takeaways for phase 3 and 4
 

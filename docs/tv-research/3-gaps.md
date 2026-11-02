@@ -23,7 +23,7 @@ The shared ViewModels that TV needs already exist: `SearchViewModel`, `Collectio
 | G5 | **Open collections** (F5) | S | TV UI | ✱ `LibraryScreen`, `NavigationRoot` | Handle `FindroidBoxSet` → a `CollectionRoute` with a grid on `CollectionViewModel`. |
 | G6 | **Settings below "Next episode" can't be reached** (F6) | S | TV UI | ✱ `SettingsSubScreen` | Find out why focus stops there (probably a non-focusable header or a list that doesn't scroll). |
 | G7 | **Episode handling** (F12) | M | TV UI | ✱ `SeasonScreen`, `HomeScreen`; new CE file | OK on an episode opens its season with focus on that episode, an overview, technical info and buttons: Play/Resume, Restart, Watched, Favourite. Also wire up "play from beginning" (TV now always passes `startFromBeginning = false`). Based on `EpisodeViewModel`/`SeasonViewModel`. |
-| G8 | **Publish the TV APK** | S | CI | no | Add the TV APK to `beta.yml` and `release.yml`. First decide the `applicationId` question (phase 4, decision 5). Without this, nobody can use the work. |
+| G8 | **TV APK in betas, with clear names** | S | CI + Gradle | no | Releases already contain `tv-libre-<abi>-release.apk`. Betas have no TV APK. See ADR 0005 and ADR 0006. |
 
 ## Should
 
@@ -65,7 +65,7 @@ Each step ships something usable on its own:
 
 1. **G1 focus** — the base for everything that follows.
 2. **G2 + G3 player keys and tracks** — fixes the worst everyday problem with the least code, because the logic already exists.
-3. **G8 publish the APK** — so people can test from here on. Needs decision 5 first.
+3. **G8 TV beta** — so people can test from here on (ADR 0005, ADR 0006). [4-decisions.md](4-decisions.md) moves it to step 1.
 4. **G4 search, G5 collections, G6 settings, G18 trailer** — the remaining "broken" things, all small.
 5. **G9 + G10 navigation and safe area** — after decision 2. Changes the frame of the whole app, so do it before more screens are added.
 6. **G7 episodes, G12 player overlay, G13 hero** — the core loop feels right.
@@ -73,6 +73,8 @@ Each step ships something usable on its own:
 8. **Polish** — G19 Watch Next first.
 
 ## What phase 4 has to decide first
+
+Answered in [4-decisions.md](4-decisions.md).
 
 - **Decision 5 (application ID)** blocks G8.
 - **Decision 2 (navigation shape)** blocks G9, and affects G4 and G17 (where Search and Favorites live).

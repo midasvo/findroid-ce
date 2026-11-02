@@ -83,7 +83,7 @@ The Wholphin column is in [2-wholphin.md](2-wholphin.md).
 | Settings | Settings tree | Yes | Yes (incl. phone-only options) | |
 | | Subtitle style screen | Yes | Yes (in the settings tree) | |
 | | About, server addresses | Yes | No | |
-| Release | Published APK | Yes | No (built in CI only) | |
+| Release | Published APK | Yes | In releases only (`tv-libre-*`), not in betas | |
 
 ### Size
 
