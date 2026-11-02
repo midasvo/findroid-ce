@@ -969,6 +969,8 @@ constructor(
     private fun saveSeriesTrackPreference(trackType: @C.TrackType Int, index: Int) {
         val seriesId = currentPlayerItem()?.seriesId ?: return
         val userId = jellyfinApi.userId ?: return
+        // Only subtitles can be remembered as off. Silent audio for a whole series is never wanted.
+        if (index == -1 && trackType != C.TRACK_TYPE_TEXT) return
         val preference =
             if (index == -1) {
                 SeriesTrackPreferenceDto(userId, seriesId, trackType, disabled = true)
@@ -1031,7 +1033,9 @@ constructor(
             for (preference in preferences) {
                 val trackType = preference.trackType
                 if (preference.disabled) {
-                    applied = applied.setTrackTypeDisabled(trackType, true)
+                    if (trackType == C.TRACK_TYPE_TEXT) {
+                        applied = applied.setTrackTypeDisabled(trackType, true)
+                    }
                     continue
                 }
                 val groups = supportedGroups(trackType)
