@@ -13,6 +13,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import dev.jdtech.jellyfin.ce.presentation.film.CollectionScreen
 import dev.jdtech.jellyfin.ce.presentation.film.LibraryScreen
 import dev.jdtech.jellyfin.ce.presentation.film.SeasonScreen
 import dev.jdtech.jellyfin.ce.presentation.film.ShowScreen
@@ -229,14 +230,12 @@ private fun EntryProviderScope<NavKey>.tvEntries(
             navigateToShow = resumedAction { itemId -> navigate(ShowRoute(itemId.toString())) },
             navigateToEpisode =
                 resumedAction { episodeId -> navigate(EpisodeRoute(episodeId = episodeId.toString())) },
-            // A collection opens as a library grid of its items until #129 adds CollectionRoute.
             navigateToCollection =
-                resumedAction { collectionId, name ->
+                resumedAction { collectionId, collectionName ->
                     navigate(
-                        LibraryRoute(
-                            libraryId = collectionId.toString(),
-                            libraryName = name,
-                            libraryType = CollectionType.Mixed,
+                        CollectionRoute(
+                            collectionId = collectionId.toString(),
+                            collectionName = collectionName,
                         )
                     )
                 },
@@ -260,6 +259,29 @@ private fun EntryProviderScope<NavKey>.tvEntries(
                 },
             navigateToMovie = resumedAction { itemId -> navigate(MovieRoute(itemId.toString())) },
             navigateToShow = resumedAction { itemId -> navigate(ShowRoute(itemId.toString())) },
+            navigateToCollection =
+                resumedAction { collectionId, collectionName ->
+                    navigate(
+                        CollectionRoute(
+                            collectionId = collectionId.toString(),
+                            collectionName = collectionName,
+                        )
+                    )
+                },
+        )
+    }
+    entry<CollectionRoute> { key ->
+        CollectionScreen(
+            collectionId = UUID.fromString(key.collectionId),
+            collectionName = key.collectionName,
+            navigateToMovie = resumedAction { itemId -> navigate(MovieRoute(itemId.toString())) },
+            navigateToShow = resumedAction { itemId -> navigate(ShowRoute(itemId.toString())) },
+            navigateToPlayer =
+                resumedAction { itemId, itemKind ->
+                    navigate(
+                        PlayerRoute(itemId = itemId.toString(), itemKind = itemKind.serialName)
+                    )
+                },
         )
     }
     entry<MovieRoute> { key ->
