@@ -8,17 +8,45 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updatePadding
+import dev.jdtech.jellyfin.player.local.PlaybackSessionStore
 import dev.jdtech.jellyfin.player.local.presentation.PlayerViewModel
 
 abstract class BasePlayerActivity : AppCompatActivity() {
 
     abstract val viewModel: PlayerViewModel
 
+    /** Owns [viewModel], and with it the player, so a session can outlive this activity. */
+    abstract val sessionStore: PlaybackSessionStore
+
     private var wasPip: Boolean = false
+
+    /** The user closed the player, as opposed to the activity being removed from under it. */
+    private var closedByUser: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        sessionStore.onUiAttached()
+    }
+
+    override fun finish() {
+        // Every close from the app (back, the close button, the end of the queue) comes through
+        // here. The system removing the task while audio plays in the background does not.
+        closedByUser = true
+        super.finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isChangingConfigurations || !sessionStore.hasSession) return
+
+        // With background audio on and playing, the session carries on in PlaybackService
+        // without this activity. Anything else ends it, as closing the player always has.
+        if (!closedByUser && viewModel.isBackgroundAudioEnabled && viewModel.player.isPlaying) {
+            sessionStore.onUiDetached(isPlaying = true)
+        } else {
+            sessionStore.clear()
+        }
     }
 
     override fun onResume() {

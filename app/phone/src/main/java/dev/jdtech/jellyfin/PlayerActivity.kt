@@ -24,7 +24,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Space
 import android.widget.TextView
-import androidx.activity.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -35,6 +35,7 @@ import androidx.media3.ui.PlayerControlView
 import androidx.media3.ui.PlayerView
 import dagger.hilt.android.AndroidEntryPoint
 import dev.jdtech.jellyfin.databinding.ActivityPlayerBinding
+import dev.jdtech.jellyfin.player.local.PlaybackSessionStore
 import dev.jdtech.jellyfin.player.local.presentation.PlayerEvents
 import dev.jdtech.jellyfin.player.local.presentation.PlayerViewModel
 import dev.jdtech.jellyfin.presentation.player.ChapterListDialogFragment
@@ -61,7 +62,14 @@ class PlayerActivity : BasePlayerActivity() {
 
     lateinit var binding: ActivityPlayerBinding
     private var playerGestureHelper: PlayerGestureHelper? = null
-    override val viewModel: PlayerViewModel by viewModels()
+    @Inject override lateinit var sessionStore: PlaybackSessionStore
+    override val viewModel: PlayerViewModel by lazy {
+        ViewModelProvider(
+            sessionStore.viewModelStore,
+            defaultViewModelProviderFactory,
+            defaultViewModelCreationExtras,
+        )[PlayerViewModel::class.java]
+    }
     private var previewScrubListener: PreviewScrubListener? = null
     private var wasZoom: Boolean = false
     private var skipButtonTimeoutExpired: Boolean = true
@@ -96,10 +104,17 @@ class PlayerActivity : BasePlayerActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val itemId = UUID.fromString(intent.extras!!.getString("itemId"))
-        val itemKind = intent.extras!!.getString("itemKind")
-        val startFromBeginning = intent.extras!!.getBoolean("startFromBeginning")
-        val mediaSourceId = intent.extras!!.getString("mediaSourceId")
+        // Without an item the media notification brought us back to a session that is still
+        // playing in the background. If it is gone by now there is nothing to show.
+        val itemIdExtra = intent.extras?.getString("itemId")
+        if (itemIdExtra == null && !sessionStore.hasSession) {
+            finish()
+            return
+        }
+        val itemId = itemIdExtra?.let { UUID.fromString(it) }
+        val itemKind = intent.extras?.getString("itemKind")
+        val startFromBeginning = intent.extras?.getBoolean("startFromBeginning") ?: false
+        val mediaSourceId = intent.extras?.getString("mediaSourceId")
 
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -388,12 +403,14 @@ class PlayerActivity : BasePlayerActivity() {
             timeBar.addListener(previewScrubListener!!)
         }
 
-        viewModel.initializePlayer(
-            itemId = itemId,
-            itemKind = itemKind ?: "",
-            startFromBeginning = startFromBeginning,
-            mediaSourceId = mediaSourceId,
-        )
+        if (itemId != null) {
+            viewModel.initializePlayer(
+                itemId = itemId,
+                itemKind = itemKind ?: "",
+                startFromBeginning = startFromBeginning,
+                mediaSourceId = mediaSourceId,
+            )
+        }
         hideSystemUI()
     }
 

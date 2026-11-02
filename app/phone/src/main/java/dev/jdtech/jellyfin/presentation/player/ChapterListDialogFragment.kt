@@ -11,7 +11,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil3.load
@@ -24,6 +23,7 @@ import dev.jdtech.jellyfin.player.core.domain.models.PlayerChapter
 import dev.jdtech.jellyfin.player.core.domain.models.formatStartTimestamp
 import dev.jdtech.jellyfin.player.local.R as PlayerR
 import dev.jdtech.jellyfin.player.local.presentation.PlayerAction
+import dev.jdtech.jellyfin.BasePlayerActivity
 import dev.jdtech.jellyfin.player.local.presentation.PlayerViewModel
 
 /**
@@ -35,7 +35,8 @@ import dev.jdtech.jellyfin.player.local.presentation.PlayerViewModel
  * are wired through the same `supportFragmentManager` mechanism.
  */
 class ChapterListDialogFragment : DialogFragment() {
-    private val viewModel: PlayerViewModel by activityViewModels()
+    private val viewModel: PlayerViewModel
+        get() = (requireActivity() as BasePlayerActivity).viewModel
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val activity = requireActivity()
