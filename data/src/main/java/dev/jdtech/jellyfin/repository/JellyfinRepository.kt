@@ -68,7 +68,15 @@ interface JellyfinRepository {
 
     suspend fun getFavoriteItems(): List<FindroidItem>
 
-    suspend fun getSearchItems(query: String): List<FindroidItem>
+    /**
+     * Searches movies and shows. With [itemKinds], it searches those kinds instead, with a separate
+     * limit per kind so one kind (episodes) can't push the others out (CE, TV search). The offline
+     * repository ignores [itemKinds].
+     */
+    suspend fun getSearchItems(
+        query: String,
+        itemKinds: List<BaseItemKind>? = null,
+    ): List<FindroidItem>
 
     suspend fun getSuggestions(): List<FindroidItem>
 

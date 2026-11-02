@@ -78,4 +78,5 @@
         <item quantity="few">Odebrány %d stažené položky</item>
         <item quantity="other">Odebráno %d stažených položek</item>
     </plurals>
+    <string name="collections_label">Kolekce</string>
 </resources>

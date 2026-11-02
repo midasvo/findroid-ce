@@ -75,4 +75,5 @@
         <item quantity="one">S\'ha suprimit %d baixada</item>
         <item quantity="other">S\'han suprimit %d baixades</item>
     </plurals>
+    <string name="collections_label">Col·leccions</string>
 </resources>

@@ -81,4 +81,5 @@
         <item quantity="few">Odstranjeni %d prenosi</item>
         <item quantity="other">Odstranjenih %d prenosov</item>
     </plurals>
+    <string name="collections_label">Zbirke</string>
 </resources>

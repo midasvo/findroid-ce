@@ -242,7 +242,10 @@ class JellyfinRepositoryOfflineImpl(
         }
     }
 
-    override suspend fun getSearchItems(query: String): List<FindroidItem> {
+    override suspend fun getSearchItems(
+        query: String,
+        itemKinds: List<BaseItemKind>?,
+    ): List<FindroidItem> {
         return withContext(Dispatchers.IO) {
             val serverId = currentServerId() ?: return@withContext emptyList()
             val movies =

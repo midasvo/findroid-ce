@@ -81,4 +81,5 @@
         <item quantity="many">Видалено %d завантажень</item>
         <item quantity="other">Видалено %d завантажень</item>
     </plurals>
+    <string name="collections_label">Колекції</string>
 </resources>

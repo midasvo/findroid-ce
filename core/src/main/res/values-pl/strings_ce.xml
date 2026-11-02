@@ -81,4 +81,5 @@
         <item quantity="many">Usunięto %d pobranych elementów</item>
         <item quantity="other">Usunięto %d pobranego elementu</item>
     </plurals>
+    <string name="collections_label">Kolekcje</string>
 </resources>

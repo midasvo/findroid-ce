@@ -75,4 +75,5 @@
         <item quantity="one">Fjerna %d nedlasting</item>
         <item quantity="other">Fjerna %d nedlastingar</item>
     </plurals>
+    <string name="collections_label">Samlingar</string>
 </resources>

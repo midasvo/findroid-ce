@@ -75,4 +75,5 @@
         <item quantity="one">Eemaldatud %d allalaadimine</item>
         <item quantity="other">Eemaldatud %d allalaadimist</item>
     </plurals>
+    <string name="collections_label">Kogumikud</string>
 </resources>

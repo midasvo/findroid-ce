@@ -75,4 +75,5 @@
         <item quantity="one">%d transferência removida</item>
         <item quantity="other">%d transferências removidas</item>
     </plurals>
+    <string name="collections_label">Coleções</string>
 </resources>

@@ -81,4 +81,5 @@
         <item quantity="many">Удалено %d загрузок</item>
         <item quantity="other">Удалено %d загрузок</item>
     </plurals>
+    <string name="collections_label">Коллекции</string>
 </resources>

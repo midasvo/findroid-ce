@@ -75,4 +75,5 @@
         <item quantity="one">Tog bort %d nedladdning</item>
         <item quantity="other">Tog bort %d nedladdningar</item>
     </plurals>
+    <string name="collections_label">Samlingar</string>
 </resources>

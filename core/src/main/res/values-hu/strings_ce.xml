@@ -75,4 +75,5 @@
         <item quantity="one">%d letöltés eltávolítva</item>
         <item quantity="other">%d letöltés eltávolítva</item>
     </plurals>
+    <string name="collections_label">Gyűjtemények</string>
 </resources>

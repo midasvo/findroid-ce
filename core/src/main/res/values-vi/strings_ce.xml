@@ -72,4 +72,5 @@
     <plurals name="downloads_removed">
         <item quantity="other">Đã xóa %d bản tải về</item>
     </plurals>
+    <string name="collections_label">Bộ sưu tập</string>
 </resources>

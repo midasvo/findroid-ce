@@ -75,4 +75,5 @@
         <item quantity="one">%d téléchargement supprimé</item>
         <item quantity="other">%d téléchargements supprimés</item>
     </plurals>
+    <string name="collections_label">Collections</string>
 </resources>
