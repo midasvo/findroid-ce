@@ -82,4 +82,6 @@
     <string name="home_next_up_max_days_suffix">日</string>
     <string name="settings_image_display_size_title">用顯示大細載入圖片</string>
     <string name="settings_image_display_size_summary">向伺服器攞顯示大細嘅圖片。用少啲數據，但伺服器第一次要逐張圖片改大細。</string>
+    <string name="pref_player_background_audio">背景播放</string>
+    <string name="pref_player_background_audio_summary">熄咗螢幕或者應用程式喺背景運行嗰陣繼續播放</string>
 </resources>

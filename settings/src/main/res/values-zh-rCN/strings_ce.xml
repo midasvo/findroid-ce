@@ -82,4 +82,6 @@
     <string name="home_next_up_max_days_suffix">天</string>
     <string name="settings_image_display_size_title">按显示尺寸加载图片</string>
     <string name="settings_image_display_size_summary">向服务器请求与显示尺寸一致的图片。可减少流量，但服务器首次需要调整每张图片的尺寸。</string>
+    <string name="pref_player_background_audio">后台音频</string>
+    <string name="pref_player_background_audio_summary">屏幕关闭或应用在后台时继续播放</string>
 </resources>

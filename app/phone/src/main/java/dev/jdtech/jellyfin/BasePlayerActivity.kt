@@ -50,7 +50,13 @@ abstract class BasePlayerActivity : AppCompatActivity() {
         super.onStop()
 
         if (wasPip) {
-            finish()
+            if (viewModel.isBackgroundAudioEnabled && viewModel.player.isPlaying) {
+                // PiP was closed while playing: carry on as background audio. The media
+                // notification brings the player back.
+                wasPip = false
+            } else {
+                finish()
+            }
         }
     }
 

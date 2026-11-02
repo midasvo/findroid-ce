@@ -82,4 +82,6 @@
     <string name="home_next_up_max_days_suffix">päeva</string>
     <string name="settings_image_display_size_title">Laadi pildid kuvamissuuruses</string>
     <string name="settings_image_display_size_summary">Küsi serverilt pilte selles suuruses, milles neid näidatakse. Kasutab vähem andmeid, kuid server peab iga pildi esimesel korral ümber suurendama.</string>
+    <string name="pref_player_background_audio">Taustaheli</string>
+    <string name="pref_player_background_audio_summary">Jätka esitust, kui ekraan on väljas või rakendus on taustal</string>
 </resources>

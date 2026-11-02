@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin.player.local.presentation
 
 import android.app.Application
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -349,6 +350,16 @@ constructor(
         // activity is in the background. Without background audio the player pauses when the
         // activity does, so the service is not needed.
         if (isBackgroundAudioEnabled) {
+            // Tapping the media notification or lock screen controls brings the player back.
+            mediaSession?.setSessionActivity(
+                PendingIntent.getActivity(
+                    application,
+                    0,
+                    Intent()
+                        .setClassName(application.packageName, "dev.jdtech.jellyfin.PlayerActivity"),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+            )
             PlaybackService.mediaSession = mediaSession
             application.startService(Intent(application, PlaybackService::class.java))
         }
