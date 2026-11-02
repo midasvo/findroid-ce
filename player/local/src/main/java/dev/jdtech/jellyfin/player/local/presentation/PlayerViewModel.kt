@@ -32,6 +32,7 @@ import dev.jdtech.jellyfin.player.core.domain.models.PlayerChapter
 import dev.jdtech.jellyfin.player.core.domain.models.PlayerItem
 import dev.jdtech.jellyfin.player.core.domain.models.Trickplay
 import dev.jdtech.jellyfin.player.local.PlaybackService
+import dev.jdtech.jellyfin.player.local.PlaybackSessionStore
 import dev.jdtech.jellyfin.player.local.R
 import dev.jdtech.jellyfin.player.local.domain.AudioDecoderFallback
 import dev.jdtech.jellyfin.player.local.domain.PlaylistManager
@@ -76,6 +77,7 @@ constructor(
     private val appPreferences: AppPreferences,
     private val savedStateHandle: SavedStateHandle,
     private val playbackEvents: PlaybackEvents,
+    private val sessionStore: PlaybackSessionStore,
 ) : ViewModel(), Player.Listener {
     val player: Player
 
@@ -229,6 +231,8 @@ constructor(
         }
 
     init {
+        sessionStore.onSessionCreated()
+
         maxBitrate = appPreferences.getValue(appPreferences.playerMaxBitrate)
 
         val episodes = appPreferences.getValue(appPreferences.stillWatchingAfterEpisodes)
@@ -1275,7 +1279,26 @@ constructor(
     override fun onIsPlayingChanged(isPlaying: Boolean) {
         super.onIsPlayingChanged(isPlaying)
         eventsChannel.trySend(PlayerEvents.IsPlayingChanged(isPlaying))
+        sessionStore.onPlayingChanged(isPlaying)
+        if (isPlaying) startBackgroundProgressReports()
     }
+
+    /**
+     * Keeps reporting progress to the server while the session plays without a player screen,
+     * which is normally the screen's job. It stops by itself once playback stops.
+     */
+    private fun startBackgroundProgressReports() {
+        if (backgroundProgressJob?.isActive == true) return
+        backgroundProgressJob =
+            viewModelScope.launch {
+                while (player.isPlaying) {
+                    if (!sessionStore.isUiAttached) updatePlaybackProgress()
+                    delay(5000L)
+                }
+            }
+    }
+
+    private var backgroundProgressJob: Job? = null
 
     override fun onPositionDiscontinuity(
         oldPosition: Player.PositionInfo,

@@ -6,15 +6,16 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.jdtech.jellyfin.player.local.R
+import dev.jdtech.jellyfin.BasePlayerActivity
 import dev.jdtech.jellyfin.player.local.presentation.PlayerViewModel
 import dev.jdtech.jellyfin.presentation.utils.VideoQualities
 import java.lang.IllegalStateException
 
 class QualitySelectionDialogFragment : DialogFragment() {
-    private val viewModel: PlayerViewModel by activityViewModels()
+    private val viewModel: PlayerViewModel
+        get() = (requireActivity() as BasePlayerActivity).viewModel
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val qualityBitrates = VideoQualities.bitrates
