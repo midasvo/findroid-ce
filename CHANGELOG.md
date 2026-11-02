@@ -10,6 +10,40 @@ _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.2.0-ce.4] — 2026-11-02
+
+Background audio, audio and subtitle choices that carry over to the next episode, and Smart
+Downloads that follow what you watch.
+
+### Added
+- Background audio, off by default. Turn it on under Settings → Player → Background playback, and
+  playback carries on with the screen off or the app in the background, with artwork and controls
+  on the lock screen. Closing the picture-in-picture window or swiping the app away keeps the audio
+  going, and the media notification brings the player back. The video is switched off in the
+  background to save battery (#36, #79, #80, #118).
+- The audio and subtitle track you pick, or subtitles off, now carry over to the next episodes of
+  that series. This works on auto-advance and when you start an episode yourself, on ExoPlayer and
+  mpv, and for downloads. Each user on the device keeps their own choice (#115, #120).
+- Two optional settings from a review of the Moonfin client: smaller artwork requested from the
+  server at display size, and a "Max days in Next Up" limit for Home. Both are off by default
+  (#114, #117).
+
+### Changed
+- Smart Downloads now follows what you watch, not when a download finishes. After playback it
+  keeps a set number of unwatched episodes after the furthest one you watched downloaded, across
+  seasons. It removes the episodes it downloaded itself once you have watched them. "Episodes to
+  keep ready" sets how many (3 by default) (#116, #119).
+- Search waits 300 ms after typing and returns at most 50 results. Media requests get longer
+  timeouts, and playback pauses when headphones are unplugged, on ExoPlayer and mpv (#114, #117).
+- Home keeps the rows and libraries that loaded when others fail (#114, #117).
+
+### Fixed
+- Download status lines in some languages no longer run past the edge of the row (#113).
+
+### Maintenance
+- `scripts/make-track-test-series.sh` generates a short test series with several audio and subtitle
+  tracks, explained in `docs/track-test-series.md`.
+
 ## [v1.2.0-ce.3] — 2026-11-01
 
 CE's own text in every language, a lighter Continue Watching query, and download rows that stay
@@ -425,6 +459,7 @@ Initial CE fork off findroid `1.0.2`. These rapid early iterations established t
 `nl.midasvo.findroid.ce` application ID, downloads and SD-card storage improvements, and ongoing
 tracking of upstream. See the git history between the corresponding tags for commit-level detail.
 
+[v1.2.0-ce.4]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.4
 [v1.2.0-ce.3]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.3
 [v1.2.0-ce.2]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.2
 [v1.2.0-ce.1]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.1
