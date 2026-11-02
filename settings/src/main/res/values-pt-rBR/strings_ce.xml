@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Reprodução em segundo plano</string>
     <string name="pref_player_background_audio">Reproduzir em segundo plano</string>
     <string name="pref_player_background_audio_summary">Continua reproduzindo o áudio quando a tela está desligada, quando você sai do app e quando fecha a janela de picture-in-picture</string>
+    <string name="pref_player_tv_ok_pauses">OK pausa a reprodução</string>
+    <string name="pref_player_tv_ok_pauses_summary">Pressionar OK durante a reprodução pausa e mostra os controles. Quando isto está desativado, OK só mostra os controles.</string>
+    <string name="player_tv_seek_step_5">5 segundos</string>
+    <string name="player_tv_seek_step_10">10 segundos</string>
+    <string name="player_tv_seek_step_15">15 segundos</string>
+    <string name="player_tv_seek_step_30">30 segundos</string>
+    <string name="player_tv_seek_step_60">1 minuto</string>
 </resources>

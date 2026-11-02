@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Lecture en arrière-plan</string>
     <string name="pref_player_background_audio">Lire en arrière-plan</string>
     <string name="pref_player_background_audio_summary">Continue la lecture du son lorsque l\'écran est éteint, que vous quittez l\'application ou que vous fermez la fenêtre image dans l\'image</string>
+    <string name="pref_player_tv_ok_pauses">OK met la lecture en pause</string>
+    <string name="pref_player_tv_ok_pauses_summary">Appuyer sur OK pendant la lecture la met en pause et affiche les commandes. Si cette option est désactivée, OK affiche seulement les commandes.</string>
+    <string name="player_tv_seek_step_5">5 secondes</string>
+    <string name="player_tv_seek_step_10">10 secondes</string>
+    <string name="player_tv_seek_step_15">15 secondes</string>
+    <string name="player_tv_seek_step_30">30 secondes</string>
+    <string name="player_tv_seek_step_60">1 minute</string>
 </resources>

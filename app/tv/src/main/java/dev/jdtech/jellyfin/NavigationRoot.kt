@@ -279,7 +279,9 @@ private fun EntryProviderScope<NavKey>.tvEntries(
                     navigate(
                         PlayerRoute(
                             itemId = itemId.toString(),
-                            itemKind = BaseItemKind.SEASON.serialName,
+                            // CE: the season screen passes an episode ID. As SEASON, the
+                            // playlist looked it up as a season and could end up empty.
+                            itemKind = BaseItemKind.EPISODE.serialName,
                         )
                     )
                 },

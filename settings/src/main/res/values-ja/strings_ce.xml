@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">バックグラウンド再生</string>
     <string name="pref_player_background_audio">バックグラウンドで再生</string>
     <string name="pref_player_background_audio_summary">画面オフ時、アプリを離れたとき、ピクチャーインピクチャーを閉じたときも音声を再生し続けます</string>
+    <string name="pref_player_tv_ok_pauses">OK で再生を一時停止</string>
+    <string name="pref_player_tv_ok_pauses_summary">再生中に OK を押すと一時停止してコントロールを表示します。オフの場合、OK はコントロールを表示するだけです。</string>
+    <string name="player_tv_seek_step_5">5 秒</string>
+    <string name="player_tv_seek_step_10">10 秒</string>
+    <string name="player_tv_seek_step_15">15 秒</string>
+    <string name="player_tv_seek_step_30">30 秒</string>
+    <string name="player_tv_seek_step_60">1 分</string>
 </resources>

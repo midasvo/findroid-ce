@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Prehrávanie na pozadí</string>
     <string name="pref_player_background_audio">Prehrávať na pozadí</string>
     <string name="pref_player_background_audio_summary">Zvuk sa prehráva ďalej pri vypnutej obrazovke, po opustení aplikácie aj po zatvorení okna obraz v obraze</string>
+    <string name="pref_player_tv_ok_pauses">OK pozastaví prehrávanie</string>
+    <string name="pref_player_tv_ok_pauses_summary">Stlačenie OK počas prehrávania ho pozastaví a zobrazí ovládanie. Keď je táto možnosť vypnutá, OK iba zobrazí ovládanie.</string>
+    <string name="player_tv_seek_step_5">5 sekúnd</string>
+    <string name="player_tv_seek_step_10">10 sekúnd</string>
+    <string name="player_tv_seek_step_15">15 sekúnd</string>
+    <string name="player_tv_seek_step_30">30 sekúnd</string>
+    <string name="player_tv_seek_step_60">1 minúta</string>
 </resources>

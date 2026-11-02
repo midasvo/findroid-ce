@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Redare în fundal</string>
     <string name="pref_player_background_audio">Redă în fundal</string>
     <string name="pref_player_background_audio_summary">Sunetul continuă când ecranul este oprit, când ieși din aplicație și când închizi fereastra picture-in-picture</string>
+    <string name="pref_player_tv_ok_pauses">OK întrerupe redarea</string>
+    <string name="pref_player_tv_ok_pauses_summary">Apăsarea OK în timpul redării o întrerupe și afișează comenzile. Când opțiunea este dezactivată, OK doar afișează comenzile.</string>
+    <string name="player_tv_seek_step_5">5 secunde</string>
+    <string name="player_tv_seek_step_10">10 secunde</string>
+    <string name="player_tv_seek_step_15">15 secunde</string>
+    <string name="player_tv_seek_step_30">30 de secunde</string>
+    <string name="player_tv_seek_step_60">1 minut</string>
 </resources>

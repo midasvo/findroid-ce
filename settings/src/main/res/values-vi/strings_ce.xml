@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Phát trong nền</string>
     <string name="pref_player_background_audio">Phát trong nền</string>
     <string name="pref_player_background_audio_summary">Âm thanh tiếp tục phát khi tắt màn hình, khi bạn thoát ứng dụng và khi đóng cửa sổ hình trong hình</string>
+    <string name="pref_player_tv_ok_pauses">OK tạm dừng phát</string>
+    <string name="pref_player_tv_ok_pauses_summary">Nhấn OK khi đang phát sẽ tạm dừng và hiện các nút điều khiển. Khi tắt mục này, OK chỉ hiện các nút điều khiển.</string>
+    <string name="player_tv_seek_step_5">5 giây</string>
+    <string name="player_tv_seek_step_10">10 giây</string>
+    <string name="player_tv_seek_step_15">15 giây</string>
+    <string name="player_tv_seek_step_30">30 giây</string>
+    <string name="player_tv_seek_step_60">1 phút</string>
 </resources>
