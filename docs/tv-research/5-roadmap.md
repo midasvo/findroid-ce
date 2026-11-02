@@ -25,7 +25,7 @@ The follow-up issues, in the order from [4-decisions.md](4-decisions.md). All ha
 |---|---|---|---|
 | [#130](https://github.com/midasvo/findroid-ce/issues/130) | ✅ Open episodes in their season instead of playing right away | G7 | #125 |
 | [#131](https://github.com/midasvo/findroid-ce/issues/131) | ✅ Player overlay: series, ends-at time, next/previous, queue | G12 | #126 |
-| [#132](https://github.com/midasvo/findroid-ce/issues/132) | Home with a hero area, no reshuffling | G13 | #125, #127 |
+| [#132](https://github.com/midasvo/findroid-ce/issues/132) | ✅ Home with a hero area, no reshuffling | G13 | #125, #127 |
 
 ## Step 4: parity with phone
 

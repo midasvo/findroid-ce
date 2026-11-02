@@ -51,6 +51,7 @@ import androidx.tv.material3.ModalNavigationDrawer
 import androidx.tv.material3.NavigationDrawerItem
 import androidx.tv.material3.Text
 import androidx.tv.material3.rememberDrawerState
+import dev.jdtech.jellyfin.ce.presentation.film.HomeScreen
 import dev.jdtech.jellyfin.ce.presentation.film.LibraryScreen
 import dev.jdtech.jellyfin.ce.presentation.film.SearchScreen
 import dev.jdtech.jellyfin.ce.ui.TvSafeArea
@@ -61,7 +62,6 @@ import dev.jdtech.jellyfin.models.CollectionType
 import dev.jdtech.jellyfin.models.FindroidCollection
 import dev.jdtech.jellyfin.models.Server
 import dev.jdtech.jellyfin.models.User
-import dev.jdtech.jellyfin.presentation.film.HomeScreen
 import dev.jdtech.jellyfin.viewmodels.MainViewModel
 import java.util.UUID
 import kotlinx.coroutines.launch
@@ -115,12 +115,11 @@ fun MainScreen(
         navigateToSettings = navigateToSettings,
         navigateToUsers = navigateToUsers,
         homeContent = {
+            // CE Home (G13): hero for the focused card. Episodes open in their season (#130).
             HomeScreen(
                 navigateToMovie = navigateToMovie,
                 navigateToShow = navigateToShow,
-                // Home only plays episodes. Since #130 they open in their season instead.
-                navigateToPlayer = { itemId, _ -> navigateToEpisode(itemId) },
-                isLoading = {},
+                navigateToEpisode = navigateToEpisode,
             )
         },
         searchContent = {
