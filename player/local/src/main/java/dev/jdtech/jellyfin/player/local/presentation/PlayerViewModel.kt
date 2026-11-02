@@ -1279,8 +1279,8 @@ constructor(
     override fun onIsPlayingChanged(isPlaying: Boolean) {
         super.onIsPlayingChanged(isPlaying)
         eventsChannel.trySend(PlayerEvents.IsPlayingChanged(isPlaying))
-        sessionStore.onPlayingChanged(isPlaying)
-        if (isPlaying) startBackgroundProgressReports()
+        if (isBackgroundAudioEnabled) sessionStore.onPlayingChanged(isPlaying)
+        if (isPlaying && isBackgroundAudioEnabled) startBackgroundProgressReports()
     }
 
     /**
