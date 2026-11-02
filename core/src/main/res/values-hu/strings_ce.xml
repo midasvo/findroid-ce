@@ -24,9 +24,9 @@
     <string name="download_started_with_skipped">%1$d epizód letöltése elindult, %2$d már le van töltve</string>
     <string name="download_summary_downloaded">%1$d / %2$d letöltve</string>
     <string name="download_summary_downloading">%1$d / %2$d letöltése…</string>
-    <string name="download_time_left_hours">%1$d óra %2$d perc van hátra</string>
+    <string name="download_time_left_hours">%1$d óra %2$d perc hátra</string>
     <string name="download_time_left_minutes">%1$d perc van hátra</string>
-    <string name="download_time_left_under_minute">Kevesebb mint egy perc van hátra</string>
+    <string name="download_time_left_under_minute">1 percen belül</string>
     <string name="download_waiting_for_network">Várakozás a hálózatra</string>
     <string name="downloaded_to">Mentve ide: %s</string>
     <string name="downloading_indicator">Letöltés</string>

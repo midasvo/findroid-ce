@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">Sťahuje sa %1$d z %2$d…</string>
     <string name="download_time_left_hours">Zostáva %1$d h %2$d min</string>
     <string name="download_time_left_minutes">Zostáva %1$d min</string>
-    <string name="download_time_left_under_minute">Zostáva menej ako minúta</string>
+    <string name="download_time_left_under_minute">Zostáva pod 1 min</string>
     <string name="download_waiting_for_network">Čaká sa na sieť</string>
     <string name="downloaded_to">Uložené do: %s</string>
     <string name="downloading_indicator">Sťahuje sa</string>

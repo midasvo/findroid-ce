@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">جارٍ تنزيل %1$d من %2$d…</string>
     <string name="download_time_left_hours">متبقٍ %1$d س و%2$d د</string>
     <string name="download_time_left_minutes">متبقٍ %1$d دقيقة</string>
-    <string name="download_time_left_under_minute">متبقٍ أقل من دقيقة</string>
+    <string name="download_time_left_under_minute">أقل من دقيقة</string>
     <string name="download_waiting_for_network">في انتظار الشبكة</string>
     <string name="downloaded_to">تم الحفظ في: %s</string>
     <string name="downloading_indicator">جارٍ التنزيل</string>

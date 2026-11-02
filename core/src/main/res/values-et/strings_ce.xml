@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">Allalaadimine: %1$d/%2$d…</string>
     <string name="download_time_left_hours">%1$d h %2$d min jäänud</string>
     <string name="download_time_left_minutes">%1$d min jäänud</string>
-    <string name="download_time_left_under_minute">Jäänud alla minuti</string>
+    <string name="download_time_left_under_minute">Alla 1 min jäänud</string>
     <string name="download_waiting_for_network">Võrgu ootel</string>
     <string name="downloaded_to">Salvestatud asukohta: %s</string>
     <string name="downloading_indicator">Allalaadimine</string>

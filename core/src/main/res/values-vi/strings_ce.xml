@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">Đang tải về %1$d / %2$d…</string>
     <string name="download_time_left_hours">Còn %1$d giờ %2$d phút</string>
     <string name="download_time_left_minutes">Còn %1$d phút</string>
-    <string name="download_time_left_under_minute">Còn dưới một phút</string>
+    <string name="download_time_left_under_minute">Còn dưới 1 phút</string>
     <string name="download_waiting_for_network">Đang chờ mạng</string>
     <string name="downloaded_to">Đã lưu vào: %s</string>
     <string name="downloading_indicator">Đang tải về</string>

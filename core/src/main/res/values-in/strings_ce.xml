@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">Mengunduh %1$d dari %2$d…</string>
     <string name="download_time_left_hours">Tersisa %1$d j %2$d mnt</string>
     <string name="download_time_left_minutes">Tersisa %1$d mnt</string>
-    <string name="download_time_left_under_minute">Kurang dari satu menit tersisa</string>
+    <string name="download_time_left_under_minute">Kurang dari 1 mnt</string>
     <string name="download_waiting_for_network">Menunggu jaringan</string>
     <string name="downloaded_to">Disimpan ke: %s</string>
     <string name="downloading_indicator">Mengunduh</string>

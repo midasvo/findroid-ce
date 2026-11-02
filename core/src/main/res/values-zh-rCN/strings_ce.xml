@@ -26,7 +26,7 @@
     <string name="download_summary_downloading">正在下载 %2$d 项中的 %1$d 项…</string>
     <string name="download_time_left_hours">剩余 %1$d 小时 %2$d 分钟</string>
     <string name="download_time_left_minutes">剩余 %1$d 分钟</string>
-    <string name="download_time_left_under_minute">剩余时间不足 1 分钟</string>
+    <string name="download_time_left_under_minute">剩余不足 1 分钟</string>
     <string name="download_waiting_for_network">等待网络连接</string>
     <string name="downloaded_to">保存至：%s</string>
     <string name="downloading_indicator">正在下载</string>
