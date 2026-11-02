@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Zatrzymaj</string>
     <string name="still_watching_title">Czy nadal oglądasz?</string>
     <string name="video_quality_original">Jakość oryginalna</string>
+    <string name="player_controls_previous">Poprzedni odcinek</string>
+    <string name="player_ends_at">Koniec o %1$s</string>
+    <string name="player_error_title">Nie można odtworzyć tego filmu</string>
+    <string name="player_up_next">Następne</string>
 </resources>

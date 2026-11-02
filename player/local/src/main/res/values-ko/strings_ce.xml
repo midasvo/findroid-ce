@@ -9,4 +9,8 @@
     <string name="still_watching_pause">중지</string>
     <string name="still_watching_title">아직 시청 중이신가요?</string>
     <string name="video_quality_original">원본 화질</string>
+    <string name="player_controls_previous">이전 에피소드</string>
+    <string name="player_ends_at">%1$s에 종료</string>
+    <string name="player_error_title">이 동영상을 재생할 수 없습니다</string>
+    <string name="player_up_next">다음 항목</string>
 </resources>

@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Dừng lại</string>
     <string name="still_watching_title">Bạn vẫn đang xem chứ?</string>
     <string name="video_quality_original">Chất lượng gốc</string>
+    <string name="player_controls_previous">Tập trước</string>
+    <string name="player_ends_at">Kết thúc lúc %1$s</string>
+    <string name="player_error_title">Không thể phát video này</string>
+    <string name="player_up_next">Tiếp theo</string>
 </resources>

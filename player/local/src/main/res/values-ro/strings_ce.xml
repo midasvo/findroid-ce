@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Oprește</string>
     <string name="still_watching_title">Încă vizionezi?</string>
     <string name="video_quality_original">Calitate originală</string>
+    <string name="player_controls_previous">Episodul anterior</string>
+    <string name="player_ends_at">Se termină la %1$s</string>
+    <string name="player_error_title">Acest videoclip nu poate fi redat</string>
+    <string name="player_up_next">Urmează</string>
 </resources>

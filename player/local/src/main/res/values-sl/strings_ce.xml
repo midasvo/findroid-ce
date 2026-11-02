@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Ustavi</string>
     <string name="still_watching_title">Ali še vedno gledate?</string>
     <string name="video_quality_original">Izvirna kakovost</string>
+    <string name="player_controls_previous">Prejšnja epizoda</string>
+    <string name="player_ends_at">Konča se ob %1$s</string>
+    <string name="player_error_title">Tega videoposnetka ni mogoče predvajati</string>
+    <string name="player_up_next">Naslednje</string>
 </resources>

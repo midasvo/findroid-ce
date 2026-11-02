@@ -9,4 +9,8 @@
     <string name="still_watching_pause">إيقاف</string>
     <string name="still_watching_title">هل ما زلت تشاهد؟</string>
     <string name="video_quality_original">الجودة الأصلية</string>
+    <string name="player_controls_previous">الحلقة السابقة</string>
+    <string name="player_ends_at">ينتهي في %1$s</string>
+    <string name="player_error_title">يتعذّر تشغيل هذا الفيديو</string>
+    <string name="player_up_next">التالي</string>
 </resources>

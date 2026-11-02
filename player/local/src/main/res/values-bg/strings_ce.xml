@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Спиране</string>
     <string name="still_watching_title">Все още ли гледате?</string>
     <string name="video_quality_original">Оригинално качество</string>
+    <string name="player_controls_previous">Предишен епизод</string>
+    <string name="player_ends_at">Свършва в %1$s</string>
+    <string name="player_error_title">Видеоклипът не може да се възпроизведе</string>
+    <string name="player_up_next">Следва</string>
 </resources>

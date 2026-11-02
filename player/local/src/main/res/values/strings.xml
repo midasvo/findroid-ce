@@ -31,4 +31,8 @@
     <string name="still_watching_message">Pausing in %1$ds if there\'s no response.</string>
     <string name="still_watching_continue">Yes, keep playing</string>
     <string name="still_watching_pause">Stop</string>
+    <string name="player_ends_at">Ends at %1$s</string>
+    <string name="player_up_next">Up next</string>
+    <string name="player_controls_previous">Previous episode</string>
+    <string name="player_error_title">Can\'t play this video</string>
 </resources>

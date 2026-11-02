@@ -9,4 +9,8 @@
     <string name="still_watching_pause">עצור</string>
     <string name="still_watching_title">האם אתה עדיין צופה?</string>
     <string name="video_quality_original">איכות מקורית</string>
+    <string name="player_controls_previous">הפרק הקודם</string>
+    <string name="player_ends_at">מסתיים ב-%1$s</string>
+    <string name="player_error_title">לא ניתן להפעיל את הסרטון הזה</string>
+    <string name="player_up_next">הבא בתור</string>
 </resources>

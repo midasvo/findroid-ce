@@ -9,4 +9,8 @@
     <string name="still_watching_pause">停止</string>
     <string name="still_watching_title">まだ視聴していますか？</string>
     <string name="video_quality_original">オリジナル画質</string>
+    <string name="player_controls_previous">前のエピソード</string>
+    <string name="player_ends_at">%1$s に終了</string>
+    <string name="player_error_title">この動画を再生できません</string>
+    <string name="player_up_next">次に再生</string>
 </resources>

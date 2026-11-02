@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Berhenti</string>
     <string name="still_watching_title">Apakah Anda masih menonton?</string>
     <string name="video_quality_original">Kualitas asli</string>
+    <string name="player_controls_previous">Episode sebelumnya</string>
+    <string name="player_ends_at">Berakhir pukul %1$s</string>
+    <string name="player_error_title">Video ini tidak dapat diputar</string>
+    <string name="player_up_next">Berikutnya</string>
 </resources>

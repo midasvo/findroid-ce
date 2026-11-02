@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Stoppen</string>
     <string name="still_watching_title">Kijk je nog?</string>
     <string name="video_quality_original">Originele kwaliteit</string>
+    <string name="player_controls_previous">Vorige aflevering</string>
+    <string name="player_ends_at">Eindigt om %1$s</string>
+    <string name="player_error_title">Deze video kan niet worden afgespeeld</string>
+    <string name="player_up_next">Hierna</string>
 </resources>

@@ -28,6 +28,7 @@ import androidx.media3.session.MediaSession
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.jdtech.jellyfin.api.JellyfinApi
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
+import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidSegment
 import dev.jdtech.jellyfin.models.FindroidSegmentType
 import dev.jdtech.jellyfin.models.MediaSegmentAction
@@ -164,7 +165,17 @@ constructor(
         val fileLoaded: Boolean,
         val showStillWatching: Boolean,
         val stillWatchingTimeoutSeconds: Int,
+        /** CE (#131): the item in the player, for the TV overlay (series name, episode line). */
+        val currentItem: PlayerItem? = null,
     )
+
+    private val _queue = MutableStateFlow<List<FindroidItem>>(emptyList())
+
+    /**
+     * CE (#131): the queued items after the current one, for the TV player's queue row. Phone
+     * doesn't read it. Jump to one with [playQueueItem].
+     */
+    val queue: StateFlow<List<FindroidItem>> = _queue.asStateFlow()
 
     private var items: MutableList<PlayerItem> = mutableListOf()
 
@@ -421,6 +432,7 @@ constructor(
         player.addListener(this)
 
         viewModelScope.launch {
+            var failure: Exception? = null
             val startItem =
                 try {
                     playlistManager.getInitialItem(
@@ -432,11 +444,22 @@ constructor(
                 } catch (e: Exception) {
                     Timber.e(e)
                     Toast.makeText(application, e.localizedMessage, Toast.LENGTH_LONG).show()
+                    failure = e
                     null
                 }
 
             if (startItem == null) {
                 Timber.e("No start item, stopping player initialization")
+                // CE (#131): nothing will play, so tell the screen (the TV player shows it).
+                eventsChannel.trySend(
+                    PlayerEvents.PlayerError(
+                        PlaybackException(
+                            failure?.localizedMessage,
+                            failure,
+                            PlaybackException.ERROR_CODE_UNSPECIFIED,
+                        )
+                    )
+                )
                 return@launch
             }
 
@@ -499,6 +522,31 @@ constructor(
                 .build()
 
         return mediaItem
+    }
+
+    /**
+     * CE (#131): play [itemId], an item from [queue], from its beginning. The player's playlist
+     * starts over at that item, and [onMediaItemTransition] queues its neighbours as usual and
+     * reports the item being left as stopped.
+     */
+    fun playQueueItem(itemId: UUID) {
+        markUserInteraction()
+        viewModelScope.launch {
+            val playerItem =
+                try {
+                    playlistManager.jumpTo(itemId)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Timber.e(e, "Could not jump to queue item $itemId")
+                    null
+                } ?: return@launch
+            refreshPlayingSnapshot()
+            items = mutableListOf(playerItem)
+            player.setMediaItems(listOf(playerItem.toMediaItem()), 0, 0L)
+            player.prepare()
+            player.play()
+        }
     }
 
     /** Downloaded items store their images relative to filesDir; the session needs a file URI. */
@@ -774,6 +822,7 @@ constructor(
                             it.copy(
                                 currentItemId = item.itemId,
                                 currentItemTitle = itemTitle,
+                                currentItem = item,
                                 currentSegment = null,
                                 currentChapters = item.chapters,
                                 fileLoaded = false,
@@ -813,6 +862,8 @@ constructor(
                                 nextItem.toMediaItem(),
                             )
                         }
+
+                        _queue.value = playlistManager.upcomingItems()
 
                         Timber.tag("PlayerItems").d(items.map { it.indexNumber }.toString())
                     }

@@ -9,4 +9,8 @@
     <string name="still_watching_pause">रोकें</string>
     <string name="still_watching_title">क्या आप अभी भी देख रहे हैं?</string>
     <string name="video_quality_original">मूल गुणवत्ता</string>
+    <string name="player_controls_previous">पिछला एपिसोड</string>
+    <string name="player_ends_at">%1$s पर समाप्त</string>
+    <string name="player_error_title">यह वीडियो नहीं चल सकता</string>
+    <string name="player_up_next">आगे</string>
 </resources>

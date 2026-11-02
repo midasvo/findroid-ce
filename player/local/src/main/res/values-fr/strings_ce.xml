@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Arrêter</string>
     <string name="still_watching_title">Êtes-vous toujours là ?</string>
     <string name="video_quality_original">Qualité originale</string>
+    <string name="player_controls_previous">Épisode précédent</string>
+    <string name="player_ends_at">Se termine à %1$s</string>
+    <string name="player_error_title">Impossible de lire cette vidéo</string>
+    <string name="player_up_next">À suivre</string>
 </resources>

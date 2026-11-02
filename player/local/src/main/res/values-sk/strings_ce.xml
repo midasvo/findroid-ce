@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Zastaviť</string>
     <string name="still_watching_title">Stále sledujete?</string>
     <string name="video_quality_original">Pôvodná kvalita</string>
+    <string name="player_controls_previous">Predchádzajúca epizóda</string>
+    <string name="player_ends_at">Končí o %1$s</string>
+    <string name="player_error_title">Toto video nie je možné prehrať</string>
+    <string name="player_up_next">Ďalej</string>
 </resources>

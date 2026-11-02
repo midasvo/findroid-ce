@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Зупинити</string>
     <string name="still_watching_title">Ви ще дивитеся?</string>
     <string name="video_quality_original">Оригінальна якість</string>
+    <string name="player_controls_previous">Попередня серія</string>
+    <string name="player_ends_at">Закінчиться о %1$s</string>
+    <string name="player_error_title">Не вдається відтворити це відео</string>
+    <string name="player_up_next">Далі</string>
 </resources>

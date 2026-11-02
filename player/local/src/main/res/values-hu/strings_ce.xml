@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Leállítás</string>
     <string name="still_watching_title">Még mindig nézed?</string>
     <string name="video_quality_original">Eredeti minőség</string>
+    <string name="player_controls_previous">Előző epizód</string>
+    <string name="player_ends_at">Vége: %1$s</string>
+    <string name="player_error_title">Ez a videó nem játszható le</string>
+    <string name="player_up_next">Következő</string>
 </resources>
