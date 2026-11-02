@@ -57,7 +57,7 @@ and video quality during playback.
 - **Wider subtitle support** — PGS, VobSub, and DVB without transcoding, plus configurable colors, outline, font, and size
 - **Media segments** — per-type skip / ask / ignore actions
 - **Chapter list** in the player, and an **"Are you still watching?"** inactivity prompt
-- **Background audio** (off by default) — keeps playing with the screen off or the app in the background, with artwork and controls on the lock screen. Turn it on under Settings → Player → Picture-in-picture; closing the PiP window then carries on as audio. The video is switched off in the background to save battery
+- **Background audio** (off by default) — keeps playing with the screen off or the app in the background, with artwork and controls on the lock screen. Turn it on under Settings → Player → Background playback; closing the picture-in-picture window then carries on as audio. The video is switched off in the background to save battery
 
 ### Library & UI
 

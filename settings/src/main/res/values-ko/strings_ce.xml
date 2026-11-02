@@ -82,6 +82,7 @@
     <string name="home_next_up_max_days_suffix">일</string>
     <string name="settings_image_display_size_title">표시 크기로 이미지 불러오기</string>
     <string name="settings_image_display_size_summary">표시되는 크기의 이미지를 서버에 요청합니다. 데이터를 덜 사용하지만, 서버가 처음에 각 이미지의 크기를 조정해야 합니다.</string>
-    <string name="pref_player_background_audio">백그라운드 오디오</string>
-    <string name="pref_player_background_audio_summary">화면이 꺼져 있거나 앱이 백그라운드에 있어도 재생을 계속합니다</string>
+    <string name="pref_player_background_group">백그라운드 재생</string>
+    <string name="pref_player_background_audio">백그라운드에서 재생</string>
+    <string name="pref_player_background_audio_summary">화면이 꺼지거나, 앱을 나가거나, 화면 속 화면 창을 닫아도 오디오가 계속 재생됩니다</string>
 </resources>

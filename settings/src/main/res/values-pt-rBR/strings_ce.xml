@@ -82,6 +82,7 @@
     <string name="home_next_up_max_days_suffix">dias</string>
     <string name="settings_image_display_size_title">Carregar imagens no tamanho de exibição</string>
     <string name="settings_image_display_size_summary">Pedir ao servidor imagens no tamanho em que são exibidas. Usa menos dados, mas o servidor precisa redimensionar cada imagem na primeira vez.</string>
-    <string name="pref_player_background_audio">Áudio em segundo plano</string>
-    <string name="pref_player_background_audio_summary">Continuar a reprodução quando a tela está desligada ou o app está em segundo plano</string>
+    <string name="pref_player_background_group">Reprodução em segundo plano</string>
+    <string name="pref_player_background_audio">Reproduzir em segundo plano</string>
+    <string name="pref_player_background_audio_summary">Continua reproduzindo o áudio quando a tela está desligada, quando você sai do app e quando fecha a janela de picture-in-picture</string>
 </resources>

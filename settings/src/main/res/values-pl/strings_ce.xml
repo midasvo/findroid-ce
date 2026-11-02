@@ -82,6 +82,7 @@
     <string name="home_next_up_max_days_suffix">dni</string>
     <string name="settings_image_display_size_title">Wczytuj obrazy w rozmiarze wyświetlania</string>
     <string name="settings_image_display_size_summary">Pobieraj z serwera obrazy w rozmiarze, w jakim są wyświetlane. Zużywa mniej danych, ale serwer musi za pierwszym razem przeskalować każdy obraz.</string>
-    <string name="pref_player_background_audio">Dźwięk w tle</string>
-    <string name="pref_player_background_audio_summary">Kontynuuj odtwarzanie, gdy ekran jest wyłączony lub aplikacja działa w tle</string>
+    <string name="pref_player_background_group">Odtwarzanie w tle</string>
+    <string name="pref_player_background_audio">Odtwarzaj w tle</string>
+    <string name="pref_player_background_audio_summary">Dźwięk gra dalej po wyłączeniu ekranu, po wyjściu z aplikacji i po zamknięciu okna obrazu w obrazie</string>
 </resources>

@@ -82,6 +82,7 @@
     <string name="home_next_up_max_days_suffix">dage</string>
     <string name="settings_image_display_size_title">Hent billeder i visningsstørrelse</string>
     <string name="settings_image_display_size_summary">Bed serveren om billeder i den størrelse, de vises i. Bruger mindre data, men serveren skal ændre størrelsen på hvert billede første gang.</string>
-    <string name="pref_player_background_audio">Lyd i baggrunden</string>
-    <string name="pref_player_background_audio_summary">Fortsæt afspilning, når skærmen er slukket, eller appen er i baggrunden</string>
+    <string name="pref_player_background_group">Afspilning i baggrunden</string>
+    <string name="pref_player_background_audio">Afspil i baggrunden</string>
+    <string name="pref_player_background_audio_summary">Lyden bliver ved med at spille, når skærmen er slukket, når du forlader appen, og når du lukker billede-i-billede-vinduet</string>
 </resources>

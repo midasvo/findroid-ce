@@ -82,6 +82,7 @@
     <string name="home_next_up_max_days_suffix">дн.</string>
     <string name="settings_image_display_size_title">Завантажувати зображення в розмірі показу</string>
     <string name="settings_image_display_size_summary">Запитувати в сервера зображення в тому розмірі, в якому вони показуються. Витрачає менше даних, але серверу потрібно змінити розмір кожного зображення першого разу.</string>
-    <string name="pref_player_background_audio">Фонове відтворення</string>
-    <string name="pref_player_background_audio_summary">Продовжувати відтворення, коли екран вимкнено або застосунок працює у фоні</string>
+    <string name="pref_player_background_group">Фонове відтворення</string>
+    <string name="pref_player_background_audio">Відтворювати у фоні</string>
+    <string name="pref_player_background_audio_summary">Звук продовжує грати при вимкненому екрані, після виходу із застосунку та після закриття вікна «картинка в картинці»</string>
 </resources>

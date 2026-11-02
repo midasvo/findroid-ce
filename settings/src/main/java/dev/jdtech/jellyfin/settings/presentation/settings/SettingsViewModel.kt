@@ -836,7 +836,13 @@ class SettingsViewModel @Inject constructor(
                                                     supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences.playerPipGesture,
-                                                ),
+                                                )
+                                            ),
+                                    ),
+                                    PreferenceGroup(
+                                        nameStringResource = R.string.pref_player_background_group,
+                                        preferences =
+                                            listOf(
                                                 PreferenceSwitch(
                                                     nameStringResource =
                                                         R.string.pref_player_background_audio,

@@ -82,6 +82,7 @@
     <string name="home_next_up_max_days_suffix">dni</string>
     <string name="settings_image_display_size_title">Naloži slike v velikosti prikaza</string>
     <string name="settings_image_display_size_summary">Od strežnika zahtevaj slike v velikosti, v kateri so prikazane. Porabi manj podatkov, vendar mora strežnik ob prvem nalaganju spremeniti velikost vsake slike.</string>
-    <string name="pref_player_background_audio">Zvok v ozadju</string>
-    <string name="pref_player_background_audio_summary">Nadaljuj predvajanje, ko je zaslon izklopljen ali je aplikacija v ozadju</string>
+    <string name="pref_player_background_group">Predvajanje v ozadju</string>
+    <string name="pref_player_background_audio">Predvajaj v ozadju</string>
+    <string name="pref_player_background_audio_summary">Zvok se predvaja naprej, ko je zaslon izklopljen, ko zapustite aplikacijo in ko zaprete okno slika v sliki</string>
 </resources>

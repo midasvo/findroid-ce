@@ -82,6 +82,7 @@
     <string name="home_next_up_max_days_suffix">nap</string>
     <string name="settings_image_display_size_title">Képek betöltése megjelenítési méretben</string>
     <string name="settings_image_display_size_summary">A képek kérése a szervertől abban a méretben, amelyben megjelennek. Kevesebb adatot használ, de a szervernek minden képet először át kell méreteznie.</string>
-    <string name="pref_player_background_audio">Háttérhang</string>
-    <string name="pref_player_background_audio_summary">A lejátszás folytatása, ha a képernyő ki van kapcsolva vagy az alkalmazás a háttérben van</string>
+    <string name="pref_player_background_group">Lejátszás a háttérben</string>
+    <string name="pref_player_background_audio">Lejátszás a háttérben</string>
+    <string name="pref_player_background_audio_summary">A hang tovább szól, ha kikapcsol a képernyő, ha kilépsz az alkalmazásból, és ha bezárod a kép a képben ablakot</string>
 </resources>

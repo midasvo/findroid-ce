@@ -82,6 +82,7 @@
     <string name="home_next_up_max_days_suffix">أيام</string>
     <string name="settings_image_display_size_title">تحميل الصور بحجم العرض</string>
     <string name="settings_image_display_size_summary">اطلب من الخادم الصور بالحجم الذي تُعرض به. يستهلك بيانات أقل، لكن على الخادم تغيير حجم كل صورة في المرة الأولى.</string>
+    <string name="pref_player_background_group">التشغيل في الخلفية</string>
     <string name="pref_player_background_audio">التشغيل في الخلفية</string>
-    <string name="pref_player_background_audio_summary">متابعة التشغيل عند إطفاء الشاشة أو عند وضع التطبيق في الخلفية</string>
+    <string name="pref_player_background_audio_summary">استمرار تشغيل الصوت عند إطفاء الشاشة أو مغادرة التطبيق أو إغلاق نافذة صورة داخل صورة</string>
 </resources>

@@ -82,6 +82,7 @@
     <string name="home_next_up_max_days_suffix">gün</string>
     <string name="settings_image_display_size_title">Şəkilləri göstərilən ölçüdə yüklə</string>
     <string name="settings_image_display_size_summary">Şəkilləri serverdən göstərildikləri ölçüdə istə. Daha az məlumat istifadə edir, lakin server hər şəkli ilk dəfə yenidən ölçüləndirməlidir.</string>
-    <string name="pref_player_background_audio">Arxa fon səsi</string>
-    <string name="pref_player_background_audio_summary">Ekran sönəndə və ya tətbiq arxa fonda olduqda oxutmağa davam et</string>
+    <string name="pref_player_background_group">Arxa fonda oxutma</string>
+    <string name="pref_player_background_audio">Arxa fonda oxut</string>
+    <string name="pref_player_background_audio_summary">Ekran sönəndə, tətbiqdən çıxanda və şəkil-içində-şəkil pəncərəsini bağlayanda səs oxunmağa davam etsin</string>
 </resources>
