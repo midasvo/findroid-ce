@@ -29,6 +29,7 @@ import dev.jdtech.jellyfin.models.toFindroidSource
 import dev.jdtech.jellyfin.player.DeviceProfileBuilder
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import java.io.File
+import java.time.LocalDateTime
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -213,6 +214,8 @@ class JellyfinRepositoryImpl(
                     searchTerm = query,
                     includeItemTypes = listOf(BaseItemKind.MOVIE, BaseItemKind.SERIES),
                     recursive = true,
+                    limit = SEARCH_LIMIT,
+                    enableTotalRecordCount = false,
                 )
                 .content
                 .items
@@ -286,6 +289,7 @@ class JellyfinRepositoryImpl(
                     seriesId = seriesId,
                     imageTypeLimit = 1,
                     enableImageTypes = ROW_IMAGE_TYPES,
+                    nextUpDateCutoff = nextUpDateCutoff(seriesId, LocalDateTime.now()),
                     enableTotalRecordCount = false,
                     enableResumable = false,
                 )
@@ -658,5 +662,16 @@ class JellyfinRepositoryImpl(
          * for) every backdrop, logo, thumb and banner of each item.
          */
         val ROW_IMAGE_TYPES = listOf(ImageType.PRIMARY, ImageType.BACKDROP)
+
+        private const val SEARCH_LIMIT = 50
     }
 }
+
+private const val NEXT_UP_DAYS = 365L
+
+/**
+ * Without a cutoff, the server walks the whole watch history for the Home row. A single series has
+ * no such limit: a show last watched years ago still has a next episode.
+ */
+internal fun nextUpDateCutoff(seriesId: UUID?, now: LocalDateTime): LocalDateTime? =
+    if (seriesId == null) now.minusDays(NEXT_UP_DAYS) else null

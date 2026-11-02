@@ -7,6 +7,7 @@ import dev.jdtech.jellyfin.repository.JellyfinRepository
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -30,6 +31,9 @@ class SearchViewModel @Inject constructor(private val repository: JellyfinReposi
                         return@launch
                     }
 
+                    // Inside the job, so the next keystroke's cancel also drops this request.
+                    delay(SEARCH_DEBOUNCE_MS)
+
                     _state.emit(_state.value.copy(loading = true))
                     val items = repository.getSearchItems(query)
 
@@ -48,5 +52,9 @@ class SearchViewModel @Inject constructor(private val repository: JellyfinReposi
             }
             else -> Unit
         }
+    }
+
+    companion object {
+        internal const val SEARCH_DEBOUNCE_MS = 300L
     }
 }

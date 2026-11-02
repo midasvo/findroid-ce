@@ -1,6 +1,8 @@
 package dev.jdtech.jellyfin.player.local.presentation
 
+import android.app.ActivityManager
 import android.app.Application
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -17,6 +19,7 @@ import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
+import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
@@ -30,10 +33,14 @@ import dev.jdtech.jellyfin.player.core.domain.models.Trickplay
 import dev.jdtech.jellyfin.player.local.R
 import dev.jdtech.jellyfin.player.local.domain.AudioDecoderFallback
 import dev.jdtech.jellyfin.player.local.domain.PlaylistManager
+import dev.jdtech.jellyfin.player.local.domain.ResumeWedgePolicy
 import dev.jdtech.jellyfin.player.local.domain.StillWatchingTracker
 import dev.jdtech.jellyfin.player.local.domain.TrickplayLoader
 import dev.jdtech.jellyfin.player.local.domain.autoPlayNextFollowsServer
+import dev.jdtech.jellyfin.player.local.domain.buildLoadControl
+import dev.jdtech.jellyfin.player.local.domain.buildMediaSourceFactory
 import dev.jdtech.jellyfin.player.local.domain.resolveAutoPlayNext
+import dev.jdtech.jellyfin.player.local.domain.shouldTunnel
 import dev.jdtech.jellyfin.player.local.mpv.MPVPlayer
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.repository.PlaybackEvents
@@ -170,6 +177,10 @@ constructor(
     // discontinuity synchronously from seekTo() (MPVPlayer) or later on the main looper.
     private var pendingAutoAdvanceSeek = false
 
+    // The viewer paused a playing item, so the next resume is watched by watchResume.
+    private var pausedWhileReady = false
+    private var resumeCheckJob: Job? = null
+
     /**
      * The item the server was told is playing, with the last known position and duration. Used to
      * report playback stopped for the item being left when [onMediaItemTransition] fires, which
@@ -295,8 +306,18 @@ constructor(
                             DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
                         )
                         .setMediaCodecSelector(audioDecoderFallback)
+                val activityManager =
+                    application.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
                 ExoPlayer.Builder(application, renderersFactory)
                     .setAudioAttributes(audioAttributes, true)
+                    .setHandleAudioBecomingNoisy(true)
+                    .setLoadControl(
+                        buildLoadControl(
+                            maxHeapBytes = Runtime.getRuntime().maxMemory(),
+                            isLowRamDevice = activityManager.isLowRamDevice,
+                        )
+                    )
+                    .setMediaSourceFactory(buildMediaSourceFactory(application))
                     .setTrackSelector(trackSelector)
                     .setSeekBackIncrementMs(
                         appPreferences.getValue(appPreferences.playerSeekBackInc)
@@ -375,6 +396,13 @@ constructor(
                     playbackPosition
                 }
 
+            // The audio track is only known once the source is prepared, see onTracksChanged.
+            setTunneling(
+                shouldTunnel(
+                    hasExternalSubtitles = startItem.externalSubtitles.isNotEmpty(),
+                    audioMimeType = null,
+                )
+            )
             player.setMediaItems(mediaItems, 0, startPosition)
             player.prepare()
             player.play()
@@ -420,6 +448,7 @@ constructor(
 
         _uiState.value.currentTrickplay?.loader?.release()
         _uiState.update { it.copy(currentTrickplay = null) }
+        resumeCheckJob?.cancel()
         playWhenReady = false
         playbackPosition = 0L
         currentMediaItemIndex = 0
@@ -612,6 +641,7 @@ constructor(
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
         Timber.d("Playing MediaItem: ${mediaItem?.mediaId}")
         savedStateHandle["mediaItemIndex"] = player.currentMediaItemIndex
+        resumeCheckJob?.cancel()
 
         // Every item change goes through here, whatever caused it, so this is where the item being
         // left is reported as stopped. The first load (nothing playing yet) reports nothing, and a
@@ -694,7 +724,64 @@ constructor(
         }
     }
 
+    override fun onTracksChanged(tracks: Tracks) {
+        // Empty while a new source loads, which says nothing about its audio.
+        if (tracks.isEmpty) return
+        val audioGroup = tracks.groups.firstOrNull { it.type == C.TRACK_TYPE_AUDIO && it.isSelected }
+        val audioMimeType =
+            audioGroup?.let { group ->
+                (0 until group.length)
+                    .firstOrNull { group.isTrackSelected(it) }
+                    ?.let { group.getTrackFormat(it).sampleMimeType }
+            }
+        val subtitles = player.currentMediaItem?.localConfiguration?.subtitleConfigurations
+        setTunneling(shouldTunnel(!subtitles.isNullOrEmpty(), audioMimeType))
+    }
+
+    /** ExoPlayer only: mpv doesn't use the track selector once it is built. */
+    private fun setTunneling(enabled: Boolean) {
+        if (player !is ExoPlayer || trackSelector.parameters.tunnelingEnabled == enabled) return
+        Timber.d("Tunneling: $enabled")
+        trackSelector.setParameters(trackSelector.buildUponParameters().setTunnelingEnabled(enabled))
+    }
+
+    /**
+     * After a resume from the viewer's own pause, check that playback really came back, and
+     * prepare the source again if it did not. See [ResumeWedgePolicy]. ExoPlayer only.
+     */
+    private fun watchResume(playWhenReady: Boolean, reason: Int) {
+        if (player !is ExoPlayer) return
+        if (!playWhenReady) {
+            resumeCheckJob?.cancel()
+            pausedWhileReady =
+                player.playbackState == Player.STATE_READY &&
+                    reason == Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST
+        } else if (pausedWhileReady) {
+            pausedWhileReady = false
+            resumeCheckJob?.cancel()
+            resumeCheckJob =
+                viewModelScope.launch {
+                    delay(ResumeWedgePolicy.CHECK_DELAY_MS)
+                    val position = player.currentPosition
+                    val bufferedAheadMs = player.bufferedPosition - position
+                    val stuck =
+                        ResumeWedgePolicy.shouldReprepare(
+                            stillBuffering = player.playbackState == Player.STATE_BUFFERING,
+                            playWhenReady = player.playWhenReady,
+                            bufferedAheadMs = bufferedAheadMs,
+                            isLiveSource = player.isCurrentMediaItemLive,
+                        )
+                    if (stuck) {
+                        Timber.w("Resume stuck with $bufferedAheadMs ms loaded, preparing again")
+                        reloadQueue(player.currentMediaItemIndex, position)
+                    }
+                }
+        }
+    }
+
     override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+        watchResume(playWhenReady, reason)
+
         // End of the current item: transition to the next one, or close the player if autoplay is
         // off. On an advance, the stop for the finished item is reported by onMediaItemTransition.
         if (
@@ -941,9 +1028,14 @@ constructor(
             val currentIndex = player.currentMediaItemIndex
             val position = player.currentPosition
             items = rebuilt.toMutableList()
-            player.setMediaItems(rebuilt.map { it.toMediaItem() }, currentIndex, position)
-            player.prepare()
+            reloadQueue(currentIndex, position)
         }
+    }
+
+    /** Load [items] into the player again. This also works on a player that is buffering. */
+    private fun reloadQueue(index: Int, position: Long) {
+        player.setMediaItems(items.map { it.toMediaItem() }, index, position)
+        player.prepare()
     }
 
     private suspend fun getSegments(itemId: UUID) {

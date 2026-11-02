@@ -25,7 +25,7 @@ import org.junit.Test
  * isolation — no Android, no ViewModel, no Jellyfin SDK — so the crash can be
  * demonstrated deterministically without a device.
  *
- * `loadData()` runs, in essence:
+ * Before the fix, `loadData()` ran, in essence:
  * ```
  * viewModelScope.launch(Dispatchers.Default) {   // viewModelScope = SupervisorJob + ...
  *     try {
@@ -33,6 +33,7 @@ import org.junit.Test
  *     } catch (e: Exception) { ... }
  * }
  * ```
+ * Now the `awaitAll` sits in a `coroutineScope { }`, and each `async` catches its own failure.
  *
  * Each test builds a scope shaped like `viewModelScope` (a [SupervisorJob]) with a
  * [CoroutineExceptionHandler] installed, so we can observe whether an exception
@@ -159,6 +160,41 @@ class LoadDataConcurrencyMechanismTest {
             "nothing escaped: coroutineScope { } contains the failure",
             withTimeoutOrNull(500) { escaped.await() },
         )
+    }
+
+    /**
+     * CURRENT `loadData()`. Each row catches its own failure inside its `async { }`, so the
+     * `coroutineScope { }` never sees it: nothing escapes and the other rows run to the end.
+     */
+    @Test
+    fun `a failure caught inside its async leaves the other rows running`() = runBlocking {
+        val escaped = CompletableDeferred<Throwable>()
+        val scope =
+            CoroutineScope(
+                SupervisorJob() + CoroutineExceptionHandler { _, e -> escaped.complete(e) }
+            )
+
+        var results: List<Result<String>> = emptyList()
+        val job =
+            scope.launch(Dispatchers.Default) {
+                results =
+                    coroutineScope {
+                        awaitAll(
+                            async { runCatching { offlineCall("getNextUp()") } },
+                            async {
+                                runCatching {
+                                    delay(50)
+                                    "loaded"
+                                }
+                            },
+                        )
+                    }
+            }
+        job.join()
+
+        assertTrue("the failing row reports its failure", results[0].isFailure)
+        assertTrue("the other row finished", results[1].getOrNull() == "loaded")
+        assertNull("nothing escaped", withTimeoutOrNull(500) { escaped.await() })
     }
 
     /** Models a network call that fails because the device is offline. */

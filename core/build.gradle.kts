@@ -42,6 +42,7 @@ dependencies {
     implementation(libs.androidx.paging)
     implementation(libs.androidx.room3.runtime)
     implementation(libs.androidx.work)
+    implementation(libs.coil.compose)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.jellyfin.core)

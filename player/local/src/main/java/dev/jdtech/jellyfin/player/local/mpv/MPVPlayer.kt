@@ -1,6 +1,9 @@
 package dev.jdtech.jellyfin.player.local.mpv
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
@@ -66,6 +69,21 @@ class MPVPlayer(
     private var audioFocusCallback: () -> Unit = {}
     private lateinit var audioFocusRequest: AudioFocusRequestCompat
     private val handler: Handler = Handler(context.mainLooper)
+    private val appContext: Context = context.applicationContext
+    private var becomingNoisyRegistered = false
+
+    // Headphones were unplugged: pause rather than carry on over the speaker.
+    private val becomingNoisyReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.action != AudioManager.ACTION_AUDIO_BECOMING_NOISY) return
+                mpvLib.setPropertyBoolean("pause", true)
+                setPlayerStateAndNotifyIfChanged(
+                    playWhenReady = false,
+                    playWhenReadyChangeReason = PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY,
+                )
+            }
+        }
 
     private constructor(
         builder: Builder
@@ -487,6 +505,21 @@ class MPVPlayer(
         }
     }
 
+    /** The broadcast only matters while playing, so it is only received then. */
+    private fun setBecomingNoisyRegistered(registered: Boolean) {
+        if (registered == becomingNoisyRegistered) return
+        becomingNoisyRegistered = registered
+        if (registered) {
+            Util.registerReceiverNotExported(
+                appContext,
+                becomingNoisyReceiver,
+                IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY),
+            )
+        } else {
+            appContext.unregisterReceiver(becomingNoisyReceiver)
+        }
+    }
+
     private fun setPlayerStateAndNotifyIfChanged(
         playWhenReady: Boolean = getPlayWhenReady(),
         @Player.PlayWhenReadyChangeReason
@@ -504,6 +537,7 @@ class MPVPlayer(
         }
         if (playWhenReady != getPlayWhenReady()) {
             this.currentPlayWhenReady = playWhenReady
+            setBecomingNoisyRegistered(playWhenReady)
             listeners.queueEvent(EVENT_PLAY_WHEN_READY_CHANGED) { listener ->
                 listener.onPlayWhenReadyChanged(playWhenReady, playWhenReadyChangeReason)
             }
@@ -1164,6 +1198,7 @@ class MPVPlayer(
         if (handleAudioFocus) {
             AudioManagerCompat.abandonAudioFocusRequest(audioManager, audioFocusRequest)
         }
+        setBecomingNoisyRegistered(false)
         resetInternalState()
         mpvLib.removeObserver(this)
         mpvLib.destroy()
