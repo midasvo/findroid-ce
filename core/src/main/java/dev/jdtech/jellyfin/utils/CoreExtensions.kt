@@ -14,6 +14,7 @@ import java.time.format.FormatStyle
 import java.text.DateFormat
 import java.time.ZoneOffset
 import java.util.Date
+import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jellyfin.sdk.model.DateTime
@@ -44,8 +45,10 @@ fun ByteArray.toBase64Str(): String {
     return Base64.encodeToString(this, Base64.URL_SAFE or Base64.NO_WRAP)
 }
 
-fun DateTime.format(): String {
-    return DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).format(this.toLocalDate())
+fun DateTime.format(locale: Locale = Locale.getDefault()): String {
+    return DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
+        .withLocale(locale)
+        .format(this.toLocalDate())
 }
 
 fun BroadcastReceiver.launchAsync(

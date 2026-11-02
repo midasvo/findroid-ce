@@ -40,6 +40,7 @@ data class PlayerRoute(
     val itemKind: String,
     val mediaSourceId: String? = null,
     val startFromBeginning: Boolean = false,
+    val shuffle: Boolean = false,
 ) : NavKey
 
 @Serializable data object SettingsRoute : NavKey

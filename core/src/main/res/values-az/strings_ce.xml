@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="browse_library">Kitabxanaya baxın</string>
     <string name="cancel_download_button">Endirməni ləğv et</string>
@@ -77,4 +77,5 @@
     <string name="restart">Yenidən başlat</string>
     <string name="season_episode_number">M%1$d E%2$d</string>
     <string name="ends_at">%1$s-də bitir</string>
+    <string name="shuffle">Qarışıq</string>
 </resources>

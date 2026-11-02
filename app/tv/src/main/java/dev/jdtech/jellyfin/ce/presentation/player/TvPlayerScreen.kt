@@ -122,6 +122,7 @@ fun TvPlayerScreen(
     itemKind: String,
     startFromBeginning: Boolean,
     mediaSourceId: String? = null,
+    shuffle: Boolean = false,
     navigateBack: () -> Unit,
 ) {
     val viewModel = hiltViewModel<PlayerViewModel>()
@@ -327,6 +328,7 @@ fun TvPlayerScreen(
                         itemKind = itemKind,
                         startFromBeginning = startFromBeginning,
                         mediaSourceId = mediaSourceId,
+                        shuffle = shuffle,
                     )
                     playerView.setBackgroundColor(
                         context.resources.getColor(android.R.color.black, context.theme)

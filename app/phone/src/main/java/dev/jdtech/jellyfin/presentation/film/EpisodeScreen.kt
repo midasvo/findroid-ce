@@ -204,7 +204,8 @@ private fun EpisodeScreenLayout(
                         verticalAlignment = Alignment.Bottom,
                     ) {
                         episode.premiereDate?.let { premiereDate ->
-                            val dateText = premiereDate.format()
+                            val locale = LocalConfiguration.current.locales.get(0)
+                            val dateText = premiereDate.format(locale)
                             Text(
                                 text = dateText,
                                 modifier = Modifier.copyOnLongClick(dateText),

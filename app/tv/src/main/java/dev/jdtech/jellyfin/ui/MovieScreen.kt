@@ -138,7 +138,7 @@ private fun MovieScreenLayout(state: MovieState, onAction: (MovieAction) -> Unit
                     ) {
                         movie.premiereDate?.let { premiereDate ->
                             Text(
-                                text = premiereDate.format(),
+                                text = premiereDate.format(locale),
                                 style = MaterialTheme.typography.labelMedium,
                             )
                         }

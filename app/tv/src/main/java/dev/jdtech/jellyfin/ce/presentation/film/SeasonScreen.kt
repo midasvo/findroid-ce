@@ -39,6 +39,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -464,6 +465,7 @@ private fun SeasonScreenLayout(
 @Composable
 private fun episodeInfoLine(episode: FindroidEpisode): String {
     val context = LocalContext.current
+    val locale = LocalConfiguration.current.locales.get(0)
     val remainingTicks = (episode.runtimeTicks - episode.playbackPositionTicks).coerceAtLeast(0)
     val inProgress = episode.playbackPositionTicks > 0 && !episode.played
     val parts = buildList {
@@ -474,7 +476,7 @@ private fun episodeInfoLine(episode: FindroidEpisode): String {
                 episode.indexNumber,
             )
         )
-        episode.premiereDate?.let { add(it.format()) }
+        episode.premiereDate?.let { add(it.format(locale)) }
         if (episode.runtimeTicks > 0) {
             add(stringResource(CoreR.string.runtime_minutes, minutes(episode.runtimeTicks)))
             if (inProgress) {

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="browse_library">Bläddra i biblioteket</string>
     <string name="cancel_download_button">Avbryt nedladdning</string>
@@ -80,4 +80,5 @@
     <string name="restart">Börja om</string>
     <string name="season_episode_number">S%1$d A%2$d</string>
     <string name="ends_at">Slutar %1$s</string>
+    <string name="shuffle">Blanda</string>
 </resources>
