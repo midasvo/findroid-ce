@@ -558,17 +558,11 @@ class SettingsViewModel @Inject constructor(
                                         nameStringResource = R.string.seeking,
                                         preferences =
                                             listOf(
-                                                PreferenceLongInput(
-                                                    nameStringResource =
-                                                        R.string.seek_back_increment,
-                                                    backendPreference =
+                                                PreferenceLongInput(nameStringResource = R.string.seek_back_increment, supportedDeviceTypes = listOf(DeviceType.PHONE), backendPreference =
                                                         appPreferences.playerSeekBackInc,
                                                     suffixRes = R.string.ms,
                                                 ),
-                                                PreferenceLongInput(
-                                                    nameStringResource =
-                                                        R.string.seek_forward_increment,
-                                                    backendPreference =
+                                                PreferenceLongInput(nameStringResource = R.string.seek_forward_increment, supportedDeviceTypes = listOf(DeviceType.PHONE), backendPreference =
                                                         appPreferences.playerSeekForwardInc,
                                                     suffixRes = R.string.ms,
                                                 ),

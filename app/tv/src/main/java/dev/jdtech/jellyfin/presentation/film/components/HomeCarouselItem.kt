@@ -51,7 +51,7 @@ fun HomeCarouselItem(item: FindroidItem, onAction: (HomeAction) -> Unit) {
                 focusedBorder =
                     Border(BorderStroke(4.dp, Color.White), shape = MaterialTheme.shapes.large)
             ),
-        scale = ClickableSurfaceScale.None,
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.02f),
     ) {
         Box {
             AsyncImage(
