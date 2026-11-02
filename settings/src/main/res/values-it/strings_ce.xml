@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Riproduzione in background</string>
     <string name="pref_player_background_audio">Riproduci in background</string>
     <string name="pref_player_background_audio_summary">Continua a riprodurre l\'audio quando lo schermo è spento, quando esci dall\'app e quando chiudi la finestra picture-in-picture</string>
+    <string name="pref_player_tv_ok_pauses">OK mette in pausa la riproduzione</string>
+    <string name="pref_player_tv_ok_pauses_summary">Premere OK durante la riproduzione la mette in pausa e mostra i controlli. Se questa opzione è disattivata, OK mostra solo i controlli.</string>
+    <string name="player_tv_seek_step_5">5 secondi</string>
+    <string name="player_tv_seek_step_10">10 secondi</string>
+    <string name="player_tv_seek_step_15">15 secondi</string>
+    <string name="player_tv_seek_step_30">30 secondi</string>
+    <string name="player_tv_seek_step_60">1 minuto</string>
 </resources>

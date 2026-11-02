@@ -16,6 +16,7 @@ import androidx.navigation3.ui.NavDisplay
 import dev.jdtech.jellyfin.ce.presentation.film.LibraryScreen
 import dev.jdtech.jellyfin.ce.presentation.film.SeasonScreen
 import dev.jdtech.jellyfin.ce.presentation.film.ShowScreen
+import dev.jdtech.jellyfin.ce.presentation.player.TvPlayerScreen
 import dev.jdtech.jellyfin.models.FindroidSeason
 import dev.jdtech.jellyfin.navigation.navigateOrReuse
 import dev.jdtech.jellyfin.navigation.resumedAction
@@ -31,7 +32,6 @@ import dev.jdtech.jellyfin.setup.presentation.permission.PermissionAction
 import dev.jdtech.jellyfin.setup.presentation.permission.PermissionViewModel
 import dev.jdtech.jellyfin.ui.MainScreen
 import dev.jdtech.jellyfin.ui.MovieScreen
-import dev.jdtech.jellyfin.ui.PlayerScreen
 import java.util.UUID
 import org.jellyfin.sdk.model.api.BaseItemKind
 
@@ -279,14 +279,17 @@ private fun EntryProviderScope<NavKey>.tvEntries(
                     navigate(
                         PlayerRoute(
                             itemId = itemId.toString(),
-                            itemKind = BaseItemKind.SEASON.serialName,
+                            // CE: the season screen passes an episode ID. As SEASON, the
+                            // playlist looked it up as a season and could end up empty.
+                            itemKind = BaseItemKind.EPISODE.serialName,
                         )
                     )
                 },
         )
     }
     entry<PlayerRoute> { key ->
-        PlayerScreen(
+        // CE player (ADR 0004): remote seeking, media keys and track dialogs.
+        TvPlayerScreen(
             itemId = UUID.fromString(key.itemId),
             itemKind = key.itemKind,
             startFromBeginning = false,

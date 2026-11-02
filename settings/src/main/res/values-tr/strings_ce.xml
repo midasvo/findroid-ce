@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Arka planda oynatma</string>
     <string name="pref_player_background_audio">Arka planda oynat</string>
     <string name="pref_player_background_audio_summary">Ekran kapandığında, uygulamadan çıktığınızda ve pencere içinde pencere kapatıldığında ses çalmaya devam eder</string>
+    <string name="pref_player_tv_ok_pauses">OK oynatmayı duraklatır</string>
+    <string name="pref_player_tv_ok_pauses_summary">Oynatma sırasında OK tuşuna basmak oynatmayı duraklatır ve kontrolleri gösterir. Bu kapalıyken OK yalnızca kontrolleri gösterir.</string>
+    <string name="player_tv_seek_step_5">5 saniye</string>
+    <string name="player_tv_seek_step_10">10 saniye</string>
+    <string name="player_tv_seek_step_15">15 saniye</string>
+    <string name="player_tv_seek_step_30">30 saniye</string>
+    <string name="player_tv_seek_step_60">1 dakika</string>
 </resources>

@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">बैकग्राउंड प्लेबैक</string>
     <string name="pref_player_background_audio">बैकग्राउंड में चलाएँ</string>
     <string name="pref_player_background_audio_summary">स्क्रीन बंद होने, ऐप छोड़ने और पिक्चर-इन-पिक्चर विंडो बंद करने पर भी ऑडियो चलता रहेगा</string>
+    <string name="pref_player_tv_ok_pauses">OK प्लेबैक रोकता है</string>
+    <string name="pref_player_tv_ok_pauses_summary">प्लेबैक के दौरान OK दबाने से वह रुक जाता है और कंट्रोल दिखते हैं। यह बंद होने पर OK सिर्फ़ कंट्रोल दिखाता है।</string>
+    <string name="player_tv_seek_step_5">5 सेकंड</string>
+    <string name="player_tv_seek_step_10">10 सेकंड</string>
+    <string name="player_tv_seek_step_15">15 सेकंड</string>
+    <string name="player_tv_seek_step_30">30 सेकंड</string>
+    <string name="player_tv_seek_step_60">1 मिनट</string>
 </resources>

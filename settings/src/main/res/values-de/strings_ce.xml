@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Wiedergabe im Hintergrund</string>
     <string name="pref_player_background_audio">Im Hintergrund wiedergeben</string>
     <string name="pref_player_background_audio_summary">Der Ton läuft weiter, wenn der Bildschirm aus ist, wenn du die App verlässt und wenn du das Bild-in-Bild-Fenster schließt</string>
+    <string name="pref_player_tv_ok_pauses">OK pausiert die Wiedergabe</string>
+    <string name="pref_player_tv_ok_pauses_summary">Ein Druck auf OK während der Wiedergabe pausiert sie und zeigt die Steuerelemente. Wenn dies aus ist, zeigt OK nur die Steuerelemente.</string>
+    <string name="player_tv_seek_step_5">5 Sekunden</string>
+    <string name="player_tv_seek_step_10">10 Sekunden</string>
+    <string name="player_tv_seek_step_15">15 Sekunden</string>
+    <string name="player_tv_seek_step_30">30 Sekunden</string>
+    <string name="player_tv_seek_step_60">1 Minute</string>
 </resources>

@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Възпроизвеждане на заден план</string>
     <string name="pref_player_background_audio">Възпроизвеждане на заден план</string>
     <string name="pref_player_background_audio_summary">Звукът продължава, когато екранът е изключен, когато излезете от приложението и когато затворите прозореца картина в картина</string>
+    <string name="pref_player_tv_ok_pauses">OK поставя на пауза</string>
+    <string name="pref_player_tv_ok_pauses_summary">Натискането на OK по време на възпроизвеждане го поставя на пауза и показва контролите. Когато това е изключено, OK само показва контролите.</string>
+    <string name="player_tv_seek_step_5">5 секунди</string>
+    <string name="player_tv_seek_step_10">10 секунди</string>
+    <string name="player_tv_seek_step_15">15 секунди</string>
+    <string name="player_tv_seek_step_30">30 секунди</string>
+    <string name="player_tv_seek_step_60">1 минута</string>
 </resources>

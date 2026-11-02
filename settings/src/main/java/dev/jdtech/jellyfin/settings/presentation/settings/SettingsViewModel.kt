@@ -572,6 +572,36 @@ class SettingsViewModel @Inject constructor(
                                                         appPreferences.playerSeekForwardInc,
                                                     suffixRes = R.string.ms,
                                                 ),
+                                                // CE (#126): the TV remote's steps and OK key.
+                                                PreferenceSelect(
+                                                    nameStringResource =
+                                                        R.string.seek_back_increment,
+                                                    supportedDeviceTypes = listOf(DeviceType.TV),
+                                                    backendPreference =
+                                                        appPreferences.playerTvSeekBackInc,
+                                                    options = R.array.player_tv_seek_steps,
+                                                    optionValues =
+                                                        R.array.player_tv_seek_steps_values,
+                                                ),
+                                                PreferenceSelect(
+                                                    nameStringResource =
+                                                        R.string.seek_forward_increment,
+                                                    supportedDeviceTypes = listOf(DeviceType.TV),
+                                                    backendPreference =
+                                                        appPreferences.playerTvSeekForwardInc,
+                                                    options = R.array.player_tv_seek_steps,
+                                                    optionValues =
+                                                        R.array.player_tv_seek_steps_values,
+                                                ),
+                                                PreferenceSwitch(
+                                                    nameStringResource =
+                                                        R.string.pref_player_tv_ok_pauses,
+                                                    descriptionStringRes =
+                                                        R.string.pref_player_tv_ok_pauses_summary,
+                                                    supportedDeviceTypes = listOf(DeviceType.TV),
+                                                    backendPreference =
+                                                        appPreferences.playerTvOkPauses,
+                                                ),
                                                 PreferenceSwitch(
                                                     nameStringResource =
                                                         R.string.pref_player_chapter_markers,

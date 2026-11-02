@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Arxa fonda oxutma</string>
     <string name="pref_player_background_audio">Arxa fonda oxut</string>
     <string name="pref_player_background_audio_summary">Ekran sönəndə, tətbiqdən çıxanda və şəkil-içində-şəkil pəncərəsini bağlayanda səs oxunmağa davam etsin</string>
+    <string name="pref_player_tv_ok_pauses">OK oynatmanı dayandırır</string>
+    <string name="pref_player_tv_ok_pauses_summary">Oynatma zamanı OK düyməsinə basmaq onu dayandırır və idarəetmə elementlərini göstərir. Bu söndürüləndə OK yalnız idarəetmə elementlərini göstərir.</string>
+    <string name="player_tv_seek_step_5">5 saniyə</string>
+    <string name="player_tv_seek_step_10">10 saniyə</string>
+    <string name="player_tv_seek_step_15">15 saniyə</string>
+    <string name="player_tv_seek_step_30">30 saniyə</string>
+    <string name="player_tv_seek_step_60">1 dəqiqə</string>
 </resources>

@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">背景播放</string>
     <string name="pref_player_background_audio">在背景播放</string>
     <string name="pref_player_background_audio_summary">關閉螢幕、離開應用程式或關閉子母畫面視窗後，音訊仍會繼續播放</string>
+    <string name="pref_player_tv_ok_pauses">OK 鍵暫停播放</string>
+    <string name="pref_player_tv_ok_pauses_summary">播放時按 OK 鍵會暫停並顯示控制項。關閉此選項後，OK 鍵只會顯示控制項。</string>
+    <string name="player_tv_seek_step_5">5 秒</string>
+    <string name="player_tv_seek_step_10">10 秒</string>
+    <string name="player_tv_seek_step_15">15 秒</string>
+    <string name="player_tv_seek_step_30">30 秒</string>
+    <string name="player_tv_seek_step_60">1 分鐘</string>
 </resources>

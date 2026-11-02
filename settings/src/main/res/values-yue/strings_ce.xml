@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">背景播放</string>
     <string name="pref_player_background_audio">喺背景播放</string>
     <string name="pref_player_background_audio_summary">熄咗螢幕、離開應用程式或者閂咗畫中畫視窗之後，聲音都繼續播放</string>
+    <string name="pref_player_tv_ok_pauses">OK 暫停播放</string>
+    <string name="pref_player_tv_ok_pauses_summary">播放時撳 OK 會暫停並顯示控制項。關咗呢個設定嘅話，OK 淨係會顯示控制項。</string>
+    <string name="player_tv_seek_step_5">5 秒</string>
+    <string name="player_tv_seek_step_10">10 秒</string>
+    <string name="player_tv_seek_step_15">15 秒</string>
+    <string name="player_tv_seek_step_30">30 秒</string>
+    <string name="player_tv_seek_step_60">1 分鐘</string>
 </resources>

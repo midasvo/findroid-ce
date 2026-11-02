@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Фоновое воспроизведение</string>
     <string name="pref_player_background_audio">Играть в фоне</string>
     <string name="pref_player_background_audio_summary">Звук продолжает играть при выключенном экране, при выходе из приложения и при закрытии окна «картинка в картинке»</string>
+    <string name="pref_player_tv_ok_pauses">OK ставит на паузу</string>
+    <string name="pref_player_tv_ok_pauses_summary">Нажатие OK во время воспроизведения ставит его на паузу и показывает элементы управления. Если это выключено, OK только показывает элементы управления.</string>
+    <string name="player_tv_seek_step_5">5 секунд</string>
+    <string name="player_tv_seek_step_10">10 секунд</string>
+    <string name="player_tv_seek_step_15">15 секунд</string>
+    <string name="player_tv_seek_step_30">30 секунд</string>
+    <string name="player_tv_seek_step_60">1 минута</string>
 </resources>

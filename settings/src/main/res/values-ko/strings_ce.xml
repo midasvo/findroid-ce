@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">백그라운드 재생</string>
     <string name="pref_player_background_audio">백그라운드에서 재생</string>
     <string name="pref_player_background_audio_summary">화면이 꺼지거나, 앱을 나가거나, 화면 속 화면 창을 닫아도 오디오가 계속 재생됩니다</string>
+    <string name="pref_player_tv_ok_pauses">OK로 재생 일시정지</string>
+    <string name="pref_player_tv_ok_pauses_summary">재생 중에 OK를 누르면 일시정지되고 컨트롤이 표시됩니다. 꺼져 있으면 OK는 컨트롤만 표시합니다.</string>
+    <string name="player_tv_seek_step_5">5초</string>
+    <string name="player_tv_seek_step_10">10초</string>
+    <string name="player_tv_seek_step_15">15초</string>
+    <string name="player_tv_seek_step_30">30초</string>
+    <string name="player_tv_seek_step_60">1분</string>
 </resources>

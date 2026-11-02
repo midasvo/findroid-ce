@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Фонове відтворення</string>
     <string name="pref_player_background_audio">Відтворювати у фоні</string>
     <string name="pref_player_background_audio_summary">Звук продовжує грати при вимкненому екрані, після виходу із застосунку та після закриття вікна «картинка в картинці»</string>
+    <string name="pref_player_tv_ok_pauses">OK ставить на паузу</string>
+    <string name="pref_player_tv_ok_pauses_summary">Натискання OK під час відтворення ставить його на паузу й показує елементи керування. Коли це вимкнено, OK лише показує елементи керування.</string>
+    <string name="player_tv_seek_step_5">5 секунд</string>
+    <string name="player_tv_seek_step_10">10 секунд</string>
+    <string name="player_tv_seek_step_15">15 секунд</string>
+    <string name="player_tv_seek_step_30">30 секунд</string>
+    <string name="player_tv_seek_step_60">1 хвилина</string>
 </resources>

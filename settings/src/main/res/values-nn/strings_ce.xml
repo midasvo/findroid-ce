@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Avspeling i bakgrunnen</string>
     <string name="pref_player_background_audio">Spel av i bakgrunnen</string>
     <string name="pref_player_background_audio_summary">Lyden held fram når skjermen er av, når du forlèt appen og når du lukkar bilete-i-bilete-vindauget</string>
+    <string name="pref_player_tv_ok_pauses">OK set avspelinga på pause</string>
+    <string name="pref_player_tv_ok_pauses_summary">Trykk på OK under avspeling set ho på pause og viser kontrollane. Når dette er av, viser OK berre kontrollane.</string>
+    <string name="player_tv_seek_step_5">5 sekund</string>
+    <string name="player_tv_seek_step_10">10 sekund</string>
+    <string name="player_tv_seek_step_15">15 sekund</string>
+    <string name="player_tv_seek_step_30">30 sekund</string>
+    <string name="player_tv_seek_step_60">1 minutt</string>
 </resources>

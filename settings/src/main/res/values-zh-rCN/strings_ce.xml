@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">后台播放</string>
     <string name="pref_player_background_audio">在后台播放</string>
     <string name="pref_player_background_audio_summary">关闭屏幕、离开应用或关闭画中画窗口后，音频仍继续播放</string>
+    <string name="pref_player_tv_ok_pauses">OK 键暂停播放</string>
+    <string name="pref_player_tv_ok_pauses_summary">播放时按 OK 键会暂停并显示控制按钮。关闭此选项后，OK 键只显示控制按钮。</string>
+    <string name="player_tv_seek_step_5">5 秒</string>
+    <string name="player_tv_seek_step_10">10 秒</string>
+    <string name="player_tv_seek_step_15">15 秒</string>
+    <string name="player_tv_seek_step_30">30 秒</string>
+    <string name="player_tv_seek_step_60">1 分钟</string>
 </resources>

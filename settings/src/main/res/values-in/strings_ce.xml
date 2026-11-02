@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Pemutaran latar belakang</string>
     <string name="pref_player_background_audio">Putar di latar belakang</string>
     <string name="pref_player_background_audio_summary">Audio tetap diputar saat layar mati, saat Anda keluar dari aplikasi, dan saat jendela picture-in-picture ditutup</string>
+    <string name="pref_player_tv_ok_pauses">OK menjeda pemutaran</string>
+    <string name="pref_player_tv_ok_pauses_summary">Menekan OK saat pemutaran akan menjedanya dan menampilkan kontrol. Jika ini nonaktif, OK hanya menampilkan kontrol.</string>
+    <string name="player_tv_seek_step_5">5 detik</string>
+    <string name="player_tv_seek_step_10">10 detik</string>
+    <string name="player_tv_seek_step_15">15 detik</string>
+    <string name="player_tv_seek_step_30">30 detik</string>
+    <string name="player_tv_seek_step_60">1 menit</string>
 </resources>

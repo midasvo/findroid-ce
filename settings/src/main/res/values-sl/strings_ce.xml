@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Predvajanje v ozadju</string>
     <string name="pref_player_background_audio">Predvajaj v ozadju</string>
     <string name="pref_player_background_audio_summary">Zvok se predvaja naprej, ko je zaslon izklopljen, ko zapustite aplikacijo in ko zaprete okno slika v sliki</string>
+    <string name="pref_player_tv_ok_pauses">OK začasno ustavi predvajanje</string>
+    <string name="pref_player_tv_ok_pauses_summary">Pritisk na OK med predvajanjem ga začasno ustavi in prikaže kontrolnike. Ko je to izklopljeno, OK samo prikaže kontrolnike.</string>
+    <string name="player_tv_seek_step_5">5 sekund</string>
+    <string name="player_tv_seek_step_10">10 sekund</string>
+    <string name="player_tv_seek_step_15">15 sekund</string>
+    <string name="player_tv_seek_step_30">30 sekund</string>
+    <string name="player_tv_seek_step_60">1 minuta</string>
 </resources>

@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Afspilning i baggrunden</string>
     <string name="pref_player_background_audio">Afspil i baggrunden</string>
     <string name="pref_player_background_audio_summary">Lyden bliver ved med at spille, når skærmen er slukket, når du forlader appen, og når du lukker billede-i-billede-vinduet</string>
+    <string name="pref_player_tv_ok_pauses">OK sætter afspilning på pause</string>
+    <string name="pref_player_tv_ok_pauses_summary">Når du trykker på OK under afspilning, sættes den på pause, og knapperne vises. Når dette er slået fra, viser OK kun knapperne.</string>
+    <string name="player_tv_seek_step_5">5 sekunder</string>
+    <string name="player_tv_seek_step_10">10 sekunder</string>
+    <string name="player_tv_seek_step_15">15 sekunder</string>
+    <string name="player_tv_seek_step_30">30 sekunder</string>
+    <string name="player_tv_seek_step_60">1 minut</string>
 </resources>

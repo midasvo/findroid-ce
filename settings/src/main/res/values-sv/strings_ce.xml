@@ -87,4 +87,11 @@
     <string name="pref_player_background_group">Uppspelning i bakgrunden</string>
     <string name="pref_player_background_audio">Spela upp i bakgrunden</string>
     <string name="pref_player_background_audio_summary">Ljudet fortsätter när skärmen är av, när du lämnar appen och när du stänger bild-i-bild-fönstret</string>
+    <string name="pref_player_tv_ok_pauses">OK pausar uppspelningen</string>
+    <string name="pref_player_tv_ok_pauses_summary">Om du trycker på OK under uppspelning pausas den och kontrollerna visas. När detta är avstängt visar OK bara kontrollerna.</string>
+    <string name="player_tv_seek_step_5">5 sekunder</string>
+    <string name="player_tv_seek_step_10">10 sekunder</string>
+    <string name="player_tv_seek_step_15">15 sekunder</string>
+    <string name="player_tv_seek_step_30">30 sekunder</string>
+    <string name="player_tv_seek_step_60">1 minut</string>
 </resources>
