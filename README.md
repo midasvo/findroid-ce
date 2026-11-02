@@ -88,6 +88,10 @@ https://github.com/midasvo/findroid-ce
 Obtainium then checks for new releases automatically and notifies you of updates. Leave
 **Include prereleases** off for this entry so it only follows stable releases.
 
+On **Android TV**, set **Filter APKs by regular expression** to `.*-tv-armeabi-v7a\.apk` for 32-bit
+boxes such as the Xiaomi Mi Box (`.*-tv-arm64-v8a\.apk` for 64-bit ones). On a phone,
+`-libre-arm64-v8a\.apk$` keeps Obtainium from offering the TV APK.
+
 <details>
 <summary><strong>Beta channel (Obtainium)</strong></summary>
 
@@ -101,7 +105,8 @@ To follow them, add the same repo URL in Obtainium a second time with these sett
 - **Filter release titles by regular expression**: `^Beta`
   (skips stable releases, which can be newer than the latest beta right after a release)
 - **Filter APKs by regular expression**: `-beta\.\d+-libre-arm64-v8a\.apk$`
-  (swap `arm64-v8a` for your device's ABI if needed)
+  (swap `arm64-v8a` for your device's ABI if needed; on Android TV use
+  `-beta\.\d+-libre-tv-armeabi-v7a\.apk$`)
 
 Betas are untested builds — expect bugs. Every push to `main` publishes one.
 
@@ -110,8 +115,10 @@ Betas are untested builds — expect bugs. Every push to `main` publishes one.
 ### Manual
 
 Grab the latest APK from the [Releases](https://github.com/midasvo/findroid-ce/releases) page:
-`findroid-ce-v<version>-libre-<abi>.apk` for phones and tablets, or `tv-libre-<abi>-release.apk` for
-Android TV.
+`findroid-ce-v<version>-libre-<abi>.apk` for phones and tablets, or
+`findroid-ce-v<version>-libre-tv-<abi>.apk` for Android TV (`armeabi-v7a` for 32-bit boxes such as the
+Xiaomi Mi Box). Phone and TV share one application ID, so installing the TV APK over the phone APK
+keeps your login.
 
 > Findroid CE uses its own application ID (`nl.midasvo.findroid.ce`), so it installs alongside the
 > original Findroid rather than replacing it.

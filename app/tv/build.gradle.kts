@@ -1,3 +1,4 @@
+import com.android.build.api.variant.FilterConfiguration
 import java.util.Properties
 
 plugins {
@@ -15,6 +16,10 @@ val keystoreProps: Properties? =
     if (envKeystoreFile == null && keystorePropertiesFile.exists()) {
         Properties().apply { load(keystorePropertiesFile.inputStream()) }
     } else null
+
+// CE-owned: beta channel, the same as app/phone. .github/workflows/beta.yml sets BETA_BUILD to its
+// run number, which marks the staging build as a beta and keeps its versionCode increasing.
+val betaBuild: Int? = System.getenv("BETA_BUILD")?.toIntOrNull()
 
 java { toolchain { languageVersion = Versions.JAVA } }
 
@@ -64,6 +69,7 @@ android {
         register("staging") {
             initWith(getByName("release"))
             applicationIdSuffix = ".staging"
+            versionNameSuffix = betaBuild?.let { "-beta.$it" } ?: "-staging"
         }
     }
 
@@ -102,6 +108,27 @@ android {
         includeInApk = false
         // Disables dependency metadata when building Android App Bundles.
         includeInBundle = false
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        if (variant.buildType != "release" && variant.buildType != "staging") return@onVariants
+        variant.outputs.forEach { output ->
+            // Same versionCode as the phone beta of the same run, so switching a box between the
+            // phone and TV APK (one application ID, ADR 0005) is never a downgrade.
+            if (variant.buildType == "staging" && betaBuild != null) {
+                output.versionCode.set(1_000_000 + betaBuild)
+            }
+            val abi =
+                output.filters
+                    .firstOrNull { it.filterType == FilterConfiguration.FilterType.ABI }
+                    ?.identifier
+            // CE-owned: the phone name plus "-tv", so the TV APK says what it is (ADR 0006).
+            output.outputFileName.set(
+                "findroid-ce-v${output.versionName.get()}-${variant.flavorName}-tv-$abi.apk"
+            )
+        }
     }
 }
 

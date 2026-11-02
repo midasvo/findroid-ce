@@ -1,6 +1,6 @@
 name: Beta
 
-# Publishes the phone app's `staging` build type ("Findroid CE Beta", app id
+# Publishes the `staging` build type of the phone and TV apps ("Findroid CE Beta", app id
 # nl.midasvo.findroid.ce.staging) as a GitHub prerelease, so it can be followed in Obtainium
 # next to the stable app. Run it for an open pull request with:
 #   gh workflow run beta.yml -f pr=<number>
@@ -122,8 +122,8 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > "$GITHUB_WORKSPACE/findroid-ce.jks"
 
-      - name: Assemble staging APKs
-        run: ./gradlew :app:phone:assembleLibreStaging
+      - name: Assemble staging APKs (phone and TV)
+        run: ./gradlew :app:phone:assembleLibreStaging :app:tv:assembleLibreStaging
         env:
           BETA_BUILD: ${{ github.run_number }}
           KEYSTORE_FILE: ${{ github.workspace }}/findroid-ce.jks
@@ -144,7 +144,13 @@ jobs:
 
             This is the "Findroid CE Beta" app (`nl.midasvo.findroid.ce.staging`). It installs next to the
             stable Findroid CE app and keeps its own data. Betas are untested; expect bugs.
-          files: app/phone/build/outputs/apk/libre/staging/*.apk
+
+            For Android TV, take a `-libre-tv-<abi>.apk`: `armeabi-v7a` for 32-bit boxes such as the Xiaomi
+            Mi Box, `arm64-v8a` for 64-bit ones. Phone and TV share one app ID, so the TV APK replaces
+            the phone beta on a device and keeps its login.
+          files: |
+            app/phone/build/outputs/apk/libre/staging/*.apk
+            app/tv/build/outputs/apk/libre/staging/*.apk
           fail_on_unmatched_files: true
 
       - name: Delete old beta prereleases
