@@ -55,6 +55,9 @@ class MainScreenTest {
                     searchContent = {
                         Box(Modifier.fillMaxSize().testTag("placeholder_search").focusable())
                     },
+                    favoritesContent = {
+                        Box(Modifier.fillMaxSize().testTag("placeholder_favorites").focusable())
+                    },
                     libraryContent = { Box(Modifier.fillMaxSize().testTag("library_screen_content_${it.id}")) },
                 )
             }

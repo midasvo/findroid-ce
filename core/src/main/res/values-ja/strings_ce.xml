@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="browse_library">ライブラリを表示</string>
     <string name="cancel_download_button">ダウンロードをキャンセル</string>
@@ -78,4 +78,5 @@
     <string name="season_episode_number">S%1$d E%2$d</string>
     <string name="ends_at">%1$sに終了</string>
     <string name="shuffle">シャッフル</string>
+    <string name="favorites_empty_body">映画、番組、またはエピソードのハートアイコンを選択して、お気に入りに追加します。</string>
 </resources>

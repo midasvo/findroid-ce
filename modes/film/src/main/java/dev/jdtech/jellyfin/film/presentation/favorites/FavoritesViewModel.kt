@@ -13,6 +13,7 @@ import dev.jdtech.jellyfin.models.FindroidShow
 import dev.jdtech.jellyfin.models.UiText
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +26,7 @@ class FavoritesViewModel @Inject constructor(private val repository: JellyfinRep
     private val _state = MutableStateFlow(CollectionState())
     val state = _state.asStateFlow()
 
-    fun loadItems() {
+    fun loadItems(): Job =
         viewModelScope.launch {
             _state.emit(_state.value.copy(isLoading = true, error = null))
 
@@ -72,5 +73,4 @@ class FavoritesViewModel @Inject constructor(private val repository: JellyfinRep
                 _state.emit(_state.value.copy(isLoading = false, error = e))
             }
         }
-    }
 }

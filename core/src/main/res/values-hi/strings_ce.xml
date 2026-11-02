@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="browse_library">लाइब्रेरी ब्राउज़ करें</string>
     <string name="cancel_download_button">डाउनलोड रद्द करें</string>
@@ -81,4 +81,5 @@
     <string name="season_episode_number">S%1$d E%2$d</string>
     <string name="ends_at">%1$s पर समाप्त</string>
     <string name="shuffle">फेरबदल</string>
+    <string name="favorites_empty_body">अपनी पसंदीदा सूची में जोड़ने के लिए किसी भी फ़िल्म, शो या एपिसोड पर दिल के निशान को चुनें।</string>
 </resources>
