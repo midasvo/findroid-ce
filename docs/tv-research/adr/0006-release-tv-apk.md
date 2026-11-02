@@ -1,6 +1,6 @@
 # ADR 0006: Publish the TV APK in betas and releases, with clear names
 
-**Status:** Proposed
+**Status:** Accepted (2026-11-02, in #121)
 
 ## Context
 

@@ -1,6 +1,6 @@
 # ADR 0008: Tell shared modules which app they run in, not which device
 
-**Status:** Proposed
+**Status:** Accepted (2026-11-02, in #121)
 
 ## Context
 

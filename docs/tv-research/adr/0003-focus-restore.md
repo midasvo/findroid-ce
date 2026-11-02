@@ -1,6 +1,6 @@
 # ADR 0003: One way to restore focus on every screen
 
-**Status:** Proposed
+**Status:** Accepted (2026-11-02, in #121)
 
 ## Context
 

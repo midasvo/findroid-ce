@@ -1,6 +1,6 @@
 # ADR 0005: Keep one application ID for phone and TV
 
-**Status:** Proposed
+**Status:** Accepted (2026-11-02, in #121)
 
 ## Context
 

@@ -1,6 +1,6 @@
 # ADR 0004: A CE Compose player UI on top of the shared PlayerViewModel
 
-**Status:** Proposed
+**Status:** Accepted (2026-11-02, in #121)
 
 ## Context
 

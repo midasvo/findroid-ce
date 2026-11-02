@@ -10,9 +10,9 @@ Research into turning `app/tv` into a first-class Android TV client, with [Wholp
 | [2-wholphin.md](2-wholphin.md) | Phase 2: Wholphin on the same emulator plus its source, the full feature matrix, screenshots |
 | [3-gaps.md](3-gaps.md) | Phase 3: every gap with impact, size and location, and the order to build them in |
 
-| [4-decisions.md](4-decisions.md) | Phase 4: eight architecture decisions as ADRs in [`adr/`](adr) (status: Proposed) |
+| [4-decisions.md](4-decisions.md) | Phase 4: eight architecture decisions as ADRs in [`adr/`](adr) (accepted) |
 
-Phase 5 (follow-up issues) is still to come.
+| [5-roadmap.md](5-roadmap.md) | Phase 5: 19 follow-up issues (#124–#142) in build order |
 
 ## Test setup
 

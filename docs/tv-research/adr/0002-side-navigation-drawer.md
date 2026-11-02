@@ -1,6 +1,6 @@
 # ADR 0002: Navigation with a side drawer
 
-**Status:** Proposed
+**Status:** Accepted (2026-11-02, in #121)
 
 ## Context
 

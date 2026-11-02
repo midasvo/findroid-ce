@@ -1,6 +1,6 @@
 # ADR 0007: No downloads or offline mode on TV for now
 
-**Status:** Proposed
+**Status:** Accepted (2026-11-02, in #121)
 
 ## Context
 

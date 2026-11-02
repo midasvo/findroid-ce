@@ -1,6 +1,6 @@
 # Phase 4: architecture decisions
 
-The decisions from the plan, written as ADRs in [`adr/`](adr). All are **Proposed** until they're agreed in [issue #121](https://github.com/midasvo/findroid-ce/issues/121).
+The decisions from the plan, written as ADRs in [`adr/`](adr). All were **accepted** on 2026-11-02 in [issue #121](https://github.com/midasvo/findroid-ce/issues/121).
 
 | ADR | Decision | Plan question | Unblocks |
 |---|---|---|---|

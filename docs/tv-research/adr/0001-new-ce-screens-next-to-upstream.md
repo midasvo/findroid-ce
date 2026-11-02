@@ -1,6 +1,6 @@
 # ADR 0001: Build new CE screens next to the upstream ones, and switch route by route
 
-**Status:** Proposed
+**Status:** Accepted (2026-11-02, in #121)
 
 ## Context
 
