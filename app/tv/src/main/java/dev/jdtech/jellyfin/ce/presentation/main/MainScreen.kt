@@ -138,6 +138,7 @@ fun MainScreen(
                 navigateToLibrary = navigateToLibrary,
                 navigateToMovie = navigateToMovie,
                 navigateToShow = navigateToShow,
+                navigateToCollection = navigateToCollection,
             )
         },
     )
