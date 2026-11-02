@@ -76,4 +76,8 @@
         <item quantity="other">%d downloads verwijderd</item>
     </plurals>
     <string name="collections_label">Collecties</string>
+    <string name="resume">Hervatten</string>
+    <string name="restart">Opnieuw</string>
+    <string name="season_episode_number">S%1$d A%2$d</string>
+    <string name="ends_at">Eindigt om %1$s</string>
 </resources>

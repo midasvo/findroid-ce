@@ -77,7 +77,7 @@ import org.jellyfin.sdk.model.api.BaseItemKind
 fun SearchScreen(
     navigateToMovie: (itemId: UUID) -> Unit,
     navigateToShow: (itemId: UUID) -> Unit,
-    navigateToSeason: (seasonId: UUID) -> Unit,
+    navigateToEpisode: (episodeId: UUID) -> Unit,
     navigateToCollection: (collectionId: UUID, name: String) -> Unit,
     viewModel: SearchViewModel = hiltViewModel(),
 ) {
@@ -93,8 +93,7 @@ fun SearchScreen(
                     when (val item = action.item) {
                         is FindroidMovie -> navigateToMovie(item.id)
                         is FindroidShow -> navigateToShow(item.id)
-                        // Until #130, an episode opens its season instead of playing right away.
-                        is FindroidEpisode -> navigateToSeason(item.seasonId)
+                        is FindroidEpisode -> navigateToEpisode(item.id)
                         is FindroidBoxSet -> navigateToCollection(item.id, item.name)
                     }
                 }

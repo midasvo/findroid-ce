@@ -73,4 +73,8 @@
         <item quantity="other">%d件のダウンロードを削除しました</item>
     </plurals>
     <string name="collections_label">コレクション</string>
+    <string name="resume">再開</string>
+    <string name="restart">最初から</string>
+    <string name="season_episode_number">S%1$d E%2$d</string>
+    <string name="ends_at">%1$sに終了</string>
 </resources>

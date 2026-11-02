@@ -76,4 +76,8 @@
         <item quantity="other">S\'han suprimit %d baixades</item>
     </plurals>
     <string name="collections_label">Col·leccions</string>
+    <string name="resume">Reprèn</string>
+    <string name="restart">Torna a començar</string>
+    <string name="season_episode_number">T%1$d E%2$d</string>
+    <string name="ends_at">Acaba a les %1$s</string>
 </resources>

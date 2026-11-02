@@ -73,4 +73,8 @@
         <item quantity="other">%d unduhan dihapus</item>
     </plurals>
     <string name="collections_label">Koleksi</string>
+    <string name="resume">Lanjutkan</string>
+    <string name="restart">Mulai ulang</string>
+    <string name="season_episode_number">S%1$d E%2$d</string>
+    <string name="ends_at">Berakhir pukul %1$s</string>
 </resources>

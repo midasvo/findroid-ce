@@ -82,4 +82,8 @@
         <item quantity="other">Видалено %d завантажень</item>
     </plurals>
     <string name="collections_label">Колекції</string>
+    <string name="resume">Продовжити</string>
+    <string name="restart">Спочатку</string>
+    <string name="season_episode_number">С%1$d Е%2$d</string>
+    <string name="ends_at">Закінчиться о %1$s</string>
 </resources>

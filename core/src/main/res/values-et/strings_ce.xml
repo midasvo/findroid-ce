@@ -76,4 +76,8 @@
         <item quantity="other">Eemaldatud %d allalaadimist</item>
     </plurals>
     <string name="collections_label">Kogumikud</string>
+    <string name="resume">Jätka</string>
+    <string name="restart">Algusest</string>
+    <string name="season_episode_number">H%1$d O%2$d</string>
+    <string name="ends_at">Lõpeb kell %1$s</string>
 </resources>

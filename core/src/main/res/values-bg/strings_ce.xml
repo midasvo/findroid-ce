@@ -76,4 +76,8 @@
         <item quantity="other">Премахнати са %d изтегляния</item>
     </plurals>
     <string name="collections_label">Колекции</string>
+    <string name="resume">Продължи</string>
+    <string name="restart">Отначало</string>
+    <string name="season_episode_number">С%1$d Е%2$d</string>
+    <string name="ends_at">Свършва в %1$s</string>
 </resources>

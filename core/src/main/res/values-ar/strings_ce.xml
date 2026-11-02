@@ -88,4 +88,8 @@
         <item quantity="other">تمت إزالة %d تنزيل</item>
     </plurals>
     <string name="collections_label">المجموعات</string>
+    <string name="resume">استئناف</string>
+    <string name="restart">البدء من جديد</string>
+    <string name="season_episode_number">م%1$d ح%2$d</string>
+    <string name="ends_at">ينتهي في %1$s</string>
 </resources>
