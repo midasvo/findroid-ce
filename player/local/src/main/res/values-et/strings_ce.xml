@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Peata</string>
     <string name="still_watching_title">Kas vaatad ikka veel?</string>
     <string name="video_quality_original">Algne kvaliteet</string>
+    <string name="player_controls_previous">Eelmine osa</string>
+    <string name="player_ends_at">Lõpeb kell %1$s</string>
+    <string name="player_error_title">Seda videot ei saa esitada</string>
+    <string name="player_up_next">Järgmisena</string>
 </resources>

@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Anhalten</string>
     <string name="still_watching_title">Schaust du noch?</string>
     <string name="video_quality_original">Originalqualität</string>
+    <string name="player_controls_previous">Vorherige Folge</string>
+    <string name="player_ends_at">Endet um %1$s</string>
+    <string name="player_error_title">Dieses Video kann nicht abgespielt werden</string>
+    <string name="player_up_next">Als Nächstes</string>
 </resources>

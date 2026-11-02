@@ -9,4 +9,8 @@
     <string name="still_watching_pause">停止</string>
     <string name="still_watching_title">您还在观看吗？</string>
     <string name="video_quality_original">原始画质</string>
+    <string name="player_controls_previous">上一集</string>
+    <string name="player_ends_at">%1$s 结束</string>
+    <string name="player_error_title">无法播放此视频</string>
+    <string name="player_up_next">接下来播放</string>
 </resources>

@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Durdur</string>
     <string name="still_watching_title">Hâlâ izliyor musunuz?</string>
     <string name="video_quality_original">Orijinal kalite</string>
+    <string name="player_controls_previous">Önceki bölüm</string>
+    <string name="player_ends_at">Bitiş: %1$s</string>
+    <string name="player_error_title">Bu video oynatılamıyor</string>
+    <string name="player_up_next">Sıradaki</string>
 </resources>

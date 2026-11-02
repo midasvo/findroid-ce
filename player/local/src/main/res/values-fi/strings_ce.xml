@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Lopeta</string>
     <string name="still_watching_title">Katseletko vielä?</string>
     <string name="video_quality_original">Alkuperäinen laatu</string>
+    <string name="player_controls_previous">Edellinen jakso</string>
+    <string name="player_ends_at">Päättyy klo %1$s</string>
+    <string name="player_error_title">Tätä videota ei voi toistaa</string>
+    <string name="player_up_next">Seuraavaksi</string>
 </resources>

@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Stoppa</string>
     <string name="still_watching_title">Tittar du fortfarande?</string>
     <string name="video_quality_original">Ursprunglig kvalitet</string>
+    <string name="player_controls_previous">Föregående avsnitt</string>
+    <string name="player_ends_at">Slutar %1$s</string>
+    <string name="player_error_title">Det går inte att spela upp videon</string>
+    <string name="player_up_next">Härnäst</string>
 </resources>

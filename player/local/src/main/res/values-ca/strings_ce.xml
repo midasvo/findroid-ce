@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Atura</string>
     <string name="still_watching_title">Encara ho estàs mirant?</string>
     <string name="video_quality_original">Qualitat original</string>
+    <string name="player_controls_previous">Episodi anterior</string>
+    <string name="player_ends_at">Acaba a les %1$s</string>
+    <string name="player_error_title">No es pot reproduir aquest vídeo</string>
+    <string name="player_up_next">A continuació</string>
 </resources>

@@ -9,4 +9,8 @@
     <string name="still_watching_pause">Stop</string>
     <string name="still_watching_title">Ser du stadig med?</string>
     <string name="video_quality_original">Oprindelig kvalitet</string>
+    <string name="player_controls_previous">Forrige afsnit</string>
+    <string name="player_ends_at">Slutter kl. %1$s</string>
+    <string name="player_error_title">Denne video kan ikke afspilles</string>
+    <string name="player_up_next">Næste</string>
 </resources>

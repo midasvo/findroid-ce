@@ -243,6 +243,24 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
         currentItemIndex = items.indexOfFirst { it.id == itemId }
     }
 
+    /** CE (#131): the queued items after the current one, for the TV player's queue row. */
+    fun upcomingItems(): List<FindroidItem> =
+        if (currentItemIndex < 0) emptyList() else items.drop(currentItemIndex + 1)
+
+    /**
+     * CE (#131): start over at [itemId], a queued item, from its beginning. Forgets which items the
+     * player already has, as the caller replaces the player's playlist with the returned item.
+     */
+    suspend fun jumpTo(itemId: UUID): PlayerItem? {
+        val index = items.indexOfFirst { it.id == itemId }
+        if (index < 0) return null
+        val playerItem = items[index].toPlayerItem(null, 0L)
+        playerItems.clear()
+        playerItems.add(playerItem)
+        currentItemIndex = index
+        return playerItem
+    }
+
     /**
      * Re-resolve an already-queued item's media sources — used when the user
      * changes the max streaming bitrate mid-playback, which invalidates every
