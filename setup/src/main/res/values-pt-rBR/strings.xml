@@ -31,10 +31,10 @@
     <string name="remove_server_address_dialog_text">Tem certeza de que deseja excluir o endereço do servidor %1$s</string>
     <string name="servers">Servidores</string>
     <string name="servers_btn_add_server">Adicionar servidor</string>
-    <string name="welcome">Bem-vindo ao Findroid</string>
+    <string name="welcome">Bem-vindo ao Findroid CE</string>
     <string name="welcome_btn_continue">Continuar</string>
     <string name="welcome_btn_learn_more">Veja mais sobre o Jellyfin</string>
-    <string name="welcome_text">Findroid é um cliente de terceiros para Jellyfin. Findroid não contém e não proveem nenhuma mídia.\n\nPara usar este cliente, você precisará hospedar seu próprio servidor de mídia Jellyfin.</string>
+    <string name="welcome_text">Findroid CE é um cliente de terceiros para Jellyfin. Findroid CE não contém e não proveem nenhuma mídia.\n\nPara usar este cliente, você precisará hospedar seu próprio servidor de mídia Jellyfin.</string>
     <string name="confirm">Confirmar</string>
     <string name="cancel">Cancelar</string>
     <string name="or">OU</string>

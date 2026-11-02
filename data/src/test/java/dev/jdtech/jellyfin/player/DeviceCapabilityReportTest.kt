@@ -55,7 +55,7 @@ class DeviceCapabilityReportTest {
             dolbyVisionProfiles = sortedMapOf(5 to "3840x2160@60", 8 to "3840x2160@60"),
         ),
         deviceProfile = DeviceProfile(
-            name = "Findroid Device Profile",
+            name = "Findroid CE Device Profile",
             directPlayProfiles = listOf(
                 DirectPlayProfile(
                     type = DlnaProfileType.VIDEO,
@@ -78,7 +78,7 @@ class DeviceCapabilityReportTest {
             subtitleProfiles = emptyList(),
         ),
         downloadProfile = DeviceProfile(
-            name = "Findroid Download Profile",
+            name = "Findroid CE Download Profile",
             directPlayProfiles = emptyList(),
             transcodingProfiles = emptyList(),
             containerProfiles = emptyList(),
@@ -101,7 +101,7 @@ class DeviceCapabilityReportTest {
         val deviceId = UUID.fromString("11111111-2222-3333-4444-555555555555")
         val withId = sampleReport().copy(
             deviceProfile = DeviceProfile(
-                name = "Findroid Device Profile",
+                name = "Findroid CE Device Profile",
                 id = deviceId,
                 directPlayProfiles = emptyList(),
                 transcodingProfiles = emptyList(),

@@ -440,7 +440,7 @@ class DeviceProfileBuilder(context: Context) {
             }
 
             return DeviceProfile(
-                name = "Findroid Device Profile",
+                name = "Findroid CE Device Profile",
                 directPlayProfiles = directPlayProfiles,
                 transcodingProfiles = TRANSCODING_PROFILES,
                 containerProfiles = containerProfiles,
@@ -622,7 +622,7 @@ class DeviceProfileBuilder(context: Context) {
          * transcode while leaving every other file as a direct-play original.
          */
         internal fun buildDownloadTranscodeProfile(): DeviceProfile = DeviceProfile(
-            name = "Findroid Download Profile",
+            name = "Findroid CE Download Profile",
             maxStreamingBitrate = 1_000_000_000,
             maxStaticBitrate = 1_000_000_000,
             directPlayProfiles = listOf(

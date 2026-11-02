@@ -19,10 +19,10 @@
     <string name="servers_btn_add_server">Tambah server</string>
     <string name="remove_server_dialog">Hapus server</string>
     <string name="remove_server_dialog_text">Apakah Anda yakin ingin menghapus server %s?</string>
-    <string name="welcome">Selamat datang di Findroid</string>
+    <string name="welcome">Selamat datang di Findroid CE</string>
     <string name="welcome_btn_continue">Lanjutkan</string>
     <string name="welcome_btn_learn_more">Pelajari Jellyfin lebih lanjut</string>
-    <string name="welcome_text">Findroid adalah klien pihak ketiga untuk Jellyfin. Findroid sendiri tidak menyediakan konten media apa pun.\n\nUntuk menggunakan klien ini, Anda perlu meng-host server Jellyfin Anda sendiri.</string>
+    <string name="welcome_text">Findroid CE adalah klien pihak ketiga untuk Jellyfin. Findroid CE sendiri tidak menyediakan konten media apa pun.\n\nUntuk menggunakan klien ini, Anda perlu meng-host server Jellyfin Anda sendiri.</string>
     <string name="confirm">Konfirmasi</string>
     <string name="or">ATAU</string>
     <string name="server_subtitle">Server: %s</string>

@@ -28,7 +28,7 @@
     <string name="servers">Сервери</string>
     <string name="servers_no_servers">Сервери не знайдені</string>
     <string name="servers_btn_add_server">Добавити сервер</string>
-    <string name="welcome">Ласкаво просимо до Фіндроїда</string>
+    <string name="welcome">Ласкаво просимо до Findroid CE</string>
     <string name="welcome_btn_continue">Продовжити</string>
     <string name="welcome_btn_learn_more">Дізнатися більше про Джелліфін</string>
     <string name="confirm">Підтвердити</string>
@@ -36,7 +36,7 @@
     <string name="or">АБО</string>
     <string name="users_no_users">Користувачі не знайдені</string>
     <string name="remove_server_address">Видалити адрес сервера</string>
-    <string name="welcome_text">Фіндроїд — це сторонній клієнт для Джелліфін. Сам по собі Фіндроїд не містить жодних медіафайлів.\n\nЩоб використовувати цей клієнт, вам потрібно розмістити власний сервер Джелліфін.</string>
+    <string name="welcome_text">Findroid CE — це сторонній клієнт для Джелліфін. Сам по собі Findroid CE не містить жодних медіафайлів.\n\nЩоб використовувати цей клієнт, вам потрібно розмістити власний сервер Джелліфін.</string>
     <string name="server_subtitle">Сервер: %s</string>
     <string name="remove_server_address_dialog_text">Ви впевнені, що ви хочете видалити адресу сервера %1$s</string>
 </resources>

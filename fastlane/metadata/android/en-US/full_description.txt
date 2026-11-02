@@ -1,8 +1,18 @@
-Findroid is a third-party Android application for Jellyfin that provides a native user interface to browse and play movies and series.
+Findroid CE is a community-driven fork of Findroid, the native Jellyfin client for Android. It provides a native user interface to browse and play movies and series from your Jellyfin server.
 
 To use this app you must have a Jellyfin server.
 
-You can also download movies and TV shows for offline playback while on the road.
-And with the built-in mpv player you are sure that all media formats will play correctly including styled SSA/ASS subtitles.
+What Findroid CE adds:
+- Resumable download engine with SD card and quality selection
+- Redesigned downloads screen, bulk downloads, and Smart Downloads
+- Dolby Vision direct play and improved audio codec handling (Atmos, ffmpeg fallback)
+- Video quality selector and version picker during playback
+- Subtitle styling (colors, size, fonts) and wide format support (PGS, VobSub, SSA/ASS)
+- Per-series audio and subtitle track memory
+- Chapter list and media segment skipping (intro/outro)
+- Background audio playback
+- Library enhancements including hide-watched filter and auto offline mode
 
-Thanks for using Findroid!
+Based on Findroid by Jarne Demeulemeester.
+
+Thanks for using Findroid CE!

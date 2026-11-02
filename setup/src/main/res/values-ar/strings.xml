@@ -23,10 +23,10 @@
     <string name="servers_no_servers">لم يتم العثور على خوادم</string>
     <string name="servers_btn_add_server">إضافة خادم</string>
     <string name="remove_server_dialog_text">هل أنت متأكد من إزالة الخادم %s؟</string>
-    <string name="welcome">أهلاً في Findroid</string>
+    <string name="welcome">أهلاً في Findroid CE</string>
     <string name="welcome_btn_continue">متابعة</string>
     <string name="welcome_btn_learn_more">تعلم المزيد عن Jellyfin</string>
-    <string name="welcome_text">Findroid هو مشغل غير رسمي ل Jellyfin. Findroid لا يحتوي على أية وسائط بشكل تلقائي.\n\nمن أجل استخدام هذا التطبيق عليك استضافة خادم Jellyfin بنفسك.</string>
+    <string name="welcome_text">Findroid CE هو مشغل غير رسمي ل Jellyfin. Findroid CE لا يحتوي على أية وسائط بشكل تلقائي.\n\nمن أجل استخدام هذا التطبيق عليك استضافة خادم Jellyfin بنفسك.</string>
     <string name="confirm">تأكيد</string>
     <string name="or">أو</string>
     <string name="server_subtitle">الخادم: %s</string>
