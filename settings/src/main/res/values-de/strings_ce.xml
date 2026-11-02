@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Franz jagt im komplett verwahrlosten Taxi quer durch Bayern.</string>
     <string name="subtitle_style_summary">Farbe, Umrandung, Größe und Schriftart</string>
     <string name="subtitle_system_caption_settings">Systemeinstellungen für Untertitel</string>
+    <string name="home_next_up_max_days">Max. Tage in „Als Nächstes“</string>
+    <string name="home_next_up_max_days_summary">Nur Serien anzeigen, die innerhalb dieser Anzahl von Tagen angesehen wurden. 0 bedeutet keine Begrenzung.</string>
+    <string name="home_next_up_max_days_suffix">Tage</string>
+    <string name="settings_image_display_size_title">Bilder in Anzeigegröße laden</string>
+    <string name="settings_image_display_size_summary">Bilder vom Server in der Größe anfordern, in der sie angezeigt werden. Verbraucht weniger Daten, aber der Server muss jedes Bild beim ersten Mal skalieren.</string>
 </resources>

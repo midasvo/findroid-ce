@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Kiire pruun rebane hüppab üle laisa koera.</string>
     <string name="subtitle_style_summary">Värv, piirjoon, suurus ja font</string>
     <string name="subtitle_system_caption_settings">Süsteemi subtiitriseaded</string>
+    <string name="home_next_up_max_days">Maksimaalselt päevi jaotises „Järgmisena“</string>
+    <string name="home_next_up_max_days_summary">Näita ainult sarju, mida on vaadatud selle arvu päevade jooksul. 0 tähendab piiranguta.</string>
+    <string name="home_next_up_max_days_suffix">päeva</string>
+    <string name="settings_image_display_size_title">Laadi pildid kuvamissuuruses</string>
+    <string name="settings_image_display_size_summary">Küsi serverilt pilte selles suuruses, milles neid näidatakse. Kasutab vähem andmeid, kuid server peab iga pildi esimesel korral ümber suurendama.</string>
 </resources>

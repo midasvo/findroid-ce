@@ -14,6 +14,7 @@ import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.toView
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -60,20 +61,48 @@ constructor(
                 // coroutineScope { } is required here: without it, a failure
                 // inside any async { } child propagates straight to viewModelScope
                 // and crashes the app, even with this try/catch around awaitAll.
-                // See BUGREPORT_ANALYSIS.md.
-                coroutineScope {
-                    awaitAll(
-                        async { loadSuggestions() },
-                        async { loadResumeItems() },
-                        async { loadNextUpItems() },
-                        async { loadViews() },
-                    )
-                }
-                _state.update { it.copy(error = null) }
+                // See BUGREPORT_ANALYSIS.md. Each row catches its own failures, so one
+                // row can't cancel the others; this stays for whatever gets past that.
+                val rows =
+                    coroutineScope {
+                        awaitAll(
+                            async { logFailure("suggestions") { loadSuggestions() } },
+                            async { logFailure("resume items") { loadResumeItems() } },
+                            async { logFailure("next up items") { loadNextUpItems() } },
+                            async { logFailure("views") { loadViews() } },
+                        )
+                    }
+                _state.update { it.copy(error = errorIfAllFailed(rows)) }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _state.update { it.copy(error = e) }
             }
             _state.update { it.copy(isLoading = false) }
+        }
+    }
+
+    /** Runs [block], turning a failure into a logged result. A row keeps what it showed. */
+    private suspend fun <T> logFailure(name: String, block: suspend () -> T): Result<T> =
+        try {
+            Result.success(block())
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to load $name")
+            Result.failure(e)
+        }
+
+    /**
+     * The first error, if no row loaded. Each row reports whether it asked the server at all, so
+     * rows turned off in settings don't count as having loaded.
+     */
+    private fun errorIfAllFailed(rows: List<Result<Boolean>>): Exception? {
+        val attempted = rows.filter { it.getOrDefault(true) }
+        return if (attempted.all { it.isFailure }) {
+            attempted.firstOrNull()?.exceptionOrNull() as Exception?
+        } else {
+            null
         }
     }
 
@@ -84,11 +113,11 @@ constructor(
         }
     }
 
-    private suspend fun loadSuggestions() {
+    private suspend fun loadSuggestions(): Boolean {
         Timber.i("Loading suggestions")
         if (!appPreferences.getValue(appPreferences.homeSuggestions)) {
             _state.update { it.copy(suggestionsSection = null) }
-            return
+            return false
         }
 
         val items = repository.getSuggestions()
@@ -101,13 +130,14 @@ constructor(
             }
 
         _state.update { it.copy(suggestionsSection = section) }
+        return true
     }
 
-    private suspend fun loadResumeItems() {
+    private suspend fun loadResumeItems(): Boolean {
         Timber.i("Loading resume items")
         if (!appPreferences.getValue(appPreferences.homeContinueWatching)) {
             _state.update { it.copy(resumeSection = null) }
-            return
+            return false
         }
 
         val resumeItems = repository.getResumeItems()
@@ -122,13 +152,14 @@ constructor(
             }
 
         _state.update { it.copy(resumeSection = section) }
+        return true
     }
 
-    private suspend fun loadNextUpItems() {
+    private suspend fun loadNextUpItems(): Boolean {
         Timber.i("Loading next up items")
         if (!appPreferences.getValue(appPreferences.homeNextUp)) {
             _state.update { it.copy(nextUpSection = null) }
-            return
+            return false
         }
 
         val nextUpItems = repository.getNextUp()
@@ -141,33 +172,52 @@ constructor(
             }
 
         _state.update { it.copy(nextUpSection = section) }
+        return true
     }
 
-    private suspend fun loadViews() {
+    private suspend fun loadViews(): Boolean {
         Timber.i("Loading views")
-        val items =
-            if (appPreferences.getValue(appPreferences.homeLatest)) {
-                val views =
-                    repository
-                        .getUserViews()
-                        .filter { view ->
-                            CollectionType.fromString(view.collectionType?.serialName) in
-                                CollectionType.supported
-                        }
+        if (!appPreferences.getValue(appPreferences.homeLatest)) {
+            _state.update { it.copy(views = emptyList()) }
+            return false
+        }
 
-                coroutineScope {
-                    views
-                        .map { view -> async { view to repository.getLatestMedia(view.id) } }
-                        .awaitAll()
+        val views =
+            repository
+                .getUserViews()
+                .filter { view ->
+                    CollectionType.fromString(view.collectionType?.serialName) in
+                        CollectionType.supported
                 }
-                    .filter { (_, latest) -> latest.isNotEmpty() }
-                    .map { (view, latest) -> view.toView(latest) }
-                    .map { HomeItem.ViewItem(it) }
-            } else {
-                emptyList()
+
+        val results =
+            coroutineScope {
+                views
+                    .map { view ->
+                        async {
+                            logFailure("library ${view.id}") { repository.getLatestMedia(view.id) }
+                        }
+                    }
+                    .awaitAll()
+            }
+        // With nothing loaded, this is the row failing as a whole.
+        if (results.isNotEmpty() && results.all { it.isFailure }) {
+            throw results.first().exceptionOrNull()!!
+        }
+
+        val current = _state.value.views
+        val items =
+            views.zip(results).mapNotNull { (view, result) ->
+                result.fold(
+                    onSuccess = { latest ->
+                        if (latest.isEmpty()) null else HomeItem.ViewItem(view.toView(latest))
+                    },
+                    onFailure = { current.firstOrNull { it.id == view.id } },
+                )
             }
 
         _state.update { it.copy(views = items) }
+        return true
     }
 
     fun onAction(action: HomeAction) {

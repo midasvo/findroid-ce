@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">نص معاينة مظهر الترجمة.</string>
     <string name="subtitle_style_summary">اللون والمخطط التفصيلي والحجم والخط</string>
     <string name="subtitle_system_caption_settings">إعدادات التسميات التوضيحية للنظام</string>
+    <string name="home_next_up_max_days">الحد الأقصى للأيام في «التالي»</string>
+    <string name="home_next_up_max_days_summary">اعرض فقط المسلسلات التي شوهدت خلال هذا العدد من الأيام. 0 يعني بلا حد.</string>
+    <string name="home_next_up_max_days_suffix">أيام</string>
+    <string name="settings_image_display_size_title">تحميل الصور بحجم العرض</string>
+    <string name="settings_image_display_size_summary">اطلب من الخادم الصور بالحجم الذي تُعرض به. يستهلك بيانات أقل، لكن على الخادم تغيير حجم كل صورة في المرة الأولى.</string>
 </resources>

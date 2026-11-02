@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Ma la volpe col suo balzo ha raggiunto il quieto Fido.</string>
     <string name="subtitle_style_summary">Colore, contorno, dimensione e carattere</string>
     <string name="subtitle_system_caption_settings">Impostazioni sottotitoli di sistema</string>
+    <string name="home_next_up_max_days">Giorni massimi in Prossimo episodio</string>
+    <string name="home_next_up_max_days_summary">Mostra solo le serie guardate entro questo numero di giorni. 0 significa nessun limite.</string>
+    <string name="home_next_up_max_days_suffix">giorni</string>
+    <string name="settings_image_display_size_title">Carica le immagini alla dimensione di visualizzazione</string>
+    <string name="settings_image_display_size_summary">Chiedi al server le immagini alla dimensione in cui vengono mostrate. Usa meno dati, ma il server deve ridimensionare ogni immagine la prima volta.</string>
 </resources>

@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">測試預覽字幕嘅顯示效果。</string>
     <string name="subtitle_style_summary">顏色、邊框、大小同字型</string>
     <string name="subtitle_system_caption_settings">系統字幕設定</string>
+    <string name="home_next_up_max_days">「接住落嚟」最多日數</string>
+    <string name="home_next_up_max_days_summary">只顯示喺呢個日數之內睇過嘅劇集。0 代表冇限制。</string>
+    <string name="home_next_up_max_days_suffix">日</string>
+    <string name="settings_image_display_size_title">用顯示大細載入圖片</string>
+    <string name="settings_image_display_size_summary">向伺服器攞顯示大細嘅圖片。用少啲數據，但伺服器第一次要逐張圖片改大細。</string>
 </resources>

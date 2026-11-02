@@ -33,6 +33,7 @@ import dev.jdtech.jellyfin.player.local.domain.PlaylistManager
 import dev.jdtech.jellyfin.player.local.domain.StillWatchingTracker
 import dev.jdtech.jellyfin.player.local.domain.TrickplayLoader
 import dev.jdtech.jellyfin.player.local.domain.autoPlayNextFollowsServer
+import dev.jdtech.jellyfin.player.local.domain.buildMediaSourceFactory
 import dev.jdtech.jellyfin.player.local.domain.resolveAutoPlayNext
 import dev.jdtech.jellyfin.player.local.mpv.MPVPlayer
 import dev.jdtech.jellyfin.repository.JellyfinRepository
@@ -297,6 +298,8 @@ constructor(
                         .setMediaCodecSelector(audioDecoderFallback)
                 ExoPlayer.Builder(application, renderersFactory)
                     .setAudioAttributes(audioAttributes, true)
+                    .setHandleAudioBecomingNoisy(true)
+                    .setMediaSourceFactory(buildMediaSourceFactory(application))
                     .setTrackSelector(trackSelector)
                     .setSeekBackIncrementMs(
                         appPreferences.getValue(appPreferences.playerSeekBackInc)

@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Jove xef, porti whisky amb quinze glaçons d\'hidrogen, coi!</string>
     <string name="subtitle_style_summary">Color, contorn, mida i tipus de lletra</string>
     <string name="subtitle_system_caption_settings">Configuració dels subtítols del sistema</string>
+    <string name="home_next_up_max_days">Dies màxims a «A continuació»</string>
+    <string name="home_next_up_max_days_summary">Mostra només les sèries vistes en aquest nombre de dies. 0 vol dir sense límit.</string>
+    <string name="home_next_up_max_days_suffix">dies</string>
+    <string name="settings_image_display_size_title">Carrega les imatges a la mida de visualització</string>
+    <string name="settings_image_display_size_summary">Demana al servidor les imatges a la mida en què es mostren. Fa servir menys dades, però el servidor ha de redimensionar cada imatge la primera vegada.</string>
 </resources>

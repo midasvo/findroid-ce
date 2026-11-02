@@ -29,6 +29,7 @@ import dev.jdtech.jellyfin.models.toFindroidSource
 import dev.jdtech.jellyfin.player.DeviceProfileBuilder
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import java.io.File
+import java.time.LocalDateTime
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -213,6 +214,8 @@ class JellyfinRepositoryImpl(
                     searchTerm = query,
                     includeItemTypes = listOf(BaseItemKind.MOVIE, BaseItemKind.SERIES),
                     recursive = true,
+                    limit = SEARCH_LIMIT,
+                    enableTotalRecordCount = false,
                 )
                 .content
                 .items
@@ -286,6 +289,12 @@ class JellyfinRepositoryImpl(
                     seriesId = seriesId,
                     imageTypeLimit = 1,
                     enableImageTypes = ROW_IMAGE_TYPES,
+                    nextUpDateCutoff =
+                        nextUpDateCutoff(
+                            seriesId = seriesId,
+                            maxDays = appPreferences.getValue(appPreferences.homeNextUpMaxDays),
+                            now = LocalDateTime.now(),
+                        ),
                     enableTotalRecordCount = false,
                     enableResumable = false,
                 )
@@ -658,5 +667,15 @@ class JellyfinRepositoryImpl(
          * for) every backdrop, logo, thumb and banner of each item.
          */
         val ROW_IMAGE_TYPES = listOf(ImageType.PRIMARY, ImageType.BACKDROP)
+
+        private const val SEARCH_LIMIT = 50
     }
 }
+
+/**
+ * The Home row only shows series watched in the last [maxDays] days, as the web client's "Max days
+ * in Next Up" does. 0 is no limit. A single series has no cutoff: a show last watched years ago
+ * still has a next episode.
+ */
+internal fun nextUpDateCutoff(seriesId: UUID?, maxDays: Int, now: LocalDateTime): LocalDateTime? =
+    if (seriesId == null && maxDays > 0) now.minusDays(maxDays.toLong()) else null

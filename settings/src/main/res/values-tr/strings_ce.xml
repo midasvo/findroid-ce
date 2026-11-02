@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Pijamalı hasta yağız şoföre çabucak güvendi.</string>
     <string name="subtitle_style_summary">Renk, kenarlık, boyut ve yazı tipi</string>
     <string name="subtitle_system_caption_settings">Sistem altyazı ayarları</string>
+    <string name="home_next_up_max_days">Sıradaki için en fazla gün</string>
+    <string name="home_next_up_max_days_summary">Yalnızca bu kadar gün içinde izlenen dizileri göster. 0 sınır yok demektir.</string>
+    <string name="home_next_up_max_days_suffix">gün</string>
+    <string name="settings_image_display_size_title">Görselleri görüntüleme boyutunda yükle</string>
+    <string name="settings_image_display_size_summary">Sunucudan görselleri gösterildikleri boyutta iste. Daha az veri kullanır, ancak sunucunun her görseli ilk seferde yeniden boyutlandırması gerekir.</string>
 </resources>

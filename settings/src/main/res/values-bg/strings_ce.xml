@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Във вихрената джунгла с бързина се криеше малък пъстър фазан.</string>
     <string name="subtitle_style_summary">Цвят, контур, размер и шрифт</string>
     <string name="subtitle_system_caption_settings">Системни настройки на субтитрите</string>
+    <string name="home_next_up_max_days">Максимум дни в „Следва“</string>
+    <string name="home_next_up_max_days_summary">Показвай само сериали, гледани през последните толкова дни. 0 означава без ограничение.</string>
+    <string name="home_next_up_max_days_suffix">дни</string>
+    <string name="settings_image_display_size_title">Зареждане на изображенията в размера на показване</string>
+    <string name="settings_image_display_size_summary">Изисквай от сървъра изображения в размера, в който се показват. Използва по-малко данни, но сървърът трябва да преоразмери всяко изображение първия път.</string>
 </resources>

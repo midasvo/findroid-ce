@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Den snabba bruna räven hoppar över den lata hunden.</string>
     <string name="subtitle_style_summary">Färg, kontur, storlek och teckensnitt</string>
     <string name="subtitle_system_caption_settings">Systeminställningar för textning</string>
+    <string name="home_next_up_max_days">Max antal dagar i Nästa</string>
+    <string name="home_next_up_max_days_summary">Visa bara serier som har setts inom så här många dagar. 0 betyder ingen gräns.</string>
+    <string name="home_next_up_max_days_suffix">dagar</string>
+    <string name="settings_image_display_size_title">Ladda bilder i visningsstorlek</string>
+    <string name="settings_image_display_size_summary">Be servern om bilder i den storlek de visas i. Använder mindre data, men servern måste ändra storlek på varje bild första gången.</string>
 </resources>

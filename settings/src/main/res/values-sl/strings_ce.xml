@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Šerif bo za vajo spet kuhal domače žgance.</string>
     <string name="subtitle_style_summary">Barva, obroba, velikost in pisava</string>
     <string name="subtitle_system_caption_settings">Sistemske nastavitve podnapisov</string>
+    <string name="home_next_up_max_days">Največ dni v »Naslednjo«</string>
+    <string name="home_next_up_max_days_summary">Prikaži samo serije, gledane v tem številu dni. 0 pomeni brez omejitve.</string>
+    <string name="home_next_up_max_days_suffix">dni</string>
+    <string name="settings_image_display_size_title">Naloži slike v velikosti prikaza</string>
+    <string name="settings_image_display_size_summary">Od strežnika zahtevaj slike v velikosti, v kateri so prikazane. Porabi manj podatkov, vendar mora strežnik ob prvem nalaganju spremeniti velikost vsake slike.</string>
 </resources>

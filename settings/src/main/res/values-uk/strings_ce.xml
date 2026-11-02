@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Чуєш їх, доцю, га? Кумедна ж ти, прощайся й біжи у хащу!</string>
     <string name="subtitle_style_summary">Колір, контур, розмір і шрифт</string>
     <string name="subtitle_system_caption_settings">Системні налаштування субтитрів</string>
+    <string name="home_next_up_max_days">Макс. днів у «Наступний»</string>
+    <string name="home_next_up_max_days_summary">Показувати лише серіали, переглянуті протягом цієї кількості днів. 0 — без обмеження.</string>
+    <string name="home_next_up_max_days_suffix">дн.</string>
+    <string name="settings_image_display_size_title">Завантажувати зображення в розмірі показу</string>
+    <string name="settings_image_display_size_summary">Запитувати в сервера зображення в тому розмірі, в якому вони показуються. Витрачає менше даних, але серверу потрібно змінити розмір кожного зображення першого разу.</string>
 </resources>

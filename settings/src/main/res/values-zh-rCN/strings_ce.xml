@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">快走踏清秋，铁骑绕狂飙。</string>
     <string name="subtitle_style_summary">颜色、描边、大小和字体</string>
     <string name="subtitle_system_caption_settings">系统字幕设置</string>
+    <string name="home_next_up_max_days">“接下来”最多天数</string>
+    <string name="home_next_up_max_days_summary">仅显示在此天数内观看过的剧集。0 表示不限制。</string>
+    <string name="home_next_up_max_days_suffix">天</string>
+    <string name="settings_image_display_size_title">按显示尺寸加载图片</string>
+    <string name="settings_image_display_size_summary">向服务器请求与显示尺寸一致的图片。可减少流量，但服务器首次需要调整每张图片的尺寸。</string>
 </resources>

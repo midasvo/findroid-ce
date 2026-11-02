@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Den snappe brune reven hoppar over den late hunden.</string>
     <string name="subtitle_style_summary">Farge, omriss, storleik og skrifttype</string>
     <string name="subtitle_system_caption_settings">Systeminnstillingar for teksting</string>
+    <string name="home_next_up_max_days">Maks. dagar i Neste</string>
+    <string name="home_next_up_max_days_summary">Vis berre seriar som er sette innan dette talet på dagar. 0 tyder inga grense.</string>
+    <string name="home_next_up_max_days_suffix">dagar</string>
+    <string name="settings_image_display_size_title">Last inn bilete i visingsstorleik</string>
+    <string name="settings_image_display_size_summary">Be tenaren om bilete i storleiken dei blir viste i. Brukar mindre data, men tenaren må endre storleiken på kvart bilete første gongen.</string>
 </resources>

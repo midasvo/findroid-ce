@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">El veloz murciélago hindú comía feliz cardillo y kiwi.</string>
     <string name="subtitle_style_summary">Color, contorno, tamaño y fuente</string>
     <string name="subtitle_system_caption_settings">Configuración de subtítulos del sistema</string>
+    <string name="home_next_up_max_days">Días máximos en Siguiente</string>
+    <string name="home_next_up_max_days_summary">Mostrar solo las series vistas en esta cantidad de días. 0 significa sin límite.</string>
+    <string name="home_next_up_max_days_suffix">días</string>
+    <string name="settings_image_display_size_title">Cargar imágenes al tamaño de pantalla</string>
+    <string name="settings_image_display_size_summary">Pedir al servidor las imágenes al tamaño en que se muestran. Usa menos datos, pero el servidor tiene que redimensionar cada imagen la primera vez.</string>
 </resources>

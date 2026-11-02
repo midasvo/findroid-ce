@@ -28,6 +28,7 @@ import dagger.hilt.android.HiltAndroidApp
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadQueue
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.Downloader
+import dev.jdtech.jellyfin.utils.JellyfinImageSizeInterceptor
 import dev.jdtech.jellyfin.work.MpvCleanupWorker
 import dev.jdtech.jellyfin.work.OrphanSweepWorker
 import dev.jdtech.jellyfin.work.SyncWorker
@@ -116,6 +117,11 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         return ImageLoader.Builder(context)
             .components {
+                add(
+                    JellyfinImageSizeInterceptor {
+                        appPreferences.getValue(appPreferences.imageDisplaySize)
+                    }
+                )
                 add(OkHttpNetworkFetcherFactory(cacheStrategy = { CacheControlCacheStrategy() }))
                 add(SvgDecoder.Factory())
             }

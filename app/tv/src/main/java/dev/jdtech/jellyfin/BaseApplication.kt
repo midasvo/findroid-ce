@@ -13,6 +13,7 @@ import coil3.request.crossfade
 import coil3.svg.SvgDecoder
 import dagger.hilt.android.HiltAndroidApp
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
+import dev.jdtech.jellyfin.utils.JellyfinImageSizeInterceptor
 import javax.inject.Inject
 import kotlin.time.ExperimentalTime
 import okio.Path.Companion.toOkioPath
@@ -32,6 +33,11 @@ class BaseApplication : Application(), SingletonImageLoader.Factory {
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         return ImageLoader.Builder(this)
             .components {
+                add(
+                    JellyfinImageSizeInterceptor {
+                        appPreferences.getValue(appPreferences.imageDisplaySize)
+                    }
+                )
                 add(OkHttpNetworkFetcherFactory(cacheStrategy = { CacheControlCacheStrategy() }))
                 add(SvgDecoder.Factory())
             }

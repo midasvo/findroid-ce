@@ -77,4 +77,9 @@
     <string name="subtitle_style_preview_text">Nopea ruskea kettu hyppää laiskan koiran yli.</string>
     <string name="subtitle_style_summary">Väri, reunus, koko ja kirjasin</string>
     <string name="subtitle_system_caption_settings">Järjestelmän tekstitysasetukset</string>
+    <string name="home_next_up_max_days">Seuraavaksi-rivin enimmäispäivät</string>
+    <string name="home_next_up_max_days_summary">Näytä vain sarjat, joita on katsottu näin monen päivän sisällä. 0 tarkoittaa, ettei rajaa ole.</string>
+    <string name="home_next_up_max_days_suffix">päivää</string>
+    <string name="settings_image_display_size_title">Lataa kuvat näyttökoossa</string>
+    <string name="settings_image_display_size_summary">Pyydä palvelimelta kuvat siinä koossa, jossa ne näytetään. Käyttää vähemmän dataa, mutta palvelimen täytyy muuttaa jokaisen kuvan koko ensimmäisellä kerralla.</string>
 </resources>

@@ -22,6 +22,8 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val homeSuggestions = Preference<Boolean>("home_suggestions", true)
     val homeContinueWatching = Preference<Boolean>("home_continue_watching", true)
     val homeNextUp = Preference<Boolean>("home_next_up", true)
+    // 0 is no limit. The web client's default is 365.
+    val homeNextUpMaxDays = Preference("pref_home_next_up_max_days", 0)
     val homeLatest = Preference<Boolean>("home_latest", true)
     val displayExtraInfo = Preference("pref_display_extra_info", false)
     val displayCastAndCrew = Preference("pref_display_cast_and_crew", true)
@@ -203,6 +205,7 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     // Cache
     val imageCache = Preference("pref_image_cache", true)
     val imageCacheSize = Preference("pref_image_cache_size", 20)
+    val imageDisplaySize = Preference("pref_image_display_size", false)
 
     // Sorting
     val sortBy = Preference("pref_sort_by", "SortName")

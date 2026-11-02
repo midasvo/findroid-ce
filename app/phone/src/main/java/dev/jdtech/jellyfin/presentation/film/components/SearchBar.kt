@@ -41,7 +41,6 @@ import dev.jdtech.jellyfin.film.presentation.search.SearchState
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.GridCellsAdaptiveWithMinColumns
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
-import kotlinx.coroutines.delay
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,13 +88,7 @@ fun FilmSearchBar(
         }
     }
 
-    LaunchedEffect(query) {
-        if (query.isNotBlank()) {
-            // Debounce scales with input length. Max debounce of 300ms.
-            delay(minOf(50L + (query.count() * 50L), 300L))
-        }
-        onAction(SearchAction.Search(query))
-    }
+    LaunchedEffect(query) { onAction(SearchAction.Search(query)) }
 
     SearchBar(
         inputField = {
