@@ -72,4 +72,5 @@
     <plurals name="downloads_removed">
         <item quantity="other">다운로드 %d개 삭제됨</item>
     </plurals>
+    <string name="collections_label">컬렉션</string>
 </resources>

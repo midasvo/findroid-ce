@@ -11,6 +11,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.jellyfin.sdk.model.api.BaseItemKind
 import timber.log.Timber
 
 @HiltViewModel
@@ -20,6 +21,16 @@ class SearchViewModel @Inject constructor(private val repository: JellyfinReposi
     val state = _state.asStateFlow()
 
     private var currentJob: Job? = null
+
+    private var itemKinds: List<BaseItemKind>? = null
+
+    /**
+     * CE: searches [itemKinds] instead of the repository default (movies and shows), for screens
+     * that group results per kind (TV).
+     */
+    fun setup(itemKinds: List<BaseItemKind>) {
+        this.itemKinds = itemKinds
+    }
 
     private fun search(query: String) {
         currentJob?.cancel()
@@ -35,7 +46,7 @@ class SearchViewModel @Inject constructor(private val repository: JellyfinReposi
                     delay(SEARCH_DEBOUNCE_MS)
 
                     _state.emit(_state.value.copy(loading = true))
-                    val items = repository.getSearchItems(query)
+                    val items = repository.getSearchItems(query, itemKinds)
 
                     _state.emit(SearchState(query = query, items = items, loading = false))
                 } catch (_: CancellationException) {} catch (e: Exception) {

@@ -87,4 +87,5 @@
         <item quantity="many">تمت إزالة %d تنزيلاً</item>
         <item quantity="other">تمت إزالة %d تنزيل</item>
     </plurals>
+    <string name="collections_label">المجموعات</string>
 </resources>

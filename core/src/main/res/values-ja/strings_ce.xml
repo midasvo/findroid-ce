@@ -72,4 +72,5 @@
     <plurals name="downloads_removed">
         <item quantity="other">%d件のダウンロードを削除しました</item>
     </plurals>
+    <string name="collections_label">コレクション</string>
 </resources>

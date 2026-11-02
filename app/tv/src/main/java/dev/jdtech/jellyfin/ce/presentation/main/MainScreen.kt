@@ -52,6 +52,7 @@ import androidx.tv.material3.NavigationDrawerItem
 import androidx.tv.material3.Text
 import androidx.tv.material3.rememberDrawerState
 import dev.jdtech.jellyfin.ce.presentation.film.LibraryScreen
+import dev.jdtech.jellyfin.ce.presentation.film.SearchScreen
 import dev.jdtech.jellyfin.ce.ui.TvSafeArea
 import dev.jdtech.jellyfin.ce.ui.tvSafeAreaPadding
 import dev.jdtech.jellyfin.core.R as CoreR
@@ -87,6 +88,8 @@ fun MainScreen(
     navigateToLibrary: (libraryId: UUID, libraryName: String, libraryType: CollectionType) -> Unit,
     navigateToMovie: (itemId: UUID) -> Unit,
     navigateToShow: (itemId: UUID) -> Unit,
+    navigateToSeason: (seasonId: UUID) -> Unit,
+    navigateToCollection: (collectionId: UUID, name: String) -> Unit,
     navigateToPlayer: (itemId: UUID, itemKind: BaseItemKind) -> Unit,
     mainViewModel: MainViewModel = hiltViewModel(),
     mediaViewModel: MediaViewModel = hiltViewModel(),
@@ -121,6 +124,14 @@ fun MainScreen(
                 isLoading = {},
             )
         },
+        searchContent = {
+            SearchScreen(
+                navigateToMovie = navigateToMovie,
+                navigateToShow = navigateToShow,
+                navigateToSeason = navigateToSeason,
+                navigateToCollection = navigateToCollection,
+            )
+        },
         libraryContent = { library ->
             LibraryScreen(
                 libraryId = library.id,
@@ -153,6 +164,7 @@ fun MainScreenLayout(
     navigateToUsers: () -> Unit,
     modifier: Modifier = Modifier,
     homeContent: @Composable () -> Unit,
+    searchContent: @Composable () -> Unit,
     libraryContent: @Composable (library: FindroidCollection) -> Unit,
 ) {
     val context = LocalContext.current
@@ -402,11 +414,7 @@ fun MainScreenLayout(
                         homeContent()
                     }
                     activeDestinationKey == DESTINATION_SEARCH -> {
-                        PlaceholderDestinationScreen(
-                            icon = CoreR.drawable.ic_search,
-                            titleRes = CoreR.string.search,
-                            modifier = Modifier.testTag("placeholder_search"),
-                        )
+                        searchContent()
                     }
                     activeDestinationKey == DESTINATION_FAVORITES -> {
                         PlaceholderDestinationScreen(
@@ -445,7 +453,7 @@ private suspend fun requestFocusWhenReady(requester: FocusRequester) {
     }
 }
 
-/** Placeholder screen for Search and Favorites until #128 and #137 land. */
+/** Placeholder screen for Favorites until #137 lands. */
 @Composable
 fun PlaceholderDestinationScreen(
     @DrawableRes icon: Int,

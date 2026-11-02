@@ -75,4 +75,5 @@
         <item quantity="one">%d डाउनलोड हटाया गया</item>
         <item quantity="other">%d डाउनलोड हटाए गए</item>
     </plurals>
+    <string name="collections_label">संग्रह</string>
 </resources>

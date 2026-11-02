@@ -32,6 +32,8 @@ import java.io.File
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import org.jellyfin.sdk.model.api.BaseItemDto
@@ -206,21 +208,41 @@ class JellyfinRepositoryImpl(
                 .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
         }
 
-    override suspend fun getSearchItems(query: String): List<FindroidItem> =
+    override suspend fun getSearchItems(
+        query: String,
+        itemKinds: List<BaseItemKind>?,
+    ): List<FindroidItem> =
         withContext(Dispatchers.IO) {
-            jellyfinApi.libraryApi
-                .getItems(
-                    currentUserId,
-                    searchTerm = query,
-                    includeItemTypes = listOf(BaseItemKind.MOVIE, BaseItemKind.SERIES),
-                    recursive = true,
-                    limit = SEARCH_LIMIT,
-                    enableTotalRecordCount = false,
+            if (itemKinds == null) {
+                return@withContext searchItems(
+                    query,
+                    listOf(BaseItemKind.MOVIE, BaseItemKind.SERIES),
+                    SEARCH_LIMIT,
                 )
-                .content
-                .items
-                .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
+            }
+            itemKinds
+                .map { kind -> async { searchItems(query, listOf(kind), SEARCH_LIMIT_PER_KIND) } }
+                .awaitAll()
+                .flatten()
         }
+
+    private suspend fun searchItems(
+        query: String,
+        itemKinds: List<BaseItemKind>,
+        limit: Int,
+    ): List<FindroidItem> =
+        jellyfinApi.libraryApi
+            .getItems(
+                currentUserId,
+                searchTerm = query,
+                includeItemTypes = itemKinds,
+                recursive = true,
+                limit = limit,
+                enableTotalRecordCount = false,
+            )
+            .content
+            .items
+            .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
 
     override suspend fun getSuggestions(): List<FindroidItem> =
         withContext(Dispatchers.IO) {
@@ -669,6 +691,7 @@ class JellyfinRepositoryImpl(
         val ROW_IMAGE_TYPES = listOf(ImageType.PRIMARY, ImageType.BACKDROP)
 
         private const val SEARCH_LIMIT = 50
+        private const val SEARCH_LIMIT_PER_KIND = 20
     }
 }
 

@@ -78,4 +78,5 @@
         <item quantity="few">S-au eliminat %d descărcări</item>
         <item quantity="other">S-au eliminat %d de descărcări</item>
     </plurals>
+    <string name="collections_label">Colecții</string>
 </resources>

@@ -75,4 +75,5 @@
         <item quantity="one">%d download excluído</item>
         <item quantity="other">%d downloads excluídos</item>
     </plurals>
+    <string name="collections_label">Coleções</string>
 </resources>

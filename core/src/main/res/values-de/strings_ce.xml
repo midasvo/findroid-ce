@@ -75,4 +75,5 @@
         <item quantity="one">%d Download entfernt</item>
         <item quantity="other">%d Downloads entfernt</item>
     </plurals>
+    <string name="collections_label">Sammlungen</string>
 </resources>

@@ -75,4 +75,5 @@
         <item quantity="one">Премахнато е %d изтегляне</item>
         <item quantity="other">Премахнати са %d изтегляния</item>
     </plurals>
+    <string name="collections_label">Колекции</string>
 </resources>

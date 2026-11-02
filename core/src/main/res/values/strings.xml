@@ -52,6 +52,7 @@
     <string name="movies_label">Movies</string>
     <string name="shows_label">TV Shows</string>
     <string name="episodes_label">Episodes</string>
+    <string name="collections_label">Collections</string>
     <string name="hide">Hide</string>
     <string name="toggle_watched">Hide watched</string>
     <string name="copy_text_action">Copy text</string>

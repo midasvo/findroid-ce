@@ -17,6 +17,7 @@ import dev.jdtech.jellyfin.ce.presentation.film.LibraryScreen
 import dev.jdtech.jellyfin.ce.presentation.film.SeasonScreen
 import dev.jdtech.jellyfin.ce.presentation.film.ShowScreen
 import dev.jdtech.jellyfin.ce.presentation.player.TvPlayerScreen
+import dev.jdtech.jellyfin.models.CollectionType
 import dev.jdtech.jellyfin.models.FindroidSeason
 import dev.jdtech.jellyfin.navigation.navigateOrReuse
 import dev.jdtech.jellyfin.navigation.resumedAction
@@ -208,6 +209,19 @@ private fun EntryProviderScope<NavKey>.tvEntries(
                 },
             navigateToMovie = resumedAction { itemId -> navigate(MovieRoute(itemId.toString())) },
             navigateToShow = resumedAction { itemId -> navigate(ShowRoute(itemId.toString())) },
+            navigateToSeason =
+                resumedAction { seasonId -> navigate(SeasonRoute(seasonId = seasonId.toString())) },
+            // A collection opens as a library grid of its items until #129 adds CollectionRoute.
+            navigateToCollection =
+                resumedAction { collectionId, name ->
+                    navigate(
+                        LibraryRoute(
+                            libraryId = collectionId.toString(),
+                            libraryName = name,
+                            libraryType = CollectionType.Mixed,
+                        )
+                    )
+                },
             navigateToPlayer =
                 resumedAction { itemId, itemKind ->
                     navigate(

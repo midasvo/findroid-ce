@@ -72,4 +72,5 @@
     <plurals name="downloads_removed">
         <item quantity="other">已移除 %d 个下载</item>
     </plurals>
+    <string name="collections_label">合集</string>
 </resources>

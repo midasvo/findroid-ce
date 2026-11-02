@@ -75,4 +75,5 @@
         <item quantity="one">Se ha eliminado %d descarga</item>
         <item quantity="other">Se han eliminado %d descargas</item>
     </plurals>
+    <string name="collections_label">Colecciones</string>
 </resources>

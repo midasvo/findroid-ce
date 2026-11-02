@@ -72,4 +72,5 @@
     <plurals name="downloads_removed">
         <item quantity="other">%d indirme kaldırıldı</item>
     </plurals>
+    <string name="collections_label">Koleksiyonlar</string>
 </resources>

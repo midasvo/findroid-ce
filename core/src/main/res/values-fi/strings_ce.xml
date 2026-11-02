@@ -75,4 +75,5 @@
         <item quantity="one">Poistettu %d lataus</item>
         <item quantity="other">Poistettu %d latausta</item>
     </plurals>
+    <string name="collections_label">Kokoelmat</string>
 </resources>

@@ -75,4 +75,5 @@
         <item quantity="one">Fjernede %d download</item>
         <item quantity="other">Fjernede %d downloads</item>
     </plurals>
+    <string name="collections_label">Samlinger</string>
 </resources>
