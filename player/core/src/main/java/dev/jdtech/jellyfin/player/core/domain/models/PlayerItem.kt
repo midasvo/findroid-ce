@@ -22,6 +22,8 @@ data class PlayerItem(
     val trickplayInfo: TrickplayInfo? = null,
     /** Show name for episodes, shown in the media notification. */
     val seriesName: String? = null,
+    /** Series of an episode, the key for remembering the audio and subtitle choice. */
+    val seriesId: UUID? = null,
     /** Server URL, or a path relative to filesDir for downloaded items. */
     val artworkUri: Uri? = null,
 ) : Parcelable

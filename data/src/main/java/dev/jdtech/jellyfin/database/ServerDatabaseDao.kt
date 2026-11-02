@@ -18,6 +18,7 @@ import dev.jdtech.jellyfin.models.FindroidUserDataDto
 import dev.jdtech.jellyfin.models.PendingDownloadDto
 import dev.jdtech.jellyfin.models.Server
 import dev.jdtech.jellyfin.models.ServerAddress
+import dev.jdtech.jellyfin.models.SeriesTrackPreferenceDto
 import dev.jdtech.jellyfin.models.ServerWithAddressAndUser
 import dev.jdtech.jellyfin.models.ServerWithAddresses
 import dev.jdtech.jellyfin.models.ServerWithAddressesAndUsers
@@ -143,6 +144,15 @@ interface ServerDatabaseDao {
 
     @Query("SELECT * FROM pending_downloads ORDER BY addedAt ASC")
     suspend fun getPendingDownloads(): List<PendingDownloadDto>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSeriesTrackPreference(preference: SeriesTrackPreferenceDto)
+
+    @Query("SELECT * FROM seriesTrackPreferences WHERE userId = :userId AND seriesId = :seriesId")
+    suspend fun getSeriesTrackPreferences(
+        userId: UUID,
+        seriesId: UUID,
+    ): List<SeriesTrackPreferenceDto>
 
     @Query("DELETE FROM movies WHERE id = :id") suspend fun deleteMovie(id: UUID)
 
