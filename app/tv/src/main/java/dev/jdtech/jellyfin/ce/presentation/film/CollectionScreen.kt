@@ -44,7 +44,6 @@ import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.ui.components.Direction
 import dev.jdtech.jellyfin.ui.components.ItemCard
 import java.util.UUID
-import org.jellyfin.sdk.model.api.BaseItemKind
 
 /**
  * CE collection grid on Android TV (ADR 0001). Back from an item restores focus to that card (ADR 0003).
@@ -55,7 +54,7 @@ fun CollectionScreen(
     collectionName: String,
     navigateToMovie: (itemId: UUID) -> Unit,
     navigateToShow: (itemId: UUID) -> Unit,
-    navigateToPlayer: (itemId: UUID, itemKind: BaseItemKind) -> Unit,
+    navigateToEpisode: (episodeId: UUID) -> Unit,
     viewModel: CollectionViewModel = hiltViewModel(key = collectionId.toString()),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -71,7 +70,7 @@ fun CollectionScreen(
             when (item) {
                 is FindroidMovie -> navigateToMovie(item.id)
                 is FindroidShow -> navigateToShow(item.id)
-                is FindroidEpisode -> navigateToPlayer(item.id, BaseItemKind.EPISODE)
+                is FindroidEpisode -> navigateToEpisode(item.id)
                 else -> Unit
             }
         },

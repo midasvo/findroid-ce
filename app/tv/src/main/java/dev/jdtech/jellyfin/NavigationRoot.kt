@@ -276,12 +276,8 @@ private fun EntryProviderScope<NavKey>.tvEntries(
             collectionName = key.collectionName,
             navigateToMovie = resumedAction { itemId -> navigate(MovieRoute(itemId.toString())) },
             navigateToShow = resumedAction { itemId -> navigate(ShowRoute(itemId.toString())) },
-            navigateToPlayer =
-                resumedAction { itemId, itemKind ->
-                    navigate(
-                        PlayerRoute(itemId = itemId.toString(), itemKind = itemKind.serialName)
-                    )
-                },
+            navigateToEpisode =
+                resumedAction { episodeId -> navigate(EpisodeRoute(episodeId = episodeId.toString())) },
         )
     }
     entry<MovieRoute> { key ->
