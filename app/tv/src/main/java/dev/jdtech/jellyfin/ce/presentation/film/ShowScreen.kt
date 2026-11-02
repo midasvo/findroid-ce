@@ -2,6 +2,7 @@ package dev.jdtech.jellyfin.ce.presentation.film
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRestorer
@@ -121,7 +123,14 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     // The list can't be scrolled by hand (userScrollEnabled = false): it follows the focused row.
-    val scrollToRow: (Int) -> Unit = { row -> scope.launch { listState.animateScrollToItem(row) } }
+    // Wait a frame first, so this scroll takes over from the bring-into-view scroll that the focus
+    // change starts, instead of that one cancelling this one halfway.
+    val scrollToRow: (Int) -> Unit = { row ->
+        scope.launch {
+            withFrameNanos {}
+            listState.animateScrollToItem(row)
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         state.show?.let { show ->
@@ -227,7 +236,8 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                             Row(
                                 horizontalArrangement =
                                     Arrangement.spacedBy(MaterialTheme.spacings.medium),
-                                modifier = Modifier.focusRestorer(),
+                                // A plain Row needs focusGroup() for focusRestorer() to work.
+                                modifier = Modifier.focusRestorer().focusGroup(),
                             ) {
                                 Button(
                                     onClick = { onAction(ShowAction.Play()) },

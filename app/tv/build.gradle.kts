@@ -103,6 +103,9 @@ android {
 
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
 
+    // CE-owned: Compose UI tests run on the JVM with Robolectric, so CI needs no emulator.
+    testOptions { unitTests { isIncludeAndroidResources = true } }
+
     dependenciesInfo {
         // Disables dependency metadata when building APKs.
         includeInApk = false
@@ -172,4 +175,9 @@ dependencies {
     implementation(libs.timber)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
