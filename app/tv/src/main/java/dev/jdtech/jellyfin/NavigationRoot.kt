@@ -13,12 +13,12 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import dev.jdtech.jellyfin.ce.presentation.film.LibraryScreen
+import dev.jdtech.jellyfin.ce.presentation.film.SeasonScreen
+import dev.jdtech.jellyfin.ce.presentation.film.ShowScreen
 import dev.jdtech.jellyfin.models.FindroidSeason
 import dev.jdtech.jellyfin.navigation.navigateOrReuse
 import dev.jdtech.jellyfin.navigation.resumedAction
-import dev.jdtech.jellyfin.presentation.film.LibraryScreen
-import dev.jdtech.jellyfin.presentation.film.SeasonScreen
-import dev.jdtech.jellyfin.presentation.film.ShowScreen
 import dev.jdtech.jellyfin.presentation.settings.SettingsScreen
 import dev.jdtech.jellyfin.presentation.settings.SettingsSubScreen
 import dev.jdtech.jellyfin.presentation.setup.addserver.AddServerScreen
@@ -215,6 +215,7 @@ private fun EntryProviderScope<NavKey>.tvEntries(
                 },
         )
     }
+    // CE screens (ADR 0001): library, show and season use the versions in ce/presentation/film.
     entry<LibraryRoute> { key ->
         LibraryScreen(
             libraryId = UUID.fromString(key.libraryId),

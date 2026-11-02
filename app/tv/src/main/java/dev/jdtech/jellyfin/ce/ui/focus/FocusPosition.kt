@@ -40,6 +40,14 @@ class FocusPosition internal constructor(row: Int, column: Int, key: String?) {
 
     private val requesters = mutableMapOf<Pair<Int, Int>, FocusRequester>()
 
+    private var defaultRow = row
+    private var defaultColumn = column
+
+    internal fun setDefault(row: Int, column: Int) {
+        defaultRow = row
+        defaultColumn = column
+    }
+
     fun save(row: Int, column: Int, key: String? = null) {
         this.row = row
         this.column = column
@@ -59,6 +67,9 @@ class FocusPosition internal constructor(row: Int, column: Int, key: String?) {
 
     /** Requests focus for the saved position. Returns false when that element isn't laid out. */
     fun requestFocus(): Boolean = requesters[row to column]?.requestFocus() ?: false
+
+    /** Moves back to the default element, for when the saved one is gone. */
+    internal fun resetToDefault() = save(defaultRow, defaultColumn)
 
     internal fun register(row: Int, column: Int, requester: FocusRequester) {
         requesters[row to column] = requester
@@ -84,6 +95,7 @@ class FocusPosition internal constructor(row: Int, column: Int, key: String?) {
 @Composable
 fun rememberFocusPosition(row: Int = 0, column: Int = 0): FocusPosition =
     rememberSaveable(saver = FocusPosition.Saver) { FocusPosition(row, column, null) }
+        .also { it.setDefault(row, column) }
 
 /**
  * Marks this element as `(row, column)` of [position]: it saves the position when the element (or
@@ -127,12 +139,14 @@ fun RestoreFocus(
         if (!ready || restored) return@LaunchedEffect
         prepare(position)
         // A scroll in prepare only composes the item on the next frame.
-        repeat(RESTORE_ATTEMPTS) {
+        repeat(RESTORE_ATTEMPTS) { attempt ->
             withFrameNanos {}
             if (position.requestFocus()) {
                 restored = true
                 return@LaunchedEffect
             }
+            // Halfway, give up on the saved element (it may be gone) and use the default one.
+            if (attempt == RESTORE_ATTEMPTS / 2) position.resetToDefault()
         }
         restored = true
     }
