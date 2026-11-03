@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="iconBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#13265A"/>
+      <stop offset="1" stop-color="#060C20"/>
+    </linearGradient>
+    <radialGradient id="iconBgHalo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#5B6CF0" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#5B6CF0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ephBody" cx="0" cy="0" r="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F0FDFF"/>
+      <stop offset="0.28" stop-color="#7DEBFA"/>
+      <stop offset="0.66" stop-color="#8B93F8"/>
+      <stop offset="1" stop-color="#C792FC"/>
+    </radialGradient>
+    <filter id="ephGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+    <path id="ephArm" d="M -22 -28 C -20 -45 -14 -55 -14 -62 C -22 -70 -26 -84 -18 -90 C -12 -95 -4 -92 -2 -84 C -1 -80 1 -80 2 -84 C 4 -92 12 -95 18 -90 C 26 -84 22 -70 14 -62 C 14 -55 20 -45 22 -28 Z"/>
+    <g id="ephShape">
+      <circle r="44"/>
+      <use href="#ephArm" transform="rotate(0)"/>
+      <use href="#ephArm" transform="rotate(45)"/>
+      <use href="#ephArm" transform="rotate(90)"/>
+      <use href="#ephArm" transform="rotate(135)"/>
+      <use href="#ephArm" transform="rotate(180)"/>
+      <use href="#ephArm" transform="rotate(225)"/>
+      <use href="#ephArm" transform="rotate(270)"/>
+      <use href="#ephArm" transform="rotate(315)"/>
+    </g>
+    <g id="ephMark">
+      <use href="#ephShape" fill="#8B93F8" opacity="0.55" filter="url(#ephGlow)"/>
+      <use href="#ephShape" fill="url(#ephBody)"/>
+      <g stroke="#FFFFFF" stroke-opacity="0.32" stroke-width="3" stroke-linecap="round" fill="none">
+        <path d="M 0 -20 L 0 -70" transform="rotate(0)"/>
+        <path d="M 0 -20 L 0 -70" transform="rotate(45)"/>
+        <path d="M 0 -20 L 0 -70" transform="rotate(90)"/>
+        <path d="M 0 -20 L 0 -70" transform="rotate(135)"/>
+        <path d="M 0 -20 L 0 -70" transform="rotate(180)"/>
+        <path d="M 0 -20 L 0 -70" transform="rotate(225)"/>
+        <path d="M 0 -20 L 0 -70" transform="rotate(270)"/>
+        <path d="M 0 -20 L 0 -70" transform="rotate(315)"/>
+      </g>
+      <g fill="#FFFFFF">
+        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(0)"/>
+        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(45)"/>
+        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(90)"/>
+        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(135)"/>
+        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(180)"/>
+        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(225)"/>
+        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(270)"/>
+        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(315)"/>
+      </g>
+      <g fill="#FFFFFF" opacity="0.55">
+        <ellipse cx="0" cy="-11" rx="5.5" ry="9" transform="rotate(45)"/>
+        <ellipse cx="0" cy="-11" rx="5.5" ry="9" transform="rotate(135)"/>
+        <ellipse cx="0" cy="-11" rx="5.5" ry="9" transform="rotate(225)"/>
+        <ellipse cx="0" cy="-11" rx="5.5" ry="9" transform="rotate(315)"/>
+      </g>
+      <circle r="8" fill="#FFFFFF" opacity="0.95"/>
+    </g>
+  </defs>
+  <rect width="512" height="512" fill="url(#iconBg)"/>
+  <rect width="512" height="512" fill="url(#iconBgHalo)"/>
+    <circle cx="57.8" cy="218.2" r="1.4" fill="#7DEBFA" opacity="0.39"/>
+    <circle cx="176.7" cy="300.6" r="1.8" fill="#7DEBFA" opacity="0.48"/>
+    <circle cx="153.7" cy="390.5" r="2.0" fill="#C792FC" opacity="0.60"/>
+    <circle cx="200.6" cy="45.0" r="1.7" fill="#7DEBFA" opacity="0.15"/>
+    <circle cx="377.5" cy="414.4" r="1.1" fill="#C792FC" opacity="0.24"/>
+    <circle cx="79.6" cy="392.5" r="2.5" fill="#C792FC" opacity="0.37"/>
+    <circle cx="478.2" cy="201.9" r="1.2" fill="#7DEBFA" opacity="0.62"/>
+    <circle cx="370.3" cy="405.3" r="3.2" fill="#7DEBFA" opacity="0.19"/>
+    <circle cx="238.1" cy="254.5" r="1.6" fill="#C792FC" opacity="0.60"/>
+    <circle cx="224.1" cy="356.2" r="1.5" fill="#7DEBFA" opacity="0.56"/>
+    <circle cx="353.0" cy="215.8" r="1.2" fill="#C792FC" opacity="0.55"/>
+    <circle cx="287.8" cy="198.7" r="3.3" fill="#C792FC" opacity="0.55"/>
+    <circle cx="223.1" cy="499.7" r="1.9" fill="#7DEBFA" opacity="0.39"/>
+    <circle cx="149.3" cy="257.5" r="1.9" fill="#7DEBFA" opacity="0.35"/>
+  <use href="#ephMark" transform="translate(256 256) scale(1.6)"/>
+</svg>
