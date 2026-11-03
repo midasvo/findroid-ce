@@ -110,4 +110,5 @@
     <string name="pref_tv_theme_music_summary">Mängi sarja lehel vaikselt selle tunnuslugu, kui serveris see on</string>
     <string name="home_rows">Avalehe read</string>
     <string name="home_rows_summary">Vali, milliseid ridu avaleht näitab ja mis järjekorras</string>
+    <string name="ce_permission_local_network_rationale">Ephyra vajab ligipääsu sinu kohtvõrgule, et leida sinu Jellyfini server ja sellega ühenduda. Kaugservereid see ei mõjuta.</string>
 </resources>

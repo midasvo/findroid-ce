@@ -1,8 +1,8 @@
-Findroid CE is a community-driven fork of Findroid, the native Jellyfin client for Android. It provides a native user interface to browse and play movies and series from your Jellyfin server.
+Ephyra is a native Jellyfin client for Android phones and Android TV, and a community-driven fork of Findroid. It provides a native user interface to browse and play movies and series from your Jellyfin server. Ephyra was formerly called Findroid CE.
 
 To use this app you must have a Jellyfin server.
 
-What Findroid CE adds:
+What Ephyra adds:
 - Resumable download engine with SD card and quality selection
 - Redesigned downloads screen, bulk downloads, and Smart Downloads
 - Dolby Vision direct play and improved audio codec handling (Atmos, ffmpeg fallback)
@@ -15,4 +15,4 @@ What Findroid CE adds:
 
 Based on Findroid by Jarne Demeulemeester.
 
-Thanks for using Findroid CE!
+Thanks for using Ephyra!

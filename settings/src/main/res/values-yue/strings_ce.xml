@@ -110,4 +110,5 @@
     <string name="pref_tv_theme_music_summary">如果伺服器有，就喺劇集頁面細聲播放佢嘅主題曲</string>
     <string name="home_rows">主頁行列</string>
     <string name="home_rows_summary">揀選主頁顯示邊啲行，同埋排列次序</string>
+    <string name="ce_permission_local_network_rationale">Ephyra 需要存取你嘅本地網絡，先可以搵到同連接你嘅 Jellyfin 伺服器。遠端伺服器唔受影響。</string>
 </resources>

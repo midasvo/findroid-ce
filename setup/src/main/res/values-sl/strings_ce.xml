@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ce_welcome">Dobrodošli v Ephyri</string>
+    <string name="ce_welcome_text">Ephyra je odjemalec tretje osebe za Jellyfin. Ephyra sama po sebi ne vsebuje nobenih medijev.\n\nZa uporabo tega odjemalca potrebujete lasten strežnik Jellyfin.</string>
+</resources>

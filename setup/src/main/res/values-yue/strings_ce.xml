@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ce_welcome">歡迎使用 Ephyra</string>
+    <string name="ce_welcome_text">Ephyra 係 Jellyfin 嘅第三方用戶端。Ephyra 本身唔包含任何媒體。\n\n要使用呢個用戶端，你需要自己架設 Jellyfin 伺服器。</string>
+</resources>

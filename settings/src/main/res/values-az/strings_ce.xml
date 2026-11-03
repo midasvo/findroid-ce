@@ -110,4 +110,5 @@
     <string name="pref_tv_theme_music_summary">Serialın səhifəsində, serverdə varsa, mövzu mahnısını sakitcə səsləndir</string>
     <string name="home_rows">Əsas səhifə sıraları</string>
     <string name="home_rows_summary">Əsas səhifədə hansı sıraların və hansı ardıcıllıqla göstərilməsini seçin</string>
+    <string name="ce_permission_local_network_rationale">Jellyfin serverinizi tapmaq və ona qoşulmaq üçün Ephyra-nın yerli şəbəkənizə girişi lazımdır. Uzaq serverlərə təsir etmir.</string>
 </resources>

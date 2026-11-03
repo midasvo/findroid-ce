@@ -44,8 +44,8 @@ jobs:
           append_body: true
           body: |
 
-            **Which APK?** `findroid-ce-v<version>-libre-<abi>.apk` is for phones and tablets,
-            `findroid-ce-v<version>-libre-tv-<abi>.apk` for Android TV. Most phones need `arm64-v8a`;
+            **Which APK?** `ephyra-v<version>-libre-<abi>.apk` is for phones and tablets,
+            `ephyra-v<version>-libre-tv-<abi>.apk` for Android TV. Most phones need `arm64-v8a`;
             32-bit TV boxes such as the Xiaomi Mi Box need `armeabi-v7a`. In Obtainium, filter the TV APK
             with `.*-tv-armeabi-v7a\.apk`.
           files: app/**/build/outputs/apk/**/release/*.apk

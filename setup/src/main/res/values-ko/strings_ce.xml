@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ce_welcome">Ephyra에 오신 것을 환영합니다</string>
+    <string name="ce_welcome_text">Ephyra는 Jellyfin용 서드파티 클라이언트입니다. Ephyra 자체에는 미디어가 포함되어 있지 않습니다.\n\n이 클라이언트를 사용하려면 직접 Jellyfin 서버를 운영해야 합니다.</string>
+</resources>

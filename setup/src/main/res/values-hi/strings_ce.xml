@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ce_welcome">Ephyra में आपका स्वागत है</string>
+    <string name="ce_welcome_text">Ephyra, Jellyfin के लिए एक थर्ड-पार्टी क्लाइंट है। Ephyra में अपने आप कोई मीडिया नहीं होता।\n\nइस क्लाइंट का उपयोग करने के लिए आपको अपना Jellyfin सर्वर होस्ट करना होगा।</string>
+</resources>

@@ -14,7 +14,7 @@ object PermissionDefinitions {
             nameStringResource = R.string.permission_local_network,
             descriptionStringRes = R.string.permission_local_network_summary,
             iconDrawableId = R.drawable.ic_network,
-            rationaleStringRes = R.string.permission_local_network_rationale,
+            rationaleStringRes = R.string.ce_permission_local_network_rationale,
         )
 
     val all: List<Permission> = listOf(localNetwork)

@@ -31,10 +31,10 @@
     <string name="remove_server_address_dialog_text">你确定你要移除此服务器地址 %1$s 吗</string>
     <string name="servers">服务器</string>
     <string name="servers_btn_add_server">添加服务器</string>
-    <string name="welcome">欢迎使用 Findroid CE</string>
+    <string name="welcome">欢迎使用 Findroid</string>
     <string name="welcome_btn_continue">继续</string>
     <string name="welcome_btn_learn_more">了解更多关于 Jellyfin 的信息</string>
-    <string name="welcome_text">Findroid CE 是 Jellyfin 的第三方客户端。Findroid CE 本身不包含任何媒体内容。\n\n要使用此客户端，您需要托管您自己的 Jellyfin 服务器。</string>
+    <string name="welcome_text">Findroid 是 Jellyfin 的第三方客户端。Findroid 本身不包含任何媒体内容。\n\n要使用此客户端，您需要托管您自己的 Jellyfin 服务器。</string>
     <string name="confirm">确认</string>
     <string name="cancel">取消</string>
     <string name="or">或</string>

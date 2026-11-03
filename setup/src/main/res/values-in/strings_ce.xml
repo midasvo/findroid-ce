@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ce_welcome">Selamat datang di Ephyra</string>
+    <string name="ce_welcome_text">Ephyra adalah klien pihak ketiga untuk Jellyfin. Ephyra sendiri tidak menyediakan konten media apa pun.\n\nUntuk menggunakan klien ini, Anda perlu meng-host server Jellyfin Anda sendiri.</string>
+</resources>

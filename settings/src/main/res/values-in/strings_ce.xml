@@ -110,4 +110,5 @@
     <string name="pref_tv_theme_music_summary">Putar lagu tema serial dengan pelan di halamannya, jika server memilikinya</string>
     <string name="home_rows">Baris Beranda</string>
     <string name="home_rows_summary">Pilih baris yang ditampilkan di Beranda, dan urutannya</string>
+    <string name="ce_permission_local_network_rationale">Ephyra memerlukan akses ke jaringan lokal Anda untuk menemukan dan terhubung ke server Jellyfin Anda. Server jarak jauh tidak terpengaruh.</string>
 </resources>

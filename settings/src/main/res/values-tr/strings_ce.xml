@@ -110,4 +110,5 @@
     <string name="pref_tv_theme_music_summary">Sunucuda varsa, dizinin sayfasında tema şarkısını kısık sesle çal</string>
     <string name="home_rows">Ana sayfa satırları</string>
     <string name="home_rows_summary">Ana sayfada hangi satırların hangi sırayla gösterileceğini seçin</string>
+    <string name="ce_permission_local_network_rationale">Ephyra\'nın Jellyfin sunucunuzu bulup ona bağlanabilmesi için yerel ağınıza erişmesi gerekir. Uzak sunucular etkilenmez.</string>
 </resources>

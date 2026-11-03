@@ -29,7 +29,7 @@ LANGUAGES = [
     'tr', 'uk', 'vi', 'yue', 'zh-rCN', 'zh-rTW'
 ]
 
-MODULES = ["core", "data", "settings", "player/local"]
+MODULES = ["core", "data", "settings", "setup", "player/local"]
 
 PLURAL_REQUIRED_QUANTITIES = {
     # Asian / agglutinative / no plural inflections (only 'other' needed in Android)

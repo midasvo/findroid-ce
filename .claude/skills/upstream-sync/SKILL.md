@@ -1,7 +1,7 @@
 ---
 name: upstream-sync
 description: >-
-  Sync the findroid-ce fork with upstream findroid and cut a new -ce.N release.
+  Sync the Ephyra fork (repo midasvo/findroid-ce) with upstream findroid and cut a new -ce.N release.
   Use this whenever the user mentions syncing with upstream, pulling or merging
   upstream/jarnedemeulemeester changes, cutting/tagging/publishing a CE release,
   or simply says "sync" or "do a release" in this repo — even without the word
@@ -17,7 +17,8 @@ flow or a subset — follow the relevant steps either way.
 
 ## Background
 
-- **Fork:** `origin` = `midasvo/findroid-ce`. **Upstream:** `jarnedemeulemeester/findroid`.
+- **Fork:** `origin` = `midasvo/findroid-ce`, the app is called **Ephyra** (formerly Findroid CE).
+  **Upstream:** `jarnedemeulemeester/findroid`.
 - This fork carries many CE-only commits ahead of upstream (downloads/SD-card work,
   device-profile transcoding, etc.). Upstream auto-sync is **disabled** — syncing is
   always manual.
@@ -145,6 +146,11 @@ the new tag, and the published release.
 ## Hard rules
 
 - Never revert the app ID `nl.midasvo.findroid.ce` back to upstream's `dev.jdtech.jellyfin`.
+- **Branding:** the app is Ephyra. Keep `app_name` (`Ephyra` / `Ephyra Debug` / `Ephyra Beta`), the
+  launcher icons and TV banner from `images/branding/ephyra/`, the `ephyra-v…` APK names and the
+  "Ephyra Device Profile" names on the CE side. Upstream's `welcome`, `welcome_text` and
+  `permission_local_network_rationale` say "Findroid"; CE shows `ce_welcome`, `ce_welcome_text` and
+  `ce_permission_local_network_rationale` instead, so take upstream's changes to those keys as they come.
 - Tag convention is `v1.0.2-ce.N` notation, not independent semver.
 - `.claude/worktrees/` are scratch copies — ignore them when grepping the tree.
 - **CE-owned defaults** — keep these on the CE value when a merge touches them; upstream still

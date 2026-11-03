@@ -183,7 +183,7 @@ private fun PermissionScreenLayoutPreview() {
     FindroidTheme {
         PermissionScreenLayout(
             title = SettingsR.string.permission_local_network,
-            rationale = SettingsR.string.permission_local_network_rationale,
+            rationale = SettingsR.string.ce_permission_local_network_rationale,
             icon = SettingsR.drawable.ic_network,
             permanentlyDenied = false,
             onGrantClick = {},

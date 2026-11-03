@@ -1,1 +1,1 @@
-Third-party native Jellyfin app
+Native Jellyfin client for Android phones and TV, forked from Findroid

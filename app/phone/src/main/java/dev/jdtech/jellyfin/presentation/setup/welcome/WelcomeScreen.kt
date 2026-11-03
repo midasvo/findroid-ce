@@ -59,12 +59,12 @@ private fun WelcomeScreenLayout(onAction: (WelcomeAction) -> Unit) {
             )
             Spacer(modifier = Modifier.height(32.dp))
             Text(
-                text = stringResource(SetupR.string.welcome),
+                text = stringResource(SetupR.string.ce_welcome),
                 style = MaterialTheme.typography.headlineSmall,
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = stringResource(SetupR.string.welcome_text),
+                text = stringResource(SetupR.string.ce_welcome_text),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
             )
