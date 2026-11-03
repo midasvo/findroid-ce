@@ -8,7 +8,7 @@ a TV app that is made for the remote.
 
 Ephyra started as a fork of [Findroid](https://github.com/jarnedemeulemeester/findroid) (see
 [Built on Findroid](#built-on-findroid)) and was called **Findroid CE** until
-[#169](https://github.com/midasvo/findroid-ce/issues/169). If you have Findroid CE, the update
+[#169](https://github.com/midasvo/ephyra/issues/169). If you have Findroid CE, the update
 installs over it and keeps your login, settings and downloads. An ephyra is the young stage of a
 jellyfish, the animal in the Jellyfin logo.
 
@@ -66,16 +66,16 @@ the phone app, and installs from the same releases (see [Install](#install)).
   </tr>
 </table>
 
-- **Side drawer** for Search, Home, Favorites, your libraries and Settings ([#127](https://github.com/midasvo/findroid-ce/issues/127)), with a favorites page ([#137](https://github.com/midasvo/findroid-ce/issues/137))
-- **Home with a hero** that shows the focused item, and rows that don't reshuffle ([#132](https://github.com/midasvo/findroid-ce/issues/132)); pick and order the rows yourself ([#142](https://github.com/midasvo/findroid-ce/issues/142))
-- **Search** across movies, shows and episodes ([#128](https://github.com/midasvo/findroid-ce/issues/128))
-- **Library grid** with an A–Z jump bar, a counter and the hide-watched filter ([#135](https://github.com/midasvo/findroid-ce/issues/135))
-- **Episodes open in their season** with details first, instead of playing straight away ([#130](https://github.com/midasvo/findroid-ce/issues/130)), plus cast and person pages ([#136](https://github.com/midasvo/findroid-ce/issues/136))
-- **A player made for the remote**: seek with the D-pad, media keys, track dialogs ([#126](https://github.com/midasvo/findroid-ce/issues/126)), an overlay with the series, ends-at time, next/previous and a queue ([#131](https://github.com/midasvo/findroid-ce/issues/131)), and trickplay thumbnails ([#134](https://github.com/midasvo/findroid-ce/issues/134))
-- **Refresh rate switching** to match the video's frame rate ([#139](https://github.com/midasvo/findroid-ce/issues/139))
-- **Continue watching on the Android TV home screen** (Watch Next) ([#138](https://github.com/midasvo/findroid-ce/issues/138))
-- **Screensaver** with artwork from your library ([#140](https://github.com/midasvo/findroid-ce/issues/140)) and optional **theme music** on show pages ([#141](https://github.com/midasvo/findroid-ce/issues/141))
-- Collections, movie trailers and all relevant settings are reachable with the remote ([#129](https://github.com/midasvo/findroid-ce/issues/129)); phone-only settings are hidden ([#133](https://github.com/midasvo/findroid-ce/issues/133))
+- **Side drawer** for Search, Home, Favorites, your libraries and Settings ([#127](https://github.com/midasvo/ephyra/issues/127)), with a favorites page ([#137](https://github.com/midasvo/ephyra/issues/137))
+- **Home with a hero** that shows the focused item, and rows that don't reshuffle ([#132](https://github.com/midasvo/ephyra/issues/132)); pick and order the rows yourself ([#142](https://github.com/midasvo/ephyra/issues/142))
+- **Search** across movies, shows and episodes ([#128](https://github.com/midasvo/ephyra/issues/128))
+- **Library grid** with an A–Z jump bar, a counter and the hide-watched filter ([#135](https://github.com/midasvo/ephyra/issues/135))
+- **Episodes open in their season** with details first, instead of playing straight away ([#130](https://github.com/midasvo/ephyra/issues/130)), plus cast and person pages ([#136](https://github.com/midasvo/ephyra/issues/136))
+- **A player made for the remote**: seek with the D-pad, media keys, track dialogs ([#126](https://github.com/midasvo/ephyra/issues/126)), an overlay with the series, ends-at time, next/previous and a queue ([#131](https://github.com/midasvo/ephyra/issues/131)), and trickplay thumbnails ([#134](https://github.com/midasvo/ephyra/issues/134))
+- **Refresh rate switching** to match the video's frame rate ([#139](https://github.com/midasvo/ephyra/issues/139))
+- **Continue watching on the Android TV home screen** (Watch Next) ([#138](https://github.com/midasvo/ephyra/issues/138))
+- **Screensaver** with artwork from your library ([#140](https://github.com/midasvo/ephyra/issues/140)) and optional **theme music** on show pages ([#141](https://github.com/midasvo/ephyra/issues/141))
+- Collections, movie trailers and all relevant settings are reachable with the remote ([#129](https://github.com/midasvo/ephyra/issues/129)); phone-only settings are hidden ([#133](https://github.com/midasvo/ephyra/issues/133))
 
 **Which APK:** the one ending in `-libre-tv-armeabi-v7a.apk` for 32-bit boxes such as the Xiaomi
 Mi Box, and `-libre-tv-arm64-v8a.apk` for 64-bit ones. The Obtainium filters are under [Install](#install).
@@ -128,11 +128,14 @@ See the [changelog](CHANGELOG.md) for the full release-by-release history.
 Add this repo URL in [Obtainium](https://github.com/ImranR98/Obtainium):
 
 ```
-https://github.com/midasvo/findroid-ce
+https://github.com/midasvo/ephyra
 ```
 
 Obtainium then checks for new releases automatically and notifies you of updates. Leave
 **Include prereleases** off for this entry so it only follows stable releases.
+
+Already following `https://github.com/midasvo/findroid-ce`? GitHub redirects the old URL, so that
+entry keeps getting updates.
 
 On **Android TV**, set **Filter APKs by regular expression** to `.*-tv-armeabi-v7a\.apk` for 32-bit
 boxes such as the Xiaomi Mi Box (`.*-tv-arm64-v8a\.apk` for 64-bit ones). On a phone,
@@ -160,7 +163,7 @@ Betas are untested builds — expect bugs. Every push to `main` publishes one.
 
 ### Manual
 
-Grab the latest APK from the [Releases](https://github.com/midasvo/findroid-ce/releases) page:
+Grab the latest APK from the [Releases](https://github.com/midasvo/ephyra/releases) page:
 `ephyra-v<version>-libre-<abi>.apk` for phones and tablets, or
 `ephyra-v<version>-libre-tv-<abi>.apk` for Android TV (`armeabi-v7a` for 32-bit boxes such as the
 Xiaomi Mi Box). Phone and TV share one application ID, so installing the TV APK over the phone APK

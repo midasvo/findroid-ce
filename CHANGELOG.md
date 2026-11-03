@@ -370,7 +370,7 @@ Upstream sync only — no CE behaviour changes.
 Fixes the mpv video freeze after seeking, and an upstream sync.
 
 ### Fixed
-- **mpv: video no longer freezes after seeking, switching audio track, advancing to the next episode, or turning the screen off and on.** The audio output default returns to `audiotrack`; the `aaudio` default introduced upstream freezes the video pipeline after any operation that flushes it while audio keeps playing. Reported and fixed by [@Emeseis](https://github.com/midasvo/findroid-ce/pull/53) (#52); tracked upstream as [findroid#1246](https://github.com/jarnedemeulemeester/findroid/issues/1246) and [mpv-android#1283](https://github.com/mpv-android/mpv-android/issues/1283), both still open.
+- **mpv: video no longer freezes after seeking, switching audio track, advancing to the next episode, or turning the screen off and on.** The audio output default returns to `audiotrack`; the `aaudio` default introduced upstream freezes the video pipeline after any operation that flushes it while audio keeps playing. Reported and fixed by [@Emeseis](https://github.com/midasvo/ephyra/pull/53) (#52); tracked upstream as [findroid#1246](https://github.com/jarnedemeulemeester/findroid/issues/1246) and [mpv-android#1283](https://github.com/mpv-android/mpv-android/issues/1283), both still open.
 - **If you already had the audio output set to `aaudio`, this release moves you to `audiotrack` once.** A stored preference wins over a changed default, and simply opening the Audio output picker used to store a value — so the fix above would not have reached most affected installs on its own. This runs a single time: if you deliberately select `aaudio` again afterwards, it stays. Settings → Player → mpv → Audio output.
 - Select settings no longer save a value when you tap the option that is already selected. Doing so used to pin that preference to whatever the default was that day, silently blocking any later change to it — for every dropdown setting in the app, phone and TV.
 
@@ -551,29 +551,29 @@ Initial CE fork off findroid `1.0.2`. These rapid early iterations established t
 `nl.midasvo.findroid.ce` application ID, downloads and SD-card storage improvements, and ongoing
 tracking of upstream. See the git history between the corresponding tags for commit-level detail.
 
-[v1.2.0-ce.6]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.6
-[v1.2.0-ce.5]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.5
-[v1.2.0-ce.4]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.4
-[v1.2.0-ce.3]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.3
-[v1.2.0-ce.2]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.2
-[v1.2.0-ce.1]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.1
-[v1.2.0-ce.0]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.0
-[v1.1.0-ce.5]: https://github.com/midasvo/findroid-ce/releases/tag/v1.1.0-ce.5
-[v1.1.0-ce.4]: https://github.com/midasvo/findroid-ce/releases/tag/v1.1.0-ce.4
-[v1.1.0-ce.3]: https://github.com/midasvo/findroid-ce/releases/tag/v1.1.0-ce.3
-[v1.1.0-ce.2]: https://github.com/midasvo/findroid-ce/releases/tag/v1.1.0-ce.2
-[v1.1.0-ce.1]: https://github.com/midasvo/findroid-ce/releases/tag/v1.1.0-ce.1
-[v1.1.0-ce.0]: https://github.com/midasvo/findroid-ce/releases/tag/v1.1.0-ce.0
-[v1.0.2-ce.36]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.36
-[v1.0.2-ce.35]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.35
-[v1.0.2-ce.34]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.34
-[v1.0.2-ce.33]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.33
-[v1.0.2-ce.32]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.32
-[v1.0.2-ce.31]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.31
-[v1.0.2-ce.30]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.30
-[v1.0.2-ce.29]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.29
-[v1.0.2-ce.28]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.28
-[v1.0.2-ce.27]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.27
-[v1.0.2-ce.26]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.26
-[v1.0.2-ce.25]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.25
-[v1.0.2-ce.24]: https://github.com/midasvo/findroid-ce/releases/tag/v1.0.2-ce.24
+[v1.2.0-ce.6]: https://github.com/midasvo/ephyra/releases/tag/v1.2.0-ce.6
+[v1.2.0-ce.5]: https://github.com/midasvo/ephyra/releases/tag/v1.2.0-ce.5
+[v1.2.0-ce.4]: https://github.com/midasvo/ephyra/releases/tag/v1.2.0-ce.4
+[v1.2.0-ce.3]: https://github.com/midasvo/ephyra/releases/tag/v1.2.0-ce.3
+[v1.2.0-ce.2]: https://github.com/midasvo/ephyra/releases/tag/v1.2.0-ce.2
+[v1.2.0-ce.1]: https://github.com/midasvo/ephyra/releases/tag/v1.2.0-ce.1
+[v1.2.0-ce.0]: https://github.com/midasvo/ephyra/releases/tag/v1.2.0-ce.0
+[v1.1.0-ce.5]: https://github.com/midasvo/ephyra/releases/tag/v1.1.0-ce.5
+[v1.1.0-ce.4]: https://github.com/midasvo/ephyra/releases/tag/v1.1.0-ce.4
+[v1.1.0-ce.3]: https://github.com/midasvo/ephyra/releases/tag/v1.1.0-ce.3
+[v1.1.0-ce.2]: https://github.com/midasvo/ephyra/releases/tag/v1.1.0-ce.2
+[v1.1.0-ce.1]: https://github.com/midasvo/ephyra/releases/tag/v1.1.0-ce.1
+[v1.1.0-ce.0]: https://github.com/midasvo/ephyra/releases/tag/v1.1.0-ce.0
+[v1.0.2-ce.36]: https://github.com/midasvo/ephyra/releases/tag/v1.0.2-ce.36
+[v1.0.2-ce.35]: https://github.com/midasvo/ephyra/releases/tag/v1.0.2-ce.35
+[v1.0.2-ce.34]: https://github.com/midasvo/ephyra/releases/tag/v1.0.2-ce.34
+[v1.0.2-ce.33]: https://github.com/midasvo/ephyra/releases/tag/v1.0.2-ce.33
+[v1.0.2-ce.32]: https://github.com/midasvo/ephyra/releases/tag/v1.0.2-ce.32
+[v1.0.2-ce.31]: https://github.com/midasvo/ephyra/releases/tag/v1.0.2-ce.31
+[v1.0.2-ce.30]: https://github.com/midasvo/ephyra/releases/tag/v1.0.2-ce.30
+[v1.0.2-ce.29]: https://github.com/midasvo/ephyra/releases/tag/v1.0.2-ce.29
+[v1.0.2-ce.28]: https://github.com/midasvo/ephyra/releases/tag/v1.0.2-ce.28
+[v1.0.2-ce.27]: https://github.com/midasvo/ephyra/releases/tag/v1.0.2-ce.27
+[v1.0.2-ce.26]: https://github.com/midasvo/ephyra/releases/tag/v1.0.2-ce.26
+[v1.0.2-ce.25]: https://github.com/midasvo/ephyra/releases/tag/v1.0.2-ce.25
+[v1.0.2-ce.24]: https://github.com/midasvo/ephyra/releases/tag/v1.0.2-ce.24

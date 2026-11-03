@@ -2,7 +2,7 @@
 name: translate-strings
 description: >-
   Translate CE-only strings into all 36 supported languages and verify translation completeness.
-  Use this skill whenever a PR adds or modifies user-facing strings or plurals in Ephyra (the findroid-ce repo).
+  Use this skill whenever a PR adds or modifies user-facing strings or plurals in Ephyra (the midasvo/ephyra repo).
 ---
 
 # Translate Strings Skill
