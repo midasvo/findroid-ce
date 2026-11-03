@@ -77,6 +77,8 @@ Events that fire once (navigation, toasts) use a `Channel<FooEvent>` exposed as 
 
 **App ID:** `nl.midasvo.findroid.ce` (this is a fork — do not revert to the upstream `dev.jdtech.jellyfin` ID).
 
+**AppVariant:** An `AppVariant` enum (`PHONE`, `TV`) is provided by Hilt modules in `app/phone` and `app/tv`, allowing shared ViewModels (e.g. `SettingsViewModel`) to tailor behavior per variant instead of inspecting device hardware.
+
 ## Translations & Localization
 
 All user-visible strings and plurals that CE adds must be translated into all 36 supported languages.

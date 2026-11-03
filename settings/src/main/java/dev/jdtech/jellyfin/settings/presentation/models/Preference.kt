@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin.settings.presentation.models
 
 import dev.jdtech.jellyfin.settings.domain.models.Preference as PreferenceBackend
+import dev.jdtech.jellyfin.settings.presentation.enums.AppVariant
 import dev.jdtech.jellyfin.settings.presentation.enums.DeviceType
 
 interface Preference {
@@ -10,6 +11,8 @@ interface Preference {
     val enabled: Boolean
     val dependencies: List<PreferenceBackend<Boolean>>
     val supportedDeviceTypes: List<DeviceType>
+    val supportedVariants: List<AppVariant>
+        get() = supportedDeviceTypes
     val minSdk: Int?
         get() = null
 }

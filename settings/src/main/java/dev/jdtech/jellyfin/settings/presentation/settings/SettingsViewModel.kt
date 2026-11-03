@@ -12,6 +12,7 @@ import dev.jdtech.jellyfin.settings.R
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.settings.domain.Constants
 import dev.jdtech.jellyfin.settings.domain.models.PermissionDefinitions
+import dev.jdtech.jellyfin.settings.presentation.enums.AppVariant
 import dev.jdtech.jellyfin.settings.presentation.enums.DeviceType
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceAppLanguage
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceCategory
@@ -35,6 +36,7 @@ import kotlinx.coroutines.launch
 class SettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appPreferences: AppPreferences,
+    private val appVariant: AppVariant = AppVariant.PHONE,
 ) : ViewModel() {
     private val _state = MutableStateFlow(SettingsState())
     val state = _state.asStateFlow()
@@ -627,6 +629,7 @@ class SettingsViewModel @Inject constructor(
                                                     descriptionStringRes =
                                                         R.string
                                                             .pref_player_media_segments_skip_button_summary,
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences.playerMediaSegmentsSkipButton,
                                                 ),
@@ -639,6 +642,7 @@ class SettingsViewModel @Inject constructor(
                                                             appPreferences
                                                                 .playerMediaSegmentsSkipButton
                                                         ),
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences
                                                             .playerMediaSegmentsSkipButtonType,
@@ -655,6 +659,7 @@ class SettingsViewModel @Inject constructor(
                                                             appPreferences
                                                                 .playerMediaSegmentsSkipButton
                                                         ),
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences
                                                             .playerMediaSegmentsSkipButtonDuration,
@@ -667,6 +672,7 @@ class SettingsViewModel @Inject constructor(
                                                     descriptionStringRes =
                                                         R.string
                                                             .pref_player_media_segments_auto_skip_summary,
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences.playerMediaSegmentsAutoSkip,
                                                 ),
@@ -696,6 +702,7 @@ class SettingsViewModel @Inject constructor(
                                                             appPreferences
                                                                 .playerMediaSegmentsAutoSkip
                                                         ),
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences
                                                             .playerMediaSegmentsAutoSkipType,
@@ -782,6 +789,7 @@ class SettingsViewModel @Inject constructor(
                                                         R.string.pref_player_trickplay,
                                                     descriptionStringRes =
                                                         R.string.pref_player_trickplay_summary,
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences.playerTrickplay,
                                                 ),
@@ -968,12 +976,14 @@ class SettingsViewModel @Inject constructor(
                                                 ),
                                                 PreferenceIntInput(
                                                     nameStringResource = R.string.pref_download_max_concurrent,
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences.maxConcurrentDownloads,
                                                 ),
                                                 PreferenceSwitch(
                                                     nameStringResource = R.string.pref_download_smart,
                                                     descriptionStringRes = R.string.pref_download_smart_summary,
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences.smartDownloads,
                                                 ),
@@ -984,6 +994,7 @@ class SettingsViewModel @Inject constructor(
                                                         R.string.pref_download_smart_keep_summary,
                                                     dependencies =
                                                         listOf(appPreferences.smartDownloads),
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences.smartDownloadsKeepReady,
                                                     suffixRes = R.string.episodes,
@@ -993,6 +1004,7 @@ class SettingsViewModel @Inject constructor(
                                                         R.string.pref_download_transcode_dovi,
                                                     descriptionStringRes =
                                                         R.string.pref_download_transcode_dovi_summary,
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences.downloadTranscodeDolbyVision,
                                                 ),
@@ -1183,7 +1195,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun loadPreferences(indexes: List<Int> = emptyList(), deviceType: DeviceType) {
+    fun loadPreferences(indexes: List<Int> = emptyList(), deviceType: AppVariant = appVariant) {
         viewModelScope.launch {
             var preferences = topLevelPreferences
 

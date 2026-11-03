@@ -17,7 +17,7 @@ The follow-up issues, in the order from [4-decisions.md](4-decisions.md). All ha
 |---|---|---|---|
 | [#128](https://github.com/midasvo/findroid-ce/issues/128) | ✅ Search screen | G4 | #127 (for its place in the drawer) |
 | [#129](https://github.com/midasvo/findroid-ce/issues/129) | ✅ Open collections, movie trailers, reach all settings (done in #151) | G5, G6, G18 | — |
-| [#133](https://github.com/midasvo/findroid-ce/issues/133) | `AppVariant` flag, hide phone-only settings on TV | G11 | — |
+| [#133](https://github.com/midasvo/findroid-ce/issues/133) | ✅ `AppVariant` flag, hide phone-only settings on TV (done in #157) | G11 | — |
 
 ## Step 3: the core loop
 
