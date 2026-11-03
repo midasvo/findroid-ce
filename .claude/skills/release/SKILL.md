@@ -85,12 +85,18 @@ Tag the merge commit on `main`, then create the release with the changelog secti
 notes **right away**: `release.yml` appends the APK guide to those notes and attaches the APKs
 when its build finishes, a few minutes later.
 
+`--generate-notes` adds GitHub's "What's Changed" list of PRs and new contributors below the
+changelog. Always pass `--notes-start-tag "$last"` with it (`$last` from step 2, the previous
+release): on its own GitHub compares with Findroid's `v1.0.2`, inherited with the fork, and lists
+every PR since the fork.
+
 ```bash
 git fetch origin && git switch main && git reset --hard origin/main
 git tag -a "v$next" -m "Ephyra v$next"
 git push origin "v$next"
 gh release create "v$next" --repo midasvo/ephyra --verify-tag \
-  --title "Ephyra v$next" --notes-file <file with the CHANGELOG.md section>
+  --title "Ephyra v$next" --notes-file <file with the CHANGELOG.md section> \
+  --generate-notes --notes-start-tag "$last"
 gh run watch --repo midasvo/ephyra $(gh run list --repo midasvo/ephyra --workflow release.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
