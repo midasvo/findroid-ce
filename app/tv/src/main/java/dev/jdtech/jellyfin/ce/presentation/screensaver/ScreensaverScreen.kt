@@ -97,43 +97,7 @@ fun ScreensaverScreen(
             items = emptyList()
             return@LaunchedEffect
         }
-        items =
-            withContext(Dispatchers.IO) {
-                try {
-                    val isRecent = source == "recently_added"
-                    val fetched =
-                        repository
-                            .getItems(
-                                parentId = null,
-                                includeTypes = listOf(BaseItemKind.MOVIE, BaseItemKind.SERIES),
-                                recursive = true,
-                                sortBy = if (isRecent) SortBy.DATE_ADDED else SortBy.NAME,
-                                sortOrder =
-                                    if (isRecent) SortOrder.DESCENDING else SortOrder.ASCENDING,
-                                limit = if (isRecent) 100 else 200,
-                            )
-                            .filter { it.images.backdrop != null }
-
-                    val candidates =
-                        if (fetched.isNotEmpty()) {
-                            fetched
-                        } else {
-                            // Fallback to any items if user has no movies/series
-                            repository
-                                .getItems(
-                                    parentId = null,
-                                    recursive = true,
-                                    limit = 100,
-                                )
-                                .filter { it.images.backdrop != null }
-                        }
-
-                    if (isRecent) candidates else candidates.shuffled()
-                } catch (e: Exception) {
-                    Timber.w(e, "Screensaver: failed to load library artwork")
-                    emptyList()
-                }
-            }
+        items = loadScreensaverItems(repository, source)
         currentIndex = 0
     }
 
