@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">Näytä nykyinen aika näytönsäästäjässä</string>
     <string name="pref_tv_theme_music">Tunnusmusiikki</string>
     <string name="pref_tv_theme_music_summary">Soita sarjan tunnuskappale hiljaa sen sivulla, jos palvelimella on sellainen</string>
+    <string name="home_rows">Etusivun rivit</string>
+    <string name="home_rows_summary">Valitse, mitkä rivit etusivulla näytetään ja missä järjestyksessä</string>
 </resources>

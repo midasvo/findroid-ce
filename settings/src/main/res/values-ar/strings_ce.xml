@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">عرض الوقت الحالي على شاشة التوقف</string>
     <string name="pref_tv_theme_music">موسيقى الشارة</string>
     <string name="pref_tv_theme_music_summary">تشغيل أغنية شارة المسلسل بهدوء في صفحته، إذا كانت متوفرة على الخادم</string>
+    <string name="home_rows">صفوف الصفحة الرئيسية</string>
+    <string name="home_rows_summary">اختر الصفوف التي تعرضها الصفحة الرئيسية وترتيبها</string>
 </resources>

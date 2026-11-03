@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">Vis gjeldande klokkeslett på skjermspararen</string>
     <string name="pref_tv_theme_music">Temamusikk</string>
     <string name="pref_tv_theme_music_summary">Spel temasongen til ein serie stille på sida hans, om tenaren har ein</string>
+    <string name="home_rows">Rader på startsida</string>
+    <string name="home_rows_summary">Vel kva rader startsida viser, og i kva rekkjefølgje</string>
 </resources>

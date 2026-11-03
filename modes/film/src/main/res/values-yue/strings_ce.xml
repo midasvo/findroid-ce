@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_suggestions_title">推介</string>
+    <string name="home_rows_move_up">向上移</string>
+    <string name="home_rows_move_down">向下移</string>
 </resources>

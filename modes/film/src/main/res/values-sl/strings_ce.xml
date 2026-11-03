@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_suggestions_title">Predlogi</string>
+    <string name="home_rows_move_up">Premakni gor</string>
+    <string name="home_rows_move_down">Premakni dol</string>
 </resources>

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_suggestions_title">सुझाव</string>
+    <string name="home_rows_move_up">ऊपर ले जाएँ</string>
+    <string name="home_rows_move_down">नीचे ले जाएँ</string>
 </resources>

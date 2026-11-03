@@ -37,8 +37,10 @@ import dev.jdtech.jellyfin.core.presentation.dummy.dummyServer
 import dev.jdtech.jellyfin.film.presentation.home.HomeAction
 import dev.jdtech.jellyfin.film.presentation.home.HomeState
 import dev.jdtech.jellyfin.film.presentation.home.HomeViewModel
+import dev.jdtech.jellyfin.film.presentation.home.orderedRows
 import dev.jdtech.jellyfin.models.FindroidCollection
 import dev.jdtech.jellyfin.models.FindroidItem
+import dev.jdtech.jellyfin.models.HomeItem
 import dev.jdtech.jellyfin.presentation.components.ErrorDialog
 import dev.jdtech.jellyfin.presentation.film.components.EmptyState
 import dev.jdtech.jellyfin.presentation.film.components.ErrorState
@@ -106,11 +108,9 @@ private fun HomeScreenLayout(state: HomeState, onAction: (HomeAction) -> Unit) {
 
     // Sections arrive in any order, and a list keeps its first item in place when another lands
     // above it. That would leave the carousel out of view, so stay at the top instead.
-    val firstItemKey =
-        state.suggestionsSection?.id
-            ?: state.resumeSection?.id
-            ?: state.nextUpSection?.id
-            ?: state.views.firstOrNull()?.id
+    // CE (#142): the rows in the order the user chose, hidden ones left out.
+    val rows = remember(state) { state.orderedRows() }
+    val firstItemKey = rows.firstOrNull()?.id
     DisposableEffect(firstItemKey) {
         if (listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0) {
             listState.requestScrollToItem(0)
@@ -126,42 +126,30 @@ private fun HomeScreenLayout(state: HomeState, onAction: (HomeAction) -> Unit) {
                 contentPadding = PaddingValues(top = contentPaddingTop, bottom = paddingBottom),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
             ) {
-                state.suggestionsSection?.let { section ->
-                    item(key = section.id) {
-                        HomeCarousel(
-                            items = section.items,
-                            itemsPadding = itemsPadding,
-                            onAction = onAction,
-                        )
+                items(rows, key = { it.id }) { row ->
+                    when (row) {
+                        is HomeItem.Suggestions ->
+                            HomeCarousel(
+                                items = row.items,
+                                itemsPadding = itemsPadding,
+                                onAction = onAction,
+                            )
+                        is HomeItem.Section ->
+                            HomeSection(
+                                section = row.homeSection,
+                                itemsPadding = itemsPadding,
+                                onAction = onAction,
+                                modifier = Modifier.animateItem(),
+                            )
+                        is HomeItem.ViewItem ->
+                            HomeView(
+                                view = row,
+                                itemsPadding = itemsPadding,
+                                onAction = onAction,
+                                modifier = Modifier.animateItem(),
+                            )
+                        HomeItem.OfflineCard -> Unit
                     }
-                }
-                state.resumeSection?.let { section ->
-                    item(key = section.id) {
-                        HomeSection(
-                            section = section.homeSection,
-                            itemsPadding = itemsPadding,
-                            onAction = onAction,
-                            modifier = Modifier.animateItem(),
-                        )
-                    }
-                }
-                state.nextUpSection?.let { section ->
-                    item(key = section.id) {
-                        HomeSection(
-                            section = section.homeSection,
-                            itemsPadding = itemsPadding,
-                            onAction = onAction,
-                            modifier = Modifier.animateItem(),
-                        )
-                    }
-                }
-                items(state.views, key = { it.id }) { view ->
-                    HomeView(
-                        view = view,
-                        itemsPadding = itemsPadding,
-                        onAction = onAction,
-                        modifier = Modifier.animateItem(),
-                    )
                 }
                 if (state.isEmpty && !state.isLoading) {
                     item(key = "placeholder") {

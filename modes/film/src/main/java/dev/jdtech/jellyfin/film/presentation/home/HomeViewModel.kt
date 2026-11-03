@@ -4,10 +4,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
+import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.film.R as FilmR
-import dev.jdtech.jellyfin.models.CollectionType
+import dev.jdtech.jellyfin.film.domain.homerows.HomeRowConfig
+import dev.jdtech.jellyfin.film.domain.homerows.HomeRowType
+import dev.jdtech.jellyfin.film.domain.homerows.HomeRows
+import dev.jdtech.jellyfin.film.domain.homerows.HomeRowsProfile
+import dev.jdtech.jellyfin.film.domain.homerows.HomeRowsStore
+import dev.jdtech.jellyfin.film.domain.homerows.LegacyHomeSwitches
+import dev.jdtech.jellyfin.film.domain.homerows.homeLibraries
+import dev.jdtech.jellyfin.models.FindroidEpisode
+import dev.jdtech.jellyfin.models.FindroidMovie
+import dev.jdtech.jellyfin.models.FindroidShow
 import dev.jdtech.jellyfin.models.HomeItem
 import dev.jdtech.jellyfin.models.HomeSection
+import dev.jdtech.jellyfin.models.Server
 import dev.jdtech.jellyfin.models.UiText
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
@@ -47,7 +58,12 @@ constructor(
             UUID.fromString("44845958-8326-4e83-beb4-c4f42e9eeb95")
         private val UUID_NEXT_UP =
             UUID.fromString("18bfced5-f237-4d42-aa72-d9d7fed19279")
+        private val UUID_FAVORITES =
+            UUID.fromString("5b0f3c9e-2a41-4d8e-9a6f-7c1e2d3b4a50")
     }
+
+    private val uiTextFavorites = UiText.StringResource(CoreR.string.title_favorite)
+    private val homeRowsStore = HomeRowsStore(appPreferences, database)
 
     /**
      * With [silent] the refresh indicator stays hidden, for reloads the user didn't ask for. The
@@ -59,9 +75,16 @@ constructor(
         return viewModelScope.launch(Dispatchers.Default) {
             if (!silent) _state.update { it.copy(isLoading = true, error = null) }
             try {
-                appPreferences.getValue(appPreferences.currentServer)?.let { serverId ->
-                    loadServerName(serverId)
-                }
+                val server =
+                    appPreferences.getValue(appPreferences.currentServer)?.let { serverId ->
+                        loadServerName(serverId)
+                    }
+                // CE (#142): the rows this user chose for this server, in their order.
+                val stored = homeRowsStore.read(HomeRowsProfile.of(server))
+                val legacy = homeRowsStore.legacy()
+                val layout = HomeRows.resolve(stored, null, legacy)
+                _state.update { it.copy(rowOrder = layout.map { row -> row.key }) }
+                fun show(type: HomeRowType) = layout.any { it.type == type && it.visible }
 
                 // coroutineScope { } is required here: without it, a failure
                 // inside any async { } child propagates straight to viewModelScope
@@ -71,10 +94,27 @@ constructor(
                 val rows =
                     coroutineScope {
                         awaitAll(
-                            async { logFailure("suggestions") { loadSuggestions() } },
-                            async { logFailure("resume items") { loadResumeItems() } },
-                            async { logFailure("next up items") { loadNextUpItems() } },
-                            async { logFailure("views") { loadViews() } },
+                            async {
+                                logFailure("suggestions") {
+                                    loadSuggestions(show(HomeRowType.SUGGESTIONS))
+                                }
+                            },
+                            async {
+                                logFailure("resume items") {
+                                    loadResumeItems(show(HomeRowType.CONTINUE_WATCHING))
+                                }
+                            },
+                            async {
+                                logFailure("next up items") {
+                                    loadNextUpItems(show(HomeRowType.NEXT_UP))
+                                }
+                            },
+                            async { logFailure("views") { loadViews(stored, legacy) } },
+                            async {
+                                logFailure("favorites") {
+                                    loadFavorites(show(HomeRowType.FAVORITES))
+                                }
+                            },
                         )
                     }
                 _state.update { it.copy(error = errorIfAllFailed(rows)) }
@@ -111,16 +151,17 @@ constructor(
         }
     }
 
-    private suspend fun loadServerName(serverId: String) {
+    private suspend fun loadServerName(serverId: String): Server? {
         val server = database.getServer(serverId)
         if (server != null) {
             _state.update { it.copy(server = server) }
         }
+        return server
     }
 
-    private suspend fun loadSuggestions(): Boolean {
+    private suspend fun loadSuggestions(show: Boolean): Boolean {
         Timber.i("Loading suggestions")
-        if (!appPreferences.getValue(appPreferences.homeSuggestions)) {
+        if (!show) {
             _state.update { it.copy(suggestionsSection = null) }
             return false
         }
@@ -138,9 +179,9 @@ constructor(
         return true
     }
 
-    private suspend fun loadResumeItems(): Boolean {
+    private suspend fun loadResumeItems(show: Boolean): Boolean {
         Timber.i("Loading resume items")
-        if (!appPreferences.getValue(appPreferences.homeContinueWatching)) {
+        if (!show) {
             _state.update { it.copy(resumeSection = null) }
             return false
         }
@@ -160,9 +201,9 @@ constructor(
         return true
     }
 
-    private suspend fun loadNextUpItems(): Boolean {
+    private suspend fun loadNextUpItems(show: Boolean): Boolean {
         Timber.i("Loading next up items")
-        if (!appPreferences.getValue(appPreferences.homeNextUp)) {
+        if (!show) {
             _state.update { it.copy(nextUpSection = null) }
             return false
         }
@@ -180,20 +221,22 @@ constructor(
         return true
     }
 
-    private suspend fun loadViews(): Boolean {
+    private suspend fun loadViews(
+        stored: List<HomeRowConfig>?,
+        legacy: LegacyHomeSwitches,
+    ): Boolean {
         Timber.i("Loading views")
-        if (!appPreferences.getValue(appPreferences.homeLatest)) {
+        if (!HomeRows.needsLibraries(stored, legacy)) {
             _state.update { it.copy(views = emptyList()) }
             return false
         }
 
-        val views =
-            repository
-                .getUserViews()
-                .filter { view ->
-                    CollectionType.fromString(view.collectionType?.serialName) in
-                        CollectionType.supported
-                }
+        val libraries = repository.homeLibraries()
+        // CE (#142): now that the libraries are known, new ones get their place and hidden ones go.
+        val layout = HomeRows.resolve(stored, libraries.map { it.id }, legacy)
+        _state.update { it.copy(rowOrder = layout.map { row -> row.key }) }
+        val shown = layout.filter { it.visible }.mapNotNullTo(mutableSetOf()) { it.libraryId }
+        val views = libraries.filter { it.id in shown }
 
         val results =
             coroutineScope {
@@ -222,6 +265,30 @@ constructor(
             }
 
         _state.update { it.copy(views = items) }
+        return true
+    }
+
+    /** CE (#142): one row with the favorite movies, shows and episodes, as Favorites groups them. */
+    private suspend fun loadFavorites(show: Boolean): Boolean {
+        Timber.i("Loading favorites")
+        if (!show) {
+            _state.update { it.copy(favoritesSection = null) }
+            return false
+        }
+
+        val items =
+            repository.getFavoriteItems().filter {
+                it is FindroidMovie || it is FindroidShow || it is FindroidEpisode
+            }
+
+        val section =
+            if (items.isEmpty()) {
+                null
+            } else {
+                HomeItem.Section(HomeSection(UUID_FAVORITES, uiTextFavorites, items))
+            }
+
+        _state.update { it.copy(favoritesSection = section) }
         return true
     }
 

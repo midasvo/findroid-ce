@@ -55,3 +55,6 @@ data class PlayerRoute(
 @Serializable data object SettingsRoute : NavKey
 
 @Serializable data class SettingsSubRoute(val indexes: List<Int>) : NavKey
+
+// CE (#142)
+@Serializable data object HomeRowsRoute : NavKey

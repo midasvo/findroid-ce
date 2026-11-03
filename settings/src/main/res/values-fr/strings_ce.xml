@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">Afficher l\'heure actuelle sur l\'écran de veille</string>
     <string name="pref_tv_theme_music">Musique du générique</string>
     <string name="pref_tv_theme_music_summary">Jouer doucement le générique d\'une série sur sa page, si le serveur en a un</string>
+    <string name="home_rows">Rangées de l\'accueil</string>
+    <string name="home_rows_summary">Choisissez les rangées affichées sur l\'accueil et leur ordre</string>
 </resources>

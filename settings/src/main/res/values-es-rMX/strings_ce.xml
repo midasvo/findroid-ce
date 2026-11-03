@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">Mostrar la hora actual en el salvapantallas</string>
     <string name="pref_tv_theme_music">Música de tema</string>
     <string name="pref_tv_theme_music_summary">Reproducir en voz baja el tema de una serie en su página, si el servidor lo tiene</string>
+    <string name="home_rows">Filas de Inicio</string>
+    <string name="home_rows_summary">Elige qué filas muestra Inicio y en qué orden</string>
 </resources>

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_suggestions_title">Suggeriments</string>
+    <string name="home_rows_move_up">Mou amunt</string>
+    <string name="home_rows_move_down">Mou avall</string>
 </resources>

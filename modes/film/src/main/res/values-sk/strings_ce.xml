@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_suggestions_title">Návrhy</string>
+    <string name="home_rows_move_up">Posunúť nahor</string>
+    <string name="home_rows_move_down">Posunúť nadol</string>
 </resources>

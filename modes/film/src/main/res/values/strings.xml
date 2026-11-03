@@ -5,4 +5,7 @@
     <string name="latest_library">Latest %1$s</string>
     <string name="search_placeholder">Search movies and TV shows</string>
     <string name="home_suggestions_title">Suggestions</string>
+    <!-- CE (#142) -->
+    <string name="home_rows_move_up">Move up</string>
+    <string name="home_rows_move_down">Move down</string>
 </resources>

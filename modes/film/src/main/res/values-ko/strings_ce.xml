@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_suggestions_title">추천</string>
+    <string name="home_rows_move_up">위로 이동</string>
+    <string name="home_rows_move_down">아래로 이동</string>
 </resources>

@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">Відображати поточний час на заставці</string>
     <string name="pref_tv_theme_music">Музична тема</string>
     <string name="pref_tv_theme_music_summary">Тихо відтворювати музичну тему серіалу на його сторінці, якщо вона є на сервері</string>
+    <string name="home_rows">Ряди на головній</string>
+    <string name="home_rows_summary">Виберіть, які ряди показувати на головній і в якому порядку</string>
 </resources>

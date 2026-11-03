@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">Exibir a hora atual no protetor de tela</string>
     <string name="pref_tv_theme_music">Música tema</string>
     <string name="pref_tv_theme_music_summary">Tocar baixinho a música tema de uma série na página dela, se o servidor tiver uma</string>
+    <string name="home_rows">Linhas do Início</string>
+    <string name="home_rows_summary">Escolha quais linhas o Início mostra e em que ordem</string>
 </resources>

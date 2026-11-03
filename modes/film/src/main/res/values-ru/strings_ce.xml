@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_suggestions_title">Рекомендации</string>
+    <string name="home_rows_move_up">Переместить вверх</string>
+    <string name="home_rows_move_down">Переместить вниз</string>
 </resources>
