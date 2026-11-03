@@ -56,9 +56,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.memory.MemoryCache
-import coil3.request.ImageRequest
 import dev.jdtech.jellyfin.ce.ui.TvSafeArea
 import dev.jdtech.jellyfin.ce.ui.focus.FocusPosition
 import dev.jdtech.jellyfin.ce.ui.focus.RestoreFocus
@@ -81,7 +81,6 @@ import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.ui.components.Direction
 import dev.jdtech.jellyfin.ui.components.ItemCard
-import dev.jdtech.jellyfin.utils.withImageSize
 import java.util.UUID
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -143,10 +142,24 @@ fun HomeScreen(
     )
 }
 
-/** The focused card. Written on focus changes and read only by the hero. */
+/** The focused card. Written on focus changes and read only by the hero and its prefetch. */
 @Stable
 private class HeroFocus {
     var item by mutableStateOf<FindroidItem?>(null)
+        private set
+
+    /** The focused card's row and place in it, for the prefetch. Plain fields: no recomposition. */
+    var row: List<FindroidItem> = emptyList()
+        private set
+
+    var column = 0
+        private set
+
+    fun focus(row: List<FindroidItem>, column: Int) {
+        this.row = row
+        this.column = column
+        item = row[column]
+    }
 }
 
 private class HomeRow(
@@ -202,6 +215,23 @@ private fun HomeScreenLayout(
     val titleSpacePx =
         with(LocalDensity.current) { (ROW_TITLE_HEIGHT + MaterialTheme.spacings.small).toPx() }
     val rowAtTop = remember(titleSpacePx) { rowAtTopSpec(titleSpacePx) }
+    val images = rememberHeroImages()
+
+    // Loads the backdrops and logos around the focused card, once focus rests for a moment, so
+    // moving one card along shows the hero straight from the memory cache (#155).
+    LaunchedEffect(hero, images) {
+        snapshotFlow { hero.item }
+            .collectLatest { focused ->
+                if (focused == null) return@collectLatest
+                delay(PREFETCH_DELAY_MS)
+                val row = hero.row
+                images.prefetch(
+                    focused,
+                    neighbourIndices(hero.column, row.size, PREFETCH_NEIGHBOURS).map { row[it] },
+                )
+            }
+    }
+    DisposableEffect(images) { onDispose { images.cancel() } }
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (rows.isEmpty()) {
@@ -211,7 +241,7 @@ private fun HomeScreenLayout(
             return@Box
         }
 
-        HomeHero(hero = hero)
+        HomeHero(hero = hero, images = images)
 
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.height(HERO_HEIGHT))
@@ -307,7 +337,7 @@ private fun HomeRowContent(
                     onClick = { onAction(HomeAction.OnItemClick(it)) },
                     modifier =
                         Modifier.focusPosition(focusPosition, rowIndex, column, item.id.toString())
-                            .onFocusChanged { if (it.hasFocus) hero.item = item }
+                            .onFocusChanged { if (it.hasFocus) hero.focus(row.items, column) }
                             .testTag(homeCardTag(item.id)),
                 )
             }
@@ -317,24 +347,41 @@ private fun HomeRowContent(
 
 internal fun homeCardTag(id: UUID) = "ce_home_card_$id"
 
+@Composable
+private fun rememberHeroImages(): HeroImages {
+    val context = LocalContext.current
+    val imageLoader = SingletonImageLoader.get(context)
+    val backdropWidthPx = (LocalWindowInfo.current.containerSize.width * BACKDROP_WIDTH).toInt()
+    val density = LocalDensity.current
+    val logoWidthPx = with(density) { LOGO_MAX_WIDTH.roundToPx() }
+    val logoHeightPx = with(density) { LOGO_MAX_HEIGHT.roundToPx() }
+    return remember(context, imageLoader, backdropWidthPx, logoWidthPx, logoHeightPx) {
+        HeroImages(context, imageLoader, backdropWidthPx, logoWidthPx, logoHeightPx)
+    }
+}
+
 /**
- * Backdrop, logo (or title), info line and overview of the focused card. It follows focus after
- * [HERO_DELAY_MS], so moving fast along a row only loads the backdrop of the card it stops on.
+ * Backdrop, logo (or title), info line and overview of the focused card. A card whose images are in
+ * the memory cache shows straight away. Otherwise the hero waits for a prefetch that is still
+ * loading, or [HERO_DELAY_MS] for focus to rest, so moving fast along a row only loads the backdrop
+ * of the card it stops on.
  */
 @Composable
-private fun HomeHero(hero: HeroFocus) {
+private fun HomeHero(hero: HeroFocus, images: HeroImages) {
     val item by
-        produceState<FindroidItem?>(initialValue = null, hero) {
+        produceState<FindroidItem?>(initialValue = null, hero, images) {
             snapshotFlow { hero.item }
                 .collectLatest { focused ->
-                    // The first card shows straight away; after that, wait until focus rests.
-                    if (value != null) delay(HERO_DELAY_MS)
+                    // The first card shows straight away.
+                    if (value != null && focused != null && !images.isCached(focused)) {
+                        if (!images.awaitPrefetch(focused)) delay(HERO_DELAY_MS)
+                    }
                     value = focused
                 }
         }
     val shown = item ?: return
 
-    HeroBackdrop(item = shown)
+    HeroBackdrop(item = shown, images = images)
 
     Column(
         verticalArrangement = Arrangement.Bottom,
@@ -348,7 +395,7 @@ private fun HomeHero(hero: HeroFocus) {
                 )
                 .testTag("ce_home_hero"),
     ) {
-        HeroTitle(item = shown)
+        HeroTitle(item = shown, images = images)
         if (shown is FindroidEpisode) {
             Text(
                 text = shown.name,
@@ -385,22 +432,12 @@ private fun HomeHero(hero: HeroFocus) {
  * placeholder, so the switch crossfades instead of flashing the background.
  */
 @Composable
-private fun HeroBackdrop(item: FindroidItem) {
-    val uri =
-        when (item) {
-            is FindroidEpisode -> item.images.showBackdrop ?: item.images.backdrop
-            else -> item.images.backdrop
-        } ?: return
-    val context = LocalContext.current
-    val widthPx = (LocalWindowInfo.current.containerSize.width * BACKDROP_WIDTH).toInt()
+private fun HeroBackdrop(item: FindroidItem, images: HeroImages) {
     val previous = remember { PreviousImage() }
     val request =
-        remember(uri, widthPx) {
-            ImageRequest.Builder(context)
-                .data(uri.toString().withImageSize(widthPx, null))
-                .placeholderMemoryCacheKey(previous.key)
-                .build()
-        }
+        remember(item, images) {
+            images.backdrop(item)?.newBuilder()?.placeholderMemoryCacheKey(previous.key)?.build()
+        } ?: return
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
         // Faded out to the left and bottom with an alpha mask, so it blends into the app's
         // gradient background instead of ending at an edge.
@@ -432,9 +469,9 @@ private class PreviousImage {
 
 /** The logo, at the size it's shown, or the title while there's no logo. */
 @Composable
-private fun HeroTitle(item: FindroidItem) {
+private fun HeroTitle(item: FindroidItem, images: HeroImages) {
     val title = if (item is FindroidEpisode) item.seriesName else item.name
-    val logo = if (item is FindroidEpisode) item.images.showLogo else item.images.logo
+    val logo = remember(item, images) { images.logo(item) }
     var logoFailed by remember(logo) { mutableStateOf(logo == null) }
     if (logoFailed) {
         Text(
@@ -444,9 +481,8 @@ private fun HeroTitle(item: FindroidItem) {
             overflow = TextOverflow.Ellipsis,
         )
     } else {
-        val logoWidthPx = with(LocalDensity.current) { LOGO_MAX_WIDTH.roundToPx() }
         AsyncImage(
-            model = logo.toString().withImageSize(logoWidthPx, null),
+            model = logo,
             contentDescription = title,
             contentScale = ContentScale.Fit,
             alignment = Alignment.BottomStart,
@@ -482,6 +518,8 @@ private const val BACKDROP_WIDTH = .7f
 private val LOGO_MAX_WIDTH = 320.dp
 private val LOGO_MAX_HEIGHT = 80.dp
 private const val HERO_DELAY_MS = 300L
+private const val PREFETCH_DELAY_MS = 150L
+private const val PREFETCH_NEIGHBOURS = 3
 private const val REFRESH_WAIT_MS = 1_500L
 
 @Preview(device = "id:tv_1080p")
