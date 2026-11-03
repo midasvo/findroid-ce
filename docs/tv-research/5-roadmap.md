@@ -32,7 +32,7 @@ The follow-up issues, in the order from [4-decisions.md](4-decisions.md). All ha
 | Issue | What | Gaps | Depends on |
 |---|---|---|---|
 | [#134](https://github.com/midasvo/findroid-ce/issues/134) | Trickplay while seeking | G14 | #126 |
-| [#135](https://github.com/midasvo/findroid-ce/issues/135) | Library grid: A–Z jump, counter, placeholders | G15 | #125 |
+| [#135](https://github.com/midasvo/findroid-ce/issues/135) | ✅ Library grid: A–Z jump, counter, placeholders (done in #154; genres tab not yet) | G15 | #125 |
 | [#136](https://github.com/midasvo/findroid-ce/issues/136) | Cast row and person page | G16 | #125 |
 | [#137](https://github.com/midasvo/findroid-ce/issues/137) | Favorites page | G17 | #127 |
 

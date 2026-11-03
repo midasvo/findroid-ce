@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="browse_library">Bla i biblioteket</string>
     <string name="cancel_download_button">Avbryt nedlasting</string>
@@ -80,5 +80,7 @@
     <string name="restart">Start på nytt</string>
     <string name="season_episode_number">S%1$d E%2$d</string>
     <string name="ends_at">Sluttar kl. %1$s</string>
+    <string name="year_range_continuing">%1$d – no</string>
     <string name="shuffle">Bland</string>
+    <string name="favorites_empty_body">Vel hjarteikonet på ein film, serie eller episode for å leggja han til i favorittane dine.</string>
 </resources>

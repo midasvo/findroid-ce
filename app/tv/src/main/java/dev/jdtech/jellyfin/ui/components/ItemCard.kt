@@ -29,7 +29,9 @@ import dev.jdtech.jellyfin.core.presentation.dummy.dummyEpisode
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyMovie
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
+import dev.jdtech.jellyfin.models.FindroidMovie
 import dev.jdtech.jellyfin.models.FindroidSeason
+import dev.jdtech.jellyfin.models.FindroidShow
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 
@@ -40,6 +42,7 @@ fun ItemCard(
     onClick: (FindroidItem) -> Unit,
     modifier: Modifier = Modifier,
     showSeriesName: Boolean = false,
+    showYear: Boolean = false,
 ) {
     val width =
         when (direction) {
@@ -104,6 +107,9 @@ fun ItemCard(
                         item.name,
                     )
                 is FindroidSeason -> if (showSeriesName) item.name else null
+                // CE (#135): the year below the title, a range for a show.
+                is FindroidMovie -> if (showYear) item.productionYear?.toString() else null
+                is FindroidShow -> if (showYear) showYears(item) else null
                 else -> null
             }
         Text(
@@ -121,6 +127,18 @@ fun ItemCard(
                 overflow = TextOverflow.Ellipsis,
             )
         }
+    }
+}
+
+/** `2019`, `2019 – 2023`, or `2019 – present` while the show is still running. */
+@Composable
+private fun showYears(show: FindroidShow): String? {
+    val start = show.productionYear ?: return null
+    val end = show.endDate?.year
+    return when {
+        show.status == "Continuing" -> stringResource(R.string.year_range_continuing, start)
+        end != null && end != start -> "$start – $end"
+        else -> start.toString()
     }
 }
 

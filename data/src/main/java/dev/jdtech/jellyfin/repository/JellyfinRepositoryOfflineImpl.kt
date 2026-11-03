@@ -207,6 +207,16 @@ class JellyfinRepositoryOfflineImpl(
         TODO("Not yet implemented")
     }
 
+    override suspend fun getItemCount(
+        parentId: UUID?,
+        includeTypes: List<BaseItemKind>?,
+        recursive: Boolean,
+        filters: List<ItemFilter>?,
+        nameLessThan: String?,
+    ): Int {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getPerson(personId: UUID): FindroidPerson {
         TODO("Not yet implemented")
     }

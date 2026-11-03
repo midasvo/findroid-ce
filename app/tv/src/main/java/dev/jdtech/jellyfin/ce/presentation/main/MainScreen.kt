@@ -51,6 +51,7 @@ import androidx.tv.material3.ModalNavigationDrawer
 import androidx.tv.material3.NavigationDrawerItem
 import androidx.tv.material3.Text
 import androidx.tv.material3.rememberDrawerState
+import dev.jdtech.jellyfin.ce.presentation.film.FavoritesScreen
 import dev.jdtech.jellyfin.ce.presentation.film.HomeScreen
 import dev.jdtech.jellyfin.ce.presentation.film.LibraryScreen
 import dev.jdtech.jellyfin.ce.presentation.film.SearchScreen
@@ -130,6 +131,13 @@ fun MainScreen(
                 navigateToCollection = navigateToCollection,
             )
         },
+        favoritesContent = {
+            FavoritesScreen(
+                navigateToMovie = navigateToMovie,
+                navigateToShow = navigateToShow,
+                navigateToEpisode = navigateToEpisode,
+            )
+        },
         libraryContent = { library ->
             LibraryScreen(
                 libraryId = library.id,
@@ -164,6 +172,7 @@ fun MainScreenLayout(
     modifier: Modifier = Modifier,
     homeContent: @Composable () -> Unit,
     searchContent: @Composable () -> Unit,
+    favoritesContent: @Composable () -> Unit,
     libraryContent: @Composable (library: FindroidCollection) -> Unit,
 ) {
     val context = LocalContext.current
@@ -416,11 +425,7 @@ fun MainScreenLayout(
                         searchContent()
                     }
                     activeDestinationKey == DESTINATION_FAVORITES -> {
-                        PlaceholderDestinationScreen(
-                            icon = CoreR.drawable.ic_heart,
-                            titleRes = CoreR.string.title_favorite,
-                            modifier = Modifier.testTag("placeholder_favorites"),
-                        )
+                        favoritesContent()
                     }
                     activeDestinationKey.startsWith("library:") -> {
                         val libraryIdString = activeDestinationKey.removePrefix("library:")

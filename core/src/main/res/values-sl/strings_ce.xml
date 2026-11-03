@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="browse_library">Prebrskaj knjižnico</string>
     <string name="cancel_download_button">Prekliči prenos</string>
@@ -86,5 +86,7 @@
     <string name="restart">Od začetka</string>
     <string name="season_episode_number">S%1$d E%2$d</string>
     <string name="ends_at">Konec ob %1$s</string>
+    <string name="year_range_continuing">%1$d – danes</string>
     <string name="shuffle">Naključno</string>
+    <string name="favorites_empty_body">Izberite ikono srca pri katerem koli filmu, seriji ali epizodi, da ga dodate med priljubljene.</string>
 </resources>

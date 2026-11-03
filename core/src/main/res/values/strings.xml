@@ -38,6 +38,7 @@
     <string name="series_poster">Series poster</string>
     <string name="collection_no_media">This collection does not contain any media</string>
     <string name="no_favorites">You have no favorites</string>
+    <string name="favorites_empty_body">Select the heart icon on any movie, show, or episode to add it to your favorites.</string>
     <string name="no_downloads">You have nothing downloaded</string>
     <string name="search">Search</string>
     <string name="no_search_results">No search results</string>
@@ -58,6 +59,7 @@
     <string name="shuffle">Shuffle</string>
     <string name="season_episode_number">S%1$d E%2$d</string>
     <string name="ends_at">Ends at %1$s</string>
+    <string name="year_range_continuing">%1$d – present</string>
     <string name="hide">Hide</string>
     <string name="toggle_watched">Hide watched</string>
     <string name="copy_text_action">Copy text</string>

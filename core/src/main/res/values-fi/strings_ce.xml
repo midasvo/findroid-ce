@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="browse_library">Selaa kirjastoa</string>
     <string name="cancel_download_button">Peruuta lataus</string>
@@ -80,5 +80,7 @@
     <string name="restart">Alusta</string>
     <string name="season_episode_number">K%1$d J%2$d</string>
     <string name="ends_at">Päättyy klo %1$s</string>
+    <string name="year_range_continuing">%1$d – nykyhetki</string>
     <string name="shuffle">Sekoita</string>
+    <string name="favorites_empty_body">Lisää elokuva, sarja tai jakso suosikkeihisi valitsemalla sydänkuvake.</string>
 </resources>

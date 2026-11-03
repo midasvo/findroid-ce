@@ -10,6 +10,42 @@ _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.2.0-ce.5] — 2026-11-02
+
+The first CE release with an Android TV app: its own Home, library, search, season and player
+screens built for the remote. Plus CE branding throughout.
+
+### Added
+- Android TV APKs ship with every release, as `findroid-ce-v<version>-libre-tv-<abi>.apk`. 32-bit TV
+  boxes such as the Xiaomi Mi Box need `armeabi-v7a`. The TV app has CE's own screens (#121):
+  - A side navigation drawer, and layouts that keep clear of the TV's safe area (#127).
+  - Home with a hero area for the focused item: logo or title, info line, overview and backdrop.
+    Rows refresh in the background without reshuffling, and focus comes back to the same item. A
+    Suggestions row replaces the carousel (#132).
+  - A library grid with an A–Z jump bar when sorting by name, a position counter, the year under
+    each title, and title cards for items without artwork (#135).
+  - A favorites page (#137) and a search screen (#128).
+  - Episodes open in their season instead of playing right away, with the episode's details,
+    media chips, Play/Resume, Restart, Watched, Favourite, a version picker and season chips (#130).
+  - A player built for the remote: seeking, media keys, audio and subtitle dialogs, the series and
+    episode name, elapsed and remaining time, "Ends at", a clock, previous/next, and an "Up next"
+    queue. Playback errors show a message with a way out instead of a black screen (#124, #125,
+    #131).
+  - Focus is restored when you come back to the library, a show or a season (#124).
+  - Dates follow the app language, and shows get a shuffle button (#141).
+
+### Changed
+- The remaining Findroid names and upstream links are replaced with CE branding (#122).
+
+### Fixed
+- TV: collections open, trailers play, and every player setting can be reached (#129). Episodes in
+  a collection open in their season (#129).
+- TV: focus stays put when you switch drawer destinations (#127).
+
+### Maintenance
+- Synced with upstream findroid: Portuguese (Brazil) translations.
+- Android TV research and roadmap in `docs/tv-research`.
+
 ## [v1.2.0-ce.4] — 2026-11-02
 
 Background audio, audio and subtitle choices that carry over to the next episode, and Smart
@@ -459,6 +495,7 @@ Initial CE fork off findroid `1.0.2`. These rapid early iterations established t
 `nl.midasvo.findroid.ce` application ID, downloads and SD-card storage improvements, and ongoing
 tracking of upstream. See the git history between the corresponding tags for commit-level detail.
 
+[v1.2.0-ce.5]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.5
 [v1.2.0-ce.4]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.4
 [v1.2.0-ce.3]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.3
 [v1.2.0-ce.2]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.2

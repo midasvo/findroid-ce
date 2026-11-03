@@ -14,4 +14,6 @@ data class LibraryState(
     val filterWatched: Boolean = false,
     val isLoading: Boolean = false,
     val error: Exception? = null,
+    /** CE: the A–Z jump bar, only when sorting by name in an indexed library. */
+    val letterIndex: LetterIndex? = null,
 )
