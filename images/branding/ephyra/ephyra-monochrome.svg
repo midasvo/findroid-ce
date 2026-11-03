@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-100 -100 200 200" width="512" height="512">
+  <defs>
+    <path id="ephArm" d="M -22 -28 C -20 -45 -14 -55 -14 -62 C -22 -70 -26 -84 -18 -90 C -12 -95 -4 -92 -2 -84 C -1 -80 1 -80 2 -84 C 4 -92 12 -95 18 -90 C 26 -84 22 -70 14 -62 C 14 -55 20 -45 22 -28 Z"/>
+    <mask id="ephCanals">
+      <rect x="-100" y="-100" width="200" height="200" fill="#FFFFFF"/>
+      <g stroke="#000000" stroke-width="4" stroke-linecap="round" fill="none">
+        <path d="M 0 -22 L 0 -68" transform="rotate(0)"/>
+        <path d="M 0 -22 L 0 -68" transform="rotate(45)"/>
+        <path d="M 0 -22 L 0 -68" transform="rotate(90)"/>
+        <path d="M 0 -22 L 0 -68" transform="rotate(135)"/>
+        <path d="M 0 -22 L 0 -68" transform="rotate(180)"/>
+        <path d="M 0 -22 L 0 -68" transform="rotate(225)"/>
+        <path d="M 0 -22 L 0 -68" transform="rotate(270)"/>
+        <path d="M 0 -22 L 0 -68" transform="rotate(315)"/>
+      </g>
+      <circle r="10" fill="#000000"/>
+    </mask>
+  </defs>
+  <g fill="#000000" mask="url(#ephCanals)">
+    <circle r="44"/>
+    <use href="#ephArm" transform="rotate(0)"/>
+    <use href="#ephArm" transform="rotate(45)"/>
+    <use href="#ephArm" transform="rotate(90)"/>
+    <use href="#ephArm" transform="rotate(135)"/>
+    <use href="#ephArm" transform="rotate(180)"/>
+    <use href="#ephArm" transform="rotate(225)"/>
+    <use href="#ephArm" transform="rotate(270)"/>
+    <use href="#ephArm" transform="rotate(315)"/>
+  </g>
+</svg>
