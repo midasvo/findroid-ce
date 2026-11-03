@@ -21,6 +21,10 @@ val keystoreProps: Properties? =
 // run number, which marks the staging build as a beta and keeps its versionCode increasing.
 val betaBuild: Int? = System.getenv("BETA_BUILD")?.toIntOrNull()
 
+// CE-owned: phone and TV share one application ID (ADR 0005), but Play needs a unique versionCode
+// per upload and F-Droid offers the highest compatible one. So the TV release sits above phone.
+val tvReleaseCodeOffset = 10_000
+
 java { toolchain { languageVersion = Versions.JAVA } }
 
 android {
@@ -122,6 +126,9 @@ androidComponents {
             // phone and TV APK (one application ID, ADR 0005) is never a downgrade.
             if (variant.buildType == "staging" && betaBuild != null) {
                 output.versionCode.set(1_000_000 + betaBuild)
+            }
+            if (variant.buildType == "release") {
+                output.versionCode.set(Versions.APP_CODE + tvReleaseCodeOffset)
             }
             val abi =
                 output.filters
