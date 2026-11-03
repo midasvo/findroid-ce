@@ -4,95 +4,70 @@
     .tag { font-family: Outfit, "Segoe UI", sans-serif; font-weight: 400; fill: #B9C3F5; }
     .small { font-family: Outfit, "Segoe UI", sans-serif; font-weight: 300; fill: #7F8BC9; letter-spacing: 0.08em; }</style>
   <defs>
-    <linearGradient id="tvBg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#13265A"/>
-      <stop offset="1" stop-color="#060C20"/>
+    <linearGradient id="wideBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1A2F6B"/>
+      <stop offset="1" stop-color="#070D22"/>
     </linearGradient>
-    <radialGradient id="tvBgHalo" cx="0.25" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#5B6CF0" stop-opacity="0.45"/>
+    <radialGradient id="wideBgHalo" cx="0.25" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#5B6CF0" stop-opacity="0.35"/>
       <stop offset="1" stop-color="#5B6CF0" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="ephBody" cx="0" cy="0" r="96" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#F0FDFF"/>
-      <stop offset="0.28" stop-color="#7DEBFA"/>
-      <stop offset="0.66" stop-color="#8B93F8"/>
-      <stop offset="1" stop-color="#C792FC"/>
+    <radialGradient id="ephGlow" cx="0" cy="-30" r="110" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#9B7CF6" stop-opacity="0.55"/>
+      <stop offset="0.5" stop-color="#4FD8F0" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#4FD8F0" stop-opacity="0"/>
     </radialGradient>
-    <filter id="ephGlow" x="-60%" y="-60%" width="220%" height="220%">
-      <feGaussianBlur stdDeviation="9"/>
-    </filter>
-    <path id="ephArm" d="M -22 -28 C -20 -45 -14 -55 -14 -62 C -22 -70 -26 -84 -18 -90 C -12 -95 -4 -92 -2 -84 C -1 -80 1 -80 2 -84 C 4 -92 12 -95 18 -90 C 26 -84 22 -70 14 -62 C 14 -55 20 -45 22 -28 Z"/>
-    <g id="ephShape">
-      <circle r="44"/>
-      <use href="#ephArm" transform="rotate(0)"/>
-      <use href="#ephArm" transform="rotate(45)"/>
-      <use href="#ephArm" transform="rotate(90)"/>
-      <use href="#ephArm" transform="rotate(135)"/>
-      <use href="#ephArm" transform="rotate(180)"/>
-      <use href="#ephArm" transform="rotate(225)"/>
-      <use href="#ephArm" transform="rotate(270)"/>
-      <use href="#ephArm" transform="rotate(315)"/>
-    </g>
     <g id="ephMark">
-      <use href="#ephShape" fill="#8B93F8" opacity="0.55" filter="url(#ephGlow)"/>
-      <use href="#ephShape" fill="url(#ephBody)"/>
-      <g stroke="#FFFFFF" stroke-opacity="0.32" stroke-width="3" stroke-linecap="round" fill="none">
-        <path d="M 0 -20 L 0 -70" transform="rotate(0)"/>
-        <path d="M 0 -20 L 0 -70" transform="rotate(45)"/>
-        <path d="M 0 -20 L 0 -70" transform="rotate(90)"/>
-        <path d="M 0 -20 L 0 -70" transform="rotate(135)"/>
-        <path d="M 0 -20 L 0 -70" transform="rotate(180)"/>
-        <path d="M 0 -20 L 0 -70" transform="rotate(225)"/>
-        <path d="M 0 -20 L 0 -70" transform="rotate(270)"/>
-        <path d="M 0 -20 L 0 -70" transform="rotate(315)"/>
+      <g transform="translate(0 -8)">
+        <circle cy="-30" r="110" fill="url(#ephGlow)"/>
+        <path d="M -64 -2 C -64 -40 -36 -66 0 -66 C 36 -66 64 -40 64 -2 Z" fill="#9B7CF6"/>
+        <path d="M -64 -2 C -64 -40 -36 -66 0 -66 C 12 -66 22 -63 30 -58 C 6 -44 -4 -22 2 -2 Z" fill="#4FD8F0"/>
+        <path d="M -46 -20 C -45 -40 -30 -54 -10 -57 C -27 -47 -38 -36 -38 -20 A 4 4 0 0 1 -46 -20 Z" fill="#E4FBFF" opacity="0.85"/>
+        <g fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 11 6 L 11 80 M 36 6 L 36 46 C 36 58 29 62 26 76 M 36 46 C 36 58 43 62 46 76 M 58 6 C 58 28 72 34 77 18" stroke="#9B7CF6"/>
+          <path d="M -11 6 L -11 80 M -36 6 L -36 46 C -36 58 -43 62 -46 76 M -36 46 C -36 58 -29 62 -26 76 M -58 6 C -58 28 -72 34 -77 18" stroke="#4FD8F0"/>
+        </g>
       </g>
-      <g fill="#FFFFFF">
-        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(0)"/>
-        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(45)"/>
-        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(90)"/>
-        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(135)"/>
-        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(180)"/>
-        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(225)"/>
-        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(270)"/>
-        <circle cx="0" cy="-80.5" r="2.4" transform="rotate(315)"/>
-      </g>
-      <g fill="#FFFFFF" opacity="0.55">
-        <ellipse cx="0" cy="-11" rx="5.5" ry="9" transform="rotate(45)"/>
-        <ellipse cx="0" cy="-11" rx="5.5" ry="9" transform="rotate(135)"/>
-        <ellipse cx="0" cy="-11" rx="5.5" ry="9" transform="rotate(225)"/>
-        <ellipse cx="0" cy="-11" rx="5.5" ry="9" transform="rotate(315)"/>
-      </g>
-      <circle r="8" fill="#FFFFFF" opacity="0.95"/>
     </g>
   </defs>
-  <rect width="640" height="360" fill="url(#tvBg)"/>
-  <rect width="640" height="360" fill="url(#tvBgHalo)"/>
-    <circle cx="126.6" cy="280.5" r="2.0" fill="#C792FC" opacity="0.26"/>
-    <circle cx="475.1" cy="147.0" r="2.7" fill="#C792FC" opacity="0.45"/>
-    <circle cx="524.7" cy="232.2" r="1.6" fill="#C792FC" opacity="0.27"/>
-    <circle cx="218.6" cy="321.2" r="1.9" fill="#7DEBFA" opacity="0.37"/>
-    <circle cx="103.2" cy="240.2" r="2.6" fill="#7DEBFA" opacity="0.22"/>
-    <circle cx="86.5" cy="304.9" r="2.3" fill="#C792FC" opacity="0.32"/>
-    <circle cx="269.9" cy="175.1" r="2.3" fill="#7DEBFA" opacity="0.68"/>
-    <circle cx="475.8" cy="199.3" r="2.9" fill="#7DEBFA" opacity="0.55"/>
-    <circle cx="12.5" cy="34.9" r="2.6" fill="#C792FC" opacity="0.41"/>
-    <circle cx="427.4" cy="177.4" r="3.3" fill="#C792FC" opacity="0.35"/>
-    <circle cx="178.0" cy="289.4" r="2.5" fill="#7DEBFA" opacity="0.51"/>
-    <circle cx="557.3" cy="294.4" r="3.1" fill="#C792FC" opacity="0.64"/>
-    <circle cx="629.3" cy="204.4" r="2.0" fill="#C792FC" opacity="0.26"/>
-    <circle cx="134.4" cy="195.5" r="2.4" fill="#C792FC" opacity="0.42"/>
-    <circle cx="328.3" cy="113.1" r="1.3" fill="#7DEBFA" opacity="0.39"/>
-    <circle cx="164.4" cy="359.0" r="3.4" fill="#C792FC" opacity="0.19"/>
-    <circle cx="80.3" cy="57.7" r="2.1" fill="#C792FC" opacity="0.36"/>
-    <circle cx="527.0" cy="226.9" r="2.5" fill="#C792FC" opacity="0.34"/>
-    <circle cx="231.3" cy="9.2" r="1.4" fill="#7DEBFA" opacity="0.55"/>
-    <circle cx="448.0" cy="329.1" r="3.0" fill="#7DEBFA" opacity="0.24"/>
-    <circle cx="87.9" cy="101.9" r="2.3" fill="#7DEBFA" opacity="0.27"/>
-    <circle cx="592.9" cy="303.9" r="1.9" fill="#C792FC" opacity="0.31"/>
-    <circle cx="256.6" cy="99.2" r="1.7" fill="#7DEBFA" opacity="0.38"/>
-    <circle cx="422.7" cy="65.8" r="2.3" fill="#C792FC" opacity="0.32"/>
-    <circle cx="607.8" cy="13.4" r="2.6" fill="#C792FC" opacity="0.65"/>
-    <circle cx="39.1" cy="264.0" r="2.2" fill="#C792FC" opacity="0.37"/>
-  <use href="#ephMark" transform="translate(165 180) scale(1.2)"/>
-  <text class="word" x="300" y="208" font-size="92">Ephyra</text>
+  <rect width="640" height="360" fill="url(#wideBg)"/>
+  <rect width="640" height="360" fill="url(#wideBgHalo)"/>
+    <circle cx="126.6" cy="280.5" r="2.0" fill="#9B7CF6" opacity="0.26"/>
+    <circle cx="475.1" cy="147.0" r="2.7" fill="#9B7CF6" opacity="0.45"/>
+    <circle cx="524.7" cy="232.2" r="1.6" fill="#9B7CF6" opacity="0.27"/>
+    <circle cx="218.6" cy="321.2" r="1.9" fill="#4FD8F0" opacity="0.37"/>
+    <circle cx="103.2" cy="240.2" r="2.6" fill="#4FD8F0" opacity="0.22"/>
+    <circle cx="86.5" cy="304.9" r="2.3" fill="#9B7CF6" opacity="0.32"/>
+    <circle cx="269.9" cy="175.1" r="2.3" fill="#4FD8F0" opacity="0.68"/>
+    <circle cx="475.8" cy="199.3" r="2.9" fill="#4FD8F0" opacity="0.55"/>
+    <circle cx="12.5" cy="34.9" r="2.6" fill="#9B7CF6" opacity="0.41"/>
+    <circle cx="427.4" cy="177.4" r="3.3" fill="#9B7CF6" opacity="0.35"/>
+    <circle cx="178.0" cy="289.4" r="2.5" fill="#4FD8F0" opacity="0.51"/>
+    <circle cx="557.3" cy="294.4" r="3.1" fill="#9B7CF6" opacity="0.64"/>
+    <circle cx="629.3" cy="204.4" r="2.0" fill="#9B7CF6" opacity="0.26"/>
+    <circle cx="134.4" cy="195.5" r="2.4" fill="#9B7CF6" opacity="0.42"/>
+    <circle cx="328.3" cy="113.1" r="1.3" fill="#4FD8F0" opacity="0.39"/>
+    <circle cx="164.4" cy="359.0" r="3.4" fill="#9B7CF6" opacity="0.19"/>
+    <circle cx="80.3" cy="57.7" r="2.1" fill="#9B7CF6" opacity="0.36"/>
+    <circle cx="527.0" cy="226.9" r="2.5" fill="#9B7CF6" opacity="0.34"/>
+    <circle cx="231.3" cy="9.2" r="1.4" fill="#4FD8F0" opacity="0.55"/>
+    <circle cx="448.0" cy="329.1" r="3.0" fill="#4FD8F0" opacity="0.24"/>
+    <circle cx="87.9" cy="101.9" r="2.3" fill="#4FD8F0" opacity="0.27"/>
+    <circle cx="592.9" cy="303.9" r="1.9" fill="#9B7CF6" opacity="0.31"/>
+    <circle cx="256.6" cy="99.2" r="1.7" fill="#4FD8F0" opacity="0.38"/>
+    <circle cx="422.7" cy="65.8" r="2.3" fill="#9B7CF6" opacity="0.32"/>
+    <circle cx="607.8" cy="13.4" r="2.6" fill="#9B7CF6" opacity="0.65"/>
+    <circle cx="39.1" cy="264.0" r="2.2" fill="#9B7CF6" opacity="0.37"/>
+    <circle cx="33.7" cy="259.4" r="2.1" fill="#9B7CF6" opacity="0.15"/>
+    <circle cx="639.6" cy="122.1" r="2.9" fill="#9B7CF6" opacity="0.49"/>
+    <circle cx="392.0" cy="112.4" r="2.2" fill="#4FD8F0" opacity="0.40"/>
+    <circle cx="70.7" cy="65.3" r="2.5" fill="#9B7CF6" opacity="0.38"/>
+    <circle cx="205.6" cy="10.3" r="3.0" fill="#4FD8F0" opacity="0.62"/>
+    <circle cx="167.7" cy="356.1" r="2.9" fill="#4FD8F0" opacity="0.53"/>
+    <circle cx="639.9" cy="284.4" r="1.5" fill="#4FD8F0" opacity="0.60"/>
+    <circle cx="530.5" cy="7.4" r="2.6" fill="#4FD8F0" opacity="0.64"/>
+    <circle cx="505.2" cy="276.1" r="2.8" fill="#9B7CF6" opacity="0.46"/>
+  <use href="#ephMark" transform="translate(150 180) scale(1.25)"/>
+  <text class="word" x="270" y="212" font-size="96">Ephyra</text>
+
 </svg>
