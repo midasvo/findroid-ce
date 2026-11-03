@@ -805,7 +805,10 @@ class SettingsViewModel @Inject constructor(
                                                         R.string.pref_player_trickplay,
                                                     descriptionStringRes =
                                                         R.string.pref_player_trickplay_summary,
-                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
+                                                    // CE (#134): the TV player shows thumbnails
+                                                    // while seeking too.
+                                                    supportedDeviceTypes =
+                                                        listOf(DeviceType.PHONE, DeviceType.TV),
                                                     backendPreference =
                                                         appPreferences.playerTrickplay,
                                                 ),

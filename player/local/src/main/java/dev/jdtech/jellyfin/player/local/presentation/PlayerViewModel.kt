@@ -48,6 +48,9 @@ import dev.jdtech.jellyfin.player.local.domain.StoredChoice
 import dev.jdtech.jellyfin.player.local.domain.StillWatchingTracker
 import dev.jdtech.jellyfin.player.local.domain.TrackCandidate
 import dev.jdtech.jellyfin.player.local.domain.TrickplayLoader
+import dev.jdtech.jellyfin.player.local.domain.TrickplayRegionLoader
+import dev.jdtech.jellyfin.player.local.domain.TrickplayTiles
+import dev.jdtech.jellyfin.player.local.domain.TV_TRICKPLAY_WIDTH_DP
 import dev.jdtech.jellyfin.player.local.domain.autoPlayNextFollowsServer
 import dev.jdtech.jellyfin.player.local.domain.buildMediaSourceFactory
 import dev.jdtech.jellyfin.player.local.domain.matchSeriesTrack
@@ -58,6 +61,7 @@ import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.repository.PlaybackEvents
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.settings.domain.Constants
+import dev.jdtech.jellyfin.settings.presentation.enums.AppVariant
 import java.util.UUID
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
@@ -96,6 +100,7 @@ constructor(
     private val sessionStore: PlaybackSessionStore,
     private val database: ServerDatabaseDao,
     private val jellyfinApi: JellyfinApi,
+    private val appVariant: AppVariant,
 ) : ViewModel(), Player.Listener {
     val player: Player
 
@@ -1305,6 +1310,10 @@ constructor(
     }
 
     private suspend fun getTrickplay(item: PlayerItem) {
+        if (appVariant == AppVariant.TV) {
+            getTvTrickplay(item)
+            return
+        }
         val trickplayInfo = item.trickplayInfo ?: return
         Timber.d("Trickplay Resolution: ${trickplayInfo.width}")
 
@@ -1371,6 +1380,41 @@ constructor(
                 it.copy(currentTrickplay = Trickplay(trickplayInfo.interval, bitmaps))
             }
         }
+    }
+
+    /**
+     * CE (#134): the TV box is weak and 32-bit, so TV always takes the lazy path, decoding one
+     * thumbnail at a time at the size it's shown at. The sheet for the start position is fetched
+     * right away, so the first seek shows a thumbnail without waiting for the network.
+     */
+    private fun getTvTrickplay(item: PlayerItem) {
+        _uiState.value.currentTrickplay?.loader?.release()
+        val trickplayInfo = item.trickplayInfo
+        if (trickplayInfo == null) {
+            _uiState.update { it.copy(currentTrickplay = null) }
+            return
+        }
+        val tiles =
+            TrickplayTiles(
+                width = trickplayInfo.width,
+                height = trickplayInfo.height,
+                tileWidth = trickplayInfo.tileWidth,
+                tileHeight = trickplayInfo.tileHeight,
+                thumbnailCount = trickplayInfo.thumbnailCount,
+                interval = trickplayInfo.interval,
+            )
+        val loader =
+            TrickplayRegionLoader(
+                repository = repository,
+                itemId = item.itemId,
+                tiles = tiles,
+                targetWidth =
+                    (TV_TRICKPLAY_WIDTH_DP * application.resources.displayMetrics.density).toInt(),
+            )
+        _uiState.update {
+            it.copy(currentTrickplay = Trickplay(trickplayInfo.interval, loader = loader))
+        }
+        viewModelScope.launch { loader.prefetch(item.playbackPosition) }
     }
 
     fun skipSegment(segment: FindroidSegment) {

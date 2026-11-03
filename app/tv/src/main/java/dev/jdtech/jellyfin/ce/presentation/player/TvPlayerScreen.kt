@@ -87,6 +87,7 @@ import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.di.SubtitleStyleEntryPoint
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
+import dev.jdtech.jellyfin.player.core.domain.models.Trickplay
 import dev.jdtech.jellyfin.player.local.R as PlayerR
 import dev.jdtech.jellyfin.player.local.domain.getTrackNames
 import dev.jdtech.jellyfin.player.local.presentation.PlayerAction
@@ -363,13 +364,32 @@ fun TvPlayerScreen(
             modifier = Modifier.fillMaxSize(),
         )
 
+        // CE (#134): with the controls hidden, the thumbnail sits above the seek indicator.
+        val indicatorFrame =
+            rememberTrickplayFrame(
+                uiState.currentTrickplay,
+                seekIndicator?.targetMs?.takeIf { !controlsVisible },
+            )
         seekIndicator?.let { indicator ->
             if (!controlsVisible) {
-                SeekIndicatorView(
-                    indicator = indicator,
-                    durationMs = progress.durationMs,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier =
+                        Modifier.align(Alignment.TopCenter).padding(top = MaterialTheme.spacings.large),
+                ) {
+                    indicatorFrame?.let {
+                        TrickplayThumbnail(
+                            frame = it,
+                            timeText = null,
+                            modifier = Modifier.padding(bottom = MaterialTheme.spacings.small),
+                        )
+                    }
+                    SeekIndicatorView(
+                        indicator = indicator,
+                        durationMs = progress.durationMs,
+                        modifier = Modifier,
+                    )
+                }
             }
         }
 
@@ -420,6 +440,7 @@ fun TvPlayerScreen(
                 isPlaying = progress.isPlaying,
                 pendingSeekMs = pendingSeekMs,
                 onPendingSeekChange = { pendingSeekMs = it },
+                trickplay = uiState.currentTrickplay,
                 seekSettings = seekSettings,
                 chapterMarkers =
                     remember(uiState.currentChapters, progress.durationMs) {
@@ -529,6 +550,7 @@ private fun PlayerControls(
     isPlaying: Boolean,
     pendingSeekMs: Long?,
     onPendingSeekChange: (Long?) -> Unit,
+    trickplay: Trickplay?,
     seekSettings: TvSeekSettings,
     chapterMarkers: List<Float>,
     hasChapters: Boolean,
@@ -603,17 +625,34 @@ private fun PlayerControls(
                     color = Color.White,
                 )
             }
-            TvSeekBar(
-                positionMs = positionMs,
-                durationMs = durationMs,
-                backStepMs = seekSettings.backMs,
-                forwardStepMs = seekSettings.forwardMs,
-                pendingMs = pendingSeekMs,
-                onPendingChange = onPendingSeekChange,
-                onSeek = onSeek,
-                onInteraction = onInteraction,
-                chapterMarkers = chapterMarkers,
-            )
+            Box(modifier = Modifier.fillMaxWidth()) {
+                TvSeekBar(
+                    positionMs = positionMs,
+                    durationMs = durationMs,
+                    backStepMs = seekSettings.backMs,
+                    forwardStepMs = seekSettings.forwardMs,
+                    pendingMs = pendingSeekMs,
+                    onPendingChange = onPendingSeekChange,
+                    onSeek = onSeek,
+                    onInteraction = onInteraction,
+                    chapterMarkers = chapterMarkers,
+                )
+                // CE (#134): the thumbnail of the pending position, above the bar where it lands.
+                val frame = rememberTrickplayFrame(trickplay, pendingSeekMs)
+                if (frame != null && pendingSeekMs != null) {
+                    TrickplayThumbnail(
+                        frame = frame,
+                        timeText = formatTime(pendingSeekMs),
+                        modifier =
+                            Modifier.aboveAt(
+                                fraction =
+                                    if (durationMs > 0) pendingSeekMs.toFloat() / durationMs
+                                    else 0f,
+                                gap = MaterialTheme.spacings.medium,
+                            ),
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(MaterialTheme.spacings.extraSmall))
             Row(
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
@@ -927,7 +966,6 @@ private fun SeekIndicatorView(indicator: SeekIndicator, durationMs: Long, modifi
         verticalAlignment = Alignment.CenterVertically,
         modifier =
             modifier
-                .padding(top = MaterialTheme.spacings.large)
                 .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(24.dp))
                 .padding(horizontal = MaterialTheme.spacings.medium, vertical = MaterialTheme.spacings.small),
     ) {
