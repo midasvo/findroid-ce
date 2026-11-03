@@ -13,11 +13,15 @@ following the Findroid version they were based on.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [v2.0.0] — 2026-11-03
 
 **Findroid CE is now Ephyra.** Same app, new name and icon. The update installs over Findroid CE as
 usual: the application ID stays `nl.midasvo.findroid.ce`, so your login, settings and downloads are
-all still there. Nothing else changes.
+all still there. Nothing else changes in how the app works.
+
+From here on Ephyra has its own version numbers, so this release is 2.0.0 rather than another
+1.2.0-ce release. The next ones follow [Semantic Versioning](https://semver.org/): 2.1.0 for new
+features, 2.0.1 for fixes.
 
 ### Changed
 - The app is called Ephyra, with a new icon: a young jellyfish whose tentacles fork. The launcher,
@@ -30,6 +34,9 @@ all still there. Nothing else changes.
   "Ephyra Download Profile" (#172).
 - Ephyra has its own version numbers, starting at 2.0.0, instead of following Findroid's. Betas are
   now named after the next version, such as `2.0.1-beta.12` (#181).
+- The project moved to [github.com/midasvo/ephyra](https://github.com/midasvo/ephyra), and the About
+  screen links there. The old `midasvo/findroid-ce` address redirects, so Obtainium keeps finding
+  updates (#174).
 
 ## [v1.2.0-ce.6] — 2026-11-03
 
@@ -556,6 +563,7 @@ Initial CE fork off findroid `1.0.2`. These rapid early iterations established t
 `nl.midasvo.findroid.ce` application ID, downloads and SD-card storage improvements, and ongoing
 tracking of upstream. See the git history between the corresponding tags for commit-level detail.
 
+[v2.0.0]: https://github.com/midasvo/ephyra/releases/tag/v2.0.0
 [v1.2.0-ce.6]: https://github.com/midasvo/ephyra/releases/tag/v1.2.0-ce.6
 [v1.2.0-ce.5]: https://github.com/midasvo/ephyra/releases/tag/v1.2.0-ce.5
 [v1.2.0-ce.4]: https://github.com/midasvo/ephyra/releases/tag/v1.2.0-ce.4
