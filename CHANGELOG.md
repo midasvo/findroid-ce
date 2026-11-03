@@ -10,6 +10,46 @@ _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.2.0-ce.6] — 2026-11-03
+
+Android TV is stable. One release after the TV app first shipped, it has what a living-room
+Jellyfin client needs: Continue Watching on the TV's own home screen, trickplay while seeking,
+refresh rate switching, cast and person pages, theme music and a screensaver, all built for the
+remote and tested on a 32-bit Xiaomi box. And on phone and TV alike, you choose which Home rows
+show, and in what order.
+
+### Added
+- Home rows you arrange yourself: Settings → Interface → Home rows lists Suggestions, Continue
+  Watching, Next Up, Latest per library and a new Favorites row. Hide any of them or move them up
+  and down, on phone and on TV. The layout is kept per server and user, and starts from your old
+  Display settings, so nothing changes until you change it (#142).
+- TV: Continue Watching and Next Up appear in the Android TV home screen's Watch Next row. Picking
+  one resumes it straight away, with its page underneath. Items you remove from the row stay away
+  until you watch them again. A switch under Settings → Interface turns it off (#138).
+- TV: trickplay thumbnails while seeking, both with the controls shown and when seeking with
+  Left/Right. Thumbnails are decoded one at a time, so they fit in a 32-bit box's memory (#134).
+- TV: Match display refresh rate switches the display to the video's frame rate during playback
+  (#139).
+- TV: a cast row on movies and shows, and a page per person with their work (#136).
+- TV: a series' theme song plays softly on its show page, off by default. It fades out when you
+  leave, play something or the screensaver starts, and stays quiet when another app is playing
+  audio (#141).
+- TV: a screensaver with random backdrops from your whole library (#140).
+
+### Changed
+- TV: Home feels quicker. The backdrops of the cards next to the focused one load ahead of time,
+  so moving along a row no longer waits on the network, and the image cache on TV is 100 MB unless
+  you picked a size (#155).
+- TV: settings that only make sense on a phone, such as gestures, are hidden (#133).
+
+### Fixed
+- TV: the next-episode threshold setting can be reached again (#133).
+- TV: the trickplay thumbnail no longer covers the "Ends at" time (#134).
+
+### Maintenance
+- Synced with upstream findroid: Korean and Portuguese (Brazil) translations.
+- README with an Android TV section and screenshots (#167).
+
 ## [v1.2.0-ce.5] — 2026-11-02
 
 The first CE release with an Android TV app: its own Home, library, search, season and player
@@ -495,6 +535,7 @@ Initial CE fork off findroid `1.0.2`. These rapid early iterations established t
 `nl.midasvo.findroid.ce` application ID, downloads and SD-card storage improvements, and ongoing
 tracking of upstream. See the git history between the corresponding tags for commit-level detail.
 
+[v1.2.0-ce.6]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.6
 [v1.2.0-ce.5]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.5
 [v1.2.0-ce.4]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.4
 [v1.2.0-ce.3]: https://github.com/midasvo/findroid-ce/releases/tag/v1.2.0-ce.3
