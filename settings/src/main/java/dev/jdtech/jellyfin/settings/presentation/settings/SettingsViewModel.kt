@@ -714,7 +714,6 @@ class SettingsViewModel @Inject constructor(
                                                     nameStringResource =
                                                         R.string
                                                             .pref_player_media_segments_next_episode_threshold,
-                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences
                                                             .playerMediaSegmentsNextEpisodeThreshold,

@@ -148,7 +148,9 @@ class SettingsTreeVariantTest {
         assertFalse(names.contains(SettingsR.string.pref_player_media_segments_auto_skip))
         assertFalse(names.contains(SettingsR.string.pref_player_media_segments_auto_skip_mode))
         assertFalse(names.contains(SettingsR.string.pref_player_media_segments_auto_skip_type))
-        assertFalse(
+
+        // The next-episode threshold has no per-type replacement, so TV keeps it
+        assertTrue(
             names.contains(SettingsR.string.pref_player_media_segments_next_episode_threshold)
         )
 
