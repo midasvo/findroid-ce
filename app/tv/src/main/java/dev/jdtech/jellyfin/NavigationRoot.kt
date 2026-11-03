@@ -36,7 +36,8 @@ import dev.jdtech.jellyfin.presentation.setup.welcome.WelcomeScreen
 import dev.jdtech.jellyfin.setup.presentation.permission.PermissionAction
 import dev.jdtech.jellyfin.setup.presentation.permission.PermissionViewModel
 import dev.jdtech.jellyfin.ce.presentation.main.MainScreen
-import dev.jdtech.jellyfin.ui.MovieScreen
+import dev.jdtech.jellyfin.ce.presentation.film.MovieScreen
+import dev.jdtech.jellyfin.ce.presentation.film.PersonScreen
 import java.util.UUID
 import org.jellyfin.sdk.model.api.BaseItemKind
 
@@ -324,6 +325,10 @@ private fun EntryProviderScope<NavKey>.tvEntries(
                         )
                     )
                 },
+            navigateToPerson =
+                resumedAction { personId ->
+                    navigate(PersonRoute(personId = personId.toString()))
+                },
         )
     }
     entry<ShowRoute> { key ->
@@ -346,8 +351,22 @@ private fun EntryProviderScope<NavKey>.tvEntries(
                         )
                     )
                 },
+            navigateToPerson =
+                resumedAction { personId ->
+                    navigate(PersonRoute(personId = personId.toString()))
+                },
         )
     }
+    entry<PersonRoute> { key ->
+        PersonScreen(
+            personId = UUID.fromString(key.personId),
+            navigateToMovie = resumedAction { itemId -> navigate(MovieRoute(itemId.toString())) },
+            navigateToShow = resumedAction { itemId -> navigate(ShowRoute(itemId.toString())) },
+            navigateToEpisode =
+                resumedAction { episodeId -> navigate(EpisodeRoute(episodeId = episodeId.toString())) },
+        )
+    }
+
     entry<SeasonRoute> { key ->
         SeasonScreen(
             seasonId = UUID.fromString(key.seasonId),
