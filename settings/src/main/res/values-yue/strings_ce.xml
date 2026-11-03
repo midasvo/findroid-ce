@@ -98,6 +98,14 @@
     <string name="pref_player_tv_match_refresh_rate_summary">播放嗰陣切換顯示模式以符合影片幀率</string>
     <string name="pref_tv_watch_next">喺主畫面繼續觀看</string>
     <string name="pref_tv_watch_next_summary">喺 Android TV 主畫面顯示「繼續觀看」同「下一集」</string>
+    <string name="pref_tv_screensaver_title">螢幕保護程式</string>
+    <string name="pref_tv_screensaver_source">藝術圖來源</string>
+    <string name="pref_tv_screensaver_source_random">隨機</string>
+    <string name="pref_tv_screensaver_source_recently_added">最近新增</string>
+    <string name="pref_tv_screensaver_interval">切換間隔</string>
+    <string name="pref_tv_screensaver_interval_20s">20 秒</string>
+    <string name="pref_tv_screensaver_show_clock">顯示時鐘</string>
+    <string name="pref_tv_screensaver_show_clock_summary">喺螢幕保護程式上顯示目前時間</string>
     <string name="pref_tv_theme_music">主題音樂</string>
     <string name="pref_tv_theme_music_summary">如果伺服器有，就喺劇集頁面細聲播放佢嘅主題曲</string>
 </resources>

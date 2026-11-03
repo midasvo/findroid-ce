@@ -98,6 +98,14 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Lülita taasesituse ajal kuvarežiim video kaadrisagedusele vastavaks</string>
     <string name="pref_tv_watch_next">Jätka vaatamist avakuval</string>
     <string name="pref_tv_watch_next_summary">Kuva Jätka vaatamist ja Järgmisena Android TV avakuval</string>
+    <string name="pref_tv_screensaver_title">Ekraanisäästja</string>
+    <string name="pref_tv_screensaver_source">Piltide allikas</string>
+    <string name="pref_tv_screensaver_source_random">Juhuslik</string>
+    <string name="pref_tv_screensaver_source_recently_added">Hiljuti lisatud</string>
+    <string name="pref_tv_screensaver_interval">Vahetumise intervall</string>
+    <string name="pref_tv_screensaver_interval_20s">20 sekundit</string>
+    <string name="pref_tv_screensaver_show_clock">Kuva kell</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Praeguse kellaaja kuvamine ekraanisäästjal</string>
     <string name="pref_tv_theme_music">Tunnusmuusika</string>
     <string name="pref_tv_theme_music_summary">Mängi sarja lehel vaikselt selle tunnuslugu, kui serveris see on</string>
 </resources>

@@ -98,6 +98,14 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Byt skjermmodus for å matcha biletfrekvensen til videoen under avspeling</string>
     <string name="pref_tv_watch_next">Hald fram å sjå på startskjermen</string>
     <string name="pref_tv_watch_next_summary">Vis Hald fram å sjå og Neste på startskjermen til Android TV</string>
+    <string name="pref_tv_screensaver_title">Skjermsparar</string>
+    <string name="pref_tv_screensaver_source">Biletkjelde</string>
+    <string name="pref_tv_screensaver_source_random">Tilfeldig</string>
+    <string name="pref_tv_screensaver_source_recently_added">Nyleg lagt til</string>
+    <string name="pref_tv_screensaver_interval">Bytteintervall</string>
+    <string name="pref_tv_screensaver_interval_20s">20 sekund</string>
+    <string name="pref_tv_screensaver_show_clock">Vis klokke</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Vis gjeldande klokkeslett på skjermspararen</string>
     <string name="pref_tv_theme_music">Temamusikk</string>
     <string name="pref_tv_theme_music_summary">Spel temasongen til ein serie stille på sida hans, om tenaren har ein</string>
 </resources>

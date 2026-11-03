@@ -98,6 +98,14 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Växla skärmläge för att matcha videons bildfrekvens under uppspelning</string>
     <string name="pref_tv_watch_next">Fortsätt titta på startskärmen</string>
     <string name="pref_tv_watch_next_summary">Visa Fortsätt titta och Nästa på Android TV:s startskärm</string>
+    <string name="pref_tv_screensaver_title">Skärmsläckare</string>
+    <string name="pref_tv_screensaver_source">Bildkälla</string>
+    <string name="pref_tv_screensaver_source_random">Slumpmässig</string>
+    <string name="pref_tv_screensaver_source_recently_added">Nyligen tillagda</string>
+    <string name="pref_tv_screensaver_interval">Växlingsintervall</string>
+    <string name="pref_tv_screensaver_interval_20s">20 sekunder</string>
+    <string name="pref_tv_screensaver_show_clock">Visa klocka</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Visa aktuell tid på skärmsläckaren</string>
     <string name="pref_tv_theme_music">Temamusik</string>
     <string name="pref_tv_theme_music_summary">Spela en series temalåt tyst på dess sida, om servern har en</string>
 </resources>

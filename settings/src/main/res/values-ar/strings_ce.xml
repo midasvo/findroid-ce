@@ -98,6 +98,14 @@
     <string name="pref_player_tv_match_refresh_rate_summary">تبديل وضع العرض لمطابقة معدل إطارات الفيديو أثناء التشغيل</string>
     <string name="pref_tv_watch_next">متابعة المشاهدة على الشاشة الرئيسية</string>
     <string name="pref_tv_watch_next_summary">عرض «متابعة المشاهدة» و«التالي» على الشاشة الرئيسية لـ Android TV</string>
+    <string name="pref_tv_screensaver_title">شاشة التوقف</string>
+    <string name="pref_tv_screensaver_source">مصدر الصور</string>
+    <string name="pref_tv_screensaver_source_random">عشوائي</string>
+    <string name="pref_tv_screensaver_source_recently_added">أضيف مؤخرًا</string>
+    <string name="pref_tv_screensaver_interval">الفاصل الزمني للتبديل</string>
+    <string name="pref_tv_screensaver_interval_20s">20 ثانية</string>
+    <string name="pref_tv_screensaver_show_clock">إظهار الساعة</string>
+    <string name="pref_tv_screensaver_show_clock_summary">عرض الوقت الحالي على شاشة التوقف</string>
     <string name="pref_tv_theme_music">موسيقى الشارة</string>
     <string name="pref_tv_theme_music_summary">تشغيل أغنية شارة المسلسل بهدوء في صفحته، إذا كانت متوفرة على الخادم</string>
 </resources>

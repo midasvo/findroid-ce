@@ -98,6 +98,14 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Comută modul de afișare pentru a se potrivi cu rata de cadre a videoclipului în timpul redării</string>
     <string name="pref_tv_watch_next">Continuă vizionarea pe ecranul de pornire</string>
     <string name="pref_tv_watch_next_summary">Afișează Continuă vizionarea și Urmează pe ecranul de pornire Android TV</string>
+    <string name="pref_tv_screensaver_title">Protecție ecran</string>
+    <string name="pref_tv_screensaver_source">Sursă imagini</string>
+    <string name="pref_tv_screensaver_source_random">Aleatoriu</string>
+    <string name="pref_tv_screensaver_source_recently_added">Adăugate recent</string>
+    <string name="pref_tv_screensaver_interval">Interval de comutare</string>
+    <string name="pref_tv_screensaver_interval_20s">20 de secunde</string>
+    <string name="pref_tv_screensaver_show_clock">Afișează ceasul</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Afișează ora curentă pe ecranul de protecție</string>
     <string name="pref_tv_theme_music">Muzică temă</string>
     <string name="pref_tv_theme_music_summary">Redă încet melodia temă a unui serial pe pagina sa, dacă serverul are una</string>
 </resources>

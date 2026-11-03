@@ -49,6 +49,19 @@ interface JellyfinRepository {
         limit: Int? = null,
     ): List<FindroidItem>
 
+    /**
+     * CE (#140): up to [limit] items of [includeTypes] from all libraries, in random order, that
+     * have a backdrop. Online the server picks them; the default (offline) shuffles local items.
+     */
+    suspend fun getRandomItemsWithBackdrop(
+        includeTypes: List<BaseItemKind>,
+        limit: Int,
+    ): List<FindroidItem> =
+        getItems(includeTypes = includeTypes, recursive = true)
+            .filter { it.images.backdrop != null }
+            .shuffled()
+            .take(limit)
+
     suspend fun getItemsPaging(
         parentId: UUID? = null,
         includeTypes: List<BaseItemKind>? = null,

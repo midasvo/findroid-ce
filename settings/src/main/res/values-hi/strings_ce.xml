@@ -98,6 +98,14 @@
     <string name="pref_player_tv_match_refresh_rate_summary">प्लेबैक के दौरान वीडियो फ़्रेम दर से मेल खाने के लिए डिस्प्ले मोड बदलें</string>
     <string name="pref_tv_watch_next">होम स्क्रीन पर देखना जारी रखें</string>
     <string name="pref_tv_watch_next_summary">Android TV की होम स्क्रीन पर देखना जारी रखें और आगे देखें दिखाएँ</string>
+    <string name="pref_tv_screensaver_title">स्क्रीनसेवर</string>
+    <string name="pref_tv_screensaver_source">कलाकृति स्रोत</string>
+    <string name="pref_tv_screensaver_source_random">यादृच्छिक</string>
+    <string name="pref_tv_screensaver_source_recently_added">हाल ही में जोड़े गए</string>
+    <string name="pref_tv_screensaver_interval">बदलने का अंतराल</string>
+    <string name="pref_tv_screensaver_interval_20s">20 सेकंड</string>
+    <string name="pref_tv_screensaver_show_clock">घड़ी दिखाएं</string>
+    <string name="pref_tv_screensaver_show_clock_summary">स्क्रीनसेवर पर वर्तमान समय प्रदर्शित करें</string>
     <string name="pref_tv_theme_music">थीम संगीत</string>
     <string name="pref_tv_theme_music_summary">अगर सर्वर पर हो, तो सीरीज़ के पेज पर उसका थीम गीत धीमी आवाज़ में चलाएँ</string>
 </resources>

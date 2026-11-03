@@ -98,6 +98,14 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Anzeigemodus während der Wiedergabe an die Bildrate des Videos anpassen</string>
     <string name="pref_tv_watch_next">Weiterschauen auf dem Startbildschirm</string>
     <string name="pref_tv_watch_next_summary">„Weiterschauen“ und „Als Nächstes“ auf dem Android TV-Startbildschirm anzeigen</string>
+    <string name="pref_tv_screensaver_title">Bildschirmschoner</string>
+    <string name="pref_tv_screensaver_source">Bildquelle</string>
+    <string name="pref_tv_screensaver_source_random">Zufällig</string>
+    <string name="pref_tv_screensaver_source_recently_added">Kürzlich hinzugefügt</string>
+    <string name="pref_tv_screensaver_interval">Wechselintervall</string>
+    <string name="pref_tv_screensaver_interval_20s">20 Sekunden</string>
+    <string name="pref_tv_screensaver_show_clock">Uhr anzeigen</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Die aktuelle Uhrzeit auf dem Bildschirmschoner anzeigen</string>
     <string name="pref_tv_theme_music">Titelmusik</string>
     <string name="pref_tv_theme_music_summary">Die Titelmelodie einer Serie leise auf ihrer Seite abspielen, wenn der Server eine hat</string>
 </resources>

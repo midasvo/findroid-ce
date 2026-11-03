@@ -98,6 +98,14 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Vaihda näyttötila vastaamaan videon kuvanopeutta toiston aikana</string>
     <string name="pref_tv_watch_next">Jatka katsomista aloitusnäytöllä</string>
     <string name="pref_tv_watch_next_summary">Näytä Jatka katsomista ja Seuraavaksi Android TV:n aloitusnäytöllä</string>
+    <string name="pref_tv_screensaver_title">Näytönsäästäjä</string>
+    <string name="pref_tv_screensaver_source">Kuvien lähde</string>
+    <string name="pref_tv_screensaver_source_random">Satunnainen</string>
+    <string name="pref_tv_screensaver_source_recently_added">Äskettäin lisätty</string>
+    <string name="pref_tv_screensaver_interval">Vaihtoväli</string>
+    <string name="pref_tv_screensaver_interval_20s">20 sekuntia</string>
+    <string name="pref_tv_screensaver_show_clock">Näytä kello</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Näytä nykyinen aika näytönsäästäjässä</string>
     <string name="pref_tv_theme_music">Tunnusmusiikki</string>
     <string name="pref_tv_theme_music_summary">Soita sarjan tunnuskappale hiljaa sen sivulla, jos palvelimella on sellainen</string>
 </resources>

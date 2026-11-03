@@ -98,6 +98,14 @@
     <string name="pref_player_tv_match_refresh_rate_summary">החלף מצב תצוגה כדי להתאים לקצב הפריימים של הווידאו במהלך ההפעלה</string>
     <string name="pref_tv_watch_next">המשך צפייה במסך הבית</string>
     <string name="pref_tv_watch_next_summary">הצגת \"המשך צפייה\" ו\"הבא בתור\" במסך הבית של Android TV</string>
+    <string name="pref_tv_screensaver_title">שומר מסך</string>
+    <string name="pref_tv_screensaver_source">מקור תמונות</string>
+    <string name="pref_tv_screensaver_source_random">אקראי</string>
+    <string name="pref_tv_screensaver_source_recently_added">נוספו לאחרונה</string>
+    <string name="pref_tv_screensaver_interval">מרווח החלפה</string>
+    <string name="pref_tv_screensaver_interval_20s">20 שניות</string>
+    <string name="pref_tv_screensaver_show_clock">הצג שעון</string>
+    <string name="pref_tv_screensaver_show_clock_summary">הצגת השעה הנוכחית על שומר המסך</string>
     <string name="pref_tv_theme_music">מוזיקת נושא</string>
     <string name="pref_tv_theme_music_summary">השמעה שקטה של שיר הנושא של סדרה בעמוד שלה, אם יש כזה בשרת</string>
 </resources>

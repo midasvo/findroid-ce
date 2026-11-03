@@ -98,6 +98,14 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Cambia la modalità di visualizzazione per corrispondere alla frequenza dei fotogrammi del video durante la riproduzione</string>
     <string name="pref_tv_watch_next">Continua a guardare nella schermata Home</string>
     <string name="pref_tv_watch_next_summary">Mostra Continua a guardare e Prossimi nella schermata Home di Android TV</string>
+    <string name="pref_tv_screensaver_title">Salvaschermo</string>
+    <string name="pref_tv_screensaver_source">Origine delle immagini</string>
+    <string name="pref_tv_screensaver_source_random">Casuale</string>
+    <string name="pref_tv_screensaver_source_recently_added">Aggiunti di recente</string>
+    <string name="pref_tv_screensaver_interval">Intervallo di cambio</string>
+    <string name="pref_tv_screensaver_interval_20s">20 secondi</string>
+    <string name="pref_tv_screensaver_show_clock">Mostra orologio</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Mostra l\'ora corrente sul salvaschermo</string>
     <string name="pref_tv_theme_music">Musica della sigla</string>
     <string name="pref_tv_theme_music_summary">Riproduci a basso volume la sigla di una serie nella sua pagina, se il server ne ha una</string>
 </resources>

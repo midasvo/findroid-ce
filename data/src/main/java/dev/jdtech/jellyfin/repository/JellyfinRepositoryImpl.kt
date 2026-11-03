@@ -151,6 +151,25 @@ class JellyfinRepositoryImpl(
                 .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
         }
 
+    override suspend fun getRandomItemsWithBackdrop(
+        includeTypes: List<BaseItemKind>,
+        limit: Int,
+    ): List<FindroidItem> =
+        withContext(Dispatchers.IO) {
+            jellyfinApi.libraryApi
+                .getItems(
+                    currentUserId,
+                    includeItemTypes = includeTypes,
+                    recursive = true,
+                    sortBy = listOf(ItemSortBy.RANDOM),
+                    imageTypes = listOf(ImageType.BACKDROP),
+                    limit = limit,
+                )
+                .content
+                .items
+                .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
+        }
+
     override suspend fun getItemsPaging(
         parentId: UUID?,
         includeTypes: List<BaseItemKind>?,
