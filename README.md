@@ -15,6 +15,8 @@ it's a faster-moving companion for people who want the latest community work soo
 - 📦 **Stays current** — dependencies and the Jellyfin SDK are kept up to date via Renovate.
 - 🤝 **Two-way street** — we sync improvements *from* upstream regularly, and upstream is welcome to
   take anything from here. It's all GPLv3.
+- 📺 **Has its own Android TV app** — built for the remote, with a hero Home, a player overlay and
+  Watch Next on the TV home screen (see [Android TV](#android-tv)).
 - 📲 **Installs side-by-side** — a separate app ID (`nl.midasvo.findroid.ce`) means you can run it
   next to the original and switch back any time.
 
@@ -23,20 +25,59 @@ prefer rock-solid stability, stick with upstream — and know that the good stuf
 
 ## A look at CE
 
-<p align="center">
-  <img src="images/screenshots/downloads.webp" width="240" alt="Downloads screen with a storage bar, two active downloads with progress rings, and a downloaded movie">
-  <img src="images/screenshots/season.webp" width="240" alt="Season episode list showing downloaded, downloading and not yet downloaded episodes">
-  <img src="images/screenshots/download-quality.webp" width="240" alt="Download quality dialog listing original quality and bitrates from 4K down">
-  <img src="images/screenshots/downloaded-show.webp" width="240" alt="Downloaded show page listing episodes by season with their sizes">
-  <img src="images/screenshots/subtitle-style.webp" width="240" alt="Subtitle style screen with a live preview of yellow subtitles">
-  <img src="images/screenshots/player-quality.webp" width="728" alt="Video quality dialog open over the player">
-</p>
-
-The Downloads screen with its storage breakdown, download progress in the season list, a quality
-choice for every download, a page for each downloaded show, subtitle styling with a live preview,
-and video quality during playback.
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="images/screenshots/downloads.webp" alt="Downloads screen with a storage bar, two active downloads with progress rings, and a downloaded movie"><br><sub>Downloads with a storage breakdown</sub></td>
+    <td width="33%" align="center"><img src="images/screenshots/season.webp" alt="Season episode list showing downloaded, downloading and not yet downloaded episodes"><br><sub>Download progress per episode</sub></td>
+    <td width="33%" align="center"><img src="images/screenshots/download-quality.webp" alt="Download quality dialog listing original quality and bitrates from 4K down"><br><sub>A quality for every download</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="images/screenshots/downloaded-show.webp" alt="Downloaded show page listing episodes by season with their sizes"><br><sub>A page per downloaded show</sub></td>
+    <td align="center"><img src="images/screenshots/subtitle-style.webp" alt="Subtitle style screen with a live preview of yellow subtitles"><br><sub>Subtitle styling with a live preview</sub></td>
+    <td align="center"><img src="images/screenshots/home-rows.webp" alt="Home rows setting listing the Home rows with arrows to reorder them and switches to hide them"><br><sub>Choose and order the Home rows</sub></td>
+  </tr>
+  <tr>
+    <td colspan="3" align="center"><img src="images/screenshots/player-quality.webp" alt="Video quality dialog open over the player"><br><sub>Change the video quality during playback</sub></td>
+  </tr>
+</table>
 
 <sub>All artwork shown belongs to its respective owners.</sub>
+
+## Android TV
+
+CE has its own Android TV app, built for the remote. It uses the same login and the same server as
+the phone app, and installs from the same releases (see [Install](#install)).
+
+<table>
+  <tr>
+    <td colspan="2" align="center"><img src="images/screenshots/tv-home.webp" alt="TV Home with a large artwork hero for the focused item, a Suggestions row below it and a collapsed side drawer"><br><sub>Home with a hero for the focused item</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" align="center"><img src="images/screenshots/tv-library.webp" alt="TV shows library grid with Hide watched and Sort by buttons, an A to Z bar on the right and a 4 of 44 counter"><br><sub>Library grid with an A–Z jump bar</sub></td>
+    <td width="50%" align="center"><img src="images/screenshots/tv-season.webp" alt="Bluey season 3 with season tabs, the details of the focused episode and a row of episodes"><br><sub>Episodes open in their season</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="images/screenshots/tv-player.webp" alt="Player overlay with the series name, episode title, ends-at time, previous and next buttons and an Up next header"><br><sub>Player overlay with the next episodes</sub></td>
+    <td align="center"><img src="images/screenshots/tv-trickplay.webp" alt="A trickplay thumbnail above the seek time while skipping forward"><br><sub>Trickplay thumbnails while seeking</sub></td>
+  </tr>
+</table>
+
+- **Side drawer** for Search, Home, Favorites, your libraries and Settings ([#127](https://github.com/midasvo/findroid-ce/issues/127)), with a favorites page ([#137](https://github.com/midasvo/findroid-ce/issues/137))
+- **Home with a hero** that shows the focused item, and rows that don't reshuffle ([#132](https://github.com/midasvo/findroid-ce/issues/132)); pick and order the rows yourself ([#142](https://github.com/midasvo/findroid-ce/issues/142))
+- **Search** across movies, shows and episodes ([#128](https://github.com/midasvo/findroid-ce/issues/128))
+- **Library grid** with an A–Z jump bar, a counter and the hide-watched filter ([#135](https://github.com/midasvo/findroid-ce/issues/135))
+- **Episodes open in their season** with details first, instead of playing straight away ([#130](https://github.com/midasvo/findroid-ce/issues/130)), plus cast and person pages ([#136](https://github.com/midasvo/findroid-ce/issues/136))
+- **A player made for the remote**: seek with the D-pad, media keys, track dialogs ([#126](https://github.com/midasvo/findroid-ce/issues/126)), an overlay with the series, ends-at time, next/previous and a queue ([#131](https://github.com/midasvo/findroid-ce/issues/131)), and trickplay thumbnails ([#134](https://github.com/midasvo/findroid-ce/issues/134))
+- **Refresh rate switching** to match the video's frame rate ([#139](https://github.com/midasvo/findroid-ce/issues/139))
+- **Continue watching on the Android TV home screen** (Watch Next) ([#138](https://github.com/midasvo/findroid-ce/issues/138))
+- **Screensaver** with artwork from your library ([#140](https://github.com/midasvo/findroid-ce/issues/140)) and optional **theme music** on show pages ([#141](https://github.com/midasvo/findroid-ce/issues/141))
+- Collections, movie trailers and all relevant settings are reachable with the remote ([#129](https://github.com/midasvo/findroid-ce/issues/129)); phone-only settings are hidden ([#133](https://github.com/midasvo/findroid-ce/issues/133))
+
+**Which APK:** `findroid-ce-v<version>-libre-tv-armeabi-v7a.apk` for 32-bit boxes such as the Xiaomi
+Mi Box, `-tv-arm64-v8a.apk` for 64-bit ones. The Obtainium filters are under [Install](#install).
+
+The research behind the TV app (gap analysis, decisions and the roadmap) is in
+[docs/tv-research/](docs/tv-research/).
 
 ## What you get over stock Findroid
 
@@ -63,6 +104,7 @@ and video quality during playback.
 
 ### Library & UI
 
+- **Customisable Home rows** — choose which rows Home shows and in what order, under Settings → Interface → Home rows (phone and TV)
 - **Hide-watched filter** in the library view — persisted and shared across libraries
 - **Long-press to copy text** on the movie/show/episode/season/person detail screens
 - **Auto offline mode** — automatically enabled when there is no connectivity
