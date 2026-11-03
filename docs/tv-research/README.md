@@ -1,6 +1,6 @@
 # Android TV research
 
-Research into turning `app/tv` into a first-class Android TV client, with [Wholphin](https://github.com/damontecres/Wholphin) as the reference. Tracked in [issue #121](https://github.com/midasvo/findroid-ce/issues/121).
+Research into turning `app/tv` into a first-class Android TV client, with [Wholphin](https://github.com/damontecres/Wholphin) as the reference. Tracked in [issue #121](https://github.com/midasvo/ephyra/issues/121).
 
 | Document | Contents |
 |---|---|

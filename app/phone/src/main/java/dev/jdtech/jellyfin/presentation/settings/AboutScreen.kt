@@ -209,7 +209,7 @@ private fun AboutScreenLayout(
                                     onClick = {
                                         try {
                                             uriHandler.openUri(
-                                                "https://github.com/midasvo/findroid-ce"
+                                                "https://github.com/midasvo/ephyra"
                                             )
                                         } catch (e: IllegalArgumentException) {
                                             Toast.makeText(

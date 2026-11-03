@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Prints the next CE release tag (v<base>-ce.<N>) for findroid-ce.
+# Prints the next CE release tag (v<base>-ce.<N>) for Ephyra.
 #
 # Logic:
 #   base = APP_NAME in buildSrc/src/main/kotlin/Versions.kt (tracks upstream verbatim)

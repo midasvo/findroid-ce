@@ -1,7 +1,7 @@
 ---
 name: upstream-sync
 description: >-
-  Sync the Ephyra fork (repo midasvo/findroid-ce) with upstream findroid and cut a new -ce.N release.
+  Sync the Ephyra fork (repo midasvo/ephyra) with upstream findroid and cut a new -ce.N release.
   Use this whenever the user mentions syncing with upstream, pulling or merging
   upstream/jarnedemeulemeester changes, cutting/tagging/publishing a CE release,
   or simply says "sync" or "do a release" in this repo — even without the word
@@ -17,7 +17,7 @@ flow or a subset — follow the relevant steps either way.
 
 ## Background
 
-- **Fork:** `origin` = `midasvo/findroid-ce`, the app is called **Ephyra** (formerly Findroid CE).
+- **Fork:** `origin` = `midasvo/ephyra`, the app is called **Ephyra** (formerly Findroid CE).
   **Upstream:** `jarnedemeulemeester/findroid`.
 - This fork carries many CE-only commits ahead of upstream (downloads/SD-card work,
   device-profile transcoding, etc.). Upstream auto-sync is **disabled** — syncing is
@@ -134,7 +134,7 @@ git push origin "$next_tag"
 Reuse the changelog section as the release notes:
 
 ```bash
-gh release create "$next_tag" --repo midasvo/findroid-ce \
+gh release create "$next_tag" --repo midasvo/ephyra \
   --title "$next_tag" --notes "<the CHANGELOG.md section for this release>"
 ```
 

@@ -1,6 +1,6 @@
 # Android TV research: plan
 
-Copy of the plan in [issue #121](https://github.com/midasvo/findroid-ce/issues/121).
+Copy of the plan in [issue #121](https://github.com/midasvo/ephyra/issues/121).
 
 ## Goal
 
