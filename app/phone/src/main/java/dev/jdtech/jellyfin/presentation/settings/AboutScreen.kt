@@ -276,7 +276,7 @@ private fun AboutScreenLayout(
 private fun shareJson(context: Context, json: String) {
     val sendIntent = Intent(Intent.ACTION_SEND).apply {
         type = "application/json"
-        putExtra(Intent.EXTRA_SUBJECT, "Findroid CE device profile")
+        putExtra(Intent.EXTRA_SUBJECT, "Ephyra device profile")
         putExtra(Intent.EXTRA_TEXT, json)
     }
     try {
@@ -288,7 +288,7 @@ private fun shareJson(context: Context, json: String) {
 
 private fun copyToClipboard(context: Context, json: String) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-    val clip = ClipData.newPlainText("Findroid CE device profile", json)
+    val clip = ClipData.newPlainText("Ephyra device profile", json)
     clipboard?.setPrimaryClip(clip)
 }
 

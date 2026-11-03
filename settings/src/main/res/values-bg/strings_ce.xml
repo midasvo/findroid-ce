@@ -110,4 +110,5 @@
     <string name="pref_tv_theme_music_summary">Тихо пускане на музикалната тема на сериала на страницата му, ако сървърът има такава</string>
     <string name="home_rows">Редове на началния екран</string>
     <string name="home_rows_summary">Изберете кои редове да се показват на началния екран и в какъв ред</string>
+    <string name="ce_permission_local_network_rationale">Ephyra се нуждае от достъп до локалната ви мрежа, за да намери вашия Jellyfin сървър и да се свърже с него. Отдалечените сървъри не са засегнати.</string>
 </resources>

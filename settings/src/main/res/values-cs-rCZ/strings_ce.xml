@@ -110,4 +110,5 @@
     <string name="pref_tv_theme_music_summary">Na stránce seriálu potichu přehrát jeho znělku, pokud ji server má</string>
     <string name="home_rows">Řádky domovské obrazovky</string>
     <string name="home_rows_summary">Vyberte, které řádky se zobrazí na domovské obrazovce a v jakém pořadí</string>
+    <string name="ce_permission_local_network_rationale">Ephyra potřebuje přístup k místní síti, aby mohla najít váš server Jellyfin a připojit se k němu. Vzdálených serverů se to netýká.</string>
 </resources>

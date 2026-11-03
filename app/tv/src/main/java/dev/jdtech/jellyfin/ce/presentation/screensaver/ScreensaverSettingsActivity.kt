@@ -9,7 +9,7 @@ import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import javax.inject.Inject
 
 /**
- * CE (#140): System screensaver settings activity for Findroid CE.
+ * CE (#140): System screensaver settings activity for Ephyra.
  */
 @AndroidEntryPoint
 class ScreensaverSettingsActivity : ComponentActivity() {

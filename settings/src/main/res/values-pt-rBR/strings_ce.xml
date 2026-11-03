@@ -110,4 +110,5 @@
     <string name="pref_tv_theme_music_summary">Tocar baixinho a música tema de uma série na página dela, se o servidor tiver uma</string>
     <string name="home_rows">Linhas do Início</string>
     <string name="home_rows_summary">Escolha quais linhas o Início mostra e em que ordem</string>
+    <string name="ce_permission_local_network_rationale">O Ephyra precisa de acesso à sua rede local para encontrar e conectar-se ao seu servidor Jellyfin. Servidores remotos não são afetados.</string>
 </resources>

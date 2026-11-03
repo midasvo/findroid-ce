@@ -110,4 +110,5 @@
     <string name="pref_tv_theme_music_summary">A sorozat főcímdalának halk lejátszása az oldalán, ha a szerveren van ilyen</string>
     <string name="home_rows">Kezdőlap sorai</string>
     <string name="home_rows_summary">Válaszd ki, mely sorok jelenjenek meg a kezdőlapon, és milyen sorrendben</string>
+    <string name="ce_permission_local_network_rationale">Az Ephyrának hozzáférésre van szüksége a helyi hálózathoz, hogy megtalálja a Jellyfin-szerveredet és csatlakozzon hozzá. A távoli szervereket ez nem érinti.</string>
 </resources>

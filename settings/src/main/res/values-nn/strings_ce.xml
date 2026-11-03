@@ -110,4 +110,5 @@
     <string name="pref_tv_theme_music_summary">Spel temasongen til ein serie stille på sida hans, om tenaren har ein</string>
     <string name="home_rows">Rader på startsida</string>
     <string name="home_rows_summary">Vel kva rader startsida viser, og i kva rekkjefølgje</string>
+    <string name="ce_permission_local_network_rationale">Ephyra treng tilgang til det lokale nettverket ditt for å finne og kople til Jellyfin-tenaren din. Eksterne tenarar blir ikkje påverka.</string>
 </resources>

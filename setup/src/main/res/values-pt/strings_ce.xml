@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ce_welcome">Bem-vindo ao Ephyra</string>
+    <string name="ce_welcome_text">O Ephyra é um cliente de terceiros para o Jellyfin. O Ephyra, por si só, não contém qualquer conteúdo multimédia.\n\nPara utilizar este cliente, precisa de alojar o seu próprio servidor Jellyfin.</string>
+</resources>

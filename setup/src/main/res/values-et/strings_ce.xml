@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ce_welcome">Tere tulemast Ephyrasse</string>
+    <string name="ce_welcome_text">Ephyra on Jellyfini kolmanda osapoole klient. Ephyra ise ei sisalda mingit meediat.\n\nSelle kliendi kasutamiseks pead majutama oma Jellyfini serverit.</string>
+</resources>

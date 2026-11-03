@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to **Findroid CE** (`nl.midasvo.findroid.ce`) are documented here.
+All notable changes to **Ephyra** (formerly Findroid CE, `nl.midasvo.findroid.ce`) are documented here.
 
 This is a community fork of [findroid](https://github.com/jarnedemeulemeester/findroid). Releases are
 tagged `v<upstream-version>-ce.<N>`, where `<upstream-version>` tracks the upstream base
@@ -9,6 +9,22 @@ release adds on top of upstream; routine dependency bumps and translation update
 _Maintenance_.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [Unreleased]
+
+**Findroid CE is now Ephyra.** Same app, new name and icon. The update installs over Findroid CE as
+usual: the application ID stays `nl.midasvo.findroid.ce`, so your login, settings and downloads are
+all still there. Nothing else changes.
+
+### Changed
+- The app is called Ephyra, with a new icon: a young jellyfish whose tentacles fork. The launcher,
+  the welcome screen, the TV banner and the Jellyfin dashboard all show the new name. The beta is
+  now "Ephyra Beta" (#172).
+- The release APKs are named `ephyra-v<version>-libre-<abi>.apk` and
+  `ephyra-v<version>-libre-tv-<abi>.apk`. Obtainium filters that match the end of the name, such as
+  `-libre-arm64-v8a\.apk$` and `.*-tv-armeabi-v7a\.apk`, keep working (#172).
+- The device profiles the app reports to the server are now called "Ephyra Device Profile" and
+  "Ephyra Download Profile" (#172).
 
 ## [v1.2.0-ce.6] — 2026-11-03
 

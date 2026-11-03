@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ce_welcome">Vitajte v aplikácii Ephyra</string>
+    <string name="ce_welcome_text">Ephyra je klient tretej strany pre Jellyfin. Samotná Ephyra neobsahuje žiadne médiá.\n\nNa používanie tohto klienta potrebujete vlastný server Jellyfin.</string>
+</resources>

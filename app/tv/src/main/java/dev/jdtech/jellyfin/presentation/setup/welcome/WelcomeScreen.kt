@@ -63,12 +63,12 @@ private fun WelcomeScreenLayout(onAction: (WelcomeAction) -> Unit) {
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacings.medium))
             Text(
-                text = stringResource(dev.jdtech.jellyfin.setup.R.string.welcome),
+                text = stringResource(dev.jdtech.jellyfin.setup.R.string.ce_welcome),
                 style = MaterialTheme.typography.displayMedium,
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacings.default))
             Text(
-                text = stringResource(dev.jdtech.jellyfin.setup.R.string.welcome_text),
+                text = stringResource(dev.jdtech.jellyfin.setup.R.string.ce_welcome_text),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
             )

@@ -1,29 +1,33 @@
-# Findroid CE (Community Edition)
+<img src="images/branding/ephyra/ephyra-icon-rounded.png" alt="Ephyra icon: a cyan and violet jellyfish whose tentacles fork" width="96" align="right">
 
-A community-driven fork of [Findroid](https://github.com/jarnedemeulemeester/findroid) — the native
-Jellyfin client for Android. Think of it as a **bleeding-edge channel**: a place to move a little
-faster, try out community contributions, and experiment with new features.
+# Ephyra
 
-## Why Findroid CE?
+A native Jellyfin client for Android phones, tablets and Android TV. Take your library on the road in
+the quality you pick, play almost anything directly, from Dolby Vision to PGS subtitles, and watch on
+a TV app that is made for the remote.
 
-Findroid is a fantastic app and the foundation for everything here. CE isn't trying to replace it —
-it's a faster-moving companion for people who want the latest community work sooner.
+Ephyra started as a fork of [Findroid](https://github.com/jarnedemeulemeester/findroid) (see
+[Built on Findroid](#built-on-findroid)) and was called **Findroid CE** until
+[#169](https://github.com/midasvo/findroid-ce/issues/169). If you have Findroid CE, the update
+installs over it and keeps your login, settings and downloads. An ephyra is the young stage of a
+jellyfish, the animal in the Jellyfin logo.
 
-- 🚀 **Moves faster** — merges community PRs and ships new features without waiting on the upstream release cadence.
-- 🔧 **Adds CE-only enhancements** — a rewritten download engine, Dolby Vision playback, richer
-  subtitle support, and more (see below).
-- 📦 **Stays current** — dependencies and the Jellyfin SDK are kept up to date via Renovate.
-- 🤝 **Two-way street** — we sync improvements *from* upstream regularly, and upstream is welcome to
-  take anything from here. It's all GPLv3.
-- 📺 **Has its own Android TV app** — built for the remote, with a hero Home, a player overlay and
-  Watch Next on the TV home screen (see [Android TV](#android-tv)).
-- 📲 **Installs side-by-side** — a separate app ID (`nl.midasvo.findroid.ce`) means you can run it
-  next to the original and switch back any time.
+## Why Ephyra?
 
-If you like living a bit closer to the edge, CE gets community features into your hands sooner. If you
-prefer rock-solid stability, stick with upstream — and know that the good stuff here can flow back to it.
+- 📥 **Downloads that hold up** — a resumable download engine with SD card support, a quality for
+  every download, whole seasons at once, and Smart Downloads that keep the next episodes ready.
+- 🎬 **Plays what you throw at it** — Dolby Vision direct play, Atmos with an ffmpeg fallback, PGS,
+  VobSub and DVB subtitles without transcoding, on ExoPlayer or mpv.
+- 📺 **A real Android TV app** — a Home with a hero for the focused item, a player overlay with the
+  next episodes, trickplay, Watch Next on the TV home screen and refresh rate switching
+  (see [Android TV](#android-tv)).
+- 🎛️ **Set up your way** — choose and order the Home rows, style the subtitles, and the audio and
+  subtitle tracks you pick carry over to the next episodes.
+- 🚀 **Moves fast** — new releases often, community contributions welcome, and dependencies and the
+  Jellyfin SDK kept current with Renovate.
+- 🔓 **Free and open** — GPLv3, no ads, and no data collected (see the [privacy policy](PRIVACY)).
 
-## A look at CE
+## A look at Ephyra
 
 <table>
   <tr>
@@ -45,7 +49,7 @@ prefer rock-solid stability, stick with upstream — and know that the good stuf
 
 ## Android TV
 
-CE has its own Android TV app, built for the remote. It uses the same login and the same server as
+Ephyra has its own Android TV app, built for the remote. It uses the same login and the same server as
 the phone app, and installs from the same releases (see [Install](#install)).
 
 <table>
@@ -79,7 +83,7 @@ Mi Box, and `-libre-tv-arm64-v8a.apk` for 64-bit ones. The Obtainium filters are
 The research behind the TV app (gap analysis, decisions and the roadmap) is in
 [docs/tv-research/](docs/tv-research/).
 
-## What you get over stock Findroid
+## Features
 
 ### Downloads
 
@@ -138,7 +142,7 @@ boxes such as the Xiaomi Mi Box (`.*-tv-arm64-v8a\.apk` for 64-bit ones). On a p
 <summary><strong>Beta channel (Obtainium)</strong></summary>
 
 Beta builds of `main` and of work in progress are published as GitHub prereleases tagged
-`v<version>-beta.<n>`. They install as a separate app, **Findroid CE Beta**
+`v<version>-beta.<n>`. They install as a separate app, **Ephyra Beta**
 (`nl.midasvo.findroid.ce.staging`), with its own data, so they never replace the stable app.
 
 To follow them, add the same repo URL in Obtainium a second time with these settings:
@@ -157,28 +161,25 @@ Betas are untested builds — expect bugs. Every push to `main` publishes one.
 ### Manual
 
 Grab the latest APK from the [Releases](https://github.com/midasvo/findroid-ce/releases) page:
-`findroid-ce-v<version>-libre-<abi>.apk` for phones and tablets, or
-`findroid-ce-v<version>-libre-tv-<abi>.apk` for Android TV (`armeabi-v7a` for 32-bit boxes such as the
+`ephyra-v<version>-libre-<abi>.apk` for phones and tablets, or
+`ephyra-v<version>-libre-tv-<abi>.apk` for Android TV (`armeabi-v7a` for 32-bit boxes such as the
 Xiaomi Mi Box). Phone and TV share one application ID, so installing the TV APK over the phone APK
 keeps your login.
 
-> Findroid CE uses its own application ID (`nl.midasvo.findroid.ce`), so it installs alongside the
-> original Findroid rather than replacing it.
+> Ephyra has its own application ID (`nl.midasvo.findroid.ce`), so it can be installed next to
+> Findroid.
 
 ## Built on Findroid
 
-Findroid CE is a fork — all the core functionality (the native UI, ExoPlayer & mpv playback, offline
-downloads, picture-in-picture, etc.) comes from upstream Findroid. We sync with it regularly; the
-process is documented in [docs/upstream-sync.md](docs/upstream-sync.md).
-
-**All credit** to [Jarne Demeulemeester](https://github.com/jarnedemeulemeester) and the
-[Findroid contributors](https://github.com/jarnedemeulemeester/findroid/graphs/contributors) for
-building the app this fork stands on.
+Ephyra grew out of [Findroid](https://github.com/jarnedemeulemeester/findroid). Its foundations,
+the native UI, ExoPlayer and mpv playback, offline mode and picture-in-picture, come from there, and
+Findroid's improvements are still merged in regularly (see [docs/upstream-sync.md](docs/upstream-sync.md)).
+Thanks to [Jarne Demeulemeester](https://github.com/jarnedemeulemeester) and the
+[Findroid contributors](https://github.com/jarnedemeulemeester/findroid/graphs/contributors).
 
 ## License
 
-GPLv3 — same as upstream. See [LICENSE](LICENSE).
+GPLv3. See [LICENSE](LICENSE).
 
-The logo is a combination of the Jellyfin logo and the Android robot. The Android robot is reproduced
-or modified from work created and shared by Google and used according to terms described in the
-Creative Commons 3.0 Attribution License.
+The Ephyra icon was made for this project; its sources and the script that generates them are in
+[images/branding/ephyra/](images/branding/ephyra/).

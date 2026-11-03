@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ce_welcome">Ласкаво просимо до Ephyra</string>
+    <string name="ce_welcome_text">Ephyra — це сторонній клієнт для Jellyfin. Сам по собі Ephyra не містить жодних медіафайлів.\n\nЩоб використовувати цей клієнт, вам потрібно розмістити власний сервер Jellyfin.</string>
+</resources>

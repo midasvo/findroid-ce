@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ce_welcome">ברוכים הבאים ל-Ephyra</string>
+    <string name="ce_welcome_text">Ephyra הוא לקוח צד שלישי עבור Jellyfin. Ephyra עצמו אינו מכיל מדיה כלשהי.\n\nכדי להשתמש בלקוח זה, עליך לארח שרת Jellyfin משלך.</string>
+</resources>

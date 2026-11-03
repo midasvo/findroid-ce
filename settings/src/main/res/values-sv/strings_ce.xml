@@ -110,4 +110,5 @@
     <string name="pref_tv_theme_music_summary">Spela en series temalåt tyst på dess sida, om servern har en</string>
     <string name="home_rows">Rader på startsidan</string>
     <string name="home_rows_summary">Välj vilka rader startsidan visar och i vilken ordning</string>
+    <string name="ce_permission_local_network_rationale">Ephyra behöver åtkomst till ditt lokala nätverk för att hitta och ansluta till din Jellyfin-server. Fjärrservrar påverkas inte.</string>
 </resources>

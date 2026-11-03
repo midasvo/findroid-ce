@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ce_welcome">Üdvözöl az Ephyra</string>
+    <string name="ce_welcome_text">Az Ephyra egy harmadik féltől származó Jellyfin-kliens. Az Ephyra önmagában nem tartalmaz médiát.\n\nA kliens használatához saját Jellyfin-szervert kell üzemeltetned.</string>
+</resources>

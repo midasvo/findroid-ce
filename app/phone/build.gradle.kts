@@ -127,9 +127,9 @@ androidComponents {
                 output.filters
                     .firstOrNull { it.filterType == FilterConfiguration.FilterType.ABI }
                     ?.identifier
-            // CE-owned: "findroid-ce-" so CE APKs are not named exactly like upstream's.
+            // CE-owned: "ephyra-" so the APKs carry the app name, not upstream's.
             output.outputFileName.set(
-                "findroid-ce-v${output.versionName.get()}-${variant.flavorName}-$abi.apk"
+                "ephyra-v${output.versionName.get()}-${variant.flavorName}-$abi.apk"
             )
         }
     }

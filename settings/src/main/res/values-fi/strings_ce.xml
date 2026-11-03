@@ -110,4 +110,5 @@
     <string name="pref_tv_theme_music_summary">Soita sarjan tunnuskappale hiljaa sen sivulla, jos palvelimella on sellainen</string>
     <string name="home_rows">Etusivun rivit</string>
     <string name="home_rows_summary">Valitse, mitkä rivit etusivulla näytetään ja missä järjestyksessä</string>
+    <string name="ce_permission_local_network_rationale">Ephyra tarvitsee pääsyn paikallisverkkoosi löytääkseen Jellyfin-palvelimesi ja muodostaakseen siihen yhteyden. Etäpalvelimiin tämä ei vaikuta.</string>
 </resources>

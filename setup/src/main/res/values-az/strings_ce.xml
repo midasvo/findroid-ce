@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ce_welcome">Ephyra-ya xoş gəlmisiniz</string>
+    <string name="ce_welcome_text">Ephyra, Jellyfin üçün üçüncü tərəf klientidir. Ephyra özlüyündə heç bir media saxlamır.\n\nBu klientdən istifadə etmək üçün öz Jellyfin serverinizə sahib olmalısınız.</string>
+</resources>

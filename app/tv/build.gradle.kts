@@ -136,7 +136,7 @@ androidComponents {
                     ?.identifier
             // CE-owned: the phone name plus "-tv", so the TV APK says what it is (ADR 0006).
             output.outputFileName.set(
-                "findroid-ce-v${output.versionName.get()}-${variant.flavorName}-tv-$abi.apk"
+                "ephyra-v${output.versionName.get()}-${variant.flavorName}-tv-$abi.apk"
             )
         }
     }
