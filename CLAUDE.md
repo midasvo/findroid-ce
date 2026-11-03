@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-The app is **Ephyra**, a fork of [Findroid](https://github.com/jarnedemeulemeester/findroid). It was called Findroid CE until #172; the repo, the application ID, the Kotlin packages and internal names (`FindroidItem`, `FindroidTheme`, `Theme.Findroid`) keep the old names on purpose.
+The app is **Ephyra**, a fork of [Findroid](https://github.com/jarnedemeulemeester/findroid). It was called Findroid CE until #172. The repo is `midasvo/ephyra` (renamed from `midasvo/findroid-ce` in #174; GitHub redirects the old URL). The application ID, the Kotlin packages and internal names (`FindroidItem`, `FindroidTheme`, `Theme.Findroid`) keep the old names on purpose.
 
 ## Build Commands
 

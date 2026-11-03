@@ -15,7 +15,7 @@ from Findroid; that happens beforehand, in its own PR (see the `upstream-sync` s
 
 ## Background
 
-- **Repo:** `origin` = `midasvo/findroid-ce`. The app is **Ephyra** (formerly Findroid CE).
+- **Repo:** `origin` = `midasvo/ephyra`. The app is **Ephyra** (formerly Findroid CE).
 - **Version:** `NAME` in `buildSrc/src/main/kotlin/EphyraVersion.kt` is the one source. The
   versionCode follows from it (`major * 1_000_000 + minor * 10_000 + patch * 100`, the TV release
   `+ 1`), so minor and patch must stay below 100. Upstream's `Versions.APP_NAME` / `APP_CODE`
@@ -36,7 +36,7 @@ from Findroid; that happens beforehand, in its own PR (see the `upstream-sync` s
 ```bash
 git fetch origin
 git switch main && git reset --hard origin/main
-gh run list --repo midasvo/findroid-ce --branch main --limit 3   # main must be green
+gh run list --repo midasvo/ephyra --branch main --limit 3   # main must be green
 ```
 
 ### 2. Pick the version
@@ -66,14 +66,14 @@ On a branch `release/v$next`:
   - Dependency bumps and translation updates go under **Maintenance**, collapsed to a line each.
   - Leave out what users never see (CI, skills, docs), unless it changes how they install or
     update.
-- Add `[v$next]: https://github.com/midasvo/findroid-ce/releases/tag/v$next` at the top of the
+- Add `[v$next]: https://github.com/midasvo/ephyra/releases/tag/v$next` at the top of the
   link list at the bottom, or the heading renders as plain bracketed text.
 
 ```bash
 git add buildSrc/src/main/kotlin/EphyraVersion.kt CHANGELOG.md
 git commit -m "chore(release): v$next"
 git push -u origin HEAD
-gh pr create --repo midasvo/findroid-ce --title "chore(release): v$next" --body "<the changelog section>"
+gh pr create --repo midasvo/ephyra --title "chore(release): v$next" --body "<the changelog section>"
 ```
 
 Merge it once `gh pr checks` is fully green, with `--merge` (the repo uses merge commits; `--auto`
@@ -89,9 +89,9 @@ when its build finishes, a few minutes later.
 git fetch origin && git switch main && git reset --hard origin/main
 git tag -a "v$next" -m "Ephyra v$next"
 git push origin "v$next"
-gh release create "v$next" --repo midasvo/findroid-ce --verify-tag \
+gh release create "v$next" --repo midasvo/ephyra --verify-tag \
   --title "Ephyra v$next" --notes-file <file with the CHANGELOG.md section>
-gh run watch --repo midasvo/findroid-ce $(gh run list --repo midasvo/findroid-ce --workflow release.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo midasvo/ephyra $(gh run list --repo midasvo/ephyra --workflow release.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 Check that the release has eight APKs (`ephyra-v$next-libre-<abi>.apk` and

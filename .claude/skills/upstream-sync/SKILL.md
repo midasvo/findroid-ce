@@ -2,7 +2,7 @@
 name: upstream-sync
 description: >-
   Merge changes from upstream Findroid (jarnedemeulemeester/findroid) into Ephyra (repo
-  midasvo/findroid-ce) in a pull request. Use this whenever the user mentions syncing with
+  midasvo/ephyra) in a pull request. Use this whenever the user mentions syncing with
   upstream or Findroid, pulling or merging upstream/jarnedemeulemeester changes, taking
   Findroid's translations or a Findroid fix, or simply says "sync" in this repo. A sync never
   releases anything: releases are the `release` skill.
@@ -28,7 +28,7 @@ the translation commits (`Translated using Weblate`) and the specific fixes, wit
 
 ## Background
 
-- **Fork:** `origin` = `midasvo/findroid-ce`, the app is **Ephyra** (formerly Findroid CE).
+- **Fork:** `origin` = `midasvo/ephyra`, the app is **Ephyra** (formerly Findroid CE).
   **Upstream:** `jarnedemeulemeester/findroid`. Upstream auto-sync is **disabled**; syncing is
   always manual.
 - Ephyra carries many commits of its own (downloads, the TV app, device-profile transcoding,
@@ -91,7 +91,7 @@ can't be fixed easily, stop and report; the branch is the rollback, `main` is un
 
 ```bash
 git push -u origin HEAD
-gh pr create --repo midasvo/findroid-ce   --title "chore(upstream): sync with Findroid $(git rev-parse --short upstream/main)"   --body "<what came in, grouped (translations, fixes, features), and how conflicts were resolved>"
+gh pr create --repo midasvo/ephyra   --title "chore(upstream): sync with Findroid $(git rev-parse --short upstream/main)"   --body "<what came in, grouped (translations, fixes, features), and how conflicts were resolved>"
 ```
 
 Merge it with `--merge` once `gh pr checks` is fully green (a merge commit keeps the shared
