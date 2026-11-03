@@ -98,4 +98,12 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Змінювати режим дисплея відповідно до частоти кадрів відео під час відтворення</string>
     <string name="pref_tv_watch_next">Продовжити перегляд на головному екрані</string>
     <string name="pref_tv_watch_next_summary">Показувати «Продовжити перегляд» і «Далі» на головному екрані Android TV</string>
+    <string name="pref_tv_screensaver_title">Заставка</string>
+    <string name="pref_tv_screensaver_source">Джерело зображень</string>
+    <string name="pref_tv_screensaver_source_random">Випадково</string>
+    <string name="pref_tv_screensaver_source_recently_added">Нещодавно додані</string>
+    <string name="pref_tv_screensaver_interval">Інтервал зміни</string>
+    <string name="pref_tv_screensaver_interval_20s">20 секунд</string>
+    <string name="pref_tv_screensaver_show_clock">Показувати годинник</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Відображати поточний час на заставці</string>
 </resources>

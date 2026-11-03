@@ -98,4 +98,12 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Mudar o modo de exibição para corresponder à taxa de quadros do vídeo durante a reprodução</string>
     <string name="pref_tv_watch_next">Continuar assistindo na tela inicial</string>
     <string name="pref_tv_watch_next_summary">Mostrar Continuar assistindo e A seguir na tela inicial do Android TV</string>
+    <string name="pref_tv_screensaver_title">Protetor de tela</string>
+    <string name="pref_tv_screensaver_source">Origem das imagens</string>
+    <string name="pref_tv_screensaver_source_random">Aleatório</string>
+    <string name="pref_tv_screensaver_source_recently_added">Adicionados recentemente</string>
+    <string name="pref_tv_screensaver_interval">Intervalo de troca</string>
+    <string name="pref_tv_screensaver_interval_20s">20 segundos</string>
+    <string name="pref_tv_screensaver_show_clock">Mostrar relógio</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Exibir a hora atual no protetor de tela</string>
 </resources>

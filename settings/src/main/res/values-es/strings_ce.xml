@@ -98,4 +98,12 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Cambiar el modo de pantalla para que coincida con la velocidad de fotogramas del video durante la reproducción</string>
     <string name="pref_tv_watch_next">Seguir viendo en la pantalla de inicio</string>
     <string name="pref_tv_watch_next_summary">Mostrar Seguir viendo y A continuación en la pantalla de inicio de Android TV</string>
+    <string name="pref_tv_screensaver_title">Salvapantallas</string>
+    <string name="pref_tv_screensaver_source">Origen de las imágenes</string>
+    <string name="pref_tv_screensaver_source_random">Aleatorio</string>
+    <string name="pref_tv_screensaver_source_recently_added">Añadido recientemente</string>
+    <string name="pref_tv_screensaver_interval">Intervalo de cambio</string>
+    <string name="pref_tv_screensaver_interval_20s">20 segundos</string>
+    <string name="pref_tv_screensaver_show_clock">Mostrar reloj</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Mostrar la hora actual en el salvapantallas</string>
 </resources>

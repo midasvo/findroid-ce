@@ -98,4 +98,12 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Changer le mode d\'affichage pour correspondre à la fréquence d\'images de la vidéo pendant la lecture</string>
     <string name="pref_tv_watch_next">Reprendre la lecture sur l\'écran d\'accueil</string>
     <string name="pref_tv_watch_next_summary">Afficher Reprendre la lecture et À suivre sur l\'écran d\'accueil d\'Android TV</string>
+    <string name="pref_tv_screensaver_title">Écran de veille</string>
+    <string name="pref_tv_screensaver_source">Source des illustrations</string>
+    <string name="pref_tv_screensaver_source_random">Aléatoire</string>
+    <string name="pref_tv_screensaver_source_recently_added">Récemment ajouté</string>
+    <string name="pref_tv_screensaver_interval">Intervalle de changement</string>
+    <string name="pref_tv_screensaver_interval_20s">20 secondes</string>
+    <string name="pref_tv_screensaver_show_clock">Afficher l\'horloge</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Afficher l\'heure actuelle sur l\'écran de veille</string>
 </resources>

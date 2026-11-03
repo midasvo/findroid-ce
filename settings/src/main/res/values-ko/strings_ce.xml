@@ -98,4 +98,12 @@
     <string name="pref_player_tv_match_refresh_rate_summary">재생 중 동영상 프레임 레이트에 맞게 디스플레이 모드를 전환합니다</string>
     <string name="pref_tv_watch_next">홈 화면에서 이어서 보기</string>
     <string name="pref_tv_watch_next_summary">Android TV 홈 화면에 이어서 보기와 다음 에피소드 표시</string>
+    <string name="pref_tv_screensaver_title">화면 보호기</string>
+    <string name="pref_tv_screensaver_source">아트워크 소스</string>
+    <string name="pref_tv_screensaver_source_random">무작위</string>
+    <string name="pref_tv_screensaver_source_recently_added">최근 추가됨</string>
+    <string name="pref_tv_screensaver_interval">전환 간격</string>
+    <string name="pref_tv_screensaver_interval_20s">20초</string>
+    <string name="pref_tv_screensaver_show_clock">시계 표시</string>
+    <string name="pref_tv_screensaver_show_clock_summary">화면 보호기에 현재 시간 표시</string>
 </resources>

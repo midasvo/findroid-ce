@@ -43,6 +43,33 @@
             </intent-filter>
         </receiver>
 
+        <!-- CE (#140): Android TV screensaver -->
+        <service
+            android:name=".ce.presentation.screensaver.ScreensaverService"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:banner="@mipmap/ic_banner"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_DREAM_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.dreams.DreamService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.dream"
+                android:resource="@xml/screensaver_dream" />
+        </service>
+
+        <activity
+            android:name=".ce.presentation.screensaver.ScreensaverSettingsActivity"
+            android:exported="true"
+            android:label="@string/pref_tv_screensaver_title"
+            android:theme="@style/Theme.Findroid">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
         <!-- WorkManager is set up by BaseApplication, with the Hilt worker factory. -->
         <provider
             android:name="androidx.startup.InitializationProvider"

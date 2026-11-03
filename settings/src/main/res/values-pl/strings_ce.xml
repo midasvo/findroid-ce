@@ -98,4 +98,12 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Zmień tryb wyświetlania na zgodny z liczbą klatek na sekundę wideo podczas odtwarzania</string>
     <string name="pref_tv_watch_next">Kontynuuj oglądanie na ekranie głównym</string>
     <string name="pref_tv_watch_next_summary">Pokazuj Kontynuuj oglądanie i Następne na ekranie głównym Android TV</string>
+    <string name="pref_tv_screensaver_title">Wygaszacz ekranu</string>
+    <string name="pref_tv_screensaver_source">Źródło grafik</string>
+    <string name="pref_tv_screensaver_source_random">Losowo</string>
+    <string name="pref_tv_screensaver_source_recently_added">Ostatnio dodane</string>
+    <string name="pref_tv_screensaver_interval">Częstotliwość zmiany</string>
+    <string name="pref_tv_screensaver_interval_20s">20 sekund</string>
+    <string name="pref_tv_screensaver_show_clock">Pokazuj zegar</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Wyświetlaj aktualny czas na wygaszaczu ekranu</string>
 </resources>

@@ -98,4 +98,12 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Kijelző mód váltása a videó képkockasebességéhez lejátszás közben</string>
     <string name="pref_tv_watch_next">Megtekintés folytatása a kezdőképernyőn</string>
     <string name="pref_tv_watch_next_summary">A Megtekintés folytatása és a Következő megjelenítése az Android TV kezdőképernyőjén</string>
+    <string name="pref_tv_screensaver_title">Képernyőkímélő</string>
+    <string name="pref_tv_screensaver_source">Képek forrása</string>
+    <string name="pref_tv_screensaver_source_random">Véletlenszerű</string>
+    <string name="pref_tv_screensaver_source_recently_added">Nemrég hozzáadva</string>
+    <string name="pref_tv_screensaver_interval">Váltási időköz</string>
+    <string name="pref_tv_screensaver_interval_20s">20 másodperc</string>
+    <string name="pref_tv_screensaver_show_clock">Óra megjelenítése</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Az aktuális idő megjelenítése a képernyőkímélőn</string>
 </resources>

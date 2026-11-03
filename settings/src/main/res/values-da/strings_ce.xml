@@ -98,4 +98,12 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Skift skærmtilstand for at matche videoens billedhastighed under afspilning</string>
     <string name="pref_tv_watch_next">Fortsæt med at se på startskærmen</string>
     <string name="pref_tv_watch_next_summary">Vis Fortsæt med at se og Næste på Android TV-startskærmen</string>
+    <string name="pref_tv_screensaver_title">Pauseskærm</string>
+    <string name="pref_tv_screensaver_source">Billedkilde</string>
+    <string name="pref_tv_screensaver_source_random">Tilfældig</string>
+    <string name="pref_tv_screensaver_source_recently_added">For nylig tilføjet</string>
+    <string name="pref_tv_screensaver_interval">Skifteinterval</string>
+    <string name="pref_tv_screensaver_interval_20s">20 sekunder</string>
+    <string name="pref_tv_screensaver_show_clock">Vis ur</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Vis det aktuelle klokkeslæt på pauseskærmen</string>
 </resources>

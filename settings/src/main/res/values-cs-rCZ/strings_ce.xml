@@ -98,4 +98,12 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Přepnout režim zobrazení podle snímkové frekvence videa během přehrávání</string>
     <string name="pref_tv_watch_next">Pokračovat ve sledování na domovské obrazovce</string>
     <string name="pref_tv_watch_next_summary">Zobrazit Pokračovat ve sledování a Další na domovské obrazovce Android TV</string>
+    <string name="pref_tv_screensaver_title">Spořič obrazovky</string>
+    <string name="pref_tv_screensaver_source">Zdroj obrázků</string>
+    <string name="pref_tv_screensaver_source_random">Náhodně</string>
+    <string name="pref_tv_screensaver_source_recently_added">Nedávno přidané</string>
+    <string name="pref_tv_screensaver_interval">Interval přepínání</string>
+    <string name="pref_tv_screensaver_interval_20s">20 sekund</string>
+    <string name="pref_tv_screensaver_show_clock">Zobrazit hodiny</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Zobrazit aktuální čas na spořiči obrazovky</string>
 </resources>

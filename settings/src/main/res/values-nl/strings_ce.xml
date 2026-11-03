@@ -98,4 +98,12 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Schakel de weergavemodus om naar de beeldsnelheid van de video tijdens afspelen</string>
     <string name="pref_tv_watch_next">Verder kijken op het startscherm</string>
     <string name="pref_tv_watch_next_summary">Toon Verder kijken en Volgende op het Android TV-startscherm</string>
+    <string name="pref_tv_screensaver_title">Schermbeveiliging</string>
+    <string name="pref_tv_screensaver_source">Bron voor artwork</string>
+    <string name="pref_tv_screensaver_source_random">Willekeurig</string>
+    <string name="pref_tv_screensaver_source_recently_added">Recent toegevoegd</string>
+    <string name="pref_tv_screensaver_interval">Wisselinterval</string>
+    <string name="pref_tv_screensaver_interval_20s">20 seconden</string>
+    <string name="pref_tv_screensaver_show_clock">Klok weergeven</string>
+    <string name="pref_tv_screensaver_show_clock_summary">De huidige tijd op de schermbeveiliging tonen</string>
 </resources>

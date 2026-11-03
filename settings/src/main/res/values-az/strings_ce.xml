@@ -98,4 +98,12 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Oynatma zamanı displey rejimini videonun kadr tezliyinə uyğunlaşdırın</string>
     <string name="pref_tv_watch_next">Ana ekranda izləməyə davam et</string>
     <string name="pref_tv_watch_next_summary">Android TV ana ekranında \"İzləməyə davam et\" və \"Növbəti\" göstər</string>
+    <string name="pref_tv_screensaver_title">Ekran qoruyucusu</string>
+    <string name="pref_tv_screensaver_source">Şəkil mənbəyi</string>
+    <string name="pref_tv_screensaver_source_random">Təsadüfi</string>
+    <string name="pref_tv_screensaver_source_recently_added">Son əlavə edilənlər</string>
+    <string name="pref_tv_screensaver_interval">Dəyişmə intervalı</string>
+    <string name="pref_tv_screensaver_interval_20s">20 saniyə</string>
+    <string name="pref_tv_screensaver_show_clock">Saat\ı göstər</string>
+    <string name="pref_tv_screensaver_show_clock_summary">Ekran qoruyucusunda cari vaxt\ı göstərin</string>
 </resources>

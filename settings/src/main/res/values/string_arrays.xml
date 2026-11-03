@@ -164,4 +164,26 @@
         <item>ASK</item>
         <item>IGNORE</item>
     </string-array>
+    <string-array name="pref_tv_screensaver_sources">
+        <item>@string/pref_tv_screensaver_source_random</item>
+        <item>@string/pref_tv_screensaver_source_recently_added</item>
+    </string-array>
+    <string-array name="pref_tv_screensaver_sources_values" translatable="false">
+        <item>random</item>
+        <item>recently_added</item>
+    </string-array>
+    <string-array name="pref_tv_screensaver_intervals">
+        <item>@string/player_tv_seek_step_10</item>
+        <item>@string/player_tv_seek_step_15</item>
+        <item>@string/pref_tv_screensaver_interval_20s</item>
+        <item>@string/player_tv_seek_step_30</item>
+        <item>@string/player_tv_seek_step_60</item>
+    </string-array>
+    <string-array name="pref_tv_screensaver_intervals_values" translatable="false">
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
 </resources>
