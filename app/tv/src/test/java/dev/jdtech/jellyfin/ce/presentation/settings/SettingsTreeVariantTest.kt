@@ -35,7 +35,7 @@ class SettingsTreeVariantTest {
     }
 
     @Test
-    fun `TV variant hides gestures, trickplay, pip, and background playback in player settings`() =
+    fun `TV variant hides gestures, pip, and background playback in player settings`() =
         runTest {
             val tvViewModel = SettingsViewModel(context, appPreferences, AppVariant.TV)
             tvViewModel.loadPreferences(listOf(SettingsR.string.settings_category_player))
@@ -46,10 +46,6 @@ class SettingsTreeVariantTest {
             assertFalse(
                 "Gestures group must be hidden on TV",
                 groupTitles.contains(SettingsR.string.gestures),
-            )
-            assertFalse(
-                "Trickplay group must be hidden on TV",
-                groupTitles.contains(SettingsR.string.trickplay),
             )
             assertFalse(
                 "PiP group must be hidden on TV",
@@ -66,6 +62,42 @@ class SettingsTreeVariantTest {
                 groupTitles.contains(SettingsR.string.seeking),
             )
         }
+
+    @Test
+    fun `TV variant shows the trickplay switch but not the gesture one`() = runTest {
+        val tvViewModel = SettingsViewModel(context, appPreferences, AppVariant.TV)
+        tvViewModel.loadPreferences(listOf(SettingsR.string.settings_category_player))
+
+        val trickplayGroup =
+            tvViewModel.state.value.preferenceGroups.first {
+                it.nameStringResource == SettingsR.string.trickplay
+            }
+        val names = trickplayGroup.preferences.map { it.nameStringResource }
+
+        assertTrue(
+            "Trickplay switch must be present on TV",
+            names.contains(SettingsR.string.pref_player_trickplay),
+        )
+        assertFalse(
+            "Gesture seek trickplay switch must be hidden on TV",
+            names.contains(SettingsR.string.pref_player_gestures_seek_trickplay),
+        )
+    }
+
+    @Test
+    fun `Phone variant shows both trickplay switches`() = runTest {
+        val phoneViewModel = SettingsViewModel(context, appPreferences, AppVariant.PHONE)
+        phoneViewModel.loadPreferences(listOf(SettingsR.string.settings_category_player))
+
+        val trickplayGroup =
+            phoneViewModel.state.value.preferenceGroups.first {
+                it.nameStringResource == SettingsR.string.trickplay
+            }
+        val names = trickplayGroup.preferences.map { it.nameStringResource }
+
+        assertTrue(names.contains(SettingsR.string.pref_player_trickplay))
+        assertTrue(names.contains(SettingsR.string.pref_player_gestures_seek_trickplay))
+    }
 
     @Test
     fun `Phone variant shows gestures, trickplay, pip, and background playback in player settings`() =

@@ -87,6 +87,7 @@ import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.di.SubtitleStyleEntryPoint
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
+import dev.jdtech.jellyfin.player.core.domain.models.Trickplay
 import dev.jdtech.jellyfin.player.local.R as PlayerR
 import dev.jdtech.jellyfin.player.local.domain.getTrackNames
 import dev.jdtech.jellyfin.player.local.presentation.PlayerAction
@@ -363,13 +364,32 @@ fun TvPlayerScreen(
             modifier = Modifier.fillMaxSize(),
         )
 
+        // CE (#134): with the controls hidden, the thumbnail sits above the seek indicator.
+        val indicatorFrame =
+            rememberTrickplayFrame(
+                uiState.currentTrickplay,
+                seekIndicator?.targetMs?.takeIf { !controlsVisible },
+            )
         seekIndicator?.let { indicator ->
             if (!controlsVisible) {
-                SeekIndicatorView(
-                    indicator = indicator,
-                    durationMs = progress.durationMs,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier =
+                        Modifier.align(Alignment.TopCenter).padding(top = MaterialTheme.spacings.large),
+                ) {
+                    indicatorFrame?.let {
+                        TrickplayThumbnail(
+                            frame = it,
+                            timeText = null,
+                            modifier = Modifier.padding(bottom = MaterialTheme.spacings.small),
+                        )
+                    }
+                    SeekIndicatorView(
+                        indicator = indicator,
+                        durationMs = progress.durationMs,
+                        modifier = Modifier,
+                    )
+                }
             }
         }
 
@@ -420,6 +440,7 @@ fun TvPlayerScreen(
                 isPlaying = progress.isPlaying,
                 pendingSeekMs = pendingSeekMs,
                 onPendingSeekChange = { pendingSeekMs = it },
+                trickplay = uiState.currentTrickplay,
                 seekSettings = seekSettings,
                 chapterMarkers =
                     remember(uiState.currentChapters, progress.durationMs) {
@@ -529,6 +550,7 @@ private fun PlayerControls(
     isPlaying: Boolean,
     pendingSeekMs: Long?,
     onPendingSeekChange: (Long?) -> Unit,
+    trickplay: Trickplay?,
     seekSettings: TvSeekSettings,
     chapterMarkers: List<Float>,
     hasChapters: Boolean,
@@ -572,48 +594,67 @@ private fun PlayerControls(
             // A pending seek shows where it lands: the remaining time and end time follow it.
             val shownPositionMs = pendingSeekMs ?: positionMs
             val remainingMs = (durationMs - shownPositionMs).coerceAtLeast(0L)
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = formatTime(shownPositionMs),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (pendingSeekMs != null) MaterialTheme.colorScheme.primary else Color.White,
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                if (durationMs > 0) {
-                    // Recomposes with the position while playing, and on the minute while paused.
-                    rememberNow()
-                    val timeFormat = rememberTimeFormat()
-                    val endsAt =
-                        System.currentTimeMillis() +
-                            (remainingMs / playbackSpeed.coerceAtLeast(0.1f)).toLong()
-                    Text(
-                        text =
-                            stringResource(
-                                PlayerR.string.player_ends_at,
-                                timeFormat.format(Date(endsAt)),
-                            ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.8f),
+            // CE (#134): the thumbnail sits above the time row, over where the pending position lands.
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.small)) {
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = formatTime(shownPositionMs),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (pendingSeekMs != null) MaterialTheme.colorScheme.primary else Color.White,
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        if (durationMs > 0) {
+                            // Recomposes with the position while playing, and on the minute while paused.
+                            rememberNow()
+                            val timeFormat = rememberTimeFormat()
+                            val endsAt =
+                                System.currentTimeMillis() +
+                                    (remainingMs / playbackSpeed.coerceAtLeast(0.1f)).toLong()
+                            Text(
+                                text =
+                                    stringResource(
+                                        PlayerR.string.player_ends_at,
+                                        timeFormat.format(Date(endsAt)),
+                                    ),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White.copy(alpha = 0.8f),
+                            )
+                            Spacer(modifier = Modifier.width(MaterialTheme.spacings.medium))
+                        }
+                        Text(
+                            text = "-${formatTime(remainingMs)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White,
+                        )
+                    }
+                    TvSeekBar(
+                        positionMs = positionMs,
+                        durationMs = durationMs,
+                        backStepMs = seekSettings.backMs,
+                        forwardStepMs = seekSettings.forwardMs,
+                        pendingMs = pendingSeekMs,
+                        onPendingChange = onPendingSeekChange,
+                        onSeek = onSeek,
+                        onInteraction = onInteraction,
+                        chapterMarkers = chapterMarkers,
                     )
-                    Spacer(modifier = Modifier.width(MaterialTheme.spacings.medium))
                 }
-                Text(
-                    text = "-${formatTime(remainingMs)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White,
-                )
+                val frame = rememberTrickplayFrame(trickplay, pendingSeekMs)
+                if (frame != null && pendingSeekMs != null) {
+                    TrickplayThumbnail(
+                        frame = frame,
+                        timeText = formatTime(pendingSeekMs),
+                        modifier =
+                            Modifier.aboveAt(
+                                fraction =
+                                    if (durationMs > 0) pendingSeekMs.toFloat() / durationMs
+                                    else 0f,
+                                gap = MaterialTheme.spacings.medium,
+                            ),
+                    )
+                }
             }
-            TvSeekBar(
-                positionMs = positionMs,
-                durationMs = durationMs,
-                backStepMs = seekSettings.backMs,
-                forwardStepMs = seekSettings.forwardMs,
-                pendingMs = pendingSeekMs,
-                onPendingChange = onPendingSeekChange,
-                onSeek = onSeek,
-                onInteraction = onInteraction,
-                chapterMarkers = chapterMarkers,
-            )
             Spacer(modifier = Modifier.height(MaterialTheme.spacings.extraSmall))
             Row(
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
@@ -927,7 +968,6 @@ private fun SeekIndicatorView(indicator: SeekIndicator, durationMs: Long, modifi
         verticalAlignment = Alignment.CenterVertically,
         modifier =
             modifier
-                .padding(top = MaterialTheme.spacings.large)
                 .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(24.dp))
                 .padding(horizontal = MaterialTheme.spacings.medium, vertical = MaterialTheme.spacings.small),
     ) {

@@ -6,7 +6,6 @@ import android.util.LruCache
 import dev.jdtech.jellyfin.player.core.domain.models.TrickplayTileLoader
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import java.util.UUID
-import kotlin.math.max
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -35,17 +34,16 @@ class TrickplayLoader(
     private val itemId: UUID,
     private val width: Int,
     private val height: Int,
-    private val tileWidth: Int,
-    private val tileHeight: Int,
-    private val thumbnailCount: Int,
-    private val interval: Int,
+    tileWidth: Int,
+    tileHeight: Int,
+    thumbnailCount: Int,
+    interval: Int,
     /** Max number of decoded sprite-sheets to keep in memory. */
     cacheSize: Int = DEFAULT_CACHE_SIZE,
 ) : TrickplayTileLoader {
 
-    private val tilesPerSheet = max(1, tileWidth * tileHeight)
-    private val maxSheetIndex =
-        if (thumbnailCount <= 0) 0 else (thumbnailCount - 1) / tilesPerSheet
+    private val tiles =
+        TrickplayTiles(width, height, tileWidth, tileHeight, thumbnailCount, interval)
 
     // We deliberately do not call recycle() in entryRemoved. tileAt holds a reference to
     // the evicted bitmap and reads from it on Dispatchers.Default after the LruCache lookup;
@@ -63,22 +61,17 @@ class TrickplayLoader(
     private val loadMutexes: LruCache<Int, Mutex> = LruCache(MUTEX_CACHE_SIZE)
 
     override suspend fun tileAt(positionMs: Long): Bitmap? {
-        if (thumbnailCount <= 0 || interval <= 0) return null
-
-        val globalTileIndex = (positionMs / interval).toInt().coerceIn(0, thumbnailCount - 1)
-        val sheetIndex = globalTileIndex / tilesPerSheet
-        val localIndex = globalTileIndex % tilesPerSheet
-        val tileX = localIndex % tileWidth
-        val tileY = localIndex / tileWidth
+        val location = tiles.locate(positionMs) ?: return null
+        val sheetIndex = location.sheetIndex
 
         val sheet = loadSheet(sheetIndex) ?: return null
 
         // Defensive bounds check — a corrupt/short sheet shouldn't crash the player.
-        val offsetX = tileX * width
-        val offsetY = tileY * height
+        val offsetX = location.offsetX
+        val offsetY = location.offsetY
         if (offsetX + width > sheet.width || offsetY + height > sheet.height) {
             Timber.w(
-                "Trickplay tile out of bounds: sheet=$sheetIndex tile=$localIndex " +
+                "Trickplay tile out of bounds: sheet=$sheetIndex tile=${location.index} " +
                     "offset=($offsetX,$offsetY) sheet=${sheet.width}x${sheet.height}",
             )
             return null
@@ -93,7 +86,7 @@ class TrickplayLoader(
 
     private suspend fun loadSheet(sheetIndex: Int): Bitmap? {
         sheetCache.get(sheetIndex)?.takeIf { !it.isRecycled }?.let { return it }
-        if (sheetIndex < 0 || sheetIndex > maxSheetIndex) return null
+        if (sheetIndex < 0 || sheetIndex >= tiles.sheetCount) return null
 
         // LruCache.get/put are synchronized internally; the "check then insert" race
         // here at worst creates an extra unused Mutex that the LruCache will evict — the
