@@ -40,7 +40,7 @@ The follow-up issues, in the order from [4-decisions.md](4-decisions.md). All ha
 
 | Issue | What | Gaps |
 |---|---|---|
-| [#138](https://github.com/midasvo/findroid-ce/issues/138) | ✅ Continue watching on the Android TV home screen (Watch Next) | G19 |
+| [#138](https://github.com/midasvo/findroid-ce/issues/138) | ✅ Continue watching on the Android TV home screen (Watch Next) (done in #161) | G19 |
 | [#139](https://github.com/midasvo/findroid-ce/issues/139) | ✅ Switch the display refresh rate to the video frame rate (done in #158) | G20 |
 | [#140](https://github.com/midasvo/findroid-ce/issues/140) | Screensaver with artwork | G21 |
 | [#141](https://github.com/midasvo/findroid-ce/issues/141) | Small polish: date format and shuffle done (in #153), theme music still open (branding: #122) | G22, G24 |
