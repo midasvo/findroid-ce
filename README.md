@@ -119,7 +119,8 @@ The research behind the TV app (gap analysis, decisions and the roadmap) is in
 
 - **Export device profile** from the About screen — handy for debugging playback/transcoding
 
-See the [changelog](CHANGELOG.md) for the full release-by-release history.
+See the [changelog](CHANGELOG.md) for the full release-by-release history. Releases follow
+[Semantic Versioning](https://semver.org/).
 
 ## Install
 
@@ -142,7 +143,7 @@ boxes such as the Xiaomi Mi Box (`.*-tv-arm64-v8a\.apk` for 64-bit ones). On a p
 <summary><strong>Beta channel (Obtainium)</strong></summary>
 
 Beta builds of `main` and of work in progress are published as GitHub prereleases tagged
-`v<version>-beta.<n>`. They install as a separate app, **Ephyra Beta**
+`v<next version>-beta.<n>`, such as `v2.0.1-beta.12`. They install as a separate app, **Ephyra Beta**
 (`nl.midasvo.findroid.ce.staging`), with its own data, so they never replace the stable app.
 
 To follow them, add the same repo URL in Obtainium a second time with these settings:

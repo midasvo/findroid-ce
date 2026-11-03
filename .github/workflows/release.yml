@@ -40,7 +40,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true
-          # The release is usually created first with the changelog as its notes (upstream-sync
+          # The release is usually created first with the changelog as its notes (release
           # skill), so add to those notes instead of replacing them.
           append_body: true
           body: |

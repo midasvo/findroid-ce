@@ -2,11 +2,14 @@
 
 All notable changes to **Ephyra** (formerly Findroid CE, `nl.midasvo.findroid.ce`) are documented here.
 
-This is a community fork of [findroid](https://github.com/jarnedemeulemeester/findroid). Releases are
-tagged `v<upstream-version>-ce.<N>`, where `<upstream-version>` tracks the upstream base
-(currently `1.2.0`) and `<N>` is the CE iteration counter. Entries below describe what each CE
-release adds on top of upstream; routine dependency bumps and translation updates are grouped under
-_Maintenance_.
+Ephyra started as a fork of [Findroid](https://github.com/jarnedemeulemeester/findroid). From
+`v2.0.0` on, releases have their own version numbers and follow
+[Semantic Versioning](https://semver.org/): a new feature raises the minor version, a fix the patch
+version. Changes merged in from Findroid are listed under _From Findroid_, routine dependency bumps
+and translation updates under _Maintenance_.
+
+Up to `v1.2.0-ce.6`, releases were called Findroid CE and tagged `v<findroid-version>-ce.<N>`,
+following the Findroid version they were based on.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
@@ -25,6 +28,8 @@ all still there. Nothing else changes.
   `-libre-arm64-v8a\.apk$` and `.*-tv-armeabi-v7a\.apk`, keep working (#172).
 - The device profiles the app reports to the server are now called "Ephyra Device Profile" and
   "Ephyra Download Profile" (#172).
+- Ephyra has its own version numbers, starting at 2.0.0, instead of following Findroid's. Betas are
+  now named after the next version, such as `2.0.1-beta.12` (#181).
 
 ## [v1.2.0-ce.6] — 2026-11-03
 
