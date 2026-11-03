@@ -50,7 +50,7 @@ The follow-up issues, in the order from [4-decisions.md](4-decisions.md). All ha
 
 | Issue | What |
 |---|---|
-| [#167](https://github.com/midasvo/findroid-ce/issues/167) | ✅ README with an Android TV section and a cleaner phone screenshot layout (done in #PR) |
+| [#167](https://github.com/midasvo/findroid-ce/issues/167) | ✅ README with an Android TV section and a cleaner phone screenshot layout (done in #168) |
 
 ## Still open in #121
 
