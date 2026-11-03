@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Changer le mode d\'affichage pour correspondre à la fréquence d\'images de la vidéo pendant la lecture</string>
     <string name="pref_tv_watch_next">Reprendre la lecture sur l\'écran d\'accueil</string>
     <string name="pref_tv_watch_next_summary">Afficher Reprendre la lecture et À suivre sur l\'écran d\'accueil d\'Android TV</string>
+    <string name="pref_tv_theme_music">Musique du générique</string>
+    <string name="pref_tv_theme_music_summary">Jouer doucement le générique d\'une série sur sa page, si le serveur en a un</string>
 </resources>

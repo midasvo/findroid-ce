@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Lülita taasesituse ajal kuvarežiim video kaadrisagedusele vastavaks</string>
     <string name="pref_tv_watch_next">Jätka vaatamist avakuval</string>
     <string name="pref_tv_watch_next_summary">Kuva Jätka vaatamist ja Järgmisena Android TV avakuval</string>
+    <string name="pref_tv_theme_music">Tunnusmuusika</string>
+    <string name="pref_tv_theme_music_summary">Mängi sarja lehel vaikselt selle tunnuslugu, kui serveris see on</string>
 </resources>

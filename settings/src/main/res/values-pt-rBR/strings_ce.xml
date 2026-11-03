@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Mudar o modo de exibição para corresponder à taxa de quadros do vídeo durante a reprodução</string>
     <string name="pref_tv_watch_next">Continuar assistindo na tela inicial</string>
     <string name="pref_tv_watch_next_summary">Mostrar Continuar assistindo e A seguir na tela inicial do Android TV</string>
+    <string name="pref_tv_theme_music">Música tema</string>
+    <string name="pref_tv_theme_music_summary">Tocar baixinho a música tema de uma série na página dela, se o servidor tiver uma</string>
 </resources>

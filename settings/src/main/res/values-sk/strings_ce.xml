@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Prepnúť režim zobrazenia podľa snímkovej frekvencie videa počas prehrávania</string>
     <string name="pref_tv_watch_next">Pokračovať v sledovaní na domovskej obrazovke</string>
     <string name="pref_tv_watch_next_summary">Zobraziť Pokračovať v sledovaní a Ďalšie na domovskej obrazovke Android TV</string>
+    <string name="pref_tv_theme_music">Tematická hudba</string>
+    <string name="pref_tv_theme_music_summary">Na stránke seriálu potichu prehrať jeho zvučku, ak ju server má</string>
 </resources>

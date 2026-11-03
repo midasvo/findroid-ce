@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Ganti mode tampilan agar cocok dengan kecepatan bingkai video saat pemutaran</string>
     <string name="pref_tv_watch_next">Lanjutkan menonton di layar utama</string>
     <string name="pref_tv_watch_next_summary">Tampilkan Lanjutkan menonton dan Berikutnya di layar utama Android TV</string>
+    <string name="pref_tv_theme_music">Musik tema</string>
+    <string name="pref_tv_theme_music_summary">Putar lagu tema serial dengan pelan di halamannya, jika server memilikinya</string>
 </resources>

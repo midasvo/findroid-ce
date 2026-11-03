@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Oynatma zamanı displey rejimini videonun kadr tezliyinə uyğunlaşdırın</string>
     <string name="pref_tv_watch_next">Ana ekranda izləməyə davam et</string>
     <string name="pref_tv_watch_next_summary">Android TV ana ekranında \"İzləməyə davam et\" və \"Növbəti\" göstər</string>
+    <string name="pref_tv_theme_music">Mövzu musiqisi</string>
+    <string name="pref_tv_theme_music_summary">Serialın səhifəsində, serverdə varsa, mövzu mahnısını sakitcə səsləndir</string>
 </resources>

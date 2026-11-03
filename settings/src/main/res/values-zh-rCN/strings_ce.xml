@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">播放时切换显示模式以匹配视频帧率</string>
     <string name="pref_tv_watch_next">在主屏幕上继续观看</string>
     <string name="pref_tv_watch_next_summary">在 Android TV 主屏幕上显示“继续观看”和“接下来播放”</string>
+    <string name="pref_tv_theme_music">主题音乐</string>
+    <string name="pref_tv_theme_music_summary">如果服务器上有，就在剧集页面上低音量播放其主题曲</string>
 </resources>

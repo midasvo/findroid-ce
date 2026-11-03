@@ -36,6 +36,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import org.jellyfin.sdk.api.client.extensions.audioApi
 import org.jellyfin.sdk.model.api.BaseItemDto
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.DeviceOptionsDto
@@ -520,6 +521,22 @@ class JellyfinRepositoryImpl(
                     .content
             } catch (_: Exception) {
                 return@withContext null
+            }
+        }
+
+    override suspend fun getThemeSongUrl(itemId: UUID): String? =
+        withContext(Dispatchers.IO) {
+            try {
+                val song =
+                    jellyfinApi.libraryApi
+                        .getThemeSongs(itemId, currentUserId, inheritFromParent = true)
+                        .content
+                        .items
+                        .firstOrNull() ?: return@withContext null
+                jellyfinApi.api.audioApi.getAudioStreamUrl(song.id, static = true)
+            } catch (e: Exception) {
+                Timber.e(e)
+                null
             }
         }
 

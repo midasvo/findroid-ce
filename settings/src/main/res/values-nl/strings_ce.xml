@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Schakel de weergavemodus om naar de beeldsnelheid van de video tijdens afspelen</string>
     <string name="pref_tv_watch_next">Verder kijken op het startscherm</string>
     <string name="pref_tv_watch_next_summary">Toon Verder kijken en Volgende op het Android TV-startscherm</string>
+    <string name="pref_tv_theme_music">Themamuziek</string>
+    <string name="pref_tv_theme_music_summary">Speel op de pagina van een serie zachtjes de titelsong af, als de server er een heeft</string>
 </resources>

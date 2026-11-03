@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Oynatma sırasında ekran modunu videonun kare hızına uyacak şekilde değiştir</string>
     <string name="pref_tv_watch_next">Ana ekranda izlemeye devam et</string>
     <string name="pref_tv_watch_next_summary">Android TV ana ekranında İzlemeye devam et ve Sıradaki öğelerini göster</string>
+    <string name="pref_tv_theme_music">Tema müziği</string>
+    <string name="pref_tv_theme_music_summary">Sunucuda varsa, dizinin sayfasında tema şarkısını kısık sesle çal</string>
 </resources>

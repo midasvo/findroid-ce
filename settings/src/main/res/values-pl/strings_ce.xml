@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Zmień tryb wyświetlania na zgodny z liczbą klatek na sekundę wideo podczas odtwarzania</string>
     <string name="pref_tv_watch_next">Kontynuuj oglądanie na ekranie głównym</string>
     <string name="pref_tv_watch_next_summary">Pokazuj Kontynuuj oglądanie i Następne na ekranie głównym Android TV</string>
+    <string name="pref_tv_theme_music">Muzyka tytułowa</string>
+    <string name="pref_tv_theme_music_summary">Ciche odtwarzanie piosenki tytułowej serialu na jego stronie, jeśli serwer ją ma</string>
 </resources>

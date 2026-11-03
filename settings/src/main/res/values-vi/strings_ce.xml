@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Chuyển chế độ hiển thị để khớp với tốc độ khung hình của video khi phát</string>
     <string name="pref_tv_watch_next">Tiếp tục xem trên màn hình chính</string>
     <string name="pref_tv_watch_next_summary">Hiển thị Tiếp tục xem và Tiếp theo trên màn hình chính Android TV</string>
+    <string name="pref_tv_theme_music">Nhạc chủ đề</string>
+    <string name="pref_tv_theme_music_summary">Phát nhỏ bài hát chủ đề của loạt phim trên trang của nó, nếu máy chủ có</string>
 </resources>
