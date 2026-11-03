@@ -73,8 +73,8 @@ the phone app, and installs from the same releases (see [Install](#install)).
 - **Screensaver** with artwork from your library ([#140](https://github.com/midasvo/findroid-ce/issues/140)) and optional **theme music** on show pages ([#141](https://github.com/midasvo/findroid-ce/issues/141))
 - Collections, movie trailers and all relevant settings are reachable with the remote ([#129](https://github.com/midasvo/findroid-ce/issues/129)); phone-only settings are hidden ([#133](https://github.com/midasvo/findroid-ce/issues/133))
 
-**Which APK:** `findroid-ce-v<version>-libre-tv-armeabi-v7a.apk` for 32-bit boxes such as the Xiaomi
-Mi Box, `-tv-arm64-v8a.apk` for 64-bit ones. The Obtainium filters are under [Install](#install).
+**Which APK:** the one ending in `-libre-tv-armeabi-v7a.apk` for 32-bit boxes such as the Xiaomi
+Mi Box, and `-libre-tv-arm64-v8a.apk` for 64-bit ones. The Obtainium filters are under [Install](#install).
 
 The research behind the TV app (gap analysis, decisions and the roadmap) is in
 [docs/tv-research/](docs/tv-research/).
