@@ -2,6 +2,7 @@ package dev.jdtech.jellyfin
 
 import android.app.ActivityManager
 import android.app.Application
+import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import coil3.ImageLoader
@@ -22,6 +23,7 @@ import dev.jdtech.jellyfin.utils.JellyfinImageSizeInterceptor
 import javax.inject.Inject
 import kotlin.time.ExperimentalTime
 import okio.Path.Companion.toOkioPath
+import timber.log.Timber
 
 @HiltAndroidApp
 class BaseApplication : Application(), Configuration.Provider, SingletonImageLoader.Factory {
@@ -36,6 +38,10 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
 
     override fun onCreate() {
         super.onCreate()
+
+        // CE: warnings and errors (such as "Player error") reach logcat in every build, so a
+        // playback error on a TV box can be read with adb. Debug builds log everything.
+        Timber.plant(if (BuildConfig.DEBUG) Timber.DebugTree() else WarningTree())
 
         // Issue #52: correct an "aaudio" value left in preferences by the old default.
         appPreferences.migrateMpvAudioOutput()
@@ -100,6 +106,11 @@ internal fun AppPreferences.useTvImageCacheSize() {
 }
 
 internal const val TV_IMAGE_CACHE_SIZE_MB = 100
+
+/** Logs warnings and errors only, so release builds don't fill logcat with debug output. */
+private class WarningTree : Timber.DebugTree() {
+    override fun isLoggable(tag: String?, priority: Int): Boolean = priority >= Log.WARN
+}
 
 private const val MEMORY_CACHE_PERCENT = 30
 private const val MEMORY_CACHE_MAX_MB = 96
