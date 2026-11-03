@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">再生中に動画のフレームレートに合わせて表示モードを切り替えます</string>
     <string name="pref_tv_watch_next">ホーム画面で続きを見る</string>
     <string name="pref_tv_watch_next_summary">Android TV のホーム画面に「続きを見る」と「次のエピソード」を表示</string>
+    <string name="pref_tv_theme_music">テーマ音楽</string>
+    <string name="pref_tv_theme_music_summary">サーバーにある場合、シリーズのページでテーマ曲を小さな音量で再生します</string>
 </resources>

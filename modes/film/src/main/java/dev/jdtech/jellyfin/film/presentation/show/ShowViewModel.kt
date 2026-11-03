@@ -100,6 +100,18 @@ constructor(
         }
     }
 
+    /**
+     * CE (#141): look up the series' theme song for the TV show page, only when theme music is
+     * turned on. Separate from [loadShow] so the page never waits for it, and the phone never asks.
+     */
+    fun loadThemeSong(showId: UUID) {
+        if (!appPreferences.getValue(appPreferences.tvThemeMusic)) return
+        viewModelScope.launch {
+            val url = repository.getThemeSongUrl(showId)
+            _state.emit(_state.value.copy(themeSongUrl = url))
+        }
+    }
+
     fun downloadSeasons(seasonIds: Set<UUID>, maxBitrate: Int? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             // Episodes already in flight count as skipped so the toast count

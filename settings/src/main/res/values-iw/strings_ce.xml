@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">החלף מצב תצוגה כדי להתאים לקצב הפריימים של הווידאו במהלך ההפעלה</string>
     <string name="pref_tv_watch_next">המשך צפייה במסך הבית</string>
     <string name="pref_tv_watch_next_summary">הצגת \"המשך צפייה\" ו\"הבא בתור\" במסך הבית של Android TV</string>
+    <string name="pref_tv_theme_music">מוזיקת נושא</string>
+    <string name="pref_tv_theme_music_summary">השמעה שקטה של שיר הנושא של סדרה בעמוד שלה, אם יש כזה בשרת</string>
 </resources>

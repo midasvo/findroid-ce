@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Переключать режим дисплея под частоту кадров видео во время воспроизведения</string>
     <string name="pref_tv_watch_next">Продолжить просмотр на главном экране</string>
     <string name="pref_tv_watch_next_summary">Показывать «Продолжить просмотр» и «Далее» на главном экране Android TV</string>
+    <string name="pref_tv_theme_music">Музыкальная тема</string>
+    <string name="pref_tv_theme_music_summary">Тихо проигрывать музыкальную тему сериала на его странице, если она есть на сервере</string>
 </resources>

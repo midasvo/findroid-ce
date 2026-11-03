@@ -98,4 +98,6 @@
     <string name="pref_player_tv_match_refresh_rate_summary">Växla skärmläge för att matcha videons bildfrekvens under uppspelning</string>
     <string name="pref_tv_watch_next">Fortsätt titta på startskärmen</string>
     <string name="pref_tv_watch_next_summary">Visa Fortsätt titta och Nästa på Android TV:s startskärm</string>
+    <string name="pref_tv_theme_music">Temamusik</string>
+    <string name="pref_tv_theme_music_summary">Spela en series temalåt tyst på dess sida, om servern har en</string>
 </resources>
