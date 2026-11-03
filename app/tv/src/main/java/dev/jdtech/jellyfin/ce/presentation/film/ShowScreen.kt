@@ -54,6 +54,7 @@ import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
+import dev.jdtech.jellyfin.ce.ui.PersonCard
 import dev.jdtech.jellyfin.ce.ui.focus.RestoreFocus
 import dev.jdtech.jellyfin.ce.ui.focus.focusPosition
 import dev.jdtech.jellyfin.ce.ui.focus.rememberFocusPosition
@@ -74,7 +75,7 @@ import java.util.UUID
 import kotlinx.coroutines.launch
 
 /**
- * CE replacement of the upstream TV show page (ADR 0001). Back from a season focuses that season
+ * CE replacement of the upstream TV show page (ADR 0001). Back from a season or person focuses that
  * card again, without scrolling to the top (ADR 0003).
  */
 @Composable
@@ -82,6 +83,7 @@ fun ShowScreen(
     showId: UUID,
     navigateToItem: (item: FindroidItem) -> Unit,
     navigateToPlayer: (itemId: UUID, shuffle: Boolean) -> Unit,
+    navigateToPerson: (personId: UUID) -> Unit,
     viewModel: ShowViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -109,6 +111,7 @@ fun ShowScreen(
                     }
                 }
                 is ShowAction.NavigateToItem -> navigateToItem(action.item)
+                is ShowAction.NavigateToPerson -> navigateToPerson(action.personId)
                 else -> Unit
             }
             viewModel.onAction(action)
@@ -121,7 +124,7 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
     val configuration = LocalConfiguration.current
     val locale = configuration.locales.get(0)
 
-    // Default focus: the Play button. After Back from a season: that season card.
+    // Default focus: the Play button. After Back from a season/person: that card.
     val focusPosition = rememberFocusPosition(row = ROW_BUTTONS, column = 0)
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -244,7 +247,8 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                             ) {
                                 Button(
                                     onClick = { onAction(ShowAction.Play()) },
-                                    modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 0),
+                                    modifier =
+                                        Modifier.focusPosition(focusPosition, ROW_BUTTONS, 0),
                                 ) {
                                     Icon(
                                         painter = painterResource(id = CoreR.drawable.ic_play),
@@ -255,7 +259,8 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                 }
                                 Button(
                                     onClick = { onAction(ShowAction.Shuffle) },
-                                    modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 1),
+                                    modifier =
+                                        Modifier.focusPosition(focusPosition, ROW_BUTTONS, 1),
                                 ) {
                                     Icon(
                                         painter = painterResource(id = CoreR.drawable.ic_shuffle),
@@ -285,7 +290,8 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                             false -> onAction(ShowAction.MarkAsPlayed)
                                         }
                                     },
-                                    modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 3),
+                                    modifier =
+                                        Modifier.focusPosition(focusPosition, ROW_BUTTONS, 3),
                                 ) {
                                     Icon(
                                         painter = painterResource(id = CoreR.drawable.ic_check),
@@ -311,7 +317,8 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                             false -> onAction(ShowAction.MarkAsFavorite)
                                         }
                                     },
-                                    modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 4),
+                                    modifier =
+                                        Modifier.focusPosition(focusPosition, ROW_BUTTONS, 4),
                                 ) {
                                     Icon(
                                         painter =
@@ -381,39 +388,91 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                     }
                                 }
                             }
-                            Spacer(modifier = Modifier.height(MaterialTheme.spacings.large))
-                            Text(
-                                text = stringResource(id = CoreR.string.seasons),
-                                style = MaterialTheme.typography.headlineMedium,
-                            )
+                            if (state.seasons.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(MaterialTheme.spacings.large))
+                                Text(
+                                    text = stringResource(id = CoreR.string.seasons),
+                                    style = MaterialTheme.typography.headlineMedium,
+                                )
+                            }
                         }
                     }
-                    item {
-                        LazyRow(
-                            horizontalArrangement =
-                                Arrangement.spacedBy(MaterialTheme.spacings.default),
-                            contentPadding =
-                                PaddingValues(horizontal = MaterialTheme.spacings.default * 2),
-                            modifier =
-                                Modifier.focusRestorer().onFocusChanged {
-                                    if (it.hasFocus) scrollToRow(ROW_SEASONS)
-                                },
-                        ) {
-                            itemsIndexed(state.seasons, key = { _, season -> season.id }) {
-                                index,
-                                season ->
-                                ItemCard(
-                                    item = season,
-                                    direction = Direction.VERTICAL,
-                                    onClick = { onAction(ShowAction.NavigateToItem(season)) },
+                    if (state.seasons.isNotEmpty()) {
+                        item {
+                            LazyRow(
+                                horizontalArrangement =
+                                    Arrangement.spacedBy(MaterialTheme.spacings.default),
+                                contentPadding =
+                                    PaddingValues(horizontal = MaterialTheme.spacings.default * 2),
+                                modifier =
+                                    Modifier.focusRestorer().onFocusChanged {
+                                        if (it.hasFocus) scrollToRow(ROW_SEASONS)
+                                    },
+                            ) {
+                                itemsIndexed(state.seasons, key = { _, season -> season.id }) {
+                                    index,
+                                    season ->
+                                    ItemCard(
+                                        item = season,
+                                        direction = Direction.VERTICAL,
+                                        onClick = { onAction(ShowAction.NavigateToItem(season)) },
+                                        modifier =
+                                            Modifier.focusPosition(
+                                                focusPosition,
+                                                ROW_SEASONS,
+                                                index,
+                                                season.id.toString(),
+                                            ),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    if (state.actors.isNotEmpty()) {
+                        item {
+                            Column {
+                                Spacer(modifier = Modifier.height(MaterialTheme.spacings.medium))
+                                Text(
+                                    text = stringResource(id = CoreR.string.cast_amp_crew),
+                                    style = MaterialTheme.typography.headlineMedium,
                                     modifier =
-                                        Modifier.focusPosition(
-                                            focusPosition,
-                                            ROW_SEASONS,
-                                            index,
-                                            season.id.toString(),
+                                        Modifier.padding(
+                                            horizontal = MaterialTheme.spacings.default * 2
                                         ),
                                 )
+                                Spacer(modifier = Modifier.height(MaterialTheme.spacings.small))
+                                LazyRow(
+                                    horizontalArrangement =
+                                        Arrangement.spacedBy(MaterialTheme.spacings.default),
+                                    contentPadding =
+                                        PaddingValues(
+                                            horizontal = MaterialTheme.spacings.default * 2
+                                        ),
+                                    modifier =
+                                        Modifier.focusRestorer().onFocusChanged {
+                                            if (it.hasFocus) {
+                                                scrollToRow(if (state.seasons.isNotEmpty()) 2 else 1)
+                                            }
+                                        },
+                                ) {
+                                    itemsIndexed(state.actors, key = { _, actor -> actor.id }) {
+                                        index,
+                                        actor ->
+                                        PersonCard(
+                                            person = actor,
+                                            onClick = {
+                                                onAction(ShowAction.NavigateToPerson(actor.id))
+                                            },
+                                            modifier =
+                                                Modifier.focusPosition(
+                                                    focusPosition,
+                                                    ROW_CAST,
+                                                    index,
+                                                    actor.id.toString(),
+                                                ),
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -422,13 +481,22 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
 
             RestoreFocus(
                 position = focusPosition,
-                ready = state.seasons.isNotEmpty() || focusPosition.row == ROW_BUTTONS,
+                ready =
+                    state.seasons.isNotEmpty() ||
+                        state.actors.isNotEmpty() ||
+                        focusPosition.row == ROW_BUTTONS,
             ) { position ->
-                position.resolve(ROW_SEASONS, state.seasons.size) { i ->
-                    state.seasons[i].id.toString()
+                if (position.row == ROW_SEASONS) {
+                    position.resolve(ROW_SEASONS, state.seasons.size) { i ->
+                        state.seasons[i].id.toString()
+                    }
+                    listState.scrollToItem(ROW_SEASONS)
+                } else if (position.row == ROW_CAST) {
+                    position.resolve(ROW_CAST, state.actors.size) { i ->
+                        state.actors[i].id.toString()
+                    }
+                    listState.scrollToItem(if (state.seasons.isNotEmpty()) 2 else 1)
                 }
-                // The season row is item 1 of the list; bring it up before focusing a card in it.
-                listState.scrollToItem(position.row)
             }
         } ?: run { CircularProgressIndicator(modifier = Modifier.align(Alignment.Center)) }
     }
@@ -436,6 +504,7 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
 
 private const val ROW_BUTTONS = 0
 private const val ROW_SEASONS = 1
+private const val ROW_CAST = 2
 
 @Preview(device = "id:tv_1080p")
 @Composable

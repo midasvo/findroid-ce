@@ -40,6 +40,9 @@ data class CollectionRoute(
 /** CE (#130): an episode opens on the season page of its season, with that episode focused. */
 @Serializable data class EpisodeRoute(val episodeId: String) : NavKey
 
+/** CE (#136): person page showing bio and movies/shows. */
+@Serializable data class PersonRoute(val personId: String) : NavKey
+
 @Serializable
 data class PlayerRoute(
     val itemId: String,
