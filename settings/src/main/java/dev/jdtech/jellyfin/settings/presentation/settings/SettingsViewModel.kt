@@ -404,6 +404,15 @@ class SettingsViewModel @Inject constructor(
                                                     backendPreference =
                                                         appPreferences.playerDirectPlayDolbyVision,
                                                 ),
+                                                PreferenceSwitch(
+                                                    nameStringResource =
+                                                        R.string.pref_player_tv_match_refresh_rate,
+                                                    descriptionStringRes =
+                                                        R.string.pref_player_tv_match_refresh_rate_summary,
+                                                    supportedDeviceTypes = listOf(DeviceType.TV),
+                                                    backendPreference =
+                                                        appPreferences.playerTvMatchRefreshRate,
+                                                ),
                                                 PreferenceCategory(
                                                     nameStringResource = R.string.mpv_options,
                                                     onClick = {

@@ -94,4 +94,6 @@
     <string name="player_tv_seek_step_15">15 秒</string>
     <string name="player_tv_seek_step_30">30 秒</string>
     <string name="player_tv_seek_step_60">1 分鐘</string>
+    <string name="pref_player_tv_match_refresh_rate">符合顯示更新率</string>
+    <string name="pref_player_tv_match_refresh_rate_summary">播放時切換顯示模式以符合影片畫面播放速率</string>
 </resources>

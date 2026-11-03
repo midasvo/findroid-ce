@@ -94,4 +94,6 @@
     <string name="player_tv_seek_step_15">15 Sekunden</string>
     <string name="player_tv_seek_step_30">30 Sekunden</string>
     <string name="player_tv_seek_step_60">1 Minute</string>
+    <string name="pref_player_tv_match_refresh_rate">Bildwiederholfrequenz anpassen</string>
+    <string name="pref_player_tv_match_refresh_rate_summary">Anzeigemodus während der Wiedergabe an die Bildrate des Videos anpassen</string>
 </resources>

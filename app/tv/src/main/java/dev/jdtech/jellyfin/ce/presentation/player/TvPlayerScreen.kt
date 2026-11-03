@@ -1,5 +1,8 @@
 package dev.jdtech.jellyfin.ce.presentation.player
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.text.format.DateFormat
 import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
@@ -166,6 +169,16 @@ fun TvPlayerScreen(
     DisposableEffect(Unit) {
         currentView.keepScreenOn = true
         onDispose { currentView.keepScreenOn = false }
+    }
+
+    val window = remember(context) { context.findActivity()?.window }
+    DisposableEffect(window) {
+        if (window != null) {
+            viewModel.attachWindow(window)
+        }
+        onDispose {
+            viewModel.detachWindow()
+        }
     }
 
     // The media session is owned by PlayerViewModel; building a second one here would crash,
@@ -985,3 +998,10 @@ private suspend fun focusWhenReady(requester: FocusRequester) {
 private const val CONTROLS_HIDE_MS = 5_000L
 private const val SEEK_INDICATOR_MS = 1_000L
 private val QUEUE_CARD_WIDTH = 200.dp
+
+private tailrec fun Context.findActivity(): Activity? =
+    when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
+    }

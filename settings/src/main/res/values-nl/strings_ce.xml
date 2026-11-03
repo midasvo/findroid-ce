@@ -94,4 +94,6 @@
     <string name="player_tv_seek_step_15">15 seconden</string>
     <string name="player_tv_seek_step_30">30 seconden</string>
     <string name="player_tv_seek_step_60">1 minuut</string>
+    <string name="pref_player_tv_match_refresh_rate">Beeldverversingsfrequentie aanpassen</string>
+    <string name="pref_player_tv_match_refresh_rate_summary">Schakel de weergavemodus om naar de beeldsnelheid van de video tijdens afspelen</string>
 </resources>

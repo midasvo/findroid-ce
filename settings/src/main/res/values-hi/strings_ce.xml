@@ -94,4 +94,6 @@
     <string name="player_tv_seek_step_15">15 सेकंड</string>
     <string name="player_tv_seek_step_30">30 सेकंड</string>
     <string name="player_tv_seek_step_60">1 मिनट</string>
+    <string name="pref_player_tv_match_refresh_rate">डिस्प्ले रीफ़्रेश दर मिलाएँ</string>
+    <string name="pref_player_tv_match_refresh_rate_summary">प्लेबैक के दौरान वीडियो फ़्रेम दर से मेल खाने के लिए डिस्प्ले मोड बदलें</string>
 </resources>

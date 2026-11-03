@@ -94,4 +94,6 @@
     <string name="player_tv_seek_step_15">15 секунди</string>
     <string name="player_tv_seek_step_30">30 секунди</string>
     <string name="player_tv_seek_step_60">1 минута</string>
+    <string name="pref_player_tv_match_refresh_rate">Сходна честота на опресняване</string>
+    <string name="pref_player_tv_match_refresh_rate_summary">Превключване на режима на дисплея към кадровата честота на видеото по време на възпроизвеждане</string>
 </resources>

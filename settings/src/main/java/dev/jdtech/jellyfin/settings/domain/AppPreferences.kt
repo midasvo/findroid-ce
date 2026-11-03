@@ -83,6 +83,7 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val playerTvSeekBackInc = Preference("pref_player_tv_seek_back_inc", "10000")
     val playerTvSeekForwardInc = Preference("pref_player_tv_seek_forward_inc", "30000")
     val playerTvOkPauses = Preference("pref_player_tv_ok_pauses", false)
+    val playerTvMatchRefreshRate = Preference("pref_player_tv_match_refresh_rate", false)
 
     // Player - Media Segments
     val playerMediaSegmentsSkipButton
