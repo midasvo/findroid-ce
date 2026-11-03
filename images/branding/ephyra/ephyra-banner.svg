@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640">
+  <style>@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&amp;display=swap");
+    .word { font-family: Outfit, "Segoe UI", sans-serif; font-weight: 600; fill: #F0FDFF; letter-spacing: 0.01em; }
+    .tag { font-family: Outfit, "Segoe UI", sans-serif; font-weight: 400; fill: #B9C3F5; }
+    .small { font-family: Outfit, "Segoe UI", sans-serif; font-weight: 300; fill: #7F8BC9; letter-spacing: 0.08em; }</style>
+  <defs>
+    <linearGradient id="wideBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1A2F6B"/>
+      <stop offset="1" stop-color="#070D22"/>
+    </linearGradient>
+    <radialGradient id="wideBgHalo" cx="0.25" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#5B6CF0" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#5B6CF0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ephGlow" cx="0" cy="-30" r="110" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#9B7CF6" stop-opacity="0.55"/>
+      <stop offset="0.5" stop-color="#4FD8F0" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#4FD8F0" stop-opacity="0"/>
+    </radialGradient>
+    <g id="ephMark">
+      <g transform="translate(0 -8)">
+        <circle cy="-30" r="110" fill="url(#ephGlow)"/>
+        <path d="M -64 -2 C -64 -40 -36 -66 0 -66 C 36 -66 64 -40 64 -2 Z" fill="#9B7CF6"/>
+        <path d="M -64 -2 C -64 -40 -36 -66 0 -66 C 12 -66 22 -63 30 -58 C 6 -44 -4 -22 2 -2 Z" fill="#4FD8F0"/>
+        <path d="M -46 -20 C -45 -40 -30 -54 -10 -57 C -27 -47 -38 -36 -38 -20 A 4 4 0 0 1 -46 -20 Z" fill="#E4FBFF" opacity="0.85"/>
+        <g fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 11 6 L 11 80 M 36 6 L 36 46 C 36 58 29 62 26 76 M 36 46 C 36 58 43 62 46 76 M 58 6 C 58 28 72 34 77 18" stroke="#9B7CF6"/>
+          <path d="M -11 6 L -11 80 M -36 6 L -36 46 C -36 58 -43 62 -46 76 M -36 46 C -36 58 -29 62 -26 76 M -58 6 C -58 28 -72 34 -77 18" stroke="#4FD8F0"/>
+        </g>
+      </g>
+    </g>
+  </defs>
+  <rect width="1280" height="640" fill="url(#wideBg)"/>
+  <rect width="1280" height="640" fill="url(#wideBgHalo)"/>
+    <circle cx="968.2" cy="567.9" r="1.2" fill="#4FD8F0" opacity="0.44"/>
+    <circle cx="358.5" cy="238.8" r="1.5" fill="#4FD8F0" opacity="0.34"/>
+    <circle cx="121.7" cy="153.4" r="2.6" fill="#4FD8F0" opacity="0.25"/>
+    <circle cx="261.1" cy="265.3" r="1.7" fill="#4FD8F0" opacity="0.56"/>
+    <circle cx="900.3" cy="246.1" r="1.9" fill="#4FD8F0" opacity="0.60"/>
+    <circle cx="432.5" cy="227.4" r="1.8" fill="#9B7CF6" opacity="0.64"/>
+    <circle cx="253.6" cy="320.0" r="2.4" fill="#4FD8F0" opacity="0.35"/>
+    <circle cx="6.2" cy="635.7" r="3.0" fill="#9B7CF6" opacity="0.28"/>
+    <circle cx="375.2" cy="318.3" r="2.5" fill="#4FD8F0" opacity="0.26"/>
+    <circle cx="1174.7" cy="427.4" r="3.2" fill="#9B7CF6" opacity="0.52"/>
+    <circle cx="832.1" cy="126.3" r="3.0" fill="#9B7CF6" opacity="0.36"/>
+    <circle cx="1233.6" cy="507.5" r="3.4" fill="#4FD8F0" opacity="0.57"/>
+    <circle cx="444.4" cy="115.6" r="0.9" fill="#4FD8F0" opacity="0.60"/>
+    <circle cx="1004.2" cy="637.4" r="1.6" fill="#9B7CF6" opacity="0.61"/>
+    <circle cx="1185.7" cy="239.3" r="3.4" fill="#4FD8F0" opacity="0.26"/>
+    <circle cx="1044.1" cy="150.5" r="2.0" fill="#4FD8F0" opacity="0.66"/>
+    <circle cx="511.9" cy="340.2" r="1.8" fill="#9B7CF6" opacity="0.54"/>
+    <circle cx="861.3" cy="361.4" r="2.4" fill="#4FD8F0" opacity="0.27"/>
+    <circle cx="433.5" cy="342.7" r="3.1" fill="#9B7CF6" opacity="0.50"/>
+    <circle cx="159.3" cy="13.3" r="2.0" fill="#4FD8F0" opacity="0.15"/>
+    <circle cx="60.5" cy="587.5" r="1.5" fill="#4FD8F0" opacity="0.46"/>
+    <circle cx="71.0" cy="313.1" r="2.6" fill="#4FD8F0" opacity="0.42"/>
+    <circle cx="1107.5" cy="51.8" r="0.8" fill="#9B7CF6" opacity="0.64"/>
+    <circle cx="1185.8" cy="121.3" r="1.7" fill="#4FD8F0" opacity="0.16"/>
+    <circle cx="222.1" cy="509.1" r="2.2" fill="#4FD8F0" opacity="0.20"/>
+    <circle cx="132.8" cy="144.3" r="2.9" fill="#9B7CF6" opacity="0.28"/>
+    <circle cx="33.4" cy="165.0" r="1.1" fill="#9B7CF6" opacity="0.17"/>
+    <circle cx="841.1" cy="586.9" r="2.3" fill="#4FD8F0" opacity="0.44"/>
+    <circle cx="544.3" cy="112.4" r="2.1" fill="#9B7CF6" opacity="0.24"/>
+    <circle cx="105.1" cy="218.1" r="2.8" fill="#9B7CF6" opacity="0.47"/>
+    <circle cx="173.8" cy="82.6" r="2.4" fill="#4FD8F0" opacity="0.59"/>
+    <circle cx="1179.5" cy="638.0" r="1.0" fill="#4FD8F0" opacity="0.37"/>
+    <circle cx="652.8" cy="288.1" r="2.0" fill="#9B7CF6" opacity="0.66"/>
+    <circle cx="151.7" cy="222.1" r="1.0" fill="#9B7CF6" opacity="0.48"/>
+    <circle cx="400.4" cy="373.3" r="2.7" fill="#4FD8F0" opacity="0.41"/>
+    <circle cx="501.7" cy="451.9" r="1.5" fill="#4FD8F0" opacity="0.49"/>
+    <circle cx="1200.8" cy="340.8" r="3.2" fill="#9B7CF6" opacity="0.40"/>
+    <circle cx="503.6" cy="109.3" r="3.3" fill="#9B7CF6" opacity="0.40"/>
+    <circle cx="1175.3" cy="619.0" r="2.5" fill="#9B7CF6" opacity="0.28"/>
+    <circle cx="980.5" cy="287.3" r="3.2" fill="#9B7CF6" opacity="0.46"/>
+    <circle cx="71.7" cy="372.6" r="1.9" fill="#4FD8F0" opacity="0.54"/>
+    <circle cx="549.4" cy="356.2" r="2.2" fill="#4FD8F0" opacity="0.27"/>
+    <circle cx="1067.7" cy="364.9" r="2.6" fill="#9B7CF6" opacity="0.33"/>
+    <circle cx="521.1" cy="292.7" r="2.8" fill="#4FD8F0" opacity="0.59"/>
+    <circle cx="326.9" cy="552.0" r="1.5" fill="#9B7CF6" opacity="0.57"/>
+    <circle cx="491.0" cy="272.4" r="2.0" fill="#4FD8F0" opacity="0.66"/>
+    <circle cx="552.1" cy="484.8" r="2.2" fill="#9B7CF6" opacity="0.62"/>
+    <circle cx="296.6" cy="523.4" r="3.0" fill="#9B7CF6" opacity="0.46"/>
+    <circle cx="907.5" cy="253.1" r="1.3" fill="#4FD8F0" opacity="0.25"/>
+    <circle cx="451.4" cy="290.7" r="2.3" fill="#9B7CF6" opacity="0.24"/>
+    <circle cx="626.6" cy="593.7" r="3.1" fill="#4FD8F0" opacity="0.41"/>
+    <circle cx="192.0" cy="85.6" r="1.0" fill="#4FD8F0" opacity="0.56"/>
+    <circle cx="487.6" cy="531.6" r="3.1" fill="#9B7CF6" opacity="0.45"/>
+    <circle cx="222.3" cy="95.7" r="1.2" fill="#4FD8F0" opacity="0.62"/>
+    <circle cx="249.6" cy="97.7" r="2.1" fill="#9B7CF6" opacity="0.52"/>
+    <circle cx="700.2" cy="605.1" r="1.0" fill="#4FD8F0" opacity="0.36"/>
+    <circle cx="706.4" cy="359.6" r="1.2" fill="#9B7CF6" opacity="0.59"/>
+    <circle cx="479.7" cy="320.0" r="2.4" fill="#9B7CF6" opacity="0.29"/>
+    <circle cx="105.2" cy="375.4" r="2.7" fill="#4FD8F0" opacity="0.33"/>
+    <circle cx="1188.5" cy="616.6" r="2.4" fill="#9B7CF6" opacity="0.54"/>
+    <circle cx="1194.8" cy="587.6" r="1.4" fill="#4FD8F0" opacity="0.62"/>
+    <circle cx="71.0" cy="369.0" r="2.9" fill="#9B7CF6" opacity="0.31"/>
+    <circle cx="157.8" cy="66.9" r="3.3" fill="#9B7CF6" opacity="0.53"/>
+    <circle cx="808.3" cy="163.6" r="0.8" fill="#9B7CF6" opacity="0.53"/>
+    <circle cx="191.4" cy="469.7" r="1.6" fill="#9B7CF6" opacity="0.33"/>
+    <circle cx="69.3" cy="525.3" r="1.7" fill="#4FD8F0" opacity="0.60"/>
+    <circle cx="300.7" cy="220.7" r="3.4" fill="#9B7CF6" opacity="0.45"/>
+    <circle cx="985.9" cy="256.2" r="1.0" fill="#4FD8F0" opacity="0.68"/>
+    <circle cx="916.1" cy="561.5" r="2.0" fill="#4FD8F0" opacity="0.40"/>
+    <circle cx="911.0" cy="230.4" r="1.7" fill="#9B7CF6" opacity="0.33"/>
+    <circle cx="335.6" cy="244.8" r="1.5" fill="#4FD8F0" opacity="0.37"/>
+  <use href="#ephMark" transform="translate(330 320) scale(2.4)"/>
+  <text class="word" x="580" y="310" font-size="140">Ephyra</text>
+  <text class="tag" x="585" y="376" font-size="31">A Jellyfin client for your phone and your TV</text>
+  <text class="small" x="587" y="434" font-size="18">DOWNLOADS · ANDROID TV · DOLBY VISION · OPEN SOURCE</text>
+</svg>
