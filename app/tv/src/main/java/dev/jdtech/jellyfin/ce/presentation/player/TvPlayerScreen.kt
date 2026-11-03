@@ -594,50 +594,52 @@ private fun PlayerControls(
             // A pending seek shows where it lands: the remaining time and end time follow it.
             val shownPositionMs = pendingSeekMs ?: positionMs
             val remainingMs = (durationMs - shownPositionMs).coerceAtLeast(0L)
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = formatTime(shownPositionMs),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (pendingSeekMs != null) MaterialTheme.colorScheme.primary else Color.White,
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                if (durationMs > 0) {
-                    // Recomposes with the position while playing, and on the minute while paused.
-                    rememberNow()
-                    val timeFormat = rememberTimeFormat()
-                    val endsAt =
-                        System.currentTimeMillis() +
-                            (remainingMs / playbackSpeed.coerceAtLeast(0.1f)).toLong()
-                    Text(
-                        text =
-                            stringResource(
-                                PlayerR.string.player_ends_at,
-                                timeFormat.format(Date(endsAt)),
-                            ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.8f),
-                    )
-                    Spacer(modifier = Modifier.width(MaterialTheme.spacings.medium))
-                }
-                Text(
-                    text = "-${formatTime(remainingMs)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White,
-                )
-            }
+            // CE (#134): the thumbnail sits above the time row, over where the pending position lands.
             Box(modifier = Modifier.fillMaxWidth()) {
-                TvSeekBar(
-                    positionMs = positionMs,
-                    durationMs = durationMs,
-                    backStepMs = seekSettings.backMs,
-                    forwardStepMs = seekSettings.forwardMs,
-                    pendingMs = pendingSeekMs,
-                    onPendingChange = onPendingSeekChange,
-                    onSeek = onSeek,
-                    onInteraction = onInteraction,
-                    chapterMarkers = chapterMarkers,
-                )
-                // CE (#134): the thumbnail of the pending position, above the bar where it lands.
+                Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.small)) {
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = formatTime(shownPositionMs),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (pendingSeekMs != null) MaterialTheme.colorScheme.primary else Color.White,
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        if (durationMs > 0) {
+                            // Recomposes with the position while playing, and on the minute while paused.
+                            rememberNow()
+                            val timeFormat = rememberTimeFormat()
+                            val endsAt =
+                                System.currentTimeMillis() +
+                                    (remainingMs / playbackSpeed.coerceAtLeast(0.1f)).toLong()
+                            Text(
+                                text =
+                                    stringResource(
+                                        PlayerR.string.player_ends_at,
+                                        timeFormat.format(Date(endsAt)),
+                                    ),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White.copy(alpha = 0.8f),
+                            )
+                            Spacer(modifier = Modifier.width(MaterialTheme.spacings.medium))
+                        }
+                        Text(
+                            text = "-${formatTime(remainingMs)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White,
+                        )
+                    }
+                    TvSeekBar(
+                        positionMs = positionMs,
+                        durationMs = durationMs,
+                        backStepMs = seekSettings.backMs,
+                        forwardStepMs = seekSettings.forwardMs,
+                        pendingMs = pendingSeekMs,
+                        onPendingChange = onPendingSeekChange,
+                        onSeek = onSeek,
+                        onInteraction = onInteraction,
+                        chapterMarkers = chapterMarkers,
+                    )
+                }
                 val frame = rememberTrickplayFrame(trickplay, pendingSeekMs)
                 if (frame != null && pendingSeekMs != null) {
                     TrickplayThumbnail(
