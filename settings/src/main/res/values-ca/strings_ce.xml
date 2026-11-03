@@ -106,4 +106,6 @@
     <string name="pref_tv_screensaver_interval_20s">20 segons</string>
     <string name="pref_tv_screensaver_show_clock">Mostra el rellotge</string>
     <string name="pref_tv_screensaver_show_clock_summary">Mostra l\'hora actual a l\'estalvi de pantalla</string>
+    <string name="pref_tv_theme_music">Música de tema</string>
+    <string name="pref_tv_theme_music_summary">Reprodueix en veu baixa la cançó de tema d\'una sèrie a la seva pàgina, si el servidor en té</string>
 </resources>

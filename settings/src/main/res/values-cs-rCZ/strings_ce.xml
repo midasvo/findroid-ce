@@ -106,4 +106,6 @@
     <string name="pref_tv_screensaver_interval_20s">20 sekund</string>
     <string name="pref_tv_screensaver_show_clock">Zobrazit hodiny</string>
     <string name="pref_tv_screensaver_show_clock_summary">Zobrazit aktuální čas na spořiči obrazovky</string>
+    <string name="pref_tv_theme_music">Tematická hudba</string>
+    <string name="pref_tv_theme_music_summary">Na stránce seriálu potichu přehrát jeho znělku, pokud ji server má</string>
 </resources>

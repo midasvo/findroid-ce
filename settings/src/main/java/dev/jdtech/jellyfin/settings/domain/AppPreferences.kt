@@ -31,6 +31,8 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val tvScreensaverSource = Preference("pref_tv_screensaver_source", "random")
     val tvScreensaverInterval = Preference("pref_tv_screensaver_interval", "20")
     val tvScreensaverShowClock = Preference("pref_tv_screensaver_show_clock", true)
+    // CE (#141): play a series' theme song on the TV show page. Only the TV app shows and uses it.
+    val tvThemeMusic = Preference("pref_tv_theme_music", false)
     val displayExtraInfo = Preference("pref_display_extra_info", false)
     val displayCastAndCrew = Preference("pref_display_cast_and_crew", true)
 

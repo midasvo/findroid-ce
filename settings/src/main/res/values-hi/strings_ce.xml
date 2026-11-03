@@ -106,4 +106,6 @@
     <string name="pref_tv_screensaver_interval_20s">20 सेकंड</string>
     <string name="pref_tv_screensaver_show_clock">घड़ी दिखाएं</string>
     <string name="pref_tv_screensaver_show_clock_summary">स्क्रीनसेवर पर वर्तमान समय प्रदर्शित करें</string>
+    <string name="pref_tv_theme_music">थीम संगीत</string>
+    <string name="pref_tv_theme_music_summary">अगर सर्वर पर हो, तो सीरीज़ के पेज पर उसका थीम गीत धीमी आवाज़ में चलाएँ</string>
 </resources>

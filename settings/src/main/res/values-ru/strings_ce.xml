@@ -106,4 +106,6 @@
     <string name="pref_tv_screensaver_interval_20s">20 секунд</string>
     <string name="pref_tv_screensaver_show_clock">Показывать часы</string>
     <string name="pref_tv_screensaver_show_clock_summary">Отображать текущее время на заставке</string>
+    <string name="pref_tv_theme_music">Музыкальная тема</string>
+    <string name="pref_tv_theme_music_summary">Тихо проигрывать музыкальную тему сериала на его странице, если она есть на сервере</string>
 </resources>

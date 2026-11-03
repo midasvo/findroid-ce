@@ -194,6 +194,13 @@ class SettingsViewModel @Inject constructor(
                                                     supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference = appPreferences.dynamicColors,
                                                 ),
+                                                PreferenceSwitch(
+                                                    nameStringResource = R.string.pref_tv_theme_music,
+                                                    descriptionStringRes =
+                                                        R.string.pref_tv_theme_music_summary,
+                                                    supportedDeviceTypes = listOf(DeviceType.TV),
+                                                    backendPreference = appPreferences.tvThemeMusic,
+                                                ),
                                             ),
                                     ),
                                     PreferenceGroup(

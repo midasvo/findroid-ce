@@ -106,4 +106,6 @@
     <string name="pref_tv_screensaver_interval_20s">20 giây</string>
     <string name="pref_tv_screensaver_show_clock">Hiển thị đồng hồ</string>
     <string name="pref_tv_screensaver_show_clock_summary">Hiển thị thời gian hiện tại trên trình bảo vệ màn hình</string>
+    <string name="pref_tv_theme_music">Nhạc chủ đề</string>
+    <string name="pref_tv_theme_music_summary">Phát nhỏ bài hát chủ đề của loạt phim trên trang của nó, nếu máy chủ có</string>
 </resources>

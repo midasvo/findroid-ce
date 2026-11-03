@@ -106,4 +106,6 @@
     <string name="pref_tv_screensaver_interval_20s">20 sekund</string>
     <string name="pref_tv_screensaver_show_clock">Prikaži uro</string>
     <string name="pref_tv_screensaver_show_clock_summary">Prikaz trenutnega časa na ohranjevalniku zaslona</string>
+    <string name="pref_tv_theme_music">Glasba teme</string>
+    <string name="pref_tv_theme_music_summary">Na strani serije tiho predvajaj njeno tematsko pesem, če jo strežnik ima</string>
 </resources>

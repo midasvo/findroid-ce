@@ -154,6 +154,12 @@ interface JellyfinRepository {
 
     suspend fun getTrickplayData(itemId: UUID, width: Int, index: Int): ByteArray?
 
+    /**
+     * CE (#141): a stream URL for the first theme song of [itemId] (a series), or null when the
+     * server has none. Offline there is no theme music, so the default is null.
+     */
+    suspend fun getThemeSongUrl(itemId: UUID): String? = null
+
     suspend fun postCapabilities()
 
     suspend fun postPlaybackStart(itemId: UUID)

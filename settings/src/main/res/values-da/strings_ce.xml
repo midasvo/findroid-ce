@@ -106,4 +106,6 @@
     <string name="pref_tv_screensaver_interval_20s">20 sekunder</string>
     <string name="pref_tv_screensaver_show_clock">Vis ur</string>
     <string name="pref_tv_screensaver_show_clock_summary">Vis det aktuelle klokkeslæt på pauseskærmen</string>
+    <string name="pref_tv_theme_music">Temamusik</string>
+    <string name="pref_tv_theme_music_summary">Afspil stille en series temasang på dens side, hvis serveren har en</string>
 </resources>

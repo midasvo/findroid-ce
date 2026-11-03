@@ -106,4 +106,6 @@
     <string name="pref_tv_screensaver_interval_20s">20 másodperc</string>
     <string name="pref_tv_screensaver_show_clock">Óra megjelenítése</string>
     <string name="pref_tv_screensaver_show_clock_summary">Az aktuális idő megjelenítése a képernyőkímélőn</string>
+    <string name="pref_tv_theme_music">Főcímzene</string>
+    <string name="pref_tv_theme_music_summary">A sorozat főcímdalának halk lejátszása az oldalán, ha a szerveren van ilyen</string>
 </resources>

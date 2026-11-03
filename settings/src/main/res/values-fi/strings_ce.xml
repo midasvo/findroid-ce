@@ -106,4 +106,6 @@
     <string name="pref_tv_screensaver_interval_20s">20 sekuntia</string>
     <string name="pref_tv_screensaver_show_clock">Näytä kello</string>
     <string name="pref_tv_screensaver_show_clock_summary">Näytä nykyinen aika näytönsäästäjässä</string>
+    <string name="pref_tv_theme_music">Tunnusmusiikki</string>
+    <string name="pref_tv_theme_music_summary">Soita sarjan tunnuskappale hiljaa sen sivulla, jos palvelimella on sellainen</string>
 </resources>

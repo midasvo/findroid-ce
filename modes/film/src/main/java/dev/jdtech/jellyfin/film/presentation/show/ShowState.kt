@@ -20,5 +20,7 @@ data class ShowState(
     val director: FindroidItemPerson? = null,
     val writers: List<FindroidItemPerson> = emptyList(),
     val hasDownloads: Boolean = false,
+    // CE (#141): the TV show page's theme song, null when off or the server has none.
+    val themeSongUrl: String? = null,
     val error: Exception? = null,
 )

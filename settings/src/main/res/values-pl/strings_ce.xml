@@ -106,4 +106,6 @@
     <string name="pref_tv_screensaver_interval_20s">20 sekund</string>
     <string name="pref_tv_screensaver_show_clock">Pokazuj zegar</string>
     <string name="pref_tv_screensaver_show_clock_summary">Wyświetlaj aktualny czas na wygaszaczu ekranu</string>
+    <string name="pref_tv_theme_music">Muzyka tytułowa</string>
+    <string name="pref_tv_theme_music_summary">Ciche odtwarzanie piosenki tytułowej serialu na jego stronie, jeśli serwer ją ma</string>
 </resources>

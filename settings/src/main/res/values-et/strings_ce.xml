@@ -106,4 +106,6 @@
     <string name="pref_tv_screensaver_interval_20s">20 sekundit</string>
     <string name="pref_tv_screensaver_show_clock">Kuva kell</string>
     <string name="pref_tv_screensaver_show_clock_summary">Praeguse kellaaja kuvamine ekraanisäästjal</string>
+    <string name="pref_tv_theme_music">Tunnusmuusika</string>
+    <string name="pref_tv_theme_music_summary">Mängi sarja lehel vaikselt selle tunnuslugu, kui serveris see on</string>
 </resources>

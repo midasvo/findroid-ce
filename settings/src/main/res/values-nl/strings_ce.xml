@@ -106,4 +106,6 @@
     <string name="pref_tv_screensaver_interval_20s">20 seconden</string>
     <string name="pref_tv_screensaver_show_clock">Klok weergeven</string>
     <string name="pref_tv_screensaver_show_clock_summary">De huidige tijd op de schermbeveiliging tonen</string>
+    <string name="pref_tv_theme_music">Themamuziek</string>
+    <string name="pref_tv_theme_music_summary">Speel op de pagina van een serie zachtjes de titelsong af, als de server er een heeft</string>
 </resources>

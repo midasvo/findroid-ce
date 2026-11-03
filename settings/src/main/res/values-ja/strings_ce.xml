@@ -106,4 +106,6 @@
     <string name="pref_tv_screensaver_interval_20s">20秒</string>
     <string name="pref_tv_screensaver_show_clock">時計を表示</string>
     <string name="pref_tv_screensaver_show_clock_summary">スクリーンセーバーに現在時刻を表示します</string>
+    <string name="pref_tv_theme_music">テーマ音楽</string>
+    <string name="pref_tv_theme_music_summary">サーバーにある場合、シリーズのページでテーマ曲を小さな音量で再生します</string>
 </resources>

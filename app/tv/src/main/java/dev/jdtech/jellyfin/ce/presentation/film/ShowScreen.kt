@@ -54,6 +54,7 @@ import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
+import dev.jdtech.jellyfin.ce.thememusic.rememberThemeMusic
 import dev.jdtech.jellyfin.ce.ui.PersonCard
 import dev.jdtech.jellyfin.ce.ui.focus.RestoreFocus
 import dev.jdtech.jellyfin.ce.ui.focus.focusPosition
@@ -91,19 +92,26 @@ fun ShowScreen(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(true) { viewModel.loadShow(showId) }
+    LaunchedEffect(true) {
+        viewModel.loadShow(showId)
+        viewModel.loadThemeSong(showId)
+    }
+    val themeMusic = rememberThemeMusic(state.themeSongUrl)
 
     ShowScreenLayout(
         state = state,
         onAction = { action ->
             when (action) {
                 is ShowAction.Play -> {
+                    themeMusic.onPlaybackStarted()
                     navigateToPlayer(showId, false)
                 }
                 is ShowAction.Shuffle -> {
+                    themeMusic.onPlaybackStarted()
                     navigateToPlayer(showId, true)
                 }
                 is ShowAction.PlayTrailer -> {
+                    themeMusic.onPlaybackStarted()
                     try {
                         uriHandler.openUri(action.trailer)
                     } catch (e: IllegalArgumentException) {

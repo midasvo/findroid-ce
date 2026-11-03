@@ -106,4 +106,6 @@
     <string name="pref_tv_screensaver_interval_20s">20 secondi</string>
     <string name="pref_tv_screensaver_show_clock">Mostra orologio</string>
     <string name="pref_tv_screensaver_show_clock_summary">Mostra l\'ora corrente sul salvaschermo</string>
+    <string name="pref_tv_theme_music">Musica della sigla</string>
+    <string name="pref_tv_theme_music_summary">Riproduci a basso volume la sigla di una serie nella sua pagina, se il server ne ha una</string>
 </resources>
