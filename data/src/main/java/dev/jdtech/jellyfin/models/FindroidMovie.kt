@@ -29,6 +29,8 @@ data class FindroidMovie(
     val endDate: LocalDateTime?,
     val trailer: String?,
     override val unplayedItemCount: Int? = null,
+    /** When the server last saw this movie played; null if never, or when read offline. */
+    val lastPlayedDate: LocalDateTime? = null,
     override val images: FindroidImages,
     override val chapters: List<FindroidChapter>,
     override val trickplayInfo: Map<String, FindroidTrickplayInfo>?,
@@ -64,6 +66,7 @@ suspend fun BaseItemDto.toFindroidMovie(
         productionYear = productionYear,
         endDate = endDate,
         trailer = remoteTrailers?.getOrNull(0)?.url,
+        lastPlayedDate = userData?.lastPlayedDate,
         images = toFindroidImages(jellyfinRepository),
         chapters = toFindroidChapters(),
         trickplayInfo =

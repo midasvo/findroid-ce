@@ -212,6 +212,27 @@ class SettingsTreeVariantTest {
     }
 
     @Test
+    fun `TV variant shows the Watch Next switch and Phone variant hides it`() = runTest {
+        val path =
+            listOf(SettingsR.string.settings_category_interface)
+        val tvViewModel = SettingsViewModel(context, appPreferences, AppVariant.TV)
+        tvViewModel.loadPreferences(path)
+        val tvPrefs = tvViewModel.state.value.preferenceGroups.flatMap { it.preferences }.map { it.nameStringResource }
+        assertTrue(
+            "Watch Next switch must be present on TV",
+            tvPrefs.contains(SettingsR.string.pref_tv_watch_next),
+        )
+
+        val phoneViewModel = SettingsViewModel(context, appPreferences, AppVariant.PHONE)
+        phoneViewModel.loadPreferences(path)
+        val phonePrefs = phoneViewModel.state.value.preferenceGroups.flatMap { it.preferences }.map { it.nameStringResource }
+        assertFalse(
+            "Watch Next switch must be hidden on Phone",
+            phonePrefs.contains(SettingsR.string.pref_tv_watch_next),
+        )
+    }
+
+    @Test
     fun `dump phone and tv settings trees`() = runTest {
         fun dumpTree(variant: AppVariant): String {
             val vm = SettingsViewModel(context, appPreferences, variant)

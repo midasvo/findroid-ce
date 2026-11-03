@@ -96,4 +96,6 @@
     <string name="player_tv_seek_step_60">1 minuut</string>
     <string name="pref_player_tv_match_refresh_rate">Beeldverversingsfrequentie aanpassen</string>
     <string name="pref_player_tv_match_refresh_rate_summary">Schakel de weergavemodus om naar de beeldsnelheid van de video tijdens afspelen</string>
+    <string name="pref_tv_watch_next">Verder kijken op het startscherm</string>
+    <string name="pref_tv_watch_next_summary">Toon Verder kijken en Volgende op het Android TV-startscherm</string>
 </resources>

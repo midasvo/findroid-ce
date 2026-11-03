@@ -96,4 +96,6 @@
     <string name="player_tv_seek_step_60">1 minutt</string>
     <string name="pref_player_tv_match_refresh_rate">Tilpass oppdateringsfrekvens</string>
     <string name="pref_player_tv_match_refresh_rate_summary">Byt skjermmodus for å matcha biletfrekvensen til videoen under avspeling</string>
+    <string name="pref_tv_watch_next">Hald fram å sjå på startskjermen</string>
+    <string name="pref_tv_watch_next_summary">Vis Hald fram å sjå og Neste på startskjermen til Android TV</string>
 </resources>

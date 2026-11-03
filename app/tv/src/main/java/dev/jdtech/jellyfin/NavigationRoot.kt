@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -18,6 +19,8 @@ import dev.jdtech.jellyfin.ce.presentation.film.LibraryScreen
 import dev.jdtech.jellyfin.ce.presentation.film.SeasonScreen
 import dev.jdtech.jellyfin.ce.presentation.film.ShowScreen
 import dev.jdtech.jellyfin.ce.presentation.player.TvPlayerScreen
+import dev.jdtech.jellyfin.ce.watchnext.WatchNextItemType
+import dev.jdtech.jellyfin.ce.watchnext.WatchNextLink
 import dev.jdtech.jellyfin.models.CollectionType
 import dev.jdtech.jellyfin.models.FindroidSeason
 import dev.jdtech.jellyfin.navigation.navigateOrReuse
@@ -42,6 +45,8 @@ fun NavigationRoot(
     hasServers: Boolean,
     hasCurrentServer: Boolean,
     hasCurrentUser: Boolean,
+    watchNextLink: WatchNextLink? = null,
+    onWatchNextLinkOpened: () -> Unit = {},
 ) {
     val setupComplete = hasServers && hasCurrentServer && hasCurrentUser
 
@@ -72,6 +77,17 @@ fun NavigationRoot(
         backStack.clear()
         backStack.add(if (setupComplete) MainRoute else setupStartRoute)
         appliedSetupMode.setupComplete = setupComplete
+    }
+
+    // CE (#138): a Watch Next program resumes its item. Back from the player goes to the item's
+    // page (an episode's season, #130), and from there to Home.
+    if (setupComplete && watchNextLink != null) {
+        LaunchedEffect(watchNextLink) {
+            backStack.clear()
+            backStack.add(MainRoute)
+            backStack.addAll(watchNextRoutes(watchNextLink))
+            onWatchNextLinkOpened()
+        }
     }
 
     val navigate: (NavKey) -> Unit = backStack::add
@@ -138,6 +154,21 @@ private fun episodePlayerAction(
         )
     )
 }
+
+/** The item page and the player, resuming, for a Watch Next program (#138). */
+private fun watchNextRoutes(link: WatchNextLink): List<NavKey> =
+    when (link.itemType) {
+        WatchNextItemType.MOVIE ->
+            listOf(
+                MovieRoute(link.itemId),
+                PlayerRoute(itemId = link.itemId, itemKind = BaseItemKind.MOVIE.serialName),
+            )
+        WatchNextItemType.EPISODE ->
+            listOf(
+                EpisodeRoute(episodeId = link.itemId),
+                PlayerRoute(itemId = link.itemId, itemKind = BaseItemKind.EPISODE.serialName),
+            )
+    }
 
 /**
  * Remembers the setup mode that the back stack was last reconciled for. Deliberately not observable

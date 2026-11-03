@@ -96,4 +96,6 @@
     <string name="player_tv_seek_step_60">1 分钟</string>
     <string name="pref_player_tv_match_refresh_rate">匹配显示刷新率</string>
     <string name="pref_player_tv_match_refresh_rate_summary">播放时切换显示模式以匹配视频帧率</string>
+    <string name="pref_tv_watch_next">在主屏幕上继续观看</string>
+    <string name="pref_tv_watch_next_summary">在 Android TV 主屏幕上显示“继续观看”和“接下来播放”</string>
 </resources>

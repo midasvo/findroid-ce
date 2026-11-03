@@ -96,4 +96,6 @@
     <string name="player_tv_seek_step_60">1 dakika</string>
     <string name="pref_player_tv_match_refresh_rate">Ekran yenileme hızını eşle</string>
     <string name="pref_player_tv_match_refresh_rate_summary">Oynatma sırasında ekran modunu videonun kare hızına uyacak şekilde değiştir</string>
+    <string name="pref_tv_watch_next">Ana ekranda izlemeye devam et</string>
+    <string name="pref_tv_watch_next_summary">Android TV ana ekranında İzlemeye devam et ve Sıradaki öğelerini göster</string>
 </resources>

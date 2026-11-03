@@ -96,4 +96,6 @@
     <string name="player_tv_seek_step_60">1 minut</string>
     <string name="pref_player_tv_match_refresh_rate">Ajusta la freqüència d\'actualització</string>
     <string name="pref_player_tv_match_refresh_rate_summary">Canvia el mode de pantalla per fer-lo coincidir amb la freqüència de fotogrames del vídeo durant la reproducció</string>
+    <string name="pref_tv_watch_next">Continua mirant a la pantalla d\'inici</string>
+    <string name="pref_tv_watch_next_summary">Mostra Continua mirant i Següent a la pantalla d\'inici d\'Android TV</string>
 </resources>

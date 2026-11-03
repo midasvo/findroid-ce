@@ -2,6 +2,8 @@ package dev.jdtech.jellyfin
 
 import android.app.ActivityManager
 import android.app.Application
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -14,6 +16,7 @@ import coil3.request.CachePolicy
 import coil3.request.crossfade
 import coil3.svg.SvgDecoder
 import dagger.hilt.android.HiltAndroidApp
+import dev.jdtech.jellyfin.ce.watchnext.WatchNextSync
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.JellyfinImageSizeInterceptor
 import javax.inject.Inject
@@ -21,14 +24,24 @@ import kotlin.time.ExperimentalTime
 import okio.Path.Companion.toOkioPath
 
 @HiltAndroidApp
-class BaseApplication : Application(), SingletonImageLoader.Factory {
+class BaseApplication : Application(), Configuration.Provider, SingletonImageLoader.Factory {
     @Inject lateinit var appPreferences: AppPreferences
+
+    @Inject lateinit var workerFactory: HiltWorkerFactory
+
+    @Inject lateinit var watchNextSync: WatchNextSync
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
 
     override fun onCreate() {
         super.onCreate()
 
         // Issue #52: correct an "aaudio" value left in preferences by the old default.
         appPreferences.migrateMpvAudioOutput()
+
+        // CE (#138): Continue Watching and Next Up on the launcher's Watch Next row.
+        watchNextSync.start()
     }
 
     @OptIn(ExperimentalCoilApi::class, ExperimentalTime::class)

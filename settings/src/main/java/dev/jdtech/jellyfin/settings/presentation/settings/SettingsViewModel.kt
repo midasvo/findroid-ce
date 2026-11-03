@@ -229,6 +229,13 @@ class SettingsViewModel @Inject constructor(
                                                     nameStringResource = R.string.home_latest,
                                                     backendPreference = appPreferences.homeLatest,
                                                 ),
+                                                PreferenceSwitch(
+                                                    nameStringResource = R.string.pref_tv_watch_next,
+                                                    descriptionStringRes =
+                                                        R.string.pref_tv_watch_next_summary,
+                                                    supportedDeviceTypes = listOf(DeviceType.TV),
+                                                    backendPreference = appPreferences.tvWatchNext,
+                                                ),
                                             ),
                                     ),
                                     PreferenceGroup(

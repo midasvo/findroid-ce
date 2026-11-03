@@ -96,4 +96,6 @@
     <string name="player_tv_seek_step_60">1 menit</string>
     <string name="pref_player_tv_match_refresh_rate">Cocokkan laju penyegaran layar</string>
     <string name="pref_player_tv_match_refresh_rate_summary">Ganti mode tampilan agar cocok dengan kecepatan bingkai video saat pemutaran</string>
+    <string name="pref_tv_watch_next">Lanjutkan menonton di layar utama</string>
+    <string name="pref_tv_watch_next_summary">Tampilkan Lanjutkan menonton dan Berikutnya di layar utama Android TV</string>
 </resources>
