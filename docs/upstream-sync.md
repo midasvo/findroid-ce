@@ -1,10 +1,15 @@
-# Upstream Sync & CE Release
+# Upstream sync and releases
 
-This playbook has been formalized as a Claude Code skill. The single source of
-truth now lives at [`.claude/skills/upstream-sync/SKILL.md`](../.claude/skills/upstream-sync/SKILL.md).
+Two separate flows, each a Claude Code skill:
 
-In Claude Code, just say "sync with upstream" or "do a CE release" — the skill
-triggers automatically.
+- **Syncing with Findroid** merges Findroid's changes (mostly translations and fixes) into
+  Ephyra in a pull request, when it's worth it. It never releases anything.
+  See [`.claude/skills/upstream-sync/SKILL.md`](../.claude/skills/upstream-sync/SKILL.md).
+- **Releasing** turns `main` into a stable `vX.Y.Z`, with the version picked by semver from the
+  commits since the last release.
+  See [`.claude/skills/release/SKILL.md`](../.claude/skills/release/SKILL.md).
+
+In Claude Code, say "sync with Findroid" or "do a release" and the right skill triggers.
 
 ## Publishing a beta
 

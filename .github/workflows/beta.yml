@@ -8,7 +8,8 @@ name: Beta
 # need this workflow or the staging Gradle setup itself. To build a branch as-is instead:
 #   gh workflow run beta.yml --ref <branch>
 #
-# Beta tags look like v1.2.0-beta.<run_number>; they must never match release.yml's `v*-ce.*`.
+# Beta tags look like v<next patch>-beta.<run_number> (v2.0.1-beta.12 after the 2.0.0 release), so
+# they sort after the last release. They must never match release.yml's `v[0-9]+.[0-9]+.[0-9]+`.
 
 on:
   workflow_dispatch:
@@ -100,18 +101,18 @@ jobs:
       - name: Compute beta version
         id: version
         run: |
-          app_name=$(grep -oP 'APP_NAME = "\K[^"]+' buildSrc/src/main/kotlin/Versions.kt)
-          if [ -z "$app_name" ]; then
-            echo "Could not read APP_NAME from Versions.kt" >&2
+          # The same name Gradle gives the beta: EphyraVersion.NEXT_PATCH + "-beta.<run>".
+          name=$(grep -oP 'const val NAME = "\K[0-9]+\.[0-9]+\.[0-9]+' buildSrc/src/main/kotlin/EphyraVersion.kt)
+          if [ -z "$name" ]; then
+            echo "Could not read NAME from EphyraVersion.kt" >&2
             exit 1
           fi
-          version="${app_name}-beta.${GITHUB_RUN_NUMBER}"
-          case "v${version}" in
-            v*-ce.*)
-              echo "Beta tag v${version} would trigger the stable release workflow" >&2
-              exit 1
-              ;;
-          esac
+          IFS=. read -r major minor patch <<< "$name"
+          version="${major}.${minor}.$((patch + 1))-beta.${GITHUB_RUN_NUMBER}"
+          if [[ "v${version}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Beta tag v${version} would trigger the stable release workflow" >&2
+            exit 1
+          fi
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "tag=v${version}" >> "$GITHUB_OUTPUT"
           sha=$(git rev-parse HEAD)

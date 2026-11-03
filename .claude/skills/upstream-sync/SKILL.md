@@ -1,147 +1,106 @@
 ---
 name: upstream-sync
 description: >-
-  Sync the Ephyra fork (repo midasvo/ephyra) with upstream findroid and cut a new -ce.N release.
-  Use this whenever the user mentions syncing with upstream, pulling or merging
-  upstream/jarnedemeulemeester changes, cutting/tagging/publishing a CE release,
-  or simply says "sync" or "do a release" in this repo — even without the word
-  "upstream". Also use it when only part of the flow is requested (e.g. just the
-  changelog or just the tag), so the conventions stay consistent.
+  Merge changes from upstream Findroid (jarnedemeulemeester/findroid) into Ephyra (repo
+  midasvo/ephyra) in a pull request. Use this whenever the user mentions syncing with
+  upstream or Findroid, pulling or merging upstream/jarnedemeulemeester changes, taking
+  Findroid's translations or a Findroid fix, or simply says "sync" in this repo. A sync never
+  releases anything: releases are the `release` skill.
 ---
 
-# Upstream Sync & CE Release Playbook
+# Upstream Sync Playbook
 
-Goal: pull compatible changes from upstream findroid, verify the build, push, update
-the changelog, and cut + publish a new `-ce.N` release. The user may ask for the full
-flow or a subset — follow the relevant steps either way.
+Goal: bring what is worth having from Findroid into Ephyra, through a normal PR. Ephyra has its
+own versions and release rhythm (see the `release` skill), so a sync is just another change on
+`main`; it reaches users with the next release, under **From Findroid** in the changelog.
+
+## When to sync
+
+There is no fixed rhythm. Sync when Findroid has something worth having: Weblate translations
+for the strings Ephyra still shares (most of the app), or a fix in code Ephyra hasn't rewritten.
+About once a month is a good default. Dependency bumps don't need a sync; Renovate does those.
+
+**Merge or cherry-pick.** Merge `upstream/main` while that stays reasonable: the shared history
+keeps later merges small. When a merge would mostly be conflicts in code Ephyra has rewritten
+(the TV app, downloads, the player), say so to the user and propose cherry-picking instead:
+the translation commits (`Translated using Weblate`) and the specific fixes, with
+`git cherry-pick -x` so the origin stays visible.
 
 ## Background
 
-- **Fork:** `origin` = `midasvo/ephyra`, the app is called **Ephyra** (formerly Findroid CE).
-  **Upstream:** `jarnedemeulemeester/findroid`.
-- This fork carries many CE-only commits ahead of upstream (downloads/SD-card work,
-  device-profile transcoding, etc.). Upstream auto-sync is **disabled** — syncing is
+- **Fork:** `origin` = `midasvo/ephyra`, the app is **Ephyra** (formerly Findroid CE).
+  **Upstream:** `jarnedemeulemeester/findroid`. Upstream auto-sync is **disabled**; syncing is
   always manual.
-- **Versioning:** App release tags are `v<findroid-version>-ce.<N>`, e.g. `v1.0.2-ce.32`.
-  - `<findroid-version>` = upstream's `APP_NAME` in `buildSrc/src/main/kotlin/Versions.kt`.
-  - `<N>` = CE iteration counter. It lives **only in the git tag** — we do **not** edit
-    `Versions.kt` for a CE release. `APP_CODE`/`APP_NAME` track upstream verbatim.
-  - Use `scripts/next-ce-tag.sh` (run from the repo root, after merging) to compute the
-    next tag — it handles both the increment and the base-change reset.
+- Ephyra carries many commits of its own (downloads, the TV app, device-profile transcoding,
+  branding). Where they meet upstream changes, Ephyra's behaviour wins unless the upstream
+  change is a fix we want.
 
 ## Procedure
 
 ### 1. Fetch and assess
 
 ```bash
-git fetch origin                                         # FIRST — local main is often stale
-git fetch upstream --tags
-git checkout main && git reset --hard origin/main        # start from the true fork tip
+git config remote.upstream.tagOpt --no-tags              # once; Findroid's tags must not come in
+git fetch origin
+git fetch upstream --no-tags
+git switch -c sync/findroid-$(date -u +%Y-%m-%d) origin/main
 git rev-list --left-right --count upstream/main...HEAD   # "<behind>  <ahead>"
-git log --oneline $(git merge-base main upstream/main)..upstream/main   # what's new upstream
-git diff --stat $(git merge-base main upstream/main) upstream/main      # files upstream touches
+git log --oneline $(git merge-base HEAD upstream/main)..upstream/main   # what's new upstream
+git diff --stat $(git merge-base HEAD upstream/main) upstream/main      # files upstream touches
 ```
 
-> **Always `git fetch origin` and reset `main` to `origin/main` before merging.** Other work
-> (PRs, docs, renovate) lands on `origin/main` between syncs, so the local `main` is routinely
-> behind. Merging onto a stale base makes `git push origin main` get rejected as
-> non-fast-forward, forcing a redo of the whole merge. Do not force-push to recover — reset to
-> `origin/main` and re-merge.
+> Use `merge-base..upstream/main`, **not** `HEAD..upstream/main`: the latter compares full trees
+> and reports all of Ephyra's own commits as reverse changes, producing a huge misleading diff.
 
-> Use `merge-base..upstream/main`, **not** `main..upstream/main` — the latter compares full
-> trees and reports all our ahead-commits as reverse changes, producing a huge misleading diff.
-
-If "behind" is 0, there is nothing to sync — tell the user and stop.
+If "behind" is 0, there is nothing to sync: tell the user and stop.
 
 ### 2. Judge compatibility
 
 Read the actual upstream diff (from the merge-base). Classify:
 
-- **Clean / compatible** — dependency bumps, additive changes, files we don't fork-modify.
-  Merge as-is.
-- **Conflicting but easy** — overlaps a CE-modified file but the intent is clear. Merge,
-  resolve conflicts preserving CE behavior, explain each resolution.
-- **Risky / large** — upstream refactors that collide with CE features (downloads, player,
-  navigation, device profiles). **Pause and ask the user** before proceeding; summarize the
-  conflict and propose options.
+- **Clean / compatible:** translations, additive changes, files Ephyra doesn't change. Merge.
+- **Conflicting but easy:** overlaps a file Ephyra changed but the intent is clear. Merge,
+  resolve keeping Ephyra's behaviour, and explain each resolution in the PR.
+- **Risky / large:** upstream refactors that collide with Ephyra's features (downloads, player,
+  navigation, device profiles, the TV app). **Pause and ask the user** before going on;
+  summarise the conflict and propose options, including cherry-picking only part of it.
 
-### 3. Safety backup, then merge
+### 3. Merge
 
 ```bash
-git tag findroid-sync-backup-$(date -u +%Y%m%dT%H%M%SZ)   # rollback point before merging
 git merge upstream/main
 ```
 
-Resolve any conflicts per step 2. CE behavior wins unless the upstream change is a deliberate
-fix we want.
+Resolve conflicts per step 2 and the hard rules below.
 
-- **CE Translations Collision:** If upstream has added a string or plural with the same key as a CE string in `strings_ce.xml`, the build will fail on duplicate resource definitions. In that case, delete the key from `strings_ce.xml` across all languages so upstream's Weblate translation takes precedence.
+- **CE translations collision:** if upstream adds a string or plural with the same key as one
+  in `strings_ce.xml`, the build fails on duplicate resources. Delete the key from
+  `strings_ce.xml` in all languages so upstream's Weblate translation takes over.
 
-### 4. Build (gate)
-
-```bash
-./gradlew :app:phone:assembleLibreDebug
-```
-
-If it fails, fix forward (e.g. KSP/Kotlin version alignment, API changes from bumped deps). If
-it can't be fixed easily, roll back to the backup tag and report. **Do not push or tag a broken
-build.**
-
-### 5. Commit & push
-
-The merge itself is a commit. If conflict resolution or build fixes added changes, commit them
-too (clear message describing the resolution). Then:
+### 4. Check
 
 ```bash
-git push origin main
+./gradlew ktfmtCheck testDebugUnitTest :app:phone:assembleLibreDebug :app:tv:assembleLibreDebug
+python3 .claude/skills/translate-strings/scripts/check-translations.py
 ```
 
-### 6. Update the changelog
+If something fails, fix forward in the same branch (KSP/Kotlin alignment, API changes). If it
+can't be fixed easily, stop and report; the branch is the rollback, `main` is untouched.
 
-Determine the next tag first:
+### 5. Pull request
 
 ```bash
-next_tag=$(.claude/skills/upstream-sync/scripts/next-ce-tag.sh)
+git push -u origin HEAD
+gh pr create --repo midasvo/ephyra   --title "chore(upstream): sync with Findroid $(git rev-parse --short upstream/main)"   --body "<what came in, grouped (translations, fixes, features), and how conflicts were resolved>"
 ```
 
-Add a section to `CHANGELOG.md` for `$next_tag` — newest-first. Reconstruct it from the commits
-in this release range (previous tag = most recent existing `v*-ce.*` tag):
+Merge it with `--merge` once `gh pr checks` is fully green (a merge commit keeps the shared
+history; `--auto` merges right away because `main` has no required checks). Don't touch
+`CHANGELOG.md` here; the release skill writes the **From Findroid** part.
 
-```bash
-git log --no-merges --format='- %s' <previous-tag>..HEAD
-```
+### 6. Report
 
-Group into **Added / Changed / Fixed**, and collapse routine dependency bumps and translations
-under **Maintenance** to keep the signal high. Add the tag's release link to the top of the link
-list at the bottom of the file, or the new heading renders as plain bracketed text. Commit and
-push to `main` **before tagging**, so the tag includes the changelog entry:
-
-```bash
-git add CHANGELOG.md
-git commit -m "docs: changelog for $next_tag"
-git push origin main
-```
-
-### 7. Tag the CE release
-
-```bash
-git tag -a "$next_tag" -m "CE release $next_tag: <one-line summary of what synced>"
-git push origin "$next_tag"
-```
-
-### 8. Publish the GitHub release
-
-Reuse the changelog section as the release notes:
-
-```bash
-gh release create "$next_tag" --repo midasvo/ephyra \
-  --title "$next_tag" --notes "<the CHANGELOG.md section for this release>"
-```
-
-### 9. Report
-
-Summarize to the user: what was pulled, how conflicts (if any) were resolved, build result,
-the new tag, and the published release.
+Summarise for the user: what came in, how conflicts were resolved, the checks, and the PR.
 
 ## Hard rules
 
@@ -151,7 +110,10 @@ the new tag, and the published release.
   "Ephyra Device Profile" names on the CE side. Upstream's `welcome`, `welcome_text` and
   `permission_local_network_rationale` say "Findroid"; CE shows `ce_welcome`, `ce_welcome_text` and
   `ce_permission_local_network_rationale` instead, so take upstream's changes to those keys as they come.
-- Tag convention is `v1.0.2-ce.N` notation, not independent semver.
+- **Versions are ours.** Upstream's `APP_NAME` / `APP_CODE` in `Versions.kt` are unused: take
+  whatever upstream has there, and never touch `EphyraVersion.kt` or tag anything in a sync.
+- **No upstream tags.** Fetch upstream with `--no-tags` (the remote has `tagOpt = --no-tags`).
+  Findroid's tags would clash with Ephyra's `vX.Y.Z` as soon as Findroid reaches 2.0.0.
 - `.claude/worktrees/` are scratch copies — ignore them when grepping the tree.
 - **CE-owned defaults** — keep these on the CE value when a merge touches them; upstream still
   ships the other value, so every sync re-presents it:

@@ -53,8 +53,9 @@ android {
         minSdk = Versions.MIN_SDK
         targetSdk = Versions.TARGET_SDK
 
-        versionCode = Versions.APP_CODE
-        versionName = Versions.APP_NAME
+        // CE-owned: Ephyra's own version (EphyraVersion.kt), not upstream's Versions.APP_*.
+        versionCode = EphyraVersion.CODE
+        versionName = EphyraVersion.NAME
 
         testInstrumentationRunner = "dev.jdtech.jellyfin.HiltTestRunner"
     }
@@ -118,10 +119,11 @@ androidComponents {
     onVariants { variant ->
         if (variant.buildType != "release" && variant.buildType != "staging") return@onVariants
         variant.outputs.forEach { output ->
-            // Betas from different branches may carry an older APP_CODE, so derive the code from
-            // the run number instead. Offset keeps it above any stable code.
+            // Betas from different branches may carry an older version, so derive the code from
+            // the run number instead. The beta is its own app, so only its own codes matter.
             if (variant.buildType == "staging" && betaBuild != null) {
                 output.versionCode.set(1_000_000 + betaBuild)
+                output.versionName.set("${EphyraVersion.NEXT_PATCH}-beta.$betaBuild")
             }
             val abi =
                 output.filters
