@@ -39,9 +39,10 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          generate_release_notes: true
-          # The release is usually created first with the changelog as its notes (release
-          # skill), so add to those notes instead of replacing them.
+          # The release is created first with the changelog section as its notes (release
+          # skill), so add to those notes instead of replacing them. No generated notes: GitHub
+          # compares with the previous tag it finds, which was Findroid's v1.0.2 for v2.0.0, and
+          # listed every PR since the fork. The changelog section already covers the release.
           append_body: true
           body: |
 
