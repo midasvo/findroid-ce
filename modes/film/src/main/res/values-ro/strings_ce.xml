@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_suggestions_title">Sugestii</string>
+    <string name="home_rows_move_up">Mută în sus</string>
+    <string name="home_rows_move_down">Mută în jos</string>
 </resources>

@@ -219,4 +219,7 @@
     <string name="pref_tv_screensaver_interval_20s">20 seconds</string>
     <string name="pref_tv_screensaver_show_clock">Show clock</string>
     <string name="pref_tv_screensaver_show_clock_summary">Display the current time on the screensaver</string>
+    <!-- CE (#142) -->
+    <string name="home_rows">Home rows</string>
+    <string name="home_rows_summary">Choose which rows Home shows, and in what order</string>
 </resources>

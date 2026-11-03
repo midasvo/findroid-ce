@@ -72,10 +72,12 @@ import dev.jdtech.jellyfin.film.R as FilmR
 import dev.jdtech.jellyfin.film.presentation.home.HomeAction
 import dev.jdtech.jellyfin.film.presentation.home.HomeState
 import dev.jdtech.jellyfin.film.presentation.home.HomeViewModel
+import dev.jdtech.jellyfin.film.presentation.home.orderedRows
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidMovie
 import dev.jdtech.jellyfin.models.FindroidShow
+import dev.jdtech.jellyfin.models.HomeItem
 import dev.jdtech.jellyfin.models.UiText
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
@@ -95,7 +97,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  * - On a return the rows refresh in the background and stay on screen until the new ones are in.
  *   Focus then goes back to the same item by ID, wherever it moved (ADR 0003).
  * - The suggestions carousel is gone: the hero shows the focused card, so suggestions are a row of
- *   their own at the end.
+ *   their own. The rows follow the order and visibility set in Settings (#142).
  * - OK on an episode opens its season (#130). Movies and shows open their page.
  */
 @Composable
@@ -169,34 +171,29 @@ private class HomeRow(
     val direction: Direction,
 )
 
-private fun HomeState.rows(): List<HomeRow> = buildList {
-    resumeSection?.let {
-        add(HomeRow(it.id, it.homeSection.name, it.homeSection.items, Direction.HORIZONTAL))
+/** The rows in the order the user chose (#142). Keyed on the row, so focus restore follows a move. */
+private fun HomeState.rows(): List<HomeRow> =
+    orderedRows().mapNotNull {
+        when (it) {
+            is HomeItem.Section ->
+                HomeRow(it.id, it.homeSection.name, it.homeSection.items, Direction.HORIZONTAL)
+            is HomeItem.ViewItem ->
+                HomeRow(
+                    it.id,
+                    UiText.StringResource(FilmR.string.latest_library, it.view.name),
+                    it.view.items,
+                    Direction.VERTICAL,
+                )
+            is HomeItem.Suggestions ->
+                HomeRow(
+                    it.id,
+                    UiText.StringResource(FilmR.string.home_suggestions_title),
+                    it.items,
+                    Direction.VERTICAL,
+                )
+            HomeItem.OfflineCard -> null
+        }
     }
-    nextUpSection?.let {
-        add(HomeRow(it.id, it.homeSection.name, it.homeSection.items, Direction.HORIZONTAL))
-    }
-    views.forEach {
-        add(
-            HomeRow(
-                it.id,
-                UiText.StringResource(FilmR.string.latest_library, it.view.name),
-                it.view.items,
-                Direction.VERTICAL,
-            )
-        )
-    }
-    suggestionsSection?.let {
-        add(
-            HomeRow(
-                it.id,
-                UiText.StringResource(FilmR.string.home_suggestions_title),
-                it.items,
-                Direction.VERTICAL,
-            )
-        )
-    }
-}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

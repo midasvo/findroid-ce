@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">Показване на текущия час на скрийнсейвъра</string>
     <string name="pref_tv_theme_music">Тематична музика</string>
     <string name="pref_tv_theme_music_summary">Тихо пускане на музикалната тема на сериала на страницата му, ако сървърът има такава</string>
+    <string name="home_rows">Редове на началния екран</string>
+    <string name="home_rows_summary">Изберете кои редове да се показват на началния екран и в какъв ред</string>
 </resources>

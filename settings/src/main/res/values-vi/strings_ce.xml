@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">Hiển thị thời gian hiện tại trên trình bảo vệ màn hình</string>
     <string name="pref_tv_theme_music">Nhạc chủ đề</string>
     <string name="pref_tv_theme_music_summary">Phát nhỏ bài hát chủ đề của loạt phim trên trang của nó, nếu máy chủ có</string>
+    <string name="home_rows">Các hàng ở Trang chủ</string>
+    <string name="home_rows_summary">Chọn các hàng hiển thị ở Trang chủ và thứ tự của chúng</string>
 </resources>

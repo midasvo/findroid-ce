@@ -44,7 +44,7 @@ The follow-up issues, in the order from [4-decisions.md](4-decisions.md). All ha
 | [#139](https://github.com/midasvo/findroid-ce/issues/139) | ✅ Switch the display refresh rate to the video frame rate (done in #158) | G20 |
 | [#140](https://github.com/midasvo/findroid-ce/issues/140) | ✅ Screensaver with artwork (done in #165) | G21 |
 | [#141](https://github.com/midasvo/findroid-ce/issues/141) | ✅ Small polish: date format and shuffle (in #153), theme music (done in #164); branding: #122 | G22, G24 |
-| [#142](https://github.com/midasvo/findroid-ce/issues/142) | Customisable Home rows, for phone and TV (needs a discussion first) | G23 |
+| [#142](https://github.com/midasvo/findroid-ce/issues/142) | ✅ Customisable Home rows, for phone and TV (done in #166) | G23 |
 
 ## Still open in #121
 

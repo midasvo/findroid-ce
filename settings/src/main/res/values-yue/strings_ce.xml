@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">喺螢幕保護程式上顯示目前時間</string>
     <string name="pref_tv_theme_music">主題音樂</string>
     <string name="pref_tv_theme_music_summary">如果伺服器有，就喺劇集頁面細聲播放佢嘅主題曲</string>
+    <string name="home_rows">主頁行列</string>
+    <string name="home_rows_summary">揀選主頁顯示邊啲行，同埋排列次序</string>
 </resources>

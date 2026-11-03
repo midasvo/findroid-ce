@@ -57,6 +57,7 @@ fun SettingsSubScreen(
     navigateToSubSettings: (indexes: List<Int>) -> Unit,
     navigateToServers: () -> Unit,
     navigateToUsers: () -> Unit,
+    navigateToHomeRows: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -72,6 +73,7 @@ fun SettingsSubScreen(
             is SettingsEvent.NavigateToUsers -> navigateToUsers()
             is SettingsEvent.NavigateToServers -> navigateToServers()
             is SettingsEvent.NavigateToAbout -> Unit
+            is SettingsEvent.NavigateToHomeRows -> navigateToHomeRows()
             // TV has no custom subtitle-style screen; route through the standard sub-settings
             // list, which renders the subtitle_style category's nestedPreferenceGroups. The
             // subtitle_style category is nested under the player category, so the full path

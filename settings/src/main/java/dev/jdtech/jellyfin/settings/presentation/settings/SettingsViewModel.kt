@@ -207,34 +207,28 @@ class SettingsViewModel @Inject constructor(
                                         nameStringResource = R.string.home,
                                         preferences =
                                             listOf(
-                                                PreferenceSwitch(
-                                                    nameStringResource = R.string.home_suggestions,
-                                                    backendPreference =
-                                                        appPreferences.homeSuggestions,
-                                                ),
-                                                PreferenceSwitch(
-                                                    nameStringResource =
-                                                        R.string.home_continue_watching,
-                                                    backendPreference =
-                                                        appPreferences.homeContinueWatching,
-                                                ),
-                                                PreferenceSwitch(
-                                                    nameStringResource = R.string.home_next_up,
-                                                    backendPreference = appPreferences.homeNextUp,
+                                                // CE (#142): the rows, their order and which are
+                                                // shown, per user and server. Replaces the
+                                                // Display ... switches, which it migrates.
+                                                PreferenceCategory(
+                                                    nameStringResource = R.string.home_rows,
+                                                    descriptionStringRes = R.string.home_rows_summary,
+                                                    onClick = {
+                                                        viewModelScope.launch {
+                                                            eventsChannel.send(
+                                                                SettingsEvent.NavigateToHomeRows
+                                                            )
+                                                        }
+                                                    },
                                                 ),
                                                 PreferenceIntInput(
                                                     nameStringResource =
                                                         R.string.home_next_up_max_days,
                                                     descriptionStringRes =
                                                         R.string.home_next_up_max_days_summary,
-                                                    dependencies = listOf(appPreferences.homeNextUp),
                                                     backendPreference =
                                                         appPreferences.homeNextUpMaxDays,
                                                     suffixRes = R.string.home_next_up_max_days_suffix,
-                                                ),
-                                                PreferenceSwitch(
-                                                    nameStringResource = R.string.home_latest,
-                                                    backendPreference = appPreferences.homeLatest,
                                                 ),
                                                 PreferenceSwitch(
                                                     nameStringResource = R.string.pref_tv_watch_next,

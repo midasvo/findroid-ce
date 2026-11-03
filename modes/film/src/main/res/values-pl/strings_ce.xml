@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_suggestions_title">Propozycje</string>
+    <string name="home_rows_move_up">Przenieś w górę</string>
+    <string name="home_rows_move_down">Przenieś w dół</string>
 </resources>

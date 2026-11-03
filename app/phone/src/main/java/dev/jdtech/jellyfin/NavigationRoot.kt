@@ -59,6 +59,7 @@ import dev.jdtech.jellyfin.presentation.film.PersonScreen
 import dev.jdtech.jellyfin.presentation.film.SeasonScreen
 import dev.jdtech.jellyfin.presentation.film.ShowScreen
 import dev.jdtech.jellyfin.presentation.settings.AboutScreen
+import dev.jdtech.jellyfin.presentation.settings.HomeRowsScreen
 import dev.jdtech.jellyfin.presentation.settings.SettingsFileEditScreen
 import dev.jdtech.jellyfin.presentation.settings.SettingsScreen
 import dev.jdtech.jellyfin.presentation.settings.SubtitleStyleScreen
@@ -605,9 +606,11 @@ private fun EntryProviderScope<NavKey>.mainEntries(
             navigateToUsers = dropUnlessResumed { navigator.navigate(UsersRoute) },
             navigateToAbout = dropUnlessResumed { navigator.navigate(AboutRoute) },
             navigateToSubtitleStyle = dropUnlessResumed { navigator.navigate(SubtitleStyleRoute) },
+            navigateToHomeRows = dropUnlessResumed { navigator.navigate(HomeRowsRoute) },
             navigateBack = dropUnlessResumed { navigator.goBack() },
         )
     }
+    entry<HomeRowsRoute> { HomeRowsScreen(navigateBack = dropUnlessResumed { navigator.goBack() }) }
     entry<SubtitleStyleRoute> {
         SubtitleStyleScreen(navigateBack = dropUnlessResumed { navigator.goBack() })
     }

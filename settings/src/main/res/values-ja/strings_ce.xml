@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">スクリーンセーバーに現在時刻を表示します</string>
     <string name="pref_tv_theme_music">テーマ音楽</string>
     <string name="pref_tv_theme_music_summary">サーバーにある場合、シリーズのページでテーマ曲を小さな音量で再生します</string>
+    <string name="home_rows">ホームの行</string>
+    <string name="home_rows_summary">ホームに表示する行とその順番を選択します</string>
 </resources>

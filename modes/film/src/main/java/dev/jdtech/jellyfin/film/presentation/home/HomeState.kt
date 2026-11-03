@@ -9,6 +9,9 @@ data class HomeState(
     val resumeSection: HomeItem.Section? = null,
     val nextUpSection: HomeItem.Section? = null,
     val views: List<HomeItem.ViewItem> = emptyList(),
+    // CE (#142): see HomeRowsOrder.kt.
+    val favoritesSection: HomeItem.Section? = null,
+    val rowOrder: List<String> = emptyList(),
     val isLoading: Boolean = true,
     val error: Exception? = null,
 ) {
@@ -17,5 +20,6 @@ data class HomeState(
             suggestionsSection == null &&
                 resumeSection == null &&
                 nextUpSection == null &&
-                views.isEmpty()
+                views.isEmpty() &&
+                favoritesSection == null
 }

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_suggestions_title">اقتراحات</string>
+    <string name="home_rows_move_up">نقل لأعلى</string>
+    <string name="home_rows_move_down">نقل لأسفل</string>
 </resources>

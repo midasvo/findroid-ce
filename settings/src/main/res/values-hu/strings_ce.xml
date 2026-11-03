@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">Az aktuális idő megjelenítése a képernyőkímélőn</string>
     <string name="pref_tv_theme_music">Főcímzene</string>
     <string name="pref_tv_theme_music_summary">A sorozat főcímdalának halk lejátszása az oldalán, ha a szerveren van ilyen</string>
+    <string name="home_rows">Kezdőlap sorai</string>
+    <string name="home_rows_summary">Válaszd ki, mely sorok jelenjenek meg a kezdőlapon, és milyen sorrendben</string>
 </resources>

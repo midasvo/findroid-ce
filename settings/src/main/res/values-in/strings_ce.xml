@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">Menampilkan waktu saat ini pada penghemat layar</string>
     <string name="pref_tv_theme_music">Musik tema</string>
     <string name="pref_tv_theme_music_summary">Putar lagu tema serial dengan pelan di halamannya, jika server memilikinya</string>
+    <string name="home_rows">Baris Beranda</string>
+    <string name="home_rows_summary">Pilih baris yang ditampilkan di Beranda, dan urutannya</string>
 </resources>

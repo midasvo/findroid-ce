@@ -19,5 +19,8 @@ sealed interface SettingsEvent {
 
     data object NavigateToSubtitleStyle : SettingsEvent
 
+    // CE (#142)
+    data object NavigateToHomeRows : SettingsEvent
+
     data object RestartActivity : SettingsEvent
 }

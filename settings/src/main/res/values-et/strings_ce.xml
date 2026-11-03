@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">Praeguse kellaaja kuvamine ekraanisäästjal</string>
     <string name="pref_tv_theme_music">Tunnusmuusika</string>
     <string name="pref_tv_theme_music_summary">Mängi sarja lehel vaikselt selle tunnuslugu, kui serveris see on</string>
+    <string name="home_rows">Avalehe read</string>
+    <string name="home_rows_summary">Vali, milliseid ridu avaleht näitab ja mis järjekorras</string>
 </resources>

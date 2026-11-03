@@ -108,4 +108,6 @@
     <string name="pref_tv_screensaver_show_clock_summary">화면 보호기에 현재 시간 표시</string>
     <string name="pref_tv_theme_music">테마 음악</string>
     <string name="pref_tv_theme_music_summary">서버에 있는 경우 시리즈 페이지에서 테마곡을 작게 재생합니다</string>
+    <string name="home_rows">홈 행</string>
+    <string name="home_rows_summary">홈에 표시할 행과 순서를 선택하세요</string>
 </resources>
