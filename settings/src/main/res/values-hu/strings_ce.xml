@@ -96,4 +96,6 @@
     <string name="player_tv_seek_step_60">1 perc</string>
     <string name="pref_player_tv_match_refresh_rate">Képfrissítési gyakoriság igazítása</string>
     <string name="pref_player_tv_match_refresh_rate_summary">Kijelző mód váltása a videó képkockasebességéhez lejátszás közben</string>
+    <string name="pref_tv_watch_next">Megtekintés folytatása a kezdőképernyőn</string>
+    <string name="pref_tv_watch_next_summary">A Megtekintés folytatása és a Következő megjelenítése az Android TV kezdőképernyőjén</string>
 </resources>

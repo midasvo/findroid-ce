@@ -96,4 +96,6 @@
     <string name="player_tv_seek_step_60">1 minuta</string>
     <string name="pref_player_tv_match_refresh_rate">Přizpůsobit obnovovací frekvenci</string>
     <string name="pref_player_tv_match_refresh_rate_summary">Přepnout režim zobrazení podle snímkové frekvence videa během přehrávání</string>
+    <string name="pref_tv_watch_next">Pokračovat ve sledování na domovské obrazovce</string>
+    <string name="pref_tv_watch_next_summary">Zobrazit Pokračovat ve sledování a Další na domovské obrazovce Android TV</string>
 </resources>

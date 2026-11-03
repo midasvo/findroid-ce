@@ -96,4 +96,6 @@
     <string name="player_tv_seek_step_60">1 минута</string>
     <string name="pref_player_tv_match_refresh_rate">Подстраивать частоту обновления</string>
     <string name="pref_player_tv_match_refresh_rate_summary">Переключать режим дисплея под частоту кадров видео во время воспроизведения</string>
+    <string name="pref_tv_watch_next">Продолжить просмотр на главном экране</string>
+    <string name="pref_tv_watch_next_summary">Показывать «Продолжить просмотр» и «Далее» на главном экране Android TV</string>
 </resources>

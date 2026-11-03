@@ -96,4 +96,6 @@
     <string name="player_tv_seek_step_60">1 minuto</string>
     <string name="pref_player_tv_match_refresh_rate">Adatta frequenza di aggiornamento</string>
     <string name="pref_player_tv_match_refresh_rate_summary">Cambia la modalità di visualizzazione per corrispondere alla frequenza dei fotogrammi del video durante la riproduzione</string>
+    <string name="pref_tv_watch_next">Continua a guardare nella schermata Home</string>
+    <string name="pref_tv_watch_next_summary">Mostra Continua a guardare e Prossimi nella schermata Home di Android TV</string>
 </resources>

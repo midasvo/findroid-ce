@@ -96,4 +96,6 @@
     <string name="player_tv_seek_step_60">1 minuutti</string>
     <string name="pref_player_tv_match_refresh_rate">Mukauta virkistystaajuutta</string>
     <string name="pref_player_tv_match_refresh_rate_summary">Vaihda näyttötila vastaamaan videon kuvanopeutta toiston aikana</string>
+    <string name="pref_tv_watch_next">Jatka katsomista aloitusnäytöllä</string>
+    <string name="pref_tv_watch_next_summary">Näytä Jatka katsomista ja Seuraavaksi Android TV:n aloitusnäytöllä</string>
 </resources>

@@ -96,4 +96,6 @@
     <string name="player_tv_seek_step_60">1 minuto</string>
     <string name="pref_player_tv_match_refresh_rate">Ajustar taxa de atualização</string>
     <string name="pref_player_tv_match_refresh_rate_summary">Mudar o modo de visualização para corresponder à taxa de fotogramas do vídeo durante a reprodução</string>
+    <string name="pref_tv_watch_next">Continuar a ver no ecrã principal</string>
+    <string name="pref_tv_watch_next_summary">Mostrar Continuar a ver e A seguir no ecrã principal da Android TV</string>
 </resources>

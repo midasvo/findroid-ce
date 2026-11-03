@@ -96,4 +96,6 @@
     <string name="player_tv_seek_step_60">دقيقة واحدة</string>
     <string name="pref_player_tv_match_refresh_rate">مطابقة معدل تحديث الشاشة</string>
     <string name="pref_player_tv_match_refresh_rate_summary">تبديل وضع العرض لمطابقة معدل إطارات الفيديو أثناء التشغيل</string>
+    <string name="pref_tv_watch_next">متابعة المشاهدة على الشاشة الرئيسية</string>
+    <string name="pref_tv_watch_next_summary">عرض «متابعة المشاهدة» و«التالي» على الشاشة الرئيسية لـ Android TV</string>
 </resources>

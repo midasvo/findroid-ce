@@ -96,4 +96,6 @@
     <string name="player_tv_seek_step_60">1 Minute</string>
     <string name="pref_player_tv_match_refresh_rate">Bildwiederholfrequenz anpassen</string>
     <string name="pref_player_tv_match_refresh_rate_summary">Anzeigemodus während der Wiedergabe an die Bildrate des Videos anpassen</string>
+    <string name="pref_tv_watch_next">Weiterschauen auf dem Startbildschirm</string>
+    <string name="pref_tv_watch_next_summary">„Weiterschauen“ und „Als Nächstes“ auf dem Android TV-Startbildschirm anzeigen</string>
 </resources>
