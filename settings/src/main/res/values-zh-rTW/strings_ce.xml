@@ -112,5 +112,5 @@
     <string name="home_rows_summary">選擇首頁要顯示哪些列，以及它們的順序</string>
     <string name="ce_permission_local_network_rationale">Ephyra 需要存取您的區域網路，才能找到並連線到您的 Jellyfin 伺服器。遠端伺服器不受影響。</string>
     <string name="pref_show_favorites_tab">「最愛」導覽標籤頁</string>
-    <string name="pref_show_favorites_tab_summary">在底部導覽列中顯示「最愛」標籤頁</string>
+    <string name="pref_show_favorites_tab_summary">在導覽列中顯示「最愛」標籤頁</string>
 </resources>

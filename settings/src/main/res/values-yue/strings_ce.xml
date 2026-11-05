@@ -112,5 +112,5 @@
     <string name="home_rows_summary">揀選主頁顯示邊啲行，同埋排列次序</string>
     <string name="ce_permission_local_network_rationale">Ephyra 需要存取你嘅本地網絡，先可以搵到同連接你嘅 Jellyfin 伺服器。遠端伺服器唔受影響。</string>
     <string name="pref_show_favorites_tab">「我的最愛」導覽標籤頁</string>
-    <string name="pref_show_favorites_tab_summary">喺底部導覽列顯示「我的最愛」標籤頁</string>
+    <string name="pref_show_favorites_tab_summary">喺導覽列顯示「我的最愛」標籤頁</string>
 </resources>

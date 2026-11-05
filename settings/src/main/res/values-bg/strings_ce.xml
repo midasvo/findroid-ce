@@ -112,5 +112,5 @@
     <string name="home_rows_summary">Изберете кои редове да се показват на началния екран и в какъв ред</string>
     <string name="ce_permission_local_network_rationale">Ephyra се нуждае от достъп до локалната ви мрежа, за да намери вашия Jellyfin сървър и да се свърже с него. Отдалечените сървъри не са засегнати.</string>
     <string name="pref_show_favorites_tab">Раздел за навигация „Любими“</string>
-    <string name="pref_show_favorites_tab_summary">Показване на раздела „Любими“ в долната лента за навигация</string>
+    <string name="pref_show_favorites_tab_summary">Показване на раздела „Любими“ в лентата за навигация</string>
 </resources>

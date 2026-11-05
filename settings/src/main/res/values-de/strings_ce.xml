@@ -112,5 +112,5 @@
     <string name="home_rows_summary">Wähle, welche Zeilen die Startseite zeigt und in welcher Reihenfolge</string>
     <string name="ce_permission_local_network_rationale">Ephyra benötigt Zugriff auf Ihr lokales Netzwerk, um Ihren Jellyfin-Server zu finden und sich mit ihm zu verbinden. Entfernte Server sind nicht betroffen.</string>
     <string name="pref_show_favorites_tab">Favoriten-Navigationsleiste</string>
-    <string name="pref_show_favorites_tab_summary">Den Favoriten-Tab in der unteren Navigationsleiste anzeigen</string>
+    <string name="pref_show_favorites_tab_summary">Den Favoriten-Tab in der Navigationsleiste anzeigen</string>
 </resources>

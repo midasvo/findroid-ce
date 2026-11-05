@@ -112,5 +112,5 @@
     <string name="home_rows_summary">ホームに表示する行とその順番を選択します</string>
     <string name="ce_permission_local_network_rationale">Ephyra が Jellyfin サーバーを見つけて接続するには、ローカルネットワークへのアクセスが必要です。リモートサーバーには影響しません。</string>
     <string name="pref_show_favorites_tab">「お気に入り」ナビゲーションタブ</string>
-    <string name="pref_show_favorites_tab_summary">下部のナビゲーションバーにお気に入りタブを表示する</string>
+    <string name="pref_show_favorites_tab_summary">ナビゲーションバーにお気に入りタブを表示する</string>
 </resources>
