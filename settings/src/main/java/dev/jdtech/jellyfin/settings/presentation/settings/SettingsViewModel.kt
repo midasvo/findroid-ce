@@ -243,6 +243,15 @@ class SettingsViewModel @Inject constructor(
                                         preferences =
                                             listOf(
                                                 PreferenceSwitch(
+                                                    nameStringResource =
+                                                        R.string.pref_show_favorites_tab,
+                                                    descriptionStringRes =
+                                                        R.string.pref_show_favorites_tab_summary,
+                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
+                                                    backendPreference =
+                                                        appPreferences.showFavoritesTab,
+                                                ),
+                                                PreferenceSwitch(
                                                     nameStringResource = R.string.extra_info,
                                                     descriptionStringRes =
                                                         R.string.extra_info_summary,

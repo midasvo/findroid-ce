@@ -75,7 +75,7 @@ import dev.jdtech.jellyfin.setup.presentation.permission.PermissionAction
 import dev.jdtech.jellyfin.setup.presentation.permission.PermissionViewModel
 import java.util.UUID
 
-private val TOP_LEVEL_ROUTES = setOf(HomeRoute, MediaRoute, DownloadsRoute)
+private val TOP_LEVEL_ROUTES = setOf(HomeRoute, FavoritesRoute, MediaRoute, DownloadsRoute)
 private val GLOBAL_TRANSITION_SPEC = fadeIn(tween(300)) togetherWith fadeOut(tween(300))
 
 data class TabBarItem(
@@ -87,6 +87,13 @@ data class TabBarItem(
 
 val homeTab =
     TabBarItem(title = CoreR.string.title_home, icon = CoreR.drawable.ic_home, route = HomeRoute)
+
+val favoritesTab =
+    TabBarItem(
+        title = CoreR.string.title_favorite,
+        icon = CoreR.drawable.ic_heart,
+        route = FavoritesRoute,
+    )
 
 val mediaTab =
     TabBarItem(
@@ -107,6 +114,7 @@ fun NavigationRoot(
     hasServers: Boolean,
     hasCurrentServer: Boolean,
     hasCurrentUser: Boolean,
+    showFavoritesTab: Boolean = true,
 ) {
     val setupComplete = hasServers && hasCurrentServer && hasCurrentUser
 
@@ -175,6 +183,7 @@ fun NavigationRoot(
                 navigator = navigator,
                 entryDecorators = entryDecorators,
                 isOfflineMode = LocalOfflineMode.current,
+                showFavoritesTab = showFavoritesTab,
                 searchExpanded = searchExpanded,
                 permissionViewModel = permissionViewModel,
                 permissionApplicable = permissionState.currentRequest != null,
@@ -202,20 +211,28 @@ private fun MainNavigation(
     navigator: Navigator,
     entryDecorators: List<NavEntryDecorator<NavKey>>,
     isOfflineMode: Boolean,
+    showFavoritesTab: Boolean,
     searchExpanded: MutableState<Boolean>,
     permissionViewModel: PermissionViewModel,
     permissionApplicable: Boolean,
 ) {
     val navigationItems =
-        when (isOfflineMode) {
-            false -> listOf(homeTab, mediaTab, downloadsTab)
-            true -> listOf(homeTab, downloadsTab)
+        when {
+            isOfflineMode -> listOf(homeTab, downloadsTab)
+            showFavoritesTab -> listOf(homeTab, favoritesTab, mediaTab, downloadsTab)
+            else -> listOf(homeTab, mediaTab, downloadsTab)
         }
     val tabRoutes = navigationItems.map { it.route }
 
     val topLevelRoute = navigationState.topLevelRoute
     val atTabRoot = navigationState.currentBackStack().last() == topLevelRoute
     val showBottomBar = atTabRoot && topLevelRoute in tabRoutes && !searchExpanded.value
+
+    LaunchedEffect(topLevelRoute, tabRoutes) {
+        if (topLevelRoute !in tabRoutes) {
+            navigator.navigateHome()
+        }
+    }
 
     // The search bar belongs to the Media tab: collapse it when the active top level route
     // changes away from Media (e.g. via the home button on a detail screen) so that the bottom
@@ -452,7 +469,6 @@ private fun EntryProviderScope<NavKey>.mainEntries(
     entry<MediaRoute> {
         MediaScreen(
             onItemClick = resumedAction { item -> navigateToItem(navigator, item) },
-            onFavoritesClick = dropUnlessResumed { navigator.navigate(FavoritesRoute) },
             searchExpanded = searchExpanded.value,
             onSearchExpand = { searchExpanded.value = it },
         )
@@ -508,7 +524,6 @@ private fun EntryProviderScope<NavKey>.mainEntries(
     entry<FavoritesRoute> {
         FavoritesScreen(
             onItemClick = resumedAction { item -> navigateToItem(navigator, item) },
-            navigateBack = dropUnlessResumed { navigator.goBack() },
         )
     }
     entry<MovieRoute> { key ->

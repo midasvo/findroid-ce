@@ -111,4 +111,6 @@
     <string name="home_rows">Vrstice na domačem zaslonu</string>
     <string name="home_rows_summary">Izberite, katere vrstice prikaže domači zaslon in v kakšnem vrstnem redu</string>
     <string name="ce_permission_local_network_rationale">Ephyra potrebuje dostop do vašega lokalnega omrežja, da najde vaš strežnik Jellyfin in se z njim poveže. To ne vpliva na oddaljene strežnike.</string>
+    <string name="pref_show_favorites_tab">Navigacijski zavihek Priljubljene</string>
+    <string name="pref_show_favorites_tab_summary">Prikaži zavihek Priljubljene v spodnji navigacijski vrstici</string>
 </resources>

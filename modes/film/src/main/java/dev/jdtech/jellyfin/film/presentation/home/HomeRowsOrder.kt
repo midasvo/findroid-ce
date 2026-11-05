@@ -16,7 +16,6 @@ fun HomeState.orderedRows(): List<HomeItem> {
         resumeSection?.let { put(homeRowKey(HomeRowType.CONTINUE_WATCHING), it) }
         nextUpSection?.let { put(homeRowKey(HomeRowType.NEXT_UP), it) }
         views.forEach { put(homeRowKey(HomeRowType.LATEST, it.id), it) }
-        favoritesSection?.let { put(homeRowKey(HomeRowType.FAVORITES), it) }
     }
     val ordered = rowOrder.filter { it in byKey }
     return (ordered + (byKey.keys - ordered.toSet())).map { byKey.getValue(it) }

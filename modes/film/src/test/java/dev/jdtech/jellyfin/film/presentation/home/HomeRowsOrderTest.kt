@@ -11,7 +11,6 @@ class HomeRowsOrderTest {
     private val suggestions = HomeItem.Suggestions(UUID.randomUUID(), emptyList())
     private val resume = section()
     private val nextUp = section()
-    private val favorites = section()
 
     private fun section() =
         HomeItem.Section(HomeSection(UUID.randomUUID(), UiText.DynamicString(""), emptyList()))
@@ -21,12 +20,11 @@ class HomeRowsOrderTest {
             suggestionsSection = suggestions,
             resumeSection = resume,
             nextUpSection = nextUp,
-            favoritesSection = favorites,
         )
 
     @Test
     fun `without an order the rows keep the default order`() {
-        assertEquals(listOf(suggestions, resume, nextUp, favorites), state.orderedRows())
+        assertEquals(listOf(suggestions, resume, nextUp), state.orderedRows())
     }
 
     @Test
@@ -35,17 +33,17 @@ class HomeRowsOrderTest {
             state
                 .copy(
                     suggestionsSection = null,
-                    rowOrder = listOf("favorites", "suggestions", "next_up", "continue_watching"),
+                    rowOrder = listOf("next_up", "suggestions", "continue_watching"),
                 )
                 .orderedRows()
 
-        assertEquals(listOf(favorites, nextUp, resume), rows)
+        assertEquals(listOf(nextUp, resume), rows)
     }
 
     @Test
     fun `a row missing from the order goes at the end`() {
-        val rows = state.copy(rowOrder = listOf("next_up", "suggestions")).orderedRows()
+        val rows = state.copy(rowOrder = listOf("next_up")).orderedRows()
 
-        assertEquals(listOf(nextUp, suggestions, resume, favorites), rows)
+        assertEquals(listOf(nextUp, suggestions, resume), rows)
     }
 }

@@ -111,4 +111,6 @@
     <string name="home_rows">Rijen op Home</string>
     <string name="home_rows_summary">Kies welke rijen Home toont, en in welke volgorde</string>
     <string name="ce_permission_local_network_rationale">Ephyra heeft toegang tot je lokale netwerk nodig om je Jellyfin-server te vinden en er verbinding mee te maken. Externe servers merken hier niets van.</string>
+    <string name="pref_show_favorites_tab">Navigatietab Favorieten</string>
+    <string name="pref_show_favorites_tab_summary">Toon het tabblad Favorieten in de onderste navigatiebalk</string>
 </resources>

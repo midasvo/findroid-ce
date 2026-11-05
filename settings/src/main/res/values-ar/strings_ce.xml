@@ -111,4 +111,6 @@
     <string name="home_rows">صفوف الصفحة الرئيسية</string>
     <string name="home_rows_summary">اختر الصفوف التي تعرضها الصفحة الرئيسية وترتيبها</string>
     <string name="ce_permission_local_network_rationale">يحتاج Ephyra إلى الوصول إلى شبكتك المحلية للعثور على خادم Jellyfin والاتصال به. لا يتأثر ذلك بالخوادم البعيدة.</string>
+    <string name="pref_show_favorites_tab">علامة تبويب التنقل للمفضلة</string>
+    <string name="pref_show_favorites_tab_summary">إظهار علامة تبويب المفضلة في شريط التنقل السفلي</string>
 </resources>

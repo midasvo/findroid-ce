@@ -3,7 +3,6 @@ package dev.jdtech.jellyfin.film.presentation.homerows
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.film.R as FilmR
 import dev.jdtech.jellyfin.film.domain.homerows.HomeRowConfig
 import dev.jdtech.jellyfin.film.domain.homerows.HomeRowType
@@ -68,7 +67,6 @@ constructor(
                 HomeRowType.SUGGESTIONS -> UiText.StringResource(FilmR.string.home_suggestions_title)
                 HomeRowType.CONTINUE_WATCHING -> UiText.StringResource(FilmR.string.continue_watching)
                 HomeRowType.NEXT_UP -> UiText.StringResource(FilmR.string.next_up)
-                HomeRowType.FAVORITES -> UiText.StringResource(CoreR.string.title_favorite)
                 HomeRowType.LATEST ->
                     UiText.StringResource(
                         FilmR.string.latest_library,

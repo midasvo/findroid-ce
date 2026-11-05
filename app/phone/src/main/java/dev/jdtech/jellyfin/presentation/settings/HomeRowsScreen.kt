@@ -168,8 +168,8 @@ private fun HomeRowsScreenLayoutPreview() {
                                 UiText.StringResource(FilmR.string.continue_watching),
                             ),
                             HomeRowEntry(
-                                HomeRowConfig(HomeRowType.FAVORITES, visible = false),
-                                UiText.StringResource(CoreR.string.title_favorite),
+                                HomeRowConfig(HomeRowType.NEXT_UP, visible = false),
+                                UiText.StringResource(FilmR.string.next_up),
                             ),
                         ),
                     isLoading = false,

@@ -20,7 +20,6 @@ import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 @Composable
 fun FavoritesScreen(
     onItemClick: (item: FindroidItem) -> Unit,
-    navigateBack: () -> Unit,
     viewModel: FavoritesViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -34,11 +33,13 @@ fun FavoritesScreen(
             when (action) {
                 is CollectionAction.OnItemClick -> onItemClick(action.item)
                 is CollectionAction.OnRetryClick -> viewModel.loadItems()
-                is CollectionAction.OnBackClick -> navigateBack()
+                is CollectionAction.OnBackClick -> Unit
             }
         },
         emptyIcon = CoreR.drawable.ic_heart,
         emptyTitle = stringResource(CoreR.string.no_favorites),
+        emptyBody = stringResource(CoreR.string.favorites_empty_body),
+        showNavigationIcon = false,
     )
 }
 

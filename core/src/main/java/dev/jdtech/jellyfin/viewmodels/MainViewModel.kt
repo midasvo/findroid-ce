@@ -89,7 +89,8 @@ constructor(
                     setupFlags,
                     appPreferences.observe(appPreferences.dynamicColors),
                     appPreferences.observe(appPreferences.offlineMode),
-                ) { flags, dynamicColors, offlineMode ->
+                    appPreferences.observe(appPreferences.showFavoritesTab),
+                ) { flags, dynamicColors, offlineMode, showFavoritesTab ->
                     MainState(
                         isLoading = false,
                         isDynamicColors = dynamicColors,
@@ -97,6 +98,7 @@ constructor(
                         hasCurrentServer = flags.hasCurrentServer,
                         hasCurrentUser = flags.hasCurrentUser,
                         isOfflineMode = offlineMode || !networkConnectivity.isOnline(),
+                        showFavoritesTab = showFavoritesTab,
                     )
                 }
                 .collect { mainState -> _state.emit(mainState) }
@@ -117,4 +119,5 @@ data class MainState(
     val hasCurrentServer: Boolean = false,
     val hasCurrentUser: Boolean = false,
     val isOfflineMode: Boolean = false,
+    val showFavoritesTab: Boolean = true,
 )

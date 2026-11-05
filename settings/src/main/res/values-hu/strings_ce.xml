@@ -111,4 +111,6 @@
     <string name="home_rows">Kezdőlap sorai</string>
     <string name="home_rows_summary">Válaszd ki, mely sorok jelenjenek meg a kezdőlapon, és milyen sorrendben</string>
     <string name="ce_permission_local_network_rationale">Az Ephyrának hozzáférésre van szüksége a helyi hálózathoz, hogy megtalálja a Jellyfin-szerveredet és csatlakozzon hozzá. A távoli szervereket ez nem érinti.</string>
+    <string name="pref_show_favorites_tab">Kedvencek navigációs fül</string>
+    <string name="pref_show_favorites_tab_summary">A Kedvencek fül megjelenítése az alsó navigációs sávban</string>
 </resources>

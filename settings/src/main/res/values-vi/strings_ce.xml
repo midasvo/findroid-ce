@@ -111,4 +111,6 @@
     <string name="home_rows">Các hàng ở Trang chủ</string>
     <string name="home_rows_summary">Chọn các hàng hiển thị ở Trang chủ và thứ tự của chúng</string>
     <string name="ce_permission_local_network_rationale">Ephyra cần quyền truy cập mạng cục bộ để tìm và kết nối với máy chủ Jellyfin của bạn. Máy chủ từ xa không bị ảnh hưởng.</string>
+    <string name="pref_show_favorites_tab">Thẻ điều hướng Mục yêu thích</string>
+    <string name="pref_show_favorites_tab_summary">Hiển thị thẻ Mục yêu thích ở thanh điều hướng dưới cùng</string>
 </resources>

@@ -111,4 +111,6 @@
     <string name="home_rows">Linhas do Início</string>
     <string name="home_rows_summary">Escolha quais linhas o Início mostra e em que ordem</string>
     <string name="ce_permission_local_network_rationale">O Ephyra precisa de acesso à sua rede local para encontrar e conectar-se ao seu servidor Jellyfin. Servidores remotos não são afetados.</string>
+    <string name="pref_show_favorites_tab">Aba de navegação Favoritos</string>
+    <string name="pref_show_favorites_tab_summary">Mostrar a aba Favoritos na barra de navegação inferior</string>
 </resources>

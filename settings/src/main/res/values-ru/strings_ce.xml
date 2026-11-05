@@ -111,4 +111,6 @@
     <string name="home_rows">Ряды на главной</string>
     <string name="home_rows_summary">Выберите, какие ряды показывать на главной и в каком порядке</string>
     <string name="ce_permission_local_network_rationale">Ephyra нужен доступ к локальной сети, чтобы найти ваш сервер Jellyfin и подключиться к нему. Удалённые серверы это не затрагивает.</string>
+    <string name="pref_show_favorites_tab">Вкладка навигации «Избранное»</string>
+    <string name="pref_show_favorites_tab_summary">Показывать вкладку «Избранное» на нижней панели навигации</string>
 </resources>

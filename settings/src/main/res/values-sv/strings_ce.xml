@@ -111,4 +111,6 @@
     <string name="home_rows">Rader på startsidan</string>
     <string name="home_rows_summary">Välj vilka rader startsidan visar och i vilken ordning</string>
     <string name="ce_permission_local_network_rationale">Ephyra behöver åtkomst till ditt lokala nätverk för att hitta och ansluta till din Jellyfin-server. Fjärrservrar påverkas inte.</string>
+    <string name="pref_show_favorites_tab">Navigeringsfliken Favoriter</string>
+    <string name="pref_show_favorites_tab_summary">Visa fliken Favoriter i det nedre navigeringsfältet</string>
 </resources>

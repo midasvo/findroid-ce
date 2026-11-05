@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
-import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.film.R as FilmR
 import dev.jdtech.jellyfin.film.domain.homerows.HomeRowConfig
 import dev.jdtech.jellyfin.film.domain.homerows.HomeRowType
@@ -13,9 +12,6 @@ import dev.jdtech.jellyfin.film.domain.homerows.HomeRowsProfile
 import dev.jdtech.jellyfin.film.domain.homerows.HomeRowsStore
 import dev.jdtech.jellyfin.film.domain.homerows.LegacyHomeSwitches
 import dev.jdtech.jellyfin.film.domain.homerows.homeLibraries
-import dev.jdtech.jellyfin.models.FindroidEpisode
-import dev.jdtech.jellyfin.models.FindroidMovie
-import dev.jdtech.jellyfin.models.FindroidShow
 import dev.jdtech.jellyfin.models.HomeItem
 import dev.jdtech.jellyfin.models.HomeSection
 import dev.jdtech.jellyfin.models.Server
@@ -58,11 +54,8 @@ constructor(
             UUID.fromString("44845958-8326-4e83-beb4-c4f42e9eeb95")
         private val UUID_NEXT_UP =
             UUID.fromString("18bfced5-f237-4d42-aa72-d9d7fed19279")
-        private val UUID_FAVORITES =
-            UUID.fromString("5b0f3c9e-2a41-4d8e-9a6f-7c1e2d3b4a50")
     }
 
-    private val uiTextFavorites = UiText.StringResource(CoreR.string.title_favorite)
     private val homeRowsStore = HomeRowsStore(appPreferences, database)
 
     /**
@@ -110,11 +103,6 @@ constructor(
                                 }
                             },
                             async { logFailure("views") { loadViews(stored, legacy) } },
-                            async {
-                                logFailure("favorites") {
-                                    loadFavorites(show(HomeRowType.FAVORITES))
-                                }
-                            },
                         )
                     }
                 _state.update { it.copy(error = errorIfAllFailed(rows)) }
@@ -265,30 +253,6 @@ constructor(
             }
 
         _state.update { it.copy(views = items) }
-        return true
-    }
-
-    /** CE (#142): one row with the favorite movies, shows and episodes, as Favorites groups them. */
-    private suspend fun loadFavorites(show: Boolean): Boolean {
-        Timber.i("Loading favorites")
-        if (!show) {
-            _state.update { it.copy(favoritesSection = null) }
-            return false
-        }
-
-        val items =
-            repository.getFavoriteItems().filter {
-                it is FindroidMovie || it is FindroidShow || it is FindroidEpisode
-            }
-
-        val section =
-            if (items.isEmpty()) {
-                null
-            } else {
-                HomeItem.Section(HomeSection(UUID_FAVORITES, uiTextFavorites, items))
-            }
-
-        _state.update { it.copy(favoritesSection = section) }
         return true
     }
 

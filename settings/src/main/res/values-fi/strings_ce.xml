@@ -111,4 +111,6 @@
     <string name="home_rows">Etusivun rivit</string>
     <string name="home_rows_summary">Valitse, mitkä rivit etusivulla näytetään ja missä järjestyksessä</string>
     <string name="ce_permission_local_network_rationale">Ephyra tarvitsee pääsyn paikallisverkkoosi löytääkseen Jellyfin-palvelimesi ja muodostaakseen siihen yhteyden. Etäpalvelimiin tämä ei vaikuta.</string>
+    <string name="pref_show_favorites_tab">Suosikit-navigointivälilehti</string>
+    <string name="pref_show_favorites_tab_summary">Näytä Suosikit-välilehti alanavigointipalkissa</string>
 </resources>

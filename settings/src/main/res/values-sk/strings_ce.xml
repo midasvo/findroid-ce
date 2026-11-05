@@ -111,4 +111,6 @@
     <string name="home_rows">Riadky domovskej obrazovky</string>
     <string name="home_rows_summary">Vyberte, ktoré riadky sa zobrazia na domovskej obrazovke a v akom poradí</string>
     <string name="ce_permission_local_network_rationale">Ephyra potrebuje prístup k miestnej sieti, aby našla váš server Jellyfin a pripojila sa k nemu. Vzdialených serverov sa to netýka.</string>
+    <string name="pref_show_favorites_tab">Navigačná karta Obľúbené</string>
+    <string name="pref_show_favorites_tab_summary">Zobraziť kartu Obľúbené na dolnom navigačnom paneli</string>
 </resources>
