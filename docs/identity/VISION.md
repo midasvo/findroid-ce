@@ -7,6 +7,9 @@ the way of the artwork.
 This document is the agreed direction. It is written so that someone with no taste of their own
 can apply it consistently. Where it says "must", a code review can quote it.
 
+Parent issue: midasvo/ephyra#210. Mood board with the three candidate directions and the chosen one:
+https://claude.ai/artifact/Unf8mfmL674Ybb2EFj963F
+
 ## 1. Principles
 
 1. **Content is the light source.** Posters, backdrops and video supply the colour. The chrome is

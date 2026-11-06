@@ -71,6 +71,8 @@ Events that fire once (navigation, toasts) use a `Channel<FooEvent>` exposed as 
 
 ## Key Patterns
 
+**Identity:** the visual identity (palette, type, shape, motion, glow rules) is specified in `docs/identity/VISION.md`. Quote its principles in reviews; don't invent colours outside its token tables.
+
 **Downloading:** `Downloader` interface (in `core`) is injected into ViewModels that need it. `DownloaderViewModel` (also in `core`) handles progress polling via `Handler` and exposes `DownloaderState`. Storage index is read from `AppPreferences.downloadStorageIndex`, so downloads don't ask for a storage location. Each download does ask for a quality, through `DownloadQualityDialog`.
 
 **ItemButtonsBar:** The shared download/play/favorite buttons component. Accepts `canDownload` and `isDownloaded` overrides so aggregate items (seasons, shows) can pass computed values instead of deriving from the item directly.
