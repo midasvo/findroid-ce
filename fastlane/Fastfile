@@ -1,41 +1,55 @@
 default_platform(:android)
 
+# CE-owned: builds the phone and TV bundles and uploads them to Google Play.
+#
+# Phone and TV share one application ID (ADR 0005). Play serves them through separate tracks: the
+# phone bundle goes to `track`, the TV bundle to the Android TV form factor track `tv:<track>`. The
+# TV bundle's versionCode is one higher (EphyraVersion.TV_CODE), so both fit in one app.
+#
+# Signing: the bundles are signed with the Play *upload* key, through the same KEYSTORE_* variables
+# that release.yml uses for the release key. Play re-signs them with the app signing key.
+#
+# Environment:
+#   KEYSTORE_FILE, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD  upload key
+#   PLAY_API_CREDENTIALS                                      path to the service account JSON key
+#
+# Examples:
+#   fastlane android deploy                                   closed test (alpha), phone and TV
+#   fastlane android deploy track:production
+#   fastlane android deploy tv:false                          phone only (before Android TV is enabled)
+#   fastlane android deploy release_status:draft              needed until the app's first release is live
 platform :android do
-  desc "Build and publish"
-  lane :publish do
+  desc "Build the phone and TV bundles and upload them to a Play track"
+  lane :deploy do |options|
+    track = options.fetch(:track, "alpha")
+    release_status = options.fetch(:release_status, "completed")
+    tv = options.fetch(:tv, true).to_s != "false"
+
     gradle(task: "clean")
-
     gradle(
-      task: "app:phone:assemble",
-      flavor: "libre",
-      build_type: "release",
+      tasks: ["app:phone:bundleLibreRelease"] + (tv ? ["app:tv:bundleLibreRelease"] : []),
       print_command: false,
-      properties: {
-        "android.injected.signing.store.file" => ENV["FINDROID_KEYSTORE"],
-        "android.injected.signing.store.password" => ENV["FINDROID_KEYSTORE_PASSWORD"],
-        "android.injected.signing.key.alias" => ENV["FINDROID_KEY_ALIAS"],
-        "android.injected.signing.key.password" => ENV["FINDROID_KEY_PASSWORD"],
-      }
-    )
-
-    gradle(
-      task: "app:phone:bundle",
-      flavor: "libre",
-      build_type: "release",
-      print_command: false,
-      properties: {
-        "android.injected.signing.store.file" => ENV["FINDROID_KEYSTORE"],
-        "android.injected.signing.store.password" => ENV["FINDROID_KEYSTORE_PASSWORD"],
-        "android.injected.signing.key.alias" => ENV["FINDROID_KEY_ALIAS"],
-        "android.injected.signing.key.password" => ENV["FINDROID_KEY_PASSWORD"],
-      }
     )
 
     upload_to_play_store(
-      track: "production",
-      json_key: ENV["FINDROID_PLAY_API_CREDENTIALS"],
-      skip_upload_apk: true,
-      sync_image_upload: true
+      track: track,
+      release_status: release_status,
+      aab: "app/phone/build/outputs/bundle/libreRelease/phone-libre-release.aab",
+      json_key: ENV["PLAY_API_CREDENTIALS"],
+      sync_image_upload: true,
     )
+
+    if tv
+      upload_to_play_store(
+        track: "tv:#{track}",
+        release_status: release_status,
+        aab: "app/tv/build/outputs/bundle/libreRelease/tv-libre-release.aab",
+        json_key: ENV["PLAY_API_CREDENTIALS"],
+        # The listing is shared with the phone upload above.
+        skip_upload_metadata: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true,
+      )
+    end
   end
 end
