@@ -33,7 +33,7 @@ Binaries: https://github.com/midasvo/ephyra/releases/download/v%v/ephyra-v%v-lib
 Builds:
   - versionName: 2.0.0
     versionCode: 2000000
-    commit: v2.0.0
+    commit: a26ab603ced69a86d89fc03c22a6910af365f775
     subdir: app/phone
     gradle:
       - libre
