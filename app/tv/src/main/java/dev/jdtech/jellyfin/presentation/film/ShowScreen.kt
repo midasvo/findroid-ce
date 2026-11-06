@@ -59,7 +59,6 @@ import coil3.compose.AsyncImage
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyEpisode
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyShow
-import dev.jdtech.jellyfin.core.presentation.theme.Yellow
 import dev.jdtech.jellyfin.film.presentation.show.ShowAction
 import dev.jdtech.jellyfin.film.presentation.show.ShowState
 import dev.jdtech.jellyfin.film.presentation.show.ShowViewModel
@@ -215,7 +214,7 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                         Icon(
                                             painter = painterResource(id = CoreR.drawable.ic_star),
                                             contentDescription = null,
-                                            tint = Yellow,
+                                            tint = MaterialTheme.colorScheme.tertiary,
                                             modifier = Modifier.size(16.dp),
                                         )
                                         Spacer(
@@ -277,7 +276,7 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                         painter = painterResource(id = CoreR.drawable.ic_check),
                                         contentDescription = null,
                                         tint =
-                                            if (show.played) Color.Red
+                                            if (show.played) MaterialTheme.colorScheme.tertiary
                                             else LocalContentColor.current,
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
@@ -308,7 +307,7 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                             ),
                                         contentDescription = null,
                                         tint =
-                                            if (show.favorite) Color.Red
+                                            if (show.favorite) MaterialTheme.colorScheme.tertiary
                                             else LocalContentColor.current,
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))

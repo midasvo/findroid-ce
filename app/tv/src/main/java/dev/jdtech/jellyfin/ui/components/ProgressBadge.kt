@@ -33,14 +33,17 @@ fun ProgressBadge(item: FindroidItem, modifier: Modifier = Modifier) {
                     .height(24.dp)
                     .defaultMinSize(24.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.primary)
+                    .background(
+                        if (item.played) MaterialTheme.colorScheme.tertiary
+                        else MaterialTheme.colorScheme.secondaryContainer
+                    )
         ) {
             when (item.played) {
                 true -> {
                     Icon(
                         painter = painterResource(id = CoreR.drawable.ic_check),
                         contentDescription = "",
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = MaterialTheme.colorScheme.onTertiary,
                         modifier = Modifier.size(16.dp).align(Alignment.Center),
                     )
                 }
@@ -48,7 +51,7 @@ fun ProgressBadge(item: FindroidItem, modifier: Modifier = Modifier) {
                 false -> {
                     Text(
                         text = item.unplayedItemCount.toString(),
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
                         style = MaterialTheme.typography.labelMedium,
                         modifier =
                             Modifier.align(Alignment.Center)

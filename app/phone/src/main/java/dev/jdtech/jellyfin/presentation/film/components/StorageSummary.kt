@@ -65,7 +65,7 @@ fun StorageSummary(
             StorageSegment(
                 stringResource(CoreR.string.storage_legend_other),
                 (totalBytes - freeBytes - moviesBytes - showsBytes).coerceAtLeast(0L),
-                MaterialTheme.colorScheme.outline,
+                MaterialTheme.colorScheme.secondary,
             ),
         )
 

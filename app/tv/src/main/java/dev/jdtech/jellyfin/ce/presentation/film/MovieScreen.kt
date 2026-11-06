@@ -61,7 +61,6 @@ import dev.jdtech.jellyfin.ce.ui.focus.rememberFocusPosition
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyMovie
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyVideoMetadata
-import dev.jdtech.jellyfin.core.presentation.theme.Yellow
 import dev.jdtech.jellyfin.film.presentation.movie.MovieAction
 import dev.jdtech.jellyfin.film.presentation.movie.MovieState
 import dev.jdtech.jellyfin.film.presentation.movie.MovieViewModel
@@ -214,7 +213,7 @@ private fun MovieScreenLayout(state: MovieState, onAction: (MovieAction) -> Unit
                                         Icon(
                                             painter = painterResource(id = CoreR.drawable.ic_star),
                                             contentDescription = null,
-                                            tint = Yellow,
+                                            tint = MaterialTheme.colorScheme.tertiary,
                                             modifier = Modifier.size(16.dp),
                                         )
                                         Spacer(
@@ -303,7 +302,7 @@ private fun MovieScreenLayout(state: MovieState, onAction: (MovieAction) -> Unit
                                         painter = painterResource(id = CoreR.drawable.ic_check),
                                         contentDescription = null,
                                         tint =
-                                            if (movie.played) Color.Red
+                                            if (movie.played) MaterialTheme.colorScheme.tertiary
                                             else LocalContentColor.current,
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
@@ -340,7 +339,7 @@ private fun MovieScreenLayout(state: MovieState, onAction: (MovieAction) -> Unit
                                             ),
                                         contentDescription = null,
                                         tint =
-                                            if (movie.favorite) Color.Red
+                                            if (movie.favorite) MaterialTheme.colorScheme.tertiary
                                             else LocalContentColor.current,
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
