@@ -146,4 +146,7 @@
     <string name="about_dolby_vision_profile">Hồ sơ %1$d</string>
     <string name="about_dolby_vision_limit">Tối đa %1$d×%2$d ở %3$d fps</string>
     <string name="about_no_license_text">Giấy phép này không kèm văn bản.</string>
+    <string name="about_build_phone">Điện thoại, %1$d-bit (%2$s)</string>
+    <string name="about_report_problem_summary_phone">Mở báo cáo lỗi trên GitHub với các thông tin này đã được điền sẵn.</string>
+    <string name="about_source_code">Mã nguồn</string>
 </resources>

@@ -146,4 +146,7 @@
     <string name="about_dolby_vision_profile">Profilul %1$d</string>
     <string name="about_dolby_vision_limit">Până la %1$d×%2$d la %3$d cadre/s</string>
     <string name="about_no_license_text">Această licență nu include niciun text.</string>
+    <string name="about_build_phone">Telefon, %1$d biți (%2$s)</string>
+    <string name="about_report_problem_summary_phone">Deschide un raport de eroare pe GitHub cu aceste detalii deja completate.</string>
+    <string name="about_source_code">Cod sursă</string>
 </resources>

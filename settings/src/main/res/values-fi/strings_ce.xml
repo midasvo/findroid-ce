@@ -146,4 +146,7 @@
     <string name="about_dolby_vision_profile">Profiili %1$d</string>
     <string name="about_dolby_vision_limit">Enintään %1$d×%2$d, %3$d kuvaa/s</string>
     <string name="about_no_license_text">Tähän lisenssiin ei sisälly tekstiä.</string>
+    <string name="about_build_phone">Puhelin, %1$d-bittinen (%2$s)</string>
+    <string name="about_report_problem_summary_phone">Avaa GitHubissa virheraportin, jossa nämä tiedot on jo täytetty.</string>
+    <string name="about_source_code">Lähdekoodi</string>
 </resources>

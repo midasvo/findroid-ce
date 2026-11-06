@@ -60,3 +60,6 @@ data class SeasonRoute(val seasonId: String, val downloadsOnly: Boolean = false)
 @Serializable data class SettingsFileEditRoute(val filePath: String) : NavKey
 
 @Serializable data object AboutRoute : NavKey
+
+// CE (#211)
+@Serializable data object LicensesRoute : NavKey

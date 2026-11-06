@@ -146,4 +146,7 @@
     <string name="about_dolby_vision_profile">פרופיל %1$d</string>
     <string name="about_dolby_vision_limit">עד %1$d×%2$d ב־%3$d פריימים לשנייה</string>
     <string name="about_no_license_text">הרישיון הזה לא כולל טקסט.</string>
+    <string name="about_build_phone">טלפון, %1$d ביט (%2$s)</string>
+    <string name="about_report_problem_summary_phone">פותח דיווח באג ב־GitHub שבו הפרטים האלה כבר מולאו.</string>
+    <string name="about_source_code">קוד מקור</string>
 </resources>

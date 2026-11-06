@@ -146,4 +146,7 @@
     <string name="about_dolby_vision_profile">Profil %1$d</string>
     <string name="about_dolby_vision_limit">%3$d kadr/s ilə %1$d×%2$d-ə qədər</string>
     <string name="about_no_license_text">Bu lisenziyanın mətni daxil edilməyib.</string>
+    <string name="about_build_phone">Telefon, %1$d-bit (%2$s)</string>
+    <string name="about_report_problem_summary_phone">Bu məlumatlar artıq doldurulmuş xəta hesabatını GitHub-da açır.</string>
+    <string name="about_source_code">Mənbə kodu</string>
 </resources>

@@ -146,4 +146,7 @@
     <string name="about_dolby_vision_profile">الملف الشخصي %1$d</string>
     <string name="about_dolby_vision_limit">حتى %1$d×%2$d بمعدل %3$d إطارًا/ث</string>
     <string name="about_no_license_text">لا يتضمن هذا الترخيص أي نص.</string>
+    <string name="about_build_phone">هاتف، %1$d بت (%2$s)</string>
+    <string name="about_report_problem_summary_phone">يفتح بلاغًا عن خطأ على GitHub مع تعبئة هذه التفاصيل مسبقًا.</string>
+    <string name="about_source_code">الشيفرة المصدرية</string>
 </resources>

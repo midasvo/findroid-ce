@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
@@ -19,14 +18,7 @@ import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import dev.jdtech.jellyfin.about.AboutInfo
-import dev.jdtech.jellyfin.about.BugReportLink
-import dev.jdtech.jellyfin.about.InstallSource
-import dev.jdtech.jellyfin.about.ReleaseChannel
-import dev.jdtech.jellyfin.about.ScreenSummary
 import dev.jdtech.jellyfin.presentation.theme.spacings
-import dev.jdtech.jellyfin.settings.R as SettingsR
-import java.util.Locale
 
 /** A heading above a group of [InfoRow]s. */
 @Composable
@@ -99,74 +91,3 @@ internal fun FocusableCard(
         }
     }
 }
-
-@Composable
-internal fun channelText(channel: ReleaseChannel): String =
-    stringResource(
-        when (channel) {
-            ReleaseChannel.STABLE -> SettingsR.string.about_channel_stable
-            ReleaseChannel.BETA -> SettingsR.string.about_channel_beta
-            ReleaseChannel.DEBUG -> SettingsR.string.about_channel_debug
-        }
-    )
-
-@Composable
-internal fun installSourceText(source: InstallSource): String =
-    when (source) {
-        InstallSource.Sideloaded -> stringResource(SettingsR.string.about_install_sideloaded)
-        else -> BugReportLink.installSourceName(source)
-    }
-
-@Composable
-internal fun buildText(info: AboutInfo): String =
-    stringResource(SettingsR.string.about_build_tv, if (info.is64Bit) 64 else 32, info.abi)
-
-internal fun resolutionText(screen: ScreenSummary): String =
-    "${screen.widthPx}×${screen.heightPx}, ${hzText(screen.refreshRateHz)}"
-
-/** `60 Hz`, `59.94 Hz`. */
-internal fun hzText(hz: Float): String =
-    "%.2f".format(Locale.ROOT, hz).trimEnd('0').trimEnd('.') + " Hz"
-
-@Composable
-internal fun hdrText(hdrTypes: List<String>): String =
-    if (hdrTypes.isEmpty()) stringResource(SettingsR.string.about_none)
-    else hdrTypes.joinToString(", ", transform = ::hdrName)
-
-private fun hdrName(type: String): String =
-    when (type) {
-        "DOLBY_VISION" -> "Dolby Vision"
-        "HDR10_PLUS" -> "HDR10+"
-        else -> type
-    }
-
-/** ffmpeg's codec names as people know them. */
-internal fun codecName(codec: String): String =
-    when (codec) {
-        "h263" -> "H.263"
-        "h264" -> "H.264"
-        "hevc" -> "HEVC"
-        "mpeg2video" -> "MPEG-2"
-        "mpeg4" -> "MPEG-4"
-        "vc1" -> "VC-1"
-        "eac3" -> "E-AC-3"
-        "ac3" -> "AC-3"
-        "truehd" -> "TrueHD"
-        "dts" -> "DTS"
-        "opus" -> "Opus"
-        "vorbis" -> "Vorbis"
-        "flac" -> "FLAC"
-        else -> codec.uppercase()
-    }
-
-/** `H.264, HEVC, AV1, Dolby Vision 5/8`. */
-@Composable
-internal fun decodersText(info: AboutInfo): String =
-    buildList {
-            addAll(info.videoDecoders.map(::codecName))
-            if (info.dolbyVisionProfiles.isNotEmpty()) {
-                add("Dolby Vision ${info.dolbyVisionProfiles.joinToString("/")}")
-            }
-        }
-        .joinToString(", ")
-        .ifEmpty { stringResource(SettingsR.string.about_none) }

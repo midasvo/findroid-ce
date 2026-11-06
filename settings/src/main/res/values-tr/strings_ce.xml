@@ -146,4 +146,7 @@
     <string name="about_dolby_vision_profile">Profil %1$d</string>
     <string name="about_dolby_vision_limit">%3$d fps hızında en fazla %1$d×%2$d</string>
     <string name="about_no_license_text">Bu lisans herhangi bir metin içermiyor.</string>
+    <string name="about_build_phone">Telefon, %1$d bit (%2$s)</string>
+    <string name="about_report_problem_summary_phone">Bu bilgilerin önceden doldurulduğu bir hata raporunu GitHub\'da açar.</string>
+    <string name="about_source_code">Kaynak kodu</string>
 </resources>

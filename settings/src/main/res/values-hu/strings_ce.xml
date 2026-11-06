@@ -146,4 +146,7 @@
     <string name="about_dolby_vision_profile">%1$d. profil</string>
     <string name="about_dolby_vision_limit">Legfeljebb %1$d×%2$d, %3$d fps</string>
     <string name="about_no_license_text">Ez a licenc nem tartalmaz szöveget.</string>
+    <string name="about_build_phone">Telefon, %1$d bites (%2$s)</string>
+    <string name="about_report_problem_summary_phone">Megnyit egy hibajelentést a GitHubon, amelyben ezek az adatok már ki vannak töltve.</string>
+    <string name="about_source_code">Forráskód</string>
 </resources>

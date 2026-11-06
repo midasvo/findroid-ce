@@ -146,4 +146,7 @@
     <string name="about_dolby_vision_profile">Profiil %1$d</string>
     <string name="about_dolby_vision_limit">Kuni %1$d×%2$d, %3$d kaadrit/s</string>
     <string name="about_no_license_text">Selle litsentsi tekst puudub.</string>
+    <string name="about_build_phone">Telefon, %1$d-bitine (%2$s)</string>
+    <string name="about_report_problem_summary_phone">Avab GitHubis veateate, kus need andmed on juba täidetud.</string>
+    <string name="about_source_code">Lähtekood</string>
 </resources>

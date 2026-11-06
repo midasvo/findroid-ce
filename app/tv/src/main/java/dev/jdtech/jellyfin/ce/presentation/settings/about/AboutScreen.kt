@@ -30,6 +30,12 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
 import dev.jdtech.jellyfin.about.AboutInfo
+import dev.jdtech.jellyfin.about.buildText
+import dev.jdtech.jellyfin.about.channelText
+import dev.jdtech.jellyfin.about.decodersText
+import dev.jdtech.jellyfin.about.hdrText
+import dev.jdtech.jellyfin.about.installSourceText
+import dev.jdtech.jellyfin.about.resolutionText
 import dev.jdtech.jellyfin.about.AboutServer
 import dev.jdtech.jellyfin.about.BugReportLink
 import dev.jdtech.jellyfin.about.InstallSource
@@ -166,7 +172,7 @@ private fun AppSection(info: AboutInfo) {
             label = stringResource(SettingsR.string.about_installed_from),
             value = installSourceText(info.installSource),
         )
-        InfoRow(label = stringResource(SettingsR.string.about_build), value = buildText(info))
+        InfoRow(label = stringResource(SettingsR.string.about_build), value = buildText(info, isTv = true))
     }
 }
 

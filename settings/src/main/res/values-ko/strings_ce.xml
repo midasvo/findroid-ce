@@ -146,4 +146,7 @@
     <string name="about_dolby_vision_profile">프로필 %1$d</string>
     <string name="about_dolby_vision_limit">최대 %1$d×%2$d, %3$dfps</string>
     <string name="about_no_license_text">이 라이선스에는 텍스트가 포함되어 있지 않습니다.</string>
+    <string name="about_build_phone">휴대폰, %1$d비트(%2$s)</string>
+    <string name="about_report_problem_summary_phone">이 정보가 미리 입력된 버그 신고를 GitHub에서 엽니다.</string>
+    <string name="about_source_code">소스 코드</string>
 </resources>

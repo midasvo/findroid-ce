@@ -146,4 +146,7 @@
     <string name="about_dolby_vision_profile">設定檔 %1$d</string>
     <string name="about_dolby_vision_limit">最高 %1$d×%2$d，%3$d fps</string>
     <string name="about_no_license_text">呢個授權冇附帶文字。</string>
+    <string name="about_build_phone">手機，%1$d 位元（%2$s）</string>
+    <string name="about_report_problem_summary_phone">喺 GitHub 開啟已經填好呢啲資料嘅錯誤回報。</string>
+    <string name="about_source_code">原始碼</string>
 </resources>

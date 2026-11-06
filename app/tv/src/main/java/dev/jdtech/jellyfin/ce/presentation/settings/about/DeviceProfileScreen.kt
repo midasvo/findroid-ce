@@ -26,6 +26,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.jdtech.jellyfin.about.AboutInfo
+import dev.jdtech.jellyfin.about.codecName
+import dev.jdtech.jellyfin.about.hdrText
+import dev.jdtech.jellyfin.about.hzText
 import dev.jdtech.jellyfin.ce.ui.TvSafeArea
 import dev.jdtech.jellyfin.player.DolbyVisionLimit
 import dev.jdtech.jellyfin.player.ProbedCodecs

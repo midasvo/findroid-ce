@@ -146,4 +146,7 @@
     <string name="about_dolby_vision_profile">Profil %1$d</string>
     <string name="about_dolby_vision_limit">Do %1$d×%2$d pri %3$d sličicah/s</string>
     <string name="about_no_license_text">Ta licenca ne vsebuje besedila.</string>
+    <string name="about_build_phone">Telefon, %1$d-bitna (%2$s)</string>
+    <string name="about_report_problem_summary_phone">Odpre poročilo o napaki na GitHubu z že izpolnjenimi podatki.</string>
+    <string name="about_source_code">Izvorna koda</string>
 </resources>
