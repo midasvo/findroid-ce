@@ -13,6 +13,25 @@ following the Findroid version they were based on.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v2.1.0] — 2026-11-06
+
+A dedicated Favorites destination across phone, tablet, and Android TV, smoother TV navigation,
+and official F-Droid inclusion support with reproducible builds.
+
+### Added
+- Dedicated Favorites tab in the main navigation on phone, tablet, and Android TV. Access your
+  favorite movies and shows directly from the navigation bar without digging through libraries (#188).
+- TV: Toggle in Settings → Interface to show or hide the Favorites destination in the navigation drawer (#188).
+- F-Droid: Reproducible build metadata and packaging recipe for official F-Droid distribution (#176).
+
+### Fixed
+- TV: Eliminated navigation stutter, focus jumping, and layout shifting during Leanback remote navigation (#190).
+- TV: Improved Hero item focus restoration and safe focus requester handling.
+- Logging: Ensure warnings and errors are consistently logged across all build flavors.
+
+### Maintenance
+- Configure Renovate dependency dashboard, manager presets, and ktfmt formatting pin (#194).
+
 ## [v2.0.0] — 2026-11-03
 
 **Findroid CE is now Ephyra.** Same app, new name and icon. The update installs over Findroid CE as
@@ -563,6 +582,7 @@ Initial CE fork off findroid `1.0.2`. These rapid early iterations established t
 `nl.midasvo.findroid.ce` application ID, downloads and SD-card storage improvements, and ongoing
 tracking of upstream. See the git history between the corresponding tags for commit-level detail.
 
+[v2.1.0]: https://github.com/midasvo/ephyra/releases/tag/v2.1.0
 [v2.0.0]: https://github.com/midasvo/ephyra/releases/tag/v2.0.0
 [v1.2.0-ce.6]: https://github.com/midasvo/ephyra/releases/tag/v1.2.0-ce.6
 [v1.2.0-ce.5]: https://github.com/midasvo/ephyra/releases/tag/v1.2.0-ce.5
