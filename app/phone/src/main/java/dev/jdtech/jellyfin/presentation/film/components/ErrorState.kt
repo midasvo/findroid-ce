@@ -32,6 +32,7 @@ fun ErrorState(error: Exception, onRetryClick: () -> Unit, modifier: Modifier = 
         body = stringResource(CoreR.string.error_loading_data_body),
         iconContainerColor = MaterialTheme.colorScheme.errorContainer,
         iconColor = MaterialTheme.colorScheme.onErrorContainer,
+        specks = false,
         actions = {
             FilledTonalButton(onClick = onRetryClick) { Text(stringResource(CoreR.string.retry)) }
             TextButton(onClick = { showErrorDialog = true }) {

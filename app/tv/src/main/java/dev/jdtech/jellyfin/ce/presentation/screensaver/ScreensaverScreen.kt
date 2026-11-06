@@ -2,7 +2,13 @@ package dev.jdtech.jellyfin.ce.presentation.screensaver
 
 import android.text.format.DateFormat
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +44,9 @@ import dev.jdtech.jellyfin.api.JellyfinApi
 import dev.jdtech.jellyfin.ce.presentation.film.heroBackdropUrl
 import dev.jdtech.jellyfin.ce.presentation.film.heroLogoUrl
 import dev.jdtech.jellyfin.ce.ui.tvSafeAreaPadding
+import dev.jdtech.jellyfin.core.presentation.ephyra.SPECK_LOOP_MILLIS
+import dev.jdtech.jellyfin.core.presentation.ephyra.drawSpecks
+import dev.jdtech.jellyfin.core.presentation.ephyra.reducedMotion
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.SortBy
 import dev.jdtech.jellyfin.models.SortOrder
@@ -117,6 +126,9 @@ fun ScreensaverScreen(
             .fillMaxSize()
             .background(Color.Black)
     ) {
+        // Behind the artwork, so they show only in the crossfade gaps and when there is none.
+        ScreensaverSpecks(modifier = Modifier.fillMaxSize())
+
         Crossfade(
             targetState = currentItem,
             animationSpec = tween(durationMillis = 1000),
@@ -130,11 +142,7 @@ fun ScreensaverScreen(
                     screenHeightPx = screenHeightPx,
                 )
             } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black)
-                )
+                Box(modifier = Modifier.fillMaxSize())
             }
         }
 
@@ -145,6 +153,38 @@ fun ScreensaverScreen(
                     .tvSafeAreaPadding()
             )
         }
+    }
+}
+
+/** The speck field at panel scale, drifting up 4 dp/s; still under reduced motion. */
+@Composable
+private fun ScreensaverSpecks(modifier: Modifier = Modifier) {
+    val primary = MaterialTheme.colorScheme.primary
+    val tertiary = MaterialTheme.colorScheme.tertiary
+    val drift =
+        if (reducedMotion()) {
+            null
+        } else {
+            rememberInfiniteTransition(label = "ScreensaverSpecks")
+                .animateFloat(
+                    initialValue = 0f,
+                    targetValue = 1f,
+                    animationSpec =
+                        infiniteRepeatable(
+                            tween(SPECK_LOOP_MILLIS, easing = LinearEasing),
+                            RepeatMode.Restart,
+                        ),
+                    label = "ScreensaverSpecksDrift",
+                )
+        }
+    Canvas(modifier = modifier) {
+        drawSpecks(
+            count = 60,
+            seed = 42,
+            primary = primary,
+            tertiary = tertiary,
+            drift = drift?.value,
+        )
     }
 }
 

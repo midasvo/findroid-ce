@@ -15,6 +15,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -50,7 +53,22 @@ private fun WelcomeScreenLayout(onAction: (WelcomeAction) -> Unit) {
             modifier = Modifier.align(Alignment.Center).verticalScroll(rememberScrollState()),
         ) {
             // CE (#211): the logo swims here too; it's the same jellyfish as on the About screen.
-            SwimmingJellyfish(logoSize = 120.dp)
+            // CE (#220): a still primary halo behind it, 1.6 × the mark across, fainter in light.
+            val halo =
+                MaterialTheme.colorScheme.primary.copy(
+                    alpha = if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) 0.10f else 0.22f
+                )
+            SwimmingJellyfish(
+                logoSize = 120.dp,
+                modifier =
+                    Modifier.drawBehind {
+                        val radius = 0.8f * 120.dp.toPx()
+                        drawCircle(
+                            Brush.radialGradient(listOf(halo, halo.copy(alpha = 0f)), radius = radius),
+                            radius = radius,
+                        )
+                    },
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = stringResource(SetupR.string.ce_welcome),
