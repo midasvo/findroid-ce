@@ -2,6 +2,7 @@ package dev.jdtech.jellyfin.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -49,7 +50,7 @@ fun ItemCard(
             Direction.HORIZONTAL -> 260
             Direction.VERTICAL -> 150
         }
-    Column(modifier = modifier.width(width.dp)) {
+    Column(modifier = modifier.width(width.dp).focusGroup()) {
         Surface(
             onClick = { onClick(item) },
             shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(10.dp)),

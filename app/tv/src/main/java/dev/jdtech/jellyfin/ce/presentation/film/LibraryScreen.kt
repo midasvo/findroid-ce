@@ -2,6 +2,7 @@ package dev.jdtech.jellyfin.ce.presentation.film
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -147,6 +149,8 @@ private const val ROW_ITEMS = 1
 /** The header (title and buttons) is grid item 0; the cards follow it. */
 private const val HEADER_ITEMS = 1
 
+@OptIn(ExperimentalComposeUiApi::class)
+@Suppress("DEPRECATION")
 @Composable
 internal fun LibraryScreenLayout(
     libraryName: String,
@@ -175,9 +179,7 @@ internal fun LibraryScreenLayout(
                 contentPadding =
                     PaddingValues(
                         start = TvSafeArea.horizontal,
-                        end =
-                            if (letterIndex != null) MaterialTheme.spacings.default
-                            else TvSafeArea.horizontal,
+                        end = MaterialTheme.spacings.default,
                         top = TvSafeArea.vertical,
                         bottom = TvSafeArea.vertical + COUNTER_HEIGHT,
                     ),
@@ -188,12 +190,11 @@ internal fun LibraryScreenLayout(
                     Modifier.weight(1f)
                         .fillMaxHeight()
                         .focusProperties {
-                            onEnter = {
-                                if (
-                                    requestedFocusDirection != FocusDirection.Enter &&
-                                        focusPosition.row == ROW_ITEMS
-                                ) {
-                                    focusPosition.requestFocus()
+                            enter = {
+                                if (focusPosition.row == ROW_ITEMS) {
+                                    focusPosition.currentRequester() ?: FocusRequester.Default
+                                } else {
+                                    FocusRequester.Default
                                 }
                             }
                         }
@@ -214,11 +215,15 @@ internal fun LibraryScreenLayout(
                             style = MaterialTheme.typography.displayMedium,
                             modifier = Modifier.weight(1f),
                         )
+                        val canFocusHeader =
+                            !state.isLoading || items.itemCount > 0 || focusPosition.row == ROW_HEADER
                         Button(
                             onClick = {
                                 onAction(LibraryAction.ToggleWatchedFilter(!state.filterWatched))
                             },
-                            modifier = Modifier.focusPosition(focusPosition, ROW_HEADER, 0),
+                            modifier =
+                                Modifier.focusPosition(focusPosition, ROW_HEADER, 0)
+                                    .focusProperties { canFocus = canFocusHeader },
                         ) {
                             Icon(
                                 painter =
@@ -234,7 +239,9 @@ internal fun LibraryScreenLayout(
                         }
                         Button(
                             onClick = { showSortByDialog = true },
-                            modifier = Modifier.focusPosition(focusPosition, ROW_HEADER, 1),
+                            modifier =
+                                Modifier.focusPosition(focusPosition, ROW_HEADER, 1)
+                                    .focusProperties { canFocus = canFocusHeader },
                         ) {
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_arrow_down_up),
@@ -250,7 +257,11 @@ internal fun LibraryScreenLayout(
                     val item = items[i]
                     if (item == null) {
                         // Not loaded yet, for example right after a jump.
-                        ItemCardSkeleton()
+                        ItemCardSkeleton(
+                            modifier =
+                                Modifier.focusPosition(focusPosition, ROW_ITEMS, i)
+                                    .focusable(),
+                        )
                     } else {
                         ItemCard(
                             item = item,
@@ -266,22 +277,27 @@ internal fun LibraryScreenLayout(
                     }
                 }
             }
-            if (letterIndex != null) {
-                LetterJumpBar(
-                    index = letterIndex,
-                    focusedIndex = { focusedIndex.intValue },
-                    onJump = { position ->
-                        scope.launch { jumpTo(position, gridState, focusPosition) }
-                    },
-                    modifier =
-                        Modifier.fillMaxHeight()
-                            .padding(
-                                end = TvSafeArea.horizontal,
-                                top = TvSafeArea.vertical,
-                                bottom = TvSafeArea.vertical,
-                            )
-                            .testTag(LETTER_BAR_TAG),
-                )
+            Box(
+                modifier =
+                    Modifier.fillMaxHeight()
+                        .padding(
+                            end = TvSafeArea.horizontal,
+                            top = TvSafeArea.vertical,
+                            bottom = TvSafeArea.vertical,
+                        )
+                        .width(LETTER_BAR_WIDTH),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (letterIndex != null) {
+                    LetterJumpBar(
+                        index = letterIndex,
+                        focusedIndex = { focusedIndex.intValue },
+                        onJump = { position ->
+                            scope.launch { jumpTo(position, gridState, focusPosition) }
+                        },
+                        modifier = Modifier.fillMaxHeight().testTag(LETTER_BAR_TAG),
+                    )
+                }
             }
         }
         if (items.itemCount > 0) {
@@ -291,17 +307,19 @@ internal fun LibraryScreenLayout(
                 modifier =
                     Modifier.align(Alignment.BottomEnd)
                         .padding(
-                            end =
-                                TvSafeArea.horizontal +
-                                    if (letterIndex != null) LETTER_BAR_WIDTH else 0.dp,
+                            end = TvSafeArea.horizontal + LETTER_BAR_WIDTH,
                             bottom = TvSafeArea.vertical / 2,
                         ),
             )
         }
     }
 
-    val loaded = items.itemCount > 0 || items.loadState.refresh is LoadState.NotLoading
-    RestoreFocus(position = focusPosition, ready = loaded && !state.isLoading) { position ->
+    val ready =
+        items.itemCount > 0 ||
+            (items.loadState.refresh is LoadState.NotLoading &&
+                items.loadState.refresh.endOfPaginationReached &&
+                !state.isLoading)
+    RestoreFocus(position = focusPosition, ready = ready) { position ->
         if (items.itemCount == 0) {
             // Nothing to show (for example after a filter): fall back to the first button.
             position.save(ROW_HEADER, 0)
@@ -463,8 +481,8 @@ private fun LetterButton(
 
 /** The shape of a vertical [ItemCard] while its page loads, so rows don't jump when it's in. */
 @Composable
-private fun ItemCardSkeleton() {
-    Column(modifier = Modifier.width(150.dp)) {
+private fun ItemCardSkeleton(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.width(150.dp)) {
         Box(
             modifier =
                 Modifier.fillMaxWidth()

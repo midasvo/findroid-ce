@@ -146,21 +146,24 @@ fun HomeScreen(
 
 /** The focused card. Written on focus changes and read only by the hero and its prefetch. */
 @Stable
-private class HeroFocus {
-    var item by mutableStateOf<FindroidItem?>(null)
+private class HeroFocus(
+    initialRow: List<FindroidItem> = emptyList(),
+    initialColumn: Int = 0,
+) {
+    var item by mutableStateOf<FindroidItem?>(initialRow.getOrNull(initialColumn))
         private set
 
     /** The focused card's row and place in it, for the prefetch. Plain fields: no recomposition. */
-    var row: List<FindroidItem> = emptyList()
+    var row: List<FindroidItem> = initialRow
         private set
 
-    var column = 0
+    var column = initialColumn
         private set
 
     fun focus(row: List<FindroidItem>, column: Int) {
         this.row = row
         this.column = column
-        item = row[column]
+        item = row.getOrNull(column)
     }
 }
 
@@ -205,7 +208,25 @@ private fun HomeScreenLayout(
     focusPosition: FocusPosition = rememberFocusPosition(),
 ) {
     val rows = remember(state) { state.rows() }
-    val hero = remember { HeroFocus() }
+    val hero =
+        remember(rows.isNotEmpty()) {
+            val savedKey = focusPosition.key
+            val match =
+                if (savedKey != null && rows.isNotEmpty()) {
+                    rows.firstNotNullOfOrNull { r ->
+                        val cIndex = r.items.indexOfFirst { it.id.toString() == savedKey }
+                        if (cIndex >= 0) r.items to cIndex else null
+                    }
+                } else null
+            val (row, col) =
+                match
+                    ?: if (rows.isNotEmpty() && rows.first().items.isNotEmpty()) {
+                        rows.first().items to 0
+                    } else {
+                        emptyList<FindroidItem>() to 0
+                    }
+            HeroFocus(row, col)
+        }
     // The row states, so a return can scroll the saved card into view before focusing it.
     val rowStates = remember { mutableMapOf<UUID, LazyListState>() }
     val rowSpec = LocalBringIntoViewSpec.current
@@ -366,7 +387,7 @@ private fun rememberHeroImages(): HeroImages {
 @Composable
 private fun HomeHero(hero: HeroFocus, images: HeroImages) {
     val item by
-        produceState<FindroidItem?>(initialValue = null, hero, images) {
+        produceState<FindroidItem?>(initialValue = hero.item, hero, images) {
             snapshotFlow { hero.item }
                 .collectLatest { focused ->
                     // The first card shows straight away.
