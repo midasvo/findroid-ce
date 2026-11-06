@@ -2,42 +2,24 @@
 
 # Ephyra
 
-A native Jellyfin client for Android phones, tablets and Android TV. Take your library on the road in
-the quality you pick, play almost anything directly, from Dolby Vision to PGS subtitles, and watch on
-a TV app that is made for the remote.
+Ephyra is a Jellyfin client for Android phones, tablets and Android TV. It is a fork of
+[Findroid](https://github.com/jarnedemeulemeester/findroid) that puts its effort into three things:
+downloads that are worth using, playback of demanding files, and a TV app made for a remote.
 
-Ephyra started as a fork of [Findroid](https://github.com/jarnedemeulemeester/findroid) (see
-[Built on Findroid](#built-on-findroid)) and was called **Findroid CE** until
-[#169](https://github.com/midasvo/ephyra/issues/169). If you have Findroid CE, the update
-installs over it and keeps your login, settings and downloads. An ephyra is the young stage of a
-jellyfish, the animal in the Jellyfin logo.
+It was called Findroid CE until version 2.0.0. If you still have Findroid CE installed, the update
+installs over it and keeps your login, settings and downloads.
 
-## Why Ephyra?
-
-- 📥 **Downloads that hold up** — a resumable download engine with SD card support, a quality for
-  every download, whole seasons at once, and Smart Downloads that keep the next episodes ready.
-- 🎬 **Plays what you throw at it** — Dolby Vision direct play, Atmos with an ffmpeg fallback, PGS,
-  VobSub and DVB subtitles without transcoding, on ExoPlayer or mpv.
-- 📺 **A real Android TV app** — a Home with a hero for the focused item, a player overlay with the
-  next episodes, trickplay, Watch Next on the TV home screen and refresh rate switching
-  (see [Android TV](#android-tv)).
-- 🎛️ **Set up your way** — choose and order the Home rows, style the subtitles, and the audio and
-  subtitle tracks you pick carry over to the next episodes.
-- 🚀 **Moves fast** — new releases often, community contributions welcome, and dependencies and the
-  Jellyfin SDK kept current with Renovate.
-- 🔓 **Free and open** — GPLv3, no ads, and no data collected (see the [privacy policy](https://midasvo.nl/ephyra/privacy.html)).
-
-## A look at Ephyra
+You need a [Jellyfin](https://jellyfin.org/) server and a device running Android 10 or newer.
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="images/screenshots/downloads.webp" alt="Downloads screen with a storage bar, two active downloads with progress rings, and a downloaded movie"><br><sub>Downloads with a storage breakdown</sub></td>
+    <td width="33%" align="center"><img src="images/screenshots/downloads.webp" alt="Downloads screen with a storage bar, two active downloads with progress rings, and a downloaded movie"><br><sub>Downloads, with a storage breakdown</sub></td>
     <td width="33%" align="center"><img src="images/screenshots/season.webp" alt="Season episode list showing downloaded, downloading and not yet downloaded episodes"><br><sub>Download progress per episode</sub></td>
-    <td width="33%" align="center"><img src="images/screenshots/download-quality.webp" alt="Download quality dialog listing original quality and bitrates from 4K down"><br><sub>A quality for every download</sub></td>
+    <td width="33%" align="center"><img src="images/screenshots/download-quality.webp" alt="Download quality dialog listing original quality and bitrates from 4K down"><br><sub>Every download asks for a quality</sub></td>
   </tr>
   <tr>
     <td align="center"><img src="images/screenshots/downloaded-show.webp" alt="Downloaded show page listing episodes by season with their sizes"><br><sub>A page per downloaded show</sub></td>
-    <td align="center"><img src="images/screenshots/subtitle-style.webp" alt="Subtitle style screen with a live preview of yellow subtitles"><br><sub>Subtitle styling with a live preview</sub></td>
+    <td align="center"><img src="images/screenshots/subtitle-style.webp" alt="Subtitle style screen with a live preview of yellow subtitles"><br><sub>Subtitle styling, with a live preview</sub></td>
     <td align="center"><img src="images/screenshots/home-rows.webp" alt="Home rows setting listing the Home rows with arrows to reorder them and switches to hide them"><br><sub>Choose and order the Home rows</sub></td>
   </tr>
   <tr>
@@ -47,17 +29,103 @@ jellyfish, the animal in the Jellyfin logo.
 
 <sub>All artwork shown belongs to its respective owners.</sub>
 
-## Android TV
+## What Ephyra adds to Findroid
 
-Ephyra has its own Android TV app, built for the remote. It uses the same login and the same server as
-the phone app, and installs from the same releases (see [Install](#install)).
+**Downloads.** Ephyra has its own download engine, built on OkHttp instead of Android's
+DownloadManager. Downloads resume after an interruption and can go to an SD card. Each one asks for
+a quality: the original file, or a conversion by the server anywhere from 4K down to 360p. You can
+download a whole season or series at once, with a limit on how many run at the same time. The
+downloads screen shows progress per episode and per show, how much space each takes, and supports
+multi-select and undo. Smart Downloads, off by default, keeps the next few episodes of whatever you
+are watching downloaded and removes them once you have watched them.
+
+**Playback.** Dolby Vision plays directly on devices that support it and is transcoded on the rest;
+Dolby Vision downloads can be converted to a device-compatible copy too. For audio, the platform
+decoder is tried first, which is what Atmos needs, and ffmpeg takes over if a decoder fails. PGS,
+VobSub and DVB subtitles play without transcoding, and subtitle colour, outline, font and size are
+yours to set. You can choose a version before playing and change the video quality during playback.
+Playback carries on into the next season, and the audio and subtitle tracks you pick for a series
+stick for its next episodes, per user, on ExoPlayer and mpv and for downloads. There is a chapter
+list, a skip, ask or ignore action per type of media segment, and an "Are you still watching?"
+prompt after a long stretch of autoplay. Background audio, off by default, keeps playing with the
+screen off and puts the controls on the lock screen. It lives under Settings → Player → Background
+playback.
+
+**Library.** Favorites has its own tab in the main navigation. You choose which rows Home shows and
+in what order, under Settings → Interface → Home rows. The hide-watched filter stays on across
+libraries. Offline mode switches on by itself when there is no connection. Errors get a screen with
+a Retry button and empty libraries get a real empty state, rather than a spinner. Text on detail
+screens can be copied with a long press, and cast and crew can be hidden.
+
+**Android TV.** A separate app for the TV, described [below](#android-tv).
+
+The rest, the native UI, ExoPlayer and mpv playback, offline mode and picture-in-picture, is
+Findroid's work, and Findroid's changes are merged in regularly. The [changelog](CHANGELOG.md) has
+the release-by-release detail.
+
+## Install
+
+### Obtainium
+
+Add this URL in [Obtainium](https://github.com/ImranR98/Obtainium) and it will pick up every new
+release:
+
+```
+https://github.com/midasvo/ephyra
+```
+
+Leave **Include prereleases** off. Set **Filter APKs by regular expression** so Obtainium offers the
+right file for the device:
+
+| Device | Filter |
+|---|---|
+| Phone or tablet | `-libre-arm64-v8a\.apk$` |
+| Android TV, 64-bit | `.*-tv-arm64-v8a\.apk` |
+| Android TV, 32-bit (Xiaomi Mi Box and similar) | `.*-tv-armeabi-v7a\.apk` |
+
+An existing entry for `midasvo/findroid-ce` keeps working, because GitHub redirects the old address.
+
+### Releases page
+
+Download the APK from [Releases](https://github.com/midasvo/ephyra/releases). Phone and tablet
+builds are named `ephyra-v<version>-libre-<abi>.apk`, TV builds `ephyra-v<version>-libre-tv-<abi>.apk`.
+Nearly every current device is `arm64-v8a`; older 32-bit TV boxes such as the Xiaomi Mi Box need
+`armeabi-v7a`.
+
+Ephyra has its own application ID, `nl.midasvo.findroid.ce`, so it installs next to Findroid rather
+than over it. The phone and TV builds share that ID.
+
+### F-Droid
+
+Ephyra has been [submitted to F-Droid](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/56048)
+and is waiting for review. The F-Droid build is set up to be reproducible and verified against the
+GitHub release APKs, so once it is listed you will be able to switch between the two sources without
+reinstalling. Until then, use Obtainium or the releases page.
+
+### Beta builds
+
+Every push to `main` publishes a prerelease tagged `v<next version>-beta.<n>`. Betas install as a
+separate app, **Ephyra Beta**, with their own data, so they never touch the stable install. Nobody
+tests them before they go out, so expect rough edges.
+
+To follow them in Obtainium, add the repository URL a second time with:
+
+- **Include prereleases** on
+- **Filter release titles by regular expression**: `^Beta`
+- **Filter APKs by regular expression**: `-beta\.\d+-libre-arm64-v8a\.apk$`, or
+  `-beta\.\d+-libre-tv-armeabi-v7a\.apk$` on a 32-bit TV box
+
+The title filter matters: right after a stable release, the stable version is newer than the latest
+beta, and without the filter Obtainium would offer it to the beta entry.
+
+## Android TV
 
 <table>
   <tr>
-    <td colspan="2" align="center"><img src="images/screenshots/tv-home.webp" alt="TV Home with a large artwork hero for the focused item, a Suggestions row below it and a collapsed side drawer"><br><sub>Home with a hero for the focused item</sub></td>
+    <td colspan="2" align="center"><img src="images/screenshots/tv-home.webp" alt="TV Home with a large artwork hero for the focused item, a Suggestions row below it and a collapsed side drawer"><br><sub>Home, with a hero for the focused item</sub></td>
   </tr>
   <tr>
-    <td width="50%" align="center"><img src="images/screenshots/tv-library.webp" alt="TV shows library grid with Hide watched and Sort by buttons, an A to Z bar on the right and a 4 of 44 counter"><br><sub>Library grid with an A–Z jump bar</sub></td>
+    <td width="50%" align="center"><img src="images/screenshots/tv-library.webp" alt="TV shows library grid with Hide watched and Sort by buttons, an A to Z bar on the right and a 4 of 44 counter"><br><sub>Library grid with an A to Z jump bar</sub></td>
     <td width="50%" align="center"><img src="images/screenshots/tv-season.webp" alt="Bluey season 3 with season tabs, the details of the focused episode and a row of episodes"><br><sub>Episodes open in their season</sub></td>
   </tr>
   <tr>
@@ -66,135 +134,59 @@ the phone app, and installs from the same releases (see [Install](#install)).
   </tr>
 </table>
 
-- **Side drawer** for Search, Home, Favorites, your libraries and Settings ([#127](https://github.com/midasvo/ephyra/issues/127)), with a favorites page ([#137](https://github.com/midasvo/ephyra/issues/137))
-- **Home with a hero** that shows the focused item, and rows that don't reshuffle ([#132](https://github.com/midasvo/ephyra/issues/132)); pick and order the rows yourself ([#142](https://github.com/midasvo/ephyra/issues/142))
-- **Search** across movies, shows and episodes ([#128](https://github.com/midasvo/ephyra/issues/128))
-- **Library grid** with an A–Z jump bar, a counter and the hide-watched filter ([#135](https://github.com/midasvo/ephyra/issues/135))
-- **Episodes open in their season** with details first, instead of playing straight away ([#130](https://github.com/midasvo/ephyra/issues/130)), plus cast and person pages ([#136](https://github.com/midasvo/ephyra/issues/136))
-- **A player made for the remote**: seek with the D-pad, media keys, track dialogs ([#126](https://github.com/midasvo/ephyra/issues/126)), an overlay with the series, ends-at time, next/previous and a queue ([#131](https://github.com/midasvo/ephyra/issues/131)), and trickplay thumbnails ([#134](https://github.com/midasvo/ephyra/issues/134))
-- **Refresh rate switching** to match the video's frame rate ([#139](https://github.com/midasvo/ephyra/issues/139))
-- **Continue watching on the Android TV home screen** (Watch Next) ([#138](https://github.com/midasvo/ephyra/issues/138))
-- **Screensaver** with artwork from your library ([#140](https://github.com/midasvo/ephyra/issues/140)) and optional **theme music** on show pages ([#141](https://github.com/midasvo/ephyra/issues/141))
-- Collections, movie trailers and all relevant settings are reachable with the remote ([#129](https://github.com/midasvo/ephyra/issues/129)); phone-only settings are hidden ([#133](https://github.com/midasvo/ephyra/issues/133))
+The TV app uses the same login and server as the phone app and ships in the same releases, as the
+`-tv-` APKs above. It was built around the remote rather than adapted from the phone layout:
 
-**Which APK:** the one ending in `-libre-tv-armeabi-v7a.apk` for 32-bit boxes such as the Xiaomi
-Mi Box, and `-libre-tv-arm64-v8a.apk` for 64-bit ones. The Obtainium filters are under [Install](#install).
+- A side drawer with Search, Home, Favorites, your libraries and Settings.
+- Home shows a large hero for the focused item, and the rows stay where they are instead of
+  reshuffling. You pick which rows show and in what order, as on the phone.
+- Library grids have an A to Z jump bar, a counter and the hide-watched filter.
+- Episodes open in their season with the details first, instead of playing straight away. Movies and
+  shows have a cast row, and every person has a page.
+- The player seeks with the D-pad, takes media keys, shows trickplay thumbnails while seeking, and
+  has an overlay with the series, the time it ends, previous and next, and the queue.
+- The display can switch to the video's frame rate during playback.
+- Continue Watching and Next Up appear in the Watch Next row on the Android TV home screen.
+- A screensaver with artwork from your library, and optional theme music on show pages.
+- Collections, trailers and every relevant setting are reachable with the remote. Settings that only
+  make sense on a phone are hidden.
 
-The research behind the TV app (gap analysis, decisions and the roadmap) is in
-[docs/tv-research/](docs/tv-research/).
+The research behind it, where Findroid's TV app fell short, the decisions, and what is still planned,
+is in [docs/tv-research/](docs/tv-research/).
 
-## Features
+## Bugs, ideas and contributions
 
-### Downloads
+Open an [issue](https://github.com/midasvo/ephyra/issues). For playback problems, attach the device
+profile from the About screen (Export device profile). It lists what the device can decode, which
+answers most transcoding questions on the spot.
 
-- **Resumable download engine** — built on OkHttp instead of Android's `DownloadManager`, with SD card support
-- **Download quality picker** — keep the original, or have the server convert it, from 4K 120 Mbps down to 360p
-- **Redesigned downloads screen** — one list with progress rings, a per-show page, multi-select, undo, and a storage breakdown
-- **Season list built for downloads** — live progress and download, stop and delete buttons on each episode
-- **Bulk season & series download** — with a configurable limit on concurrent downloads and per-season status such as "3/10 downloaded"
-- **Smart Downloads** — an opt-in setting that keeps the next episodes of a series you are watching downloaded (3 by default) and removes the ones it downloaded once you have watched them
+Pull requests are welcome. [CLAUDE.md](CLAUDE.md) describes the modules and the architecture,
+[docs/identity/VISION.md](docs/identity/VISION.md) the visual identity, and
+[docs/upstream-sync.md](docs/upstream-sync.md) how Findroid's changes are merged in. A debug build is
+one command:
 
-### Playback & player
-
-- **Dolby Vision** — direct play where the device supports it, device-profile-aware transcoding on the rest
-- **Better audio decoding** — tries the platform decoder first for Atmos, and falls back to ffmpeg if a decoder fails
-- **Version picker & quality selector** — choose a version before playing, and change the video quality during playback
-- **Next-season playback** — carries on into the next season, and autoplay can follow your server or be forced on or off
-- **Audio and subtitle choice per series** — the audio and subtitle track you pick, or subtitles off, carry over to the next episodes of that series, on ExoPlayer and mpv and for downloads. Each user on the device keeps their own choice
-- **Wider subtitle support** — PGS, VobSub, and DVB without transcoding, plus configurable colors, outline, font, and size
-- **Media segments** — per-type skip / ask / ignore actions
-- **Chapter list** in the player, and an **"Are you still watching?"** inactivity prompt
-- **Background audio** (off by default) — keeps playing with the screen off or the app in the background, with artwork and controls on the lock screen. Turn it on under Settings → Player → Background playback; closing the picture-in-picture window then carries on as audio. The video is switched off in the background to save battery
-
-### Library & UI
-
-- **Customisable Home rows** — choose which rows Home shows and in what order, under Settings → Interface → Home rows (phone and TV)
-- **Hide-watched filter** in the library view — persisted and shared across libraries
-- **Long-press to copy text** on the movie/show/episode/season/person detail screens
-- **Auto offline mode** — automatically enabled when there is no connectivity
-- **Error screens with Retry** and proper empty states, instead of endless spinners and blank pages
-- **Option to hide cast and crew** on detail screens
-
-### Diagnostics
-
-- **Export device profile** from the About screen — handy for debugging playback/transcoding
-
-See the [changelog](CHANGELOG.md) for the full release-by-release history. Releases follow
-[Semantic Versioning](https://semver.org/).
-
-## Install
-
-### Via Obtainium (recommended)
-
-Add this repo URL in [Obtainium](https://github.com/ImranR98/Obtainium):
-
-```
-https://github.com/midasvo/ephyra
+```bash
+./gradlew :app:phone:assembleLibreDebug
 ```
 
-Obtainium then checks for new releases automatically and notifies you of updates. Leave
-**Include prereleases** off for this entry so it only follows stable releases.
+Strings shared with Findroid are translated on Findroid's Weblate. Ephyra's own strings live in
+`strings_ce.xml` files next to them, in the same 36 languages; corrections go in a pull request.
 
-Already following `https://github.com/midasvo/findroid-ce`? GitHub redirects the old URL, so that
-entry keeps getting updates.
+## Privacy
 
-On **Android TV**, set **Filter APKs by regular expression** to `.*-tv-armeabi-v7a\.apk` for 32-bit
-boxes such as the Xiaomi Mi Box (`.*-tv-arm64-v8a\.apk` for 64-bit ones). On a phone,
-`-libre-arm64-v8a\.apk$` keeps Obtainium from offering the TV APK.
+Ephyra collects nothing and talks only to the Jellyfin servers you add. The
+[privacy policy](https://midasvo.nl/ephyra/privacy.html) says the same at greater length.
 
-<details>
-<summary><strong>Beta channel (Obtainium)</strong></summary>
+## Thanks
 
-Beta builds of `main` and of work in progress are published as GitHub prereleases tagged
-`v<next version>-beta.<n>`, such as `v2.0.1-beta.12`. They install as a separate app, **Ephyra Beta**
-(`nl.midasvo.findroid.ce.staging`), with its own data, so they never replace the stable app.
+Ephyra would not exist without [Findroid](https://github.com/jarnedemeulemeester/findroid) by
+[Jarne Demeulemeester](https://github.com/jarnedemeulemeester) and its
+[contributors](https://github.com/jarnedemeulemeester/findroid/graphs/contributors).
 
-To follow them, add the same repo URL in Obtainium a second time with these settings:
-
-- **Include prereleases**: on
-- **Filter release titles by regular expression**: `^Beta`
-  (skips stable releases, which can be newer than the latest beta right after a release)
-- **Filter APKs by regular expression**: `-beta\.\d+-libre-arm64-v8a\.apk$`
-  (swap `arm64-v8a` for your device's ABI if needed; on Android TV use
-  `-beta\.\d+-libre-tv-armeabi-v7a\.apk$`)
-
-Betas are untested builds — expect bugs. Every push to `main` publishes one.
-
-</details>
-
-### Via F-Droid
-
-<a href="https://f-droid.org/packages/nl.midasvo.findroid.ce/">
-  <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-       alt="Get it on F-Droid"
-       height="80">
-</a>
-
-Ephyra is available on [F-Droid](https://f-droid.org/packages/nl.midasvo.findroid.ce/).
-The F-Droid build is verified against our GitHub releases via reproducible builds.
-
-### Manual
-
-Grab the latest APK from the [Releases](https://github.com/midasvo/ephyra/releases) page:
-`ephyra-v<version>-libre-<abi>.apk` for phones and tablets, or
-`ephyra-v<version>-libre-tv-<abi>.apk` for Android TV (`armeabi-v7a` for 32-bit boxes such as the
-Xiaomi Mi Box). Phone and TV share one application ID, so installing the TV APK over the phone APK
-keeps your login.
-
-> Ephyra has its own application ID (`nl.midasvo.findroid.ce`), so it can be installed next to
-> Findroid.
-
-## Built on Findroid
-
-Ephyra grew out of [Findroid](https://github.com/jarnedemeulemeester/findroid). Its foundations,
-the native UI, ExoPlayer and mpv playback, offline mode and picture-in-picture, come from there, and
-Findroid's improvements are still merged in regularly (see [docs/upstream-sync.md](docs/upstream-sync.md)).
-Thanks to [Jarne Demeulemeester](https://github.com/jarnedemeulemeester) and the
-[Findroid contributors](https://github.com/jarnedemeulemeester/findroid/graphs/contributors).
+An ephyra is the juvenile stage of a jellyfish, the animal in the Jellyfin logo. The icon was made
+for this project; its sources and the script that generates them are in
+[images/branding/ephyra/](images/branding/ephyra/).
 
 ## License
 
-GPLv3. See [LICENSE](LICENSE).
-
-The Ephyra icon was made for this project; its sources and the script that generates them are in
-[images/branding/ephyra/](images/branding/ephyra/).
+[GPLv3](LICENSE).
