@@ -1,0 +1,6 @@
+Dedicated Favorites tab in main navigation on phone, tablet, and Android TV.
+
+- Access favorite movies and series directly from the navigation bar.
+- TV: Toggle in Settings -> Interface to show or hide Favorites in drawer.
+- TV: Smoother Leanback remote navigation without focus stutter or layout shifts.
+- Packaging: Official F-Droid reproducible build support.
