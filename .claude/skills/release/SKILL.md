@@ -55,7 +55,7 @@ breaking, and a `feat` that only touches CI is a patch.
 
 On a branch `release/v$next`:
 
-- Set `NAME = "$next"` in `EphyraVersion.kt` (the first release, 2.0.0, already has it).
+- Set `NAME = "$next"`, `CODE = $code`, and `TV_CODE = $((code + 1))` in `EphyraVersion.kt` (the first release, 2.0.0, already has it). F-Droid's update check parses `CODE` from here.
 - In `CHANGELOG.md`, turn `## [Unreleased]` into `## [v$next] — <YYYY-MM-DD>`, or add that
   section at the top if there is no Unreleased one. Keep what was already written there and
   add the rest from the commits:

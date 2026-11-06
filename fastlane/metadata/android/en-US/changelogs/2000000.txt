@@ -1,0 +1,6 @@
+Findroid CE is now Ephyra. Same app, new name and jellyfish icon. The update installs over Findroid CE and keeps your login, settings and downloads.
+
+- The app is called Ephyra across phone and Android TV.
+- Release APKs are named ephyra-v<version>-libre-<abi>.apk.
+- Device profiles report as Ephyra Device Profile.
+- Moving forward, Ephyra uses its own versioning starting at v2.0.0.

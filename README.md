@@ -162,6 +162,17 @@ Betas are untested builds — expect bugs. Every push to `main` publishes one.
 
 </details>
 
+### Via F-Droid
+
+<a href="https://f-droid.org/packages/nl.midasvo.findroid.ce/">
+  <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+       alt="Get it on F-Droid"
+       height="80">
+</a>
+
+Ephyra is available on [F-Droid](https://f-droid.org/packages/nl.midasvo.findroid.ce/).
+The F-Droid build is verified against our GitHub releases via reproducible builds.
+
 ### Manual
 
 Grab the latest APK from the [Releases](https://github.com/midasvo/ephyra/releases) page:

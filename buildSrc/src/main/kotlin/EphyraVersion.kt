@@ -15,12 +15,23 @@ object EphyraVersion {
     val PATCH = parts[2]
 
     /**
-     * Phone versionCode. Steps of 100 per patch leave room below the next version, which the TV
-     * release uses: phone and TV share one application ID (ADR 0005), so on a TV the TV APK of the
-     * same version has to be the higher one.
+     * Phone versionCode (and TV + 1). Steps of 100 per patch leave room below the next version,
+     * which the TV release uses: phone and TV share one application ID (ADR 0005).
+     *
+     * F-Droid's checkupdates parses CODE via regex: const val CODE = (\d+)
      */
-    val CODE = MAJOR * 1_000_000 + MINOR * 10_000 + PATCH * 100
-    val TV_CODE = CODE + 1
+    const val CODE = 2000000
+    const val TV_CODE = 2000001
+
+    init {
+        val expected = MAJOR * 1_000_000 + MINOR * 10_000 + PATCH * 100
+        check(CODE == expected) {
+            "EphyraVersion.CODE ($CODE) must match MAJOR*1M + MINOR*10k + PATCH*100 ($expected)"
+        }
+        check(TV_CODE == expected + 1) {
+            "EphyraVersion.TV_CODE ($TV_CODE) must match CODE + 1 (${expected + 1})"
+        }
+    }
 
     /** Betas are builds towards the next version, so they sort after NAME and before any release. */
     val NEXT_PATCH = "$MAJOR.$MINOR.${PATCH + 1}"
