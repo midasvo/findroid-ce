@@ -41,6 +41,13 @@
       "enabled": false
     },
     {
+      "description": "Ignore Java version updates in GitHub Actions (pinned to JDK 21 LTS)",
+      "matchPackageNames": [
+        "java-jdk"
+      ],
+      "enabled": false
+    },
+    {
       "matchUpdateTypes": [
         "minor",
         "patch"
