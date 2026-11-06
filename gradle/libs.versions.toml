@@ -30,7 +30,7 @@ ksp = "2.3.13"
 # formatting tree-wide and left their own main red on Lint — the bump PR only touched this
 # file, and lint.yaml's path filter (**.kt/**.kts) meant Lint never ran on it. Unpin once
 # upstream reformats against 0.64.
-ktfmt = "0.26.0"
+ktfmt = "0.28.0"
 libmpv = "1.0.0"
 material = "1.14.0"
 media3-ffmpeg-decoder = "1.9.0+1"
