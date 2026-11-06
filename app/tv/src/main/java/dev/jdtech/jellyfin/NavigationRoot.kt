@@ -20,6 +20,10 @@ import dev.jdtech.jellyfin.ce.presentation.film.SeasonScreen
 import dev.jdtech.jellyfin.ce.presentation.film.ShowScreen
 import dev.jdtech.jellyfin.ce.presentation.player.TvPlayerScreen
 import dev.jdtech.jellyfin.ce.presentation.settings.HomeRowsScreen
+import dev.jdtech.jellyfin.ce.presentation.settings.about.AboutScreen
+import dev.jdtech.jellyfin.ce.presentation.settings.about.DeviceProfileScreen
+import dev.jdtech.jellyfin.ce.presentation.settings.about.LicenseScreen
+import dev.jdtech.jellyfin.ce.presentation.settings.about.LicensesScreen
 import dev.jdtech.jellyfin.ce.watchnext.WatchNextItemType
 import dev.jdtech.jellyfin.ce.watchnext.WatchNextLink
 import dev.jdtech.jellyfin.models.CollectionType
@@ -398,6 +402,7 @@ private fun EntryProviderScope<NavKey>.tvEntries(
             navigateToUsers = dropUnlessResumed { navigate(UsersRoute) },
             navigateToServers = dropUnlessResumed { navigate(ServersRoute) },
             navigateToHomeRows = dropUnlessResumed { navigate(HomeRowsRoute) },
+            navigateToAbout = dropUnlessResumed { navigate(AboutRoute) },
             navigateToSubSettings =
                 resumedAction { indexes -> navigate(SettingsSubRoute(indexes = indexes)) },
         )
@@ -408,9 +413,23 @@ private fun EntryProviderScope<NavKey>.tvEntries(
             navigateToUsers = dropUnlessResumed { navigate(UsersRoute) },
             navigateToServers = dropUnlessResumed { navigate(ServersRoute) },
             navigateToHomeRows = dropUnlessResumed { navigate(HomeRowsRoute) },
+            navigateToAbout = dropUnlessResumed { navigate(AboutRoute) },
             navigateToSubSettings =
                 resumedAction { indexes -> navigate(SettingsSubRoute(indexes = indexes)) },
         )
     }
     entry<HomeRowsRoute> { HomeRowsScreen() }
+    entry<AboutRoute> {
+        AboutScreen(
+            navigateToLicenses = dropUnlessResumed { navigate(LicensesRoute) },
+            navigateToDeviceProfile = dropUnlessResumed { navigate(DeviceProfileRoute) },
+        )
+    }
+    entry<LicensesRoute> {
+        LicensesScreen(
+            navigateToLicense = resumedAction { uniqueId -> navigate(LicenseRoute(uniqueId)) }
+        )
+    }
+    entry<LicenseRoute> { key -> LicenseScreen(uniqueId = key.uniqueId) }
+    entry<DeviceProfileRoute> { DeviceProfileScreen() }
 }

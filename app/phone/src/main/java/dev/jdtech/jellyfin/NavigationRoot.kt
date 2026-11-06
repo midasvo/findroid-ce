@@ -59,6 +59,7 @@ import dev.jdtech.jellyfin.presentation.film.PersonScreen
 import dev.jdtech.jellyfin.presentation.film.SeasonScreen
 import dev.jdtech.jellyfin.presentation.film.ShowScreen
 import dev.jdtech.jellyfin.presentation.settings.AboutScreen
+import dev.jdtech.jellyfin.presentation.settings.LicensesScreen
 import dev.jdtech.jellyfin.presentation.settings.HomeRowsScreen
 import dev.jdtech.jellyfin.presentation.settings.SettingsFileEditScreen
 import dev.jdtech.jellyfin.presentation.settings.SettingsScreen
@@ -635,7 +636,13 @@ private fun EntryProviderScope<NavKey>.mainEntries(
             navigateBack = dropUnlessResumed { navigator.goBack() },
         )
     }
-    entry<AboutRoute> { AboutScreen(navigateBack = dropUnlessResumed { navigator.goBack() }) }
+    entry<AboutRoute> {
+        AboutScreen(
+            navigateBack = dropUnlessResumed { navigator.goBack() },
+            navigateToLicenses = dropUnlessResumed { navigator.navigate(LicensesRoute) },
+        )
+    }
+    entry<LicensesRoute> { LicensesScreen(navigateBack = dropUnlessResumed { navigator.goBack() }) }
 }
 
 private fun navigateToItem(

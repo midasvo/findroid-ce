@@ -7,14 +7,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,6 +20,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import dev.jdtech.jellyfin.ce.ui.TvSafeArea
+import dev.jdtech.jellyfin.ce.ui.focus.RestoreFocus
+import dev.jdtech.jellyfin.ce.ui.focus.focusPosition
+import dev.jdtech.jellyfin.ce.ui.focus.rememberFocusPosition
 import dev.jdtech.jellyfin.presentation.settings.components.SettingsGroupCard
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
@@ -43,6 +43,7 @@ fun SettingsScreen(
     navigateToServers: () -> Unit,
     navigateToUsers: () -> Unit,
     navigateToHomeRows: () -> Unit,
+    navigateToAbout: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -57,7 +58,7 @@ fun SettingsScreen(
             is SettingsEvent.NavigateToSettingsFileEdit -> {}
             is SettingsEvent.NavigateToUsers -> navigateToUsers()
             is SettingsEvent.NavigateToServers -> navigateToServers()
-            is SettingsEvent.NavigateToAbout -> Unit
+            is SettingsEvent.NavigateToAbout -> navigateToAbout()
             is SettingsEvent.NavigateToHomeRows -> navigateToHomeRows()
             // TV has no custom subtitle-style screen; route through the standard sub-settings
             // list, which renders the subtitle_style category's nestedPreferenceGroups. The
@@ -104,7 +105,8 @@ fun SettingsScreen(
 
 @Composable
 private fun SettingsScreenLayout(state: SettingsState, onAction: (SettingsAction) -> Unit) {
-    val focusRequester = remember { FocusRequester() }
+    // CE (#211): Back from a category (About, Interface, ...) returns focus to that category.
+    val focusPosition = rememberFocusPosition()
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
@@ -115,7 +117,7 @@ private fun SettingsScreenLayout(state: SettingsState, onAction: (SettingsAction
                 horizontal = TvSafeArea.horizontal,
                 vertical = TvSafeArea.vertical,
             ),
-        modifier = Modifier.fillMaxSize().focusRequester(focusRequester),
+        modifier = Modifier.fillMaxSize(),
     ) {
         item(span = { GridItemSpan(this.maxLineSpan) }) {
             Text(
@@ -123,11 +125,15 @@ private fun SettingsScreenLayout(state: SettingsState, onAction: (SettingsAction
                 style = MaterialTheme.typography.displayMedium,
             )
         }
-        items(state.preferenceGroups) { group ->
-            SettingsGroupCard(group = group, onAction = onAction)
+        itemsIndexed(state.preferenceGroups) { index, group ->
+            SettingsGroupCard(
+                group = group,
+                onAction = onAction,
+                modifier = Modifier.focusPosition(focusPosition, row = 0, column = index),
+            )
         }
     }
-    LaunchedEffect(true) { focusRequester.requestFocus() }
+    RestoreFocus(position = focusPosition, ready = state.preferenceGroups.isNotEmpty())
 }
 
 @Preview(device = "id:tv_1080p")

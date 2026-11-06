@@ -227,4 +227,43 @@
     <!-- CE (#188) -->
     <string name="pref_show_favorites_tab">Favorites navigation tab</string>
     <string name="pref_show_favorites_tab_summary">Show the Favorites tab in the navigation bar</string>
+    <!-- CE (#211): the TV About screen -->
+    <string name="about_section_app">App</string>
+    <string name="about_section_server">Server</string>
+    <string name="about_section_device">Device</string>
+    <string name="about_version">Version</string>
+    <string name="about_channel">Channel</string>
+    <string name="about_channel_stable">Stable</string>
+    <string name="about_channel_beta">Beta</string>
+    <string name="about_channel_debug">Debug</string>
+    <string name="about_installed_from">Installed from</string>
+    <string name="about_install_sideloaded">Sideloaded</string>
+    <string name="about_build">Build</string>
+    <string name="about_build_tv">TV, %1$d-bit (%2$s)</string>
+    <string name="about_server_name">Name</string>
+    <string name="about_server_address">Address</string>
+    <string name="about_signed_in_as">Signed in as</string>
+    <string name="about_jellyfin_version">Jellyfin version</string>
+    <string name="about_unknown">Unknown</string>
+    <string name="about_device_model">Model</string>
+    <string name="about_android_version">Android version</string>
+    <string name="about_screen">Screen</string>
+    <string name="about_video_decoders">Video decoders</string>
+    <string name="about_report_problem">Report a problem</string>
+    <string name="about_report_problem_summary">Scan with your phone to open a bug report with these details already filled in.</string>
+    <string name="about_licenses">Open-source licenses</string>
+    <string name="about_device_profile">Device profile</string>
+    <string name="about_device_profile_summary">What this device can show and play. The server uses it to decide when to transcode.</string>
+    <string name="about_resolution">Resolution</string>
+    <string name="about_refresh_rates">Refresh rates</string>
+    <string name="about_none">None</string>
+    <string name="about_audio_decoders">Audio decoders</string>
+    <string name="about_dolby_vision_profile">Profile %1$d</string>
+    <string name="about_dolby_vision_limit">Up to %1$d×%2$d at %3$d fps</string>
+    <string name="about_no_license_text">This license has no text included.</string>
+    <string name="about_build_phone">Phone, %1$d-bit (%2$s)</string>
+    <string name="about_report_problem_summary_phone">Opens a bug report on GitHub with these details already filled in.</string>
+    <string name="about_source_code">Source code</string>
+    <string name="about_hdr" translatable="false">HDR</string>
+    <string name="about_dolby_vision" translatable="false">Dolby Vision</string>
 </resources>

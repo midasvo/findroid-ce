@@ -8,6 +8,9 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    // CE (#211): the open-source licenses screen, the same list as the phone app.
+    alias(libs.plugins.aboutlibraries)
+    alias(libs.plugins.aboutlibraries.android)
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -185,6 +188,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.timber)
+    implementation(libs.aboutlibraries.core)
+    // CE (#211): the "Report a problem" QR code on the About screen.
+    implementation(libs.zxing.core)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 
