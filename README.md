@@ -194,7 +194,7 @@ Thanks to [Jarne Demeulemeester](https://github.com/jarnedemeulemeester) and the
 
 ## License
 
-GPLv3. See [LICENSE](LICENSE).
+GPLv3. See [LICENSE](LICENSE). Outfit is used under the SIL Open Font License 1.1.
 
 The Ephyra icon was made for this project; its sources and the script that generates them are in
 [images/branding/ephyra/](images/branding/ephyra/).
