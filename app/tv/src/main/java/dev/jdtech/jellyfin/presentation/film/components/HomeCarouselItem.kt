@@ -1,6 +1,5 @@
 package dev.jdtech.jellyfin.presentation.film.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,13 +18,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
+import dev.jdtech.jellyfin.ce.ui.focus.EphyraFocusScale
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedBorder
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedGlow
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyMovie
 import dev.jdtech.jellyfin.film.presentation.home.HomeAction
 import dev.jdtech.jellyfin.models.FindroidItem
@@ -48,10 +49,10 @@ fun HomeCarouselItem(item: FindroidItem, onAction: (HomeAction) -> Unit) {
         shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.large),
         border =
             ClickableSurfaceDefaults.border(
-                focusedBorder =
-                    Border(BorderStroke(4.dp, Color.White), shape = MaterialTheme.shapes.large)
+                focusedBorder = ephyraFocusedBorder(MaterialTheme.shapes.large)
             ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.02f),
+        glow = ClickableSurfaceDefaults.glow(focusedGlow = ephyraFocusedGlow()),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = EphyraFocusScale),
     ) {
         Box {
             AsyncImage(

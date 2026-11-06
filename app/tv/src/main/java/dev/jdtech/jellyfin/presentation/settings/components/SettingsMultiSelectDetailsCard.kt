@@ -1,6 +1,5 @@
 package dev.jdtech.jellyfin.presentation.settings.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,13 +23,14 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.Checkbox
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedBorder
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedGlow
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.settings.R as SettingsR
@@ -113,9 +113,9 @@ private fun SettingsMultiSelectDetailsCardItem(
             ),
         border =
             ClickableSurfaceDefaults.border(
-                focusedBorder =
-                    Border(BorderStroke(4.dp, Color.White), shape = RoundedCornerShape(10.dp))
+                focusedBorder = ephyraFocusedBorder(RoundedCornerShape(10.dp))
             ),
+        glow = ClickableSurfaceDefaults.glow(focusedGlow = ephyraFocusedGlow()),
         scale = ClickableSurfaceScale.None,
     ) {
         Row(

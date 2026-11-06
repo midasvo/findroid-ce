@@ -1,6 +1,5 @@
 package dev.jdtech.jellyfin.presentation.setup.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,11 +16,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedBorder
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedGlow
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyDiscoveredServer
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
@@ -44,12 +45,10 @@ fun ServerItem(
         shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(16.dp)),
         border =
             ClickableSurfaceDefaults.border(
-                focusedBorder =
-                    Border(
-                        BorderStroke(4.dp, Color.White),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
-                    )
+                focusedBorder = ephyraFocusedBorder(RoundedCornerShape(16.dp))
             ),
+        glow = ClickableSurfaceDefaults.glow(focusedGlow = ephyraFocusedGlow()),
+        scale = ClickableSurfaceScale.None,
         modifier = Modifier.width(270.dp).height(115.dp),
     ) {
         Box(modifier = Modifier.fillMaxSize()) {

@@ -48,7 +48,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.tv.material3.Border
 import androidx.tv.material3.Button
 import androidx.tv.material3.ClickableSurfaceDefaults
-import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.FilterChip
 import androidx.tv.material3.FilterChipDefaults
@@ -60,7 +59,11 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import dev.jdtech.jellyfin.ce.ui.TvSafeArea
+import dev.jdtech.jellyfin.ce.ui.focus.EphyraFocusScale
 import dev.jdtech.jellyfin.ce.ui.focus.RestoreFocus
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraButtonBorder
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedBorder
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedGlow
 import dev.jdtech.jellyfin.ce.ui.itemInfoLine
 import dev.jdtech.jellyfin.ce.ui.focus.focusPosition
 import dev.jdtech.jellyfin.ce.ui.focus.rememberFocusPosition
@@ -255,16 +258,17 @@ private fun SeasonScreenLayout(
                         selected = item.id == season.id,
                         onClick = { onSelectSeason(item) },
                         shape = FilterChipDefaults.shape(shape = CircleShape),
-                        // FilterChipDefaults.border()'s own colours and widths (tv-material 1.1.0).
+                        // FilterChipDefaults.border()'s own colours and widths (tv-material 1.1.0),
+                        // with the Ephyra focus ring when focused.
                         border =
                             FilterChipDefaults.border(
                                 border = pillBorder(1.dp, MaterialTheme.colorScheme.border),
+                                focusedBorder = ephyraFocusedBorder(CircleShape),
                                 selectedBorder =
                                     pillBorder(1.dp, MaterialTheme.colorScheme.secondary),
                                 disabledBorder =
                                     pillBorder(1.dp, MaterialTheme.colorScheme.surfaceVariant),
-                                focusedSelectedBorder =
-                                    pillBorder(1.1.dp, MaterialTheme.colorScheme.onPrimaryContainer),
+                                focusedSelectedBorder = ephyraFocusedBorder(CircleShape),
                             ),
                         modifier =
                             Modifier.focusRequesterIf(item.id == season.id, seasonRequester)
@@ -323,6 +327,7 @@ private fun SeasonScreenLayout(
                 ) {
                     val inProgress = episode.playbackPositionTicks > 0 && !episode.played
                     Button(
+                        border = ephyraButtonBorder(),
                         onClick = { onPlay(episode, null, false) },
                         modifier =
                             Modifier.focusRequester(playRequester)
@@ -342,6 +347,7 @@ private fun SeasonScreenLayout(
                     }
                     if (inProgress) {
                         Button(
+                            border = ephyraButtonBorder(),
                             onClick = { onPlay(episode, null, true) },
                             modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 1),
                         ) {
@@ -354,6 +360,7 @@ private fun SeasonScreenLayout(
                         }
                     }
                     IconButton(
+                        border = ephyraButtonBorder(),
                         onClick = {
                             onAction(
                                 if (episode.played) EpisodeAction.UnmarkAsPlayed
@@ -376,6 +383,7 @@ private fun SeasonScreenLayout(
                         )
                     }
                     IconButton(
+                        border = ephyraButtonBorder(),
                         onClick = {
                             onAction(
                                 if (episode.favorite) EpisodeAction.UnmarkAsFavorite
@@ -403,6 +411,7 @@ private fun SeasonScreenLayout(
                     }
                     if (versions.size > 1) {
                         IconButton(
+                            border = ephyraButtonBorder(),
                             onClick = { versionDialogOpen = true },
                             modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 4),
                         ) {
@@ -542,12 +551,9 @@ private fun EpisodeRowCard(
         Surface(
             onClick = onClick,
             shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
-            border =
-                ClickableSurfaceDefaults.border(
-                    focusedBorder =
-                        Border(BorderStroke(4.dp, Color.White), shape = MaterialTheme.shapes.small)
-                ),
-            scale = ClickableSurfaceScale.None,
+            border = ClickableSurfaceDefaults.border(focusedBorder = ephyraFocusedBorder()),
+            glow = ClickableSurfaceDefaults.glow(focusedGlow = ephyraFocusedGlow()),
+            scale = ClickableSurfaceDefaults.scale(focusedScale = EphyraFocusScale),
             modifier = Modifier.fillMaxWidth().onFocusChanged { if (it.hasFocus) onFocus() },
         ) {
             Box {

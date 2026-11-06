@@ -57,6 +57,7 @@ import coil3.compose.AsyncImage
 import dev.jdtech.jellyfin.ce.thememusic.rememberThemeMusic
 import dev.jdtech.jellyfin.ce.ui.PersonCard
 import dev.jdtech.jellyfin.ce.ui.focus.RestoreFocus
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraButtonBorder
 import dev.jdtech.jellyfin.ce.ui.focus.focusPosition
 import dev.jdtech.jellyfin.ce.ui.focus.rememberFocusPosition
 import dev.jdtech.jellyfin.core.R as CoreR
@@ -253,6 +254,7 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                 modifier = Modifier.focusRestorer().focusGroup(),
                             ) {
                                 Button(
+                                    border = ephyraButtonBorder(),
                                     onClick = { onAction(ShowAction.Play()) },
                                     modifier =
                                         Modifier.focusPosition(focusPosition, ROW_BUTTONS, 0),
@@ -265,6 +267,7 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                     Text(text = stringResource(id = CoreR.string.play))
                                 }
                                 Button(
+                                    border = ephyraButtonBorder(),
                                     onClick = { onAction(ShowAction.Shuffle) },
                                     modifier =
                                         Modifier.focusPosition(focusPosition, ROW_BUTTONS, 1),
@@ -278,6 +281,7 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                 }
                                 show.trailer?.let { trailerUri ->
                                     Button(
+                                        border = ephyraButtonBorder(),
                                         onClick = { onAction(ShowAction.PlayTrailer(trailerUri)) },
                                         modifier =
                                             Modifier.focusPosition(focusPosition, ROW_BUTTONS, 2),
@@ -291,6 +295,7 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                     }
                                 }
                                 Button(
+                                    border = ephyraButtonBorder(),
                                     onClick = {
                                         when (show.played) {
                                             true -> onAction(ShowAction.UnmarkAsPlayed)
@@ -318,6 +323,7 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                                     )
                                 }
                                 Button(
+                                    border = ephyraButtonBorder(),
                                     onClick = {
                                         when (show.favorite) {
                                             true -> onAction(ShowAction.UnmarkAsFavorite)
