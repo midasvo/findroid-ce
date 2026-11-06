@@ -59,7 +59,7 @@ public-domain films. Third-party artwork in listing screenshots risks an IP reje
 
 | Form | Answer |
 |---|---|
-| Privacy policy | https://midasvo.github.io/ephyra/privacy.html (source: `site/privacy.html`) |
+| Privacy policy | https://midasvo.nl/ephyra/privacy.html (source: `site/privacy.html`) |
 | App access | Login needed: the Jellyfin demo server, user `demo`, empty password |
 | Ads | No ads |
 | Content rating | Media player; no user-generated content shared by the app |

@@ -25,7 +25,7 @@ jellyfish, the animal in the Jellyfin logo.
   subtitle tracks you pick carry over to the next episodes.
 - 🚀 **Moves fast** — new releases often, community contributions welcome, and dependencies and the
   Jellyfin SDK kept current with Renovate.
-- 🔓 **Free and open** — GPLv3, no ads, and no data collected (see the [privacy policy](https://midasvo.github.io/ephyra/privacy.html)).
+- 🔓 **Free and open** — GPLv3, no ads, and no data collected (see the [privacy policy](https://midasvo.nl/ephyra/privacy.html)).
 
 ## A look at Ephyra
 
