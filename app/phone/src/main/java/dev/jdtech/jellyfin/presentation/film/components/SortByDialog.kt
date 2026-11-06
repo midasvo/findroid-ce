@@ -76,7 +76,7 @@ fun SortByDialog(
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
             modifier = Modifier.fillMaxWidth().heightIn(max = 540.dp),
-            shape = MaterialTheme.shapes.extraLarge,
+            shape = MaterialTheme.shapes.large,
             colors =
                 CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHigh

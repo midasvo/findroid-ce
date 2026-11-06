@@ -18,7 +18,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.tv.material3.Border
@@ -50,6 +51,7 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.FilterChip
+import androidx.tv.material3.FilterChipDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.IconButton
 import androidx.tv.material3.LocalContentColor
@@ -252,6 +254,18 @@ private fun SeasonScreenLayout(
                     FilterChip(
                         selected = item.id == season.id,
                         onClick = { onSelectSeason(item) },
+                        shape = FilterChipDefaults.shape(shape = CircleShape),
+                        // FilterChipDefaults.border()'s own colours and widths (tv-material 1.1.0).
+                        border =
+                            FilterChipDefaults.border(
+                                border = pillBorder(1.dp, MaterialTheme.colorScheme.border),
+                                selectedBorder =
+                                    pillBorder(1.dp, MaterialTheme.colorScheme.secondary),
+                                disabledBorder =
+                                    pillBorder(1.dp, MaterialTheme.colorScheme.surfaceVariant),
+                                focusedSelectedBorder =
+                                    pillBorder(1.1.dp, MaterialTheme.colorScheme.onPrimaryContainer),
+                            ),
                         modifier =
                             Modifier.focusRequesterIf(item.id == season.id, seasonRequester)
                                 .focusPosition(
@@ -497,6 +511,10 @@ private fun audioCodecName(codec: String): String? =
         else -> codec.uppercase()
     }
 
+/** A chip border on the pill, where the library's default borders keep their own 8 dp shape. */
+private fun pillBorder(width: Dp, color: Color) =
+    Border(BorderStroke(width, color), shape = CircleShape)
+
 @Composable
 private fun TechnicalChips(chips: List<String>) {
     Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.small)) {
@@ -505,7 +523,7 @@ private fun TechnicalChips(chips: List<String>) {
                 text = chip,
                 style = MaterialTheme.typography.labelMedium,
                 modifier =
-                    Modifier.clip(RoundedCornerShape(4.dp))
+                    Modifier.clip(CircleShape)
                         .background(Color.White.copy(alpha = .15f))
                         .padding(horizontal = 8.dp, vertical = 3.dp),
             )
@@ -523,11 +541,11 @@ private fun EpisodeRowCard(
     Column(modifier = modifier.width(EPISODE_CARD_WIDTH)) {
         Surface(
             onClick = onClick,
-            shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(10.dp)),
+            shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
             border =
                 ClickableSurfaceDefaults.border(
                     focusedBorder =
-                        Border(BorderStroke(4.dp, Color.White), shape = RoundedCornerShape(10.dp))
+                        Border(BorderStroke(4.dp, Color.White), shape = MaterialTheme.shapes.small)
                 ),
             scale = ClickableSurfaceScale.None,
             modifier = Modifier.fillMaxWidth().onFocusChanged { if (it.hasFocus) onFocus() },
