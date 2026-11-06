@@ -11,6 +11,10 @@ installs over it and keeps your login, settings and downloads.
 
 You need a [Jellyfin](https://jellyfin.org/) server and a device running Android 10 or newer.
 
+[What Ephyra adds](#what-ephyra-adds-to-findroid) · [Install](#install) · [Android TV](#android-tv) ·
+[Bugs and contributions](#bugs-ideas-and-contributions) · [Privacy](#privacy) · [Thanks](#thanks) ·
+[License](#license)
+
 <table>
   <tr>
     <td width="33%" align="center"><img src="images/screenshots/downloads.webp" alt="Downloads screen with a storage bar, two active downloads with progress rings, and a downloaded movie"><br><sub>Downloads, with a storage breakdown</sub></td>
