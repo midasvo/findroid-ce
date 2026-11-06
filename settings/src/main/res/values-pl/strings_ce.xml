@@ -111,4 +111,6 @@
     <string name="home_rows">Wiersze ekranu głównego</string>
     <string name="home_rows_summary">Wybierz, które wiersze pokazuje ekran główny i w jakiej kolejności</string>
     <string name="ce_permission_local_network_rationale">Ephyra potrzebuje dostępu do sieci lokalnej, aby znaleźć Twój serwer Jellyfin i się z nim połączyć. Nie dotyczy to serwerów zdalnych.</string>
+    <string name="pref_show_favorites_tab">Karta nawigacji Ulubione</string>
+    <string name="pref_show_favorites_tab_summary">Pokaż kartę Ulubione na pasku nawigacji</string>
 </resources>

@@ -111,4 +111,6 @@
     <string name="home_rows">Rândurile paginii principale</string>
     <string name="home_rows_summary">Alege ce rânduri afișează pagina principală și în ce ordine</string>
     <string name="ce_permission_local_network_rationale">Ephyra are nevoie de acces la rețeaua locală pentru a găsi serverul tău Jellyfin și a se conecta la el. Serverele la distanță nu sunt afectate.</string>
+    <string name="pref_show_favorites_tab">Fila de navigare Favorite</string>
+    <string name="pref_show_favorites_tab_summary">Afișează fila Favorite în bara de navigare</string>
 </resources>

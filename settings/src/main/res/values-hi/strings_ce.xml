@@ -111,4 +111,6 @@
     <string name="home_rows">होम की पंक्तियाँ</string>
     <string name="home_rows_summary">चुनें कि होम पर कौन-सी पंक्तियाँ दिखें और किस क्रम में</string>
     <string name="ce_permission_local_network_rationale">आपका Jellyfin सर्वर ढूँढने और उससे कनेक्ट करने के लिए Ephyra को आपके लोकल नेटवर्क की एक्सेस चाहिए। रिमोट सर्वर पर इसका कोई असर नहीं पड़ता।</string>
+    <string name="pref_show_favorites_tab">पसंदीदा नेविगेशन टैब</string>
+    <string name="pref_show_favorites_tab_summary">नेविगेशन बार में पसंदीदा टैब दिखाएं</string>
 </resources>

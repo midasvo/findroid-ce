@@ -111,4 +111,6 @@
     <string name="home_rows">שורות בדף הבית</string>
     <string name="home_rows_summary">בחרו אילו שורות יוצגו בדף הבית ובאיזה סדר</string>
     <string name="ce_permission_local_network_rationale">Ephyra זקוק לגישה לרשת המקומית שלך כדי למצוא את שרת ה-Jellyfin שלך ולהתחבר אליו. שרתים מרוחקים אינם מושפעים.</string>
+    <string name="pref_show_favorites_tab">לשונית ניווט מועדפים</string>
+    <string name="pref_show_favorites_tab_summary">הצג את הכרטיסייה מועדפים בסרגל הניווט</string>
 </resources>

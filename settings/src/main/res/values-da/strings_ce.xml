@@ -111,4 +111,6 @@
     <string name="home_rows">Rækker på startsiden</string>
     <string name="home_rows_summary">Vælg hvilke rækker startsiden viser, og i hvilken rækkefølge</string>
     <string name="ce_permission_local_network_rationale">Ephyra skal have adgang til dit lokale netværk for at finde og oprette forbindelse til din Jellyfin-server. Fjernservere påvirkes ikke.</string>
+    <string name="pref_show_favorites_tab">Favoritter-navigationsfane</string>
+    <string name="pref_show_favorites_tab_summary">Vis fanen Favoritter i navigationslinjen</string>
 </resources>

@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity() {
                             hasServers = state.hasServers,
                             hasCurrentServer = state.hasCurrentServer,
                             hasCurrentUser = state.hasCurrentUser,
+                            showFavoritesTab = state.showFavoritesTab,
                         )
                     }
                 }

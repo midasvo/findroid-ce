@@ -94,6 +94,7 @@ fun MainScreen(
     mediaViewModel: MediaViewModel = hiltViewModel(),
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
+    val mainState by mainViewModel.state.collectAsState()
     val mediaState by mediaViewModel.state.collectAsState()
 
     LaunchedEffect(true) {
@@ -113,6 +114,7 @@ fun MainScreen(
         user = user,
         server = server,
         libraries = mediaState.libraries,
+        showFavorites = mainState.showFavoritesTab,
         navigateToSettings = navigateToSettings,
         navigateToUsers = navigateToUsers,
         homeContent = {
@@ -170,6 +172,7 @@ fun MainScreenLayout(
     navigateToSettings: () -> Unit,
     navigateToUsers: () -> Unit,
     modifier: Modifier = Modifier,
+    showFavorites: Boolean = true,
     homeContent: @Composable () -> Unit,
     searchContent: @Composable () -> Unit,
     favoritesContent: @Composable () -> Unit,
@@ -208,6 +211,12 @@ fun MainScreenLayout(
             if (!contentFocusRequester.tryRequestFocus()) {
                 fallback?.tryRequestFocus()
             }
+        }
+    }
+
+    LaunchedEffect(showFavorites) {
+        if (!showFavorites && activeDestinationKey == DESTINATION_FAVORITES) {
+            showDestination(DESTINATION_HOME, fallback = homeFocusRequester)
         }
     }
 
@@ -333,24 +342,26 @@ fun MainScreenLayout(
                         }
                     }
 
-                    item(key = DESTINATION_FAVORITES) {
-                        NavigationDrawerItem(
-                            selected = activeDestinationKey == DESTINATION_FAVORITES,
-                            onClick = { showDestination(DESTINATION_FAVORITES, fallback = null) },
-                            leadingContent = {
-                                Icon(
-                                    painter = painterResource(id = CoreR.drawable.ic_heart),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
+                    if (showFavorites) {
+                        item(key = DESTINATION_FAVORITES) {
+                            NavigationDrawerItem(
+                                selected = activeDestinationKey == DESTINATION_FAVORITES,
+                                onClick = { showDestination(DESTINATION_FAVORITES, fallback = null) },
+                                leadingContent = {
+                                    Icon(
+                                        painter = painterResource(id = CoreR.drawable.ic_heart),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp),
+                                    )
+                                },
+                                modifier = Modifier.testTag("drawer_item_favorites"),
+                            ) {
+                                Text(
+                                    text = stringResource(id = CoreR.string.title_favorite),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    modifier = Modifier.padding(start = 8.dp),
                                 )
-                            },
-                            modifier = Modifier.testTag("drawer_item_favorites"),
-                        ) {
-                            Text(
-                                text = stringResource(id = CoreR.string.title_favorite),
-                                style = MaterialTheme.typography.titleSmall,
-                                modifier = Modifier.padding(start = 8.dp),
-                            )
+                            }
                         }
                     }
 

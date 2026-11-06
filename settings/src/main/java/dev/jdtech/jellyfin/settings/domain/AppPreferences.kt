@@ -35,6 +35,8 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val tvThemeMusic = Preference("pref_tv_theme_music", false)
     val displayExtraInfo = Preference("pref_display_extra_info", false)
     val displayCastAndCrew = Preference("pref_display_cast_and_crew", true)
+    // CE (#188): show the Favorites tab in the bottom navigation bar.
+    val showFavoritesTab = Preference("pref_show_favorites_tab", true)
 
     // Player
     val playerBackend = Preference("pref_player_backend", "exoplayer")

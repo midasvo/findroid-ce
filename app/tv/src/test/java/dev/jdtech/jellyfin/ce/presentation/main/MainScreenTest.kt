@@ -5,6 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.testTag
@@ -37,7 +40,7 @@ class MainScreenTest {
     private var settingsOpened = false
     private var usersOpened = false
 
-    private fun setUpMainScreen() {
+    private fun setUpMainScreen(showFavorites: Boolean = true) {
         settingsOpened = false
         usersOpened = false
 
@@ -47,6 +50,7 @@ class MainScreenTest {
                     user = dummyUser,
                     server = dummyServer,
                     libraries = dummyCollections,
+                    showFavorites = showFavorites,
                     navigateToSettings = { settingsOpened = true },
                     navigateToUsers = { usersOpened = true },
                     homeContent = {
@@ -193,5 +197,50 @@ class MainScreenTest {
         pressBack()
         rule.activityRule.scenario.onActivity { finishing = it.isFinishing }
         assertTrue(finishing)
+    }
+
+    @Test
+    fun drawerFavoritesHiddenWhenDisabled() {
+        setUpMainScreen(showFavorites = false)
+        rule.waitForIdle()
+
+        rule.onNode(hasTestTag("drawer_item_favorites")).assertDoesNotExist()
+    }
+
+    @Test
+    fun disablingFavoritesWhileOnFavoritesDestinationReturnsToHome() {
+        var showFavorites by mutableStateOf(true)
+        rule.setContent {
+            FindroidTheme {
+                MainScreenLayout(
+                    user = dummyUser,
+                    server = dummyServer,
+                    libraries = dummyCollections,
+                    showFavorites = showFavorites,
+                    navigateToSettings = { settingsOpened = true },
+                    navigateToUsers = { usersOpened = true },
+                    homeContent = {
+                        Box(Modifier.fillMaxSize().testTag("home_screen_content").focusable())
+                    },
+                    searchContent = {
+                        Box(Modifier.fillMaxSize().testTag("placeholder_search").focusable())
+                    },
+                    favoritesContent = {
+                        Box(Modifier.fillMaxSize().testTag("placeholder_favorites").focusable())
+                    },
+                    libraryContent = { Box(Modifier.fillMaxSize().testTag("library_screen_content_${it.id}")) },
+                )
+            }
+        }
+        rule.waitForIdle()
+
+        selectDrawerItem("drawer_item_favorites")
+        rule.onNodeWithTag("placeholder_favorites").assertIsDisplayed()
+
+        rule.runOnIdle { showFavorites = false }
+        rule.waitForIdle()
+
+        rule.onNode(hasTestTag("placeholder_favorites")).assertDoesNotExist()
+        rule.onNodeWithTag("home_screen_content").assertIsDisplayed()
     }
 }

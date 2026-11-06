@@ -111,4 +111,6 @@
     <string name="home_rows">Baris Beranda</string>
     <string name="home_rows_summary">Pilih baris yang ditampilkan di Beranda, dan urutannya</string>
     <string name="ce_permission_local_network_rationale">Ephyra memerlukan akses ke jaringan lokal Anda untuk menemukan dan terhubung ke server Jellyfin Anda. Server jarak jauh tidak terpengaruh.</string>
+    <string name="pref_show_favorites_tab">Tab navigasi Favorit</string>
+    <string name="pref_show_favorites_tab_summary">Tampilkan tab Favorit di bilah navigasi</string>
 </resources>

@@ -224,4 +224,7 @@
     <string name="home_rows_summary">Choose which rows Home shows, and in what order</string>
     <!-- CE (#172) -->
     <string name="ce_permission_local_network_rationale">Ephyra needs access to your local network to find and connect to your Jellyfin server. Remote servers are not affected.</string>
+    <!-- CE (#188) -->
+    <string name="pref_show_favorites_tab">Favorites navigation tab</string>
+    <string name="pref_show_favorites_tab_summary">Show the Favorites tab in the navigation bar</string>
 </resources>

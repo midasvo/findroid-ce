@@ -3,7 +3,6 @@ package dev.jdtech.jellyfin.film.domain.homerows
 import android.content.SharedPreferences
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
 import dev.jdtech.jellyfin.film.domain.homerows.HomeRowType.CONTINUE_WATCHING
-import dev.jdtech.jellyfin.film.domain.homerows.HomeRowType.FAVORITES
 import dev.jdtech.jellyfin.film.domain.homerows.HomeRowType.LATEST
 import dev.jdtech.jellyfin.film.domain.homerows.HomeRowType.NEXT_UP
 import dev.jdtech.jellyfin.film.domain.homerows.HomeRowType.SUGGESTIONS
@@ -26,7 +25,7 @@ class HomeRowsTest {
     private fun visibleKeys(rows: List<HomeRowConfig>) = keys(rows.filter { it.visible })
 
     @Test
-    fun `without a stored layout Home keeps its old order, with Favorites hidden at the end`() {
+    fun `without a stored layout Home keeps its old order`() {
         val rows = HomeRows.resolve(null, listOf(movies, shows), legacy)
 
         assertEquals(
@@ -36,11 +35,10 @@ class HomeRowsTest {
                 "next_up",
                 "latest:$movies",
                 "latest:$shows",
-                "favorites",
             ),
             keys(rows),
         )
-        assertEquals(keys(rows).dropLast(1), visibleKeys(rows))
+        assertEquals(keys(rows), visibleKeys(rows))
     }
 
     @Test
@@ -69,29 +67,28 @@ class HomeRowsTest {
     fun `moving and hiding change only that row`() {
         var rows = HomeRows.defaults(legacy, listOf(movies))
 
-        rows = HomeRows.move(rows, "favorites", -1)
-        rows = HomeRows.setVisible(rows, "favorites", true)
+        rows = HomeRows.move(rows, "next_up", -1)
+        rows = HomeRows.setVisible(rows, "next_up", false)
         rows = HomeRows.setVisible(rows, "suggestions", false)
         rows = HomeRows.move(rows, "latest:$movies", -10)
 
         assertEquals(
-            listOf("latest:$movies", "suggestions", "continue_watching", "next_up", "favorites"),
+            listOf("latest:$movies", "suggestions", "next_up", "continue_watching"),
             keys(rows),
         )
         assertEquals(
-            listOf("latest:$movies", "continue_watching", "next_up", "favorites"),
+            listOf("latest:$movies", "continue_watching"),
             visibleKeys(rows),
         )
         // The first row can't move up, the last can't move down.
         assertEquals(rows, HomeRows.move(rows, "latest:$movies", -1))
-        assertEquals(rows, HomeRows.move(rows, "favorites", 1))
+        assertEquals(rows, HomeRows.move(rows, "continue_watching", 1))
     }
 
     @Test
     fun `a new library is added at the end, visible, and a removed one is left out`() {
         val stored =
             listOf(
-                HomeRowConfig(FAVORITES),
                 HomeRowConfig(LATEST, movies, visible = false),
                 HomeRowConfig(NEXT_UP),
                 HomeRowConfig(SUGGESTIONS, visible = false),
@@ -103,7 +100,6 @@ class HomeRowsTest {
 
         assertEquals(
             listOf(
-                "favorites",
                 "next_up",
                 "suggestions",
                 "continue_watching",
@@ -126,7 +122,7 @@ class HomeRowsTest {
         assertEquals(false, rows.first().visible)
         // Row types missing from what's stored are added.
         assertEquals(
-            setOf("latest:$movies", "next_up", "suggestions", "continue_watching", "favorites"),
+            setOf("latest:$movies", "next_up", "suggestions", "continue_watching"),
             keys(rows).toSet(),
         )
     }
@@ -139,7 +135,7 @@ class HomeRowsTest {
         assertNull(HomeRows.decode(null))
         assertEquals(
             listOf(HomeRowConfig(NEXT_UP, visible = false)),
-            HomeRows.decode("next_up,,0;genres,,1;latest,,1;latest,not-a-uuid,1;broken"),
+            HomeRows.decode("next_up,,0;favorites,,1;genres,,1;latest,,1;latest,not-a-uuid,1;broken"),
         )
     }
 
@@ -157,7 +153,7 @@ class HomeRowsTest {
 
         prefs.setValue(prefs.currentServer, "server1")
         val aliceOnOne = store.currentProfile()!!
-        val layout = HomeRows.move(HomeRows.defaults(legacy, listOf(movies)), "favorites", -4)
+        val layout = HomeRows.move(HomeRows.defaults(legacy, listOf(movies)), "next_up", -2)
         store.write(aliceOnOne, layout)
 
         assertEquals(layout, store.read(store.currentProfile()))

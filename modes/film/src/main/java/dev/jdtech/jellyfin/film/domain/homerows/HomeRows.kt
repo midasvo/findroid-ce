@@ -8,7 +8,6 @@ enum class HomeRowType(val id: String) {
     CONTINUE_WATCHING("continue_watching"),
     NEXT_UP("next_up"),
     LATEST("latest"),
-    FAVORITES("favorites"),
 }
 
 /** One row on Home. Latest has a row per library, told apart by [libraryId]. */
@@ -39,14 +38,13 @@ data class LegacyHomeSwitches(
  * so nobody loses their choice, and another user on the same device starts from them too.
  */
 object HomeRows {
-    /** The order Home had before #142, plus Favorites at the end, hidden so Home stays the same. */
+    /** The order Home had before #142. */
     fun defaults(legacy: LegacyHomeSwitches, libraries: List<UUID>): List<HomeRowConfig> =
         buildList {
             add(HomeRowConfig(HomeRowType.SUGGESTIONS, visible = legacy.suggestions))
             add(HomeRowConfig(HomeRowType.CONTINUE_WATCHING, visible = legacy.continueWatching))
             add(HomeRowConfig(HomeRowType.NEXT_UP, visible = legacy.nextUp))
             libraries.forEach { add(HomeRowConfig(HomeRowType.LATEST, it, legacy.latest)) }
-            add(HomeRowConfig(HomeRowType.FAVORITES, visible = false))
         }
 
     /**

@@ -111,4 +111,6 @@
     <string name="home_rows">主页行</string>
     <string name="home_rows_summary">选择主页显示哪些行以及它们的顺序</string>
     <string name="ce_permission_local_network_rationale">Ephyra 需要访问您的本地网络，才能找到并连接到您的 Jellyfin 服务器。远程服务器不受影响。</string>
+    <string name="pref_show_favorites_tab">“收藏夹”导航标签页</string>
+    <string name="pref_show_favorites_tab_summary">在导航栏中显示“收藏夹”标签页</string>
 </resources>

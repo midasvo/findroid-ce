@@ -111,4 +111,6 @@
     <string name="home_rows">Files de l\'inici</string>
     <string name="home_rows_summary">Tria quines files mostra l\'inici i en quin ordre</string>
     <string name="ce_permission_local_network_rationale">Ephyra necessita accés a la teva xarxa local per trobar el teu servidor Jellyfin i connectar-s\'hi. Els servidors remots no es veuen afectats.</string>
+    <string name="pref_show_favorites_tab">Pestanya de navegació Preferits</string>
+    <string name="pref_show_favorites_tab_summary">Mostra la pestanya Preferits a la barra de navegació</string>
 </resources>

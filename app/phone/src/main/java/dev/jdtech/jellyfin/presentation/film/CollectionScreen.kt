@@ -73,6 +73,8 @@ fun CollectionScreenLayout(
     onAction: (CollectionAction) -> Unit,
     @DrawableRes emptyIcon: Int = CoreR.drawable.ic_film,
     emptyTitle: String = stringResource(CoreR.string.collection_no_media),
+    emptyBody: String? = null,
+    showNavigationIcon: Boolean = true,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
@@ -85,11 +87,13 @@ fun CollectionScreenLayout(
             TopAppBar(
                 title = { Text(collectionName) },
                 navigationIcon = {
-                    IconButton(onClick = { onAction(CollectionAction.OnBackClick) }) {
-                        Icon(
-                            painter = painterResource(CoreR.drawable.ic_arrow_left),
-                            contentDescription = stringResource(CoreR.string.navigate_back),
-                        )
+                    if (showNavigationIcon) {
+                        IconButton(onClick = { onAction(CollectionAction.OnBackClick) }) {
+                            Icon(
+                                painter = painterResource(CoreR.drawable.ic_arrow_left),
+                                contentDescription = stringResource(CoreR.string.navigate_back),
+                            )
+                        }
                     }
                 },
                 windowInsets = WindowInsets.statusBars.union(WindowInsets.displayCutout),
@@ -113,7 +117,13 @@ fun CollectionScreenLayout(
                         onRetryClick = { onAction(CollectionAction.OnRetryClick) },
                     )
                 }
-            else -> EmptyState(icon = emptyIcon, title = emptyTitle, modifier = contentModifier)
+            else ->
+                EmptyState(
+                    icon = emptyIcon,
+                    title = emptyTitle,
+                    body = emptyBody,
+                    modifier = contentModifier,
+                )
         }
     }
 }
