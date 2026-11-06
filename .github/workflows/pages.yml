@@ -1,7 +1,8 @@
 name: Pages
 
 # Publishes site/ (the privacy policy that Google Play links to) to GitHub Pages at
-# https://midasvo.github.io/ephyra/. Needs Settings → Pages → Source set to "GitHub Actions".
+# https://midasvo.nl/ephyra/ (the custom domain of midasvo.github.io). Needs Settings → Pages →
+# Source set to "GitHub Actions".
 
 on:
   workflow_dispatch:
