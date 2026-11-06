@@ -9,8 +9,6 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.tv.material3.LocalContentColor as LocalContentColorTv
 import androidx.tv.material3.MaterialTheme as MaterialThemeTv
 import androidx.tv.material3.contentColorFor as contentColorForTv
@@ -26,12 +24,7 @@ fun FindroidTheme(content: @Composable BoxScope.() -> Unit) {
                     contentColorForTv(MaterialThemeTv.colorScheme.background),
                 LocalSpacings provides Spacings,
             ) {
-                Box(
-                    modifier =
-                        Modifier.background(
-                            Brush.linearGradient(listOf(Color.Black, Color(0xFF001721)))
-                        )
-                ) {
+                Box(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
                     content()
                 }
             }
