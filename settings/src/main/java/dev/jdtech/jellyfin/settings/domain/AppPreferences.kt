@@ -18,7 +18,7 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
 
     // Interface
     val theme = Preference("pref_theme", "system")
-    val dynamicColors = Preference("pref_dynamic_colors", true)
+    val dynamicColors = Preference("pref_dynamic_colors", false)
     val homeSuggestions = Preference<Boolean>("home_suggestions", true)
     val homeContinueWatching = Preference<Boolean>("home_continue_watching", true)
     val homeNextUp = Preference<Boolean>("home_next_up", true)
