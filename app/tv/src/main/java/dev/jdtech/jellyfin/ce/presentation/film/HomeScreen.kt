@@ -146,21 +146,24 @@ fun HomeScreen(
 
 /** The focused card. Written on focus changes and read only by the hero and its prefetch. */
 @Stable
-private class HeroFocus {
-    var item by mutableStateOf<FindroidItem?>(null)
+private class HeroFocus(
+    initialRow: List<FindroidItem> = emptyList(),
+    initialColumn: Int = 0,
+) {
+    var item by mutableStateOf<FindroidItem?>(initialRow.getOrNull(initialColumn))
         private set
 
     /** The focused card's row and place in it, for the prefetch. Plain fields: no recomposition. */
-    var row: List<FindroidItem> = emptyList()
+    var row: List<FindroidItem> = initialRow
         private set
 
-    var column = 0
+    var column = initialColumn
         private set
 
     fun focus(row: List<FindroidItem>, column: Int) {
         this.row = row
         this.column = column
-        item = row[column]
+        item = row.getOrNull(column)
     }
 }
 
@@ -205,25 +208,25 @@ private fun HomeScreenLayout(
     focusPosition: FocusPosition = rememberFocusPosition(),
 ) {
     val rows = remember(state) { state.rows() }
-    val hero = remember { HeroFocus() }
-
-    // If hero has no item yet, restore it immediately from the saved focus key so the hero area
-    // does not flash black on return.
-    if (hero.item == null && rows.isNotEmpty()) {
-        val savedKey = focusPosition.key
-        val match =
-            if (savedKey != null) {
-                rows.withIndex().firstNotNullOfOrNull { (_, r) ->
-                    val cIndex = r.items.indexOfFirst { it.id.toString() == savedKey }
-                    if (cIndex >= 0) r.items to cIndex else null
-                }
-            } else null
-        if (match != null) {
-            hero.focus(match.first, match.second)
-        } else if (rows.first().items.isNotEmpty()) {
-            hero.focus(rows.first().items, 0)
+    val hero =
+        remember(rows.isNotEmpty()) {
+            val savedKey = focusPosition.key
+            val match =
+                if (savedKey != null && rows.isNotEmpty()) {
+                    rows.firstNotNullOfOrNull { r ->
+                        val cIndex = r.items.indexOfFirst { it.id.toString() == savedKey }
+                        if (cIndex >= 0) r.items to cIndex else null
+                    }
+                } else null
+            val (row, col) =
+                match
+                    ?: if (rows.isNotEmpty() && rows.first().items.isNotEmpty()) {
+                        rows.first().items to 0
+                    } else {
+                        emptyList<FindroidItem>() to 0
+                    }
+            HeroFocus(row, col)
         }
-    }
     // The row states, so a return can scroll the saved card into view before focusing it.
     val rowStates = remember { mutableMapOf<UUID, LazyListState>() }
     val rowSpec = LocalBringIntoViewSpec.current

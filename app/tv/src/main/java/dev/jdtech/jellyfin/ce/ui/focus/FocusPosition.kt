@@ -71,7 +71,11 @@ class FocusPosition internal constructor(row: Int, column: Int, key: String?) {
         try {
             requesters[row to column]?.requestFocus(FocusDirection.Enter) ?: false
         } catch (_: IllegalStateException) {
-            requesters[row to column]?.requestFocus() ?: false
+            try {
+                requesters[row to column]?.requestFocus() ?: false
+            } catch (_: IllegalStateException) {
+                false
+            }
         }
 
     /** FocusRequester for the saved position, if one is currently registered. */
