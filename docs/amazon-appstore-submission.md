@@ -21,8 +21,8 @@ Start at *Apps & Services → My Apps → Add New App → Android*.
   | `ephyra-v2.1.0-libre-tv-armeabi-v7a.apk` | Fire TV | 2010001 |
   | `ephyra-v2.1.0-libre-armeabi-v7a.apk` | Fire tablets | 2010000 |
 
-- **Images** in `images/branding/ephyra/` (from `make-ephyra.sh`), and the screenshots, which
-  are still to be taken (see the end of this file).
+- **Images** in `images/branding/ephyra/` (from `make-ephyra.sh`), and the screenshots in
+  `images/amazon/`.
 
 ## Step 1: Upload your app file
 
@@ -116,10 +116,10 @@ jellyfin, media server, home media, movies, tv shows, video player, offline, sel
 | Tablet small icon, 114×114 | `images/branding/ephyra/ephyra-icon-114.png` | Ready |
 | Tablet large icon, 512×512 | `images/branding/ephyra/ephyra-icon.png` | Ready |
 | Tablet promotional image, 1024×500 (optional) | `images/branding/ephyra/ephyra-feature-graphic.png` | Ready |
-| Tablet screenshots, 3–10 | 1920×1200 or 2560×1600 from a tablet | **To do** |
+| Tablet screenshots, 3–10 | `images/amazon/tablet/*.jpg` (4) | Ready |
 | Fire TV app icon, 1280×720 | `images/branding/ephyra/ephyra-firetv-icon.png` | Ready |
 | Fire TV background, 1920×1080 | `images/branding/ephyra/ephyra-firetv-background.png` | Ready |
-| Fire TV screenshots, 3–10 at 1920×1080 | From the TV app | **To do** |
+| Fire TV screenshots, 3–10 at 1920×1080 | `images/amazon/firetv/*.jpg` (5) | Ready |
 
 ## Step 4: Review and submit
 
@@ -138,17 +138,23 @@ Server address: https://demo.jellyfin.org/stable
 Username: demo
 Password: (leave empty)
 
-On the first screen, enter the server address, then sign in with the username above. The demo server only contains public-domain films. On Fire TV, everything works with the remote.
+On the first screen, enter the server address, then pick the "demo" user and sign in with an empty password. The demo server only contains public-domain films.
 ```
 
 Then click **Submit App**.
 
-## Screenshots still to take
+## Screenshots
 
-Take them on the Jellyfin demo server (`demo.jellyfin.org/stable`, user `demo`, no password), which
-only has public-domain films. Other artwork risks an IP rejection (`docs/play-store.md`).
+`images/amazon/` holds the screenshots, taken with v2.1.0 on the Jellyfin demo server
+(`demo.jellyfin.org/stable`, user `demo`, no password), which only has public-domain and
+free-culture films. Other artwork risks an IP rejection (`docs/play-store.md`).
 
-- **Fire TV:** 3 to 10 at 1920×1080 (24-bit PNG or JPG, no transparency) from the TV app: home,
-  a film's detail page, the library, the player with subtitles.
-- **Tablets:** 3 to 10 at 1920×1200 or 2560×1600 from the phone app on a tablet or tablet
-  emulator: home, library, a detail page, downloads.
+- **Fire TV** (`firetv/`, 1920×1080): home, a film's page, the movie library, a season, the player.
+  Taken on an Android TV emulator at 1080p.
+- **Tablets** (`tablet/`): home, the movie library and a film's page at 1920×1080, the player at
+  1920×1200. Taken on a Pixel Tablet emulator (2560×1600, dark theme). The first three are cropped
+  to 16:9 to drop the status bar and taskbar, then scaled down.
+
+To retake them, sign in on throwaway emulators, capture with `adb shell screencap`, and convert to
+JPG without transparency. On the TV login screen, the D-pad doesn't leave the username field: use
+Tab (`adb shell input keyevent TAB`) to reach Login.
