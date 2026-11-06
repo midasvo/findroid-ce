@@ -64,6 +64,7 @@ import dev.jdtech.jellyfin.about.hdrText
 import dev.jdtech.jellyfin.about.installSourceText
 import dev.jdtech.jellyfin.about.resolutionText
 import dev.jdtech.jellyfin.core.R as CoreR
+import dev.jdtech.jellyfin.presentation.components.SwimmingJellyfish
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.settings.R as SettingsR
