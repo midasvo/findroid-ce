@@ -372,7 +372,7 @@ private fun SeasonScreenLayout(
                                         if (episode.played) CoreR.string.unmark_as_played
                                         else CoreR.string.mark_as_played
                                 ),
-                            tint = if (episode.played) Color.Red else LocalContentColor.current,
+                            tint = if (episode.played) MaterialTheme.colorScheme.tertiary else LocalContentColor.current,
                         )
                     }
                     IconButton(
@@ -398,7 +398,7 @@ private fun SeasonScreenLayout(
                                         if (episode.favorite) CoreR.string.remove_from_favorites
                                         else CoreR.string.add_to_favorites
                                 ),
-                            tint = if (episode.favorite) Color.Red else LocalContentColor.current,
+                            tint = if (episode.favorite) MaterialTheme.colorScheme.tertiary else LocalContentColor.current,
                         )
                     }
                     if (versions.size > 1) {

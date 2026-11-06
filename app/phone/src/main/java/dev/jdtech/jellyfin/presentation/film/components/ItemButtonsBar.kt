@@ -149,7 +149,7 @@ fun ItemButtonsBar(
                     Icon(
                         painter = painterResource(CoreR.drawable.ic_check),
                         contentDescription = stringResource(CoreR.string.check_button_description),
-                        tint = if (item.played) MaterialTheme.colorScheme.primary else LocalContentColor.current,
+                        tint = if (item.played) MaterialTheme.colorScheme.tertiary else LocalContentColor.current,
                     )
                 }
                 FilledTonalIconButton(onClick = onMarkAsFavoriteClick) {
@@ -158,7 +158,7 @@ fun ItemButtonsBar(
                             Icon(
                                 painter = painterResource(CoreR.drawable.ic_heart_filled),
                                 contentDescription = stringResource(CoreR.string.favorite_button_description),
-                                tint = MaterialTheme.colorScheme.error,
+                                tint = MaterialTheme.colorScheme.tertiary,
                             )
                         }
                         false -> {

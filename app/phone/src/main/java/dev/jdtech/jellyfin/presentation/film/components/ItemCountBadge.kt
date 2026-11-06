@@ -12,10 +12,10 @@ import dev.jdtech.jellyfin.presentation.theme.spacings
 
 @Composable
 fun ItemCountBadge(unplayedItemCount: Int, modifier: Modifier = Modifier) {
-    BaseBadge(modifier = modifier) {
+    BaseBadge(modifier = modifier, color = MaterialTheme.colorScheme.secondaryContainer) {
         Text(
             text = unplayedItemCount.toString(),
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
             style = MaterialTheme.typography.labelMedium,
             modifier =
                 Modifier.align(Alignment.Center)
