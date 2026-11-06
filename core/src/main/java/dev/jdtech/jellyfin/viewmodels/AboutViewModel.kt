@@ -5,19 +5,32 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.jdtech.jellyfin.about.AboutInfo
+import dev.jdtech.jellyfin.about.AboutInfoReader
+import dev.jdtech.jellyfin.about.AboutServer
+import dev.jdtech.jellyfin.core.AppVariant
+import dev.jdtech.jellyfin.database.ServerDatabaseDao
 import dev.jdtech.jellyfin.player.DeviceCapabilityReportBuilder
 import dev.jdtech.jellyfin.player.DeviceProfileBuilder
+import dev.jdtech.jellyfin.player.ProbedCodecs
+import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 /**
- * Backs the About screen's "Export device profile" action.
+ * Backs the About screen's "Export device profile" action, and (CE #211) the install, server and
+ * device info the TV About screen shows.
  *
  * Lives in `core` because both the device-profile builder (in `data`) and
  * `AppPreferences` (in `settings`) need to be assembled, and `core` is the
@@ -36,6 +49,10 @@ constructor(
     @ApplicationContext private val context: Context,
     private val deviceProfileBuilder: DeviceProfileBuilder,
     private val appPreferences: AppPreferences,
+    private val database: ServerDatabaseDao,
+    // A Provider, so the online or offline repository is picked when the info loads.
+    private val repository: Provider<JellyfinRepository>,
+    val appVariant: AppVariant,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AboutState())
@@ -46,6 +63,7 @@ constructor(
 
     fun onAction(action: AboutAction) {
         when (action) {
+            AboutAction.OnLoadInfo -> loadInfo()
             is AboutAction.OnExportDeviceProfile -> {
                 exportDeviceProfile(
                     findroidVersion = action.findroidVersion,
@@ -53,6 +71,43 @@ constructor(
                     target = action.target,
                 )
             }
+        }
+    }
+
+    private fun loadInfo() {
+        if (_state.value.info != null) return
+        viewModelScope.launch {
+            val info =
+                withContext(Dispatchers.Default) {
+                    AboutInfoReader.read(context, deviceProfileBuilder)
+                }
+            _state.update {
+                it.copy(info = info, codecs = deviceProfileBuilder.probedCodecsSnapshot())
+            }
+
+            val serverId = appPreferences.getValue(appPreferences.currentServer) ?: return@launch
+            val data = database.getServerWithAddressAndUser(serverId) ?: return@launch
+            _state.update {
+                it.copy(
+                    server =
+                        AboutServer(
+                            name = data.server.name,
+                            address = data.address?.address,
+                            userName = data.user?.name,
+                            jellyfinVersion = null,
+                        )
+                )
+            }
+            val version =
+                try {
+                    repository.get().getPublicSystemInfo().version
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Timber.w(e, "Could not read the server version")
+                    null
+                }
+            _state.update { it.copy(server = it.server?.copy(jellyfinVersion = version)) }
         }
     }
 
@@ -97,9 +152,18 @@ constructor(
     }
 }
 
-data class AboutState(val isExporting: Boolean = false)
+data class AboutState(
+    val isExporting: Boolean = false,
+    /** Null until [AboutAction.OnLoadInfo] has read it. */
+    val info: AboutInfo? = null,
+    val codecs: ProbedCodecs? = null,
+    /** Null when there's no current server. */
+    val server: AboutServer? = null,
+)
 
 sealed interface AboutAction {
+    data object OnLoadInfo : AboutAction
+
     data class OnExportDeviceProfile(
         val findroidVersion: String,
         val findroidBuildType: String,

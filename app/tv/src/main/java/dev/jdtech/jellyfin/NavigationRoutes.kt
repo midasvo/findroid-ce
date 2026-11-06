@@ -58,3 +58,12 @@ data class PlayerRoute(
 
 // CE (#142)
 @Serializable data object HomeRowsRoute : NavKey
+
+// CE (#211)
+@Serializable data object AboutRoute : NavKey
+
+@Serializable data object LicensesRoute : NavKey
+
+@Serializable data class LicenseRoute(val uniqueId: String) : NavKey
+
+@Serializable data object DeviceProfileRoute : NavKey

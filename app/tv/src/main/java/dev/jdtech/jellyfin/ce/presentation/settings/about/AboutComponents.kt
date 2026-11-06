@@ -1,0 +1,172 @@
+package dev.jdtech.jellyfin.ce.presentation.settings.about
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Border
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.ClickableSurfaceScale
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
+import dev.jdtech.jellyfin.about.AboutInfo
+import dev.jdtech.jellyfin.about.BugReportLink
+import dev.jdtech.jellyfin.about.InstallSource
+import dev.jdtech.jellyfin.about.ReleaseChannel
+import dev.jdtech.jellyfin.about.ScreenSummary
+import dev.jdtech.jellyfin.presentation.theme.spacings
+import dev.jdtech.jellyfin.settings.R as SettingsR
+import java.util.Locale
+
+/** A heading above a group of [InfoRow]s. */
+@Composable
+internal fun InfoSection(title: String, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = MaterialTheme.spacings.extraSmall),
+        )
+        content()
+    }
+}
+
+/** A read-only label (none when empty) and value. It isn't focusable: the About screen fits without scrolling. */
+@Composable
+internal fun InfoRow(label: String, value: String, labelWidth: Dp = 136.dp) {
+    Row {
+        if (label.isNotEmpty()) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.width(labelWidth),
+            )
+        }
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+/**
+ * A focusable row for the lists that do scroll (licenses, device profile): moving focus down is what
+ * scrolls a list on a TV.
+ */
+@Composable
+internal fun FocusableCard(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(10.dp)),
+        colors =
+            ClickableSurfaceDefaults.colors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+            ),
+        border =
+            ClickableSurfaceDefaults.border(
+                focusedBorder =
+                    Border(BorderStroke(4.dp, Color.White), shape = RoundedCornerShape(10.dp))
+            ),
+        scale = ClickableSurfaceScale.None,
+        modifier = modifier,
+    ) {
+        Column(
+            modifier =
+                Modifier.padding(
+                    horizontal = MaterialTheme.spacings.default,
+                    vertical = MaterialTheme.spacings.medium,
+                )
+        ) {
+            content()
+        }
+    }
+}
+
+@Composable
+internal fun channelText(channel: ReleaseChannel): String =
+    stringResource(
+        when (channel) {
+            ReleaseChannel.STABLE -> SettingsR.string.about_channel_stable
+            ReleaseChannel.BETA -> SettingsR.string.about_channel_beta
+            ReleaseChannel.DEBUG -> SettingsR.string.about_channel_debug
+        }
+    )
+
+@Composable
+internal fun installSourceText(source: InstallSource): String =
+    when (source) {
+        InstallSource.Sideloaded -> stringResource(SettingsR.string.about_install_sideloaded)
+        else -> BugReportLink.installSourceName(source)
+    }
+
+@Composable
+internal fun buildText(info: AboutInfo): String =
+    stringResource(SettingsR.string.about_build_tv, if (info.is64Bit) 64 else 32, info.abi)
+
+internal fun resolutionText(screen: ScreenSummary): String =
+    "${screen.widthPx}×${screen.heightPx}, ${hzText(screen.refreshRateHz)}"
+
+/** `60 Hz`, `59.94 Hz`. */
+internal fun hzText(hz: Float): String =
+    "%.2f".format(Locale.ROOT, hz).trimEnd('0').trimEnd('.') + " Hz"
+
+@Composable
+internal fun hdrText(hdrTypes: List<String>): String =
+    if (hdrTypes.isEmpty()) stringResource(SettingsR.string.about_none)
+    else hdrTypes.joinToString(", ", transform = ::hdrName)
+
+private fun hdrName(type: String): String =
+    when (type) {
+        "DOLBY_VISION" -> "Dolby Vision"
+        "HDR10_PLUS" -> "HDR10+"
+        else -> type
+    }
+
+/** ffmpeg's codec names as people know them. */
+internal fun codecName(codec: String): String =
+    when (codec) {
+        "h263" -> "H.263"
+        "h264" -> "H.264"
+        "hevc" -> "HEVC"
+        "mpeg2video" -> "MPEG-2"
+        "mpeg4" -> "MPEG-4"
+        "vc1" -> "VC-1"
+        "eac3" -> "E-AC-3"
+        "ac3" -> "AC-3"
+        "truehd" -> "TrueHD"
+        "dts" -> "DTS"
+        "opus" -> "Opus"
+        "vorbis" -> "Vorbis"
+        "flac" -> "FLAC"
+        else -> codec.uppercase()
+    }
+
+/** `H.264, HEVC, AV1, Dolby Vision 5/8`. */
+@Composable
+internal fun decodersText(info: AboutInfo): String =
+    buildList {
+            addAll(info.videoDecoders.map(::codecName))
+            if (info.dolbyVisionProfiles.isNotEmpty()) {
+                add("Dolby Vision ${info.dolbyVisionProfiles.joinToString("/")}")
+            }
+        }
+        .joinToString(", ")
+        .ifEmpty { stringResource(SettingsR.string.about_none) }
