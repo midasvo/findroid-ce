@@ -32,16 +32,13 @@ By default Amazon re-signs the APK with a key it generates per developer account
 build then can't update over an install from GitHub, F-Droid or Play, and the other way round. This
 is the same trap that Play App Signing avoids by uploading our existing key.
 
-Amazon's docs mention asking developer support for a different certificate ("Questions about
-application signatures" under Contact Us). Before the first upload:
-
-1. Ask whether the app can be signed with our existing release key (the `KEYSTORE_BASE64` secret).
-2. If it can't, accept that the Amazon build is a separate install line and say so in the listing
-   and README. Users switching from a sideloaded build would have to uninstall first and lose their
-   downloads and settings.
+**Decided (2026-11-06):** Amazon signs with its own key, and the Appstore build is a separate install
+line. People on Fire devices install from the Appstore rather than GitHub or F-Droid, so few will
+switch between the two. Anyone who does has to uninstall first and loses their downloads and
+settings.
 
 The Appstore Certificate Hashes on the *Upload Your App File* screen show which key Amazon signs
-with. **Decision needed** once support has answered.
+with.
 
 ## Building and uploading
 
