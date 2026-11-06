@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin.presentation.film.components
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
@@ -31,6 +32,8 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.jdtech.jellyfin.core.R as CoreR
+import dev.jdtech.jellyfin.core.presentation.ephyra.ephyraGlow
+import dev.jdtech.jellyfin.core.presentation.ephyra.glowEnabled
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 
 /** What the trailing control of a download row shows. */
@@ -87,10 +90,12 @@ fun DownloadProgressButton(
         AnimatedContent(
             targetState = kind,
             transitionSpec = {
-                (scaleIn(
-                    initialScale = 0.5f,
-                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-                ) + fadeIn()) togetherWith (scaleOut(targetScale = 0.5f) + fadeOut())
+                ((scaleIn(
+                        initialScale = 0.5f,
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+                    ) + fadeIn()) togetherWith (scaleOut(targetScale = 0.5f) + fadeOut()))
+                    // Don't clip to the ring: its halo reaches outside it.
+                    .using(SizeTransform(clip = false))
             },
             label = "downloadControl",
         ) { target ->
@@ -133,7 +138,17 @@ private fun ProgressRing(state: DownloadControlState, progress: () -> Float) {
         } else {
             CircularProgressIndicator(
                 progress = if (state == DownloadControlState.WAITING) ({ 0f }) else progress,
-                modifier = Modifier.matchParentSize(),
+                // The halo (VISION §6) only while a download is in flight, and only in dark theme.
+                modifier =
+                    Modifier.matchParentSize()
+                        .ephyraGlow(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.45f),
+                            blur = 10.dp,
+                            enabled =
+                                state == DownloadControlState.DOWNLOADING &&
+                                    glowEnabled(MaterialTheme.colorScheme.surface),
+                        ),
                 color = activeColor,
                 strokeWidth = 2.5.dp,
                 trackColor = trackColor,

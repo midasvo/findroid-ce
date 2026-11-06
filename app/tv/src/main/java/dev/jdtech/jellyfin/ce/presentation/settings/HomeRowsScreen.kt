@@ -1,6 +1,5 @@
 package dev.jdtech.jellyfin.ce.presentation.settings
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -31,7 +29,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Border
 import androidx.tv.material3.Button
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ClickableSurfaceScale
@@ -42,6 +39,8 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Switch
 import androidx.tv.material3.Text
 import dev.jdtech.jellyfin.ce.ui.TvSafeArea
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedBorder
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedGlow
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.film.R as FilmR
 import dev.jdtech.jellyfin.film.domain.homerows.HomeRowConfig
@@ -164,11 +163,8 @@ private fun HomeRowItem(
                     containerColor = MaterialTheme.colorScheme.surface,
                     focusedContainerColor = MaterialTheme.colorScheme.surface,
                 ),
-            border =
-                ClickableSurfaceDefaults.border(
-                    focusedBorder =
-                        Border(BorderStroke(4.dp, Color.White), shape = MaterialTheme.shapes.small)
-                ),
+            border = ClickableSurfaceDefaults.border(focusedBorder = ephyraFocusedBorder()),
+            glow = ClickableSurfaceDefaults.glow(focusedGlow = ephyraFocusedGlow()),
             scale = ClickableSurfaceScale.None,
             modifier = toggleModifier.weight(1f),
         ) {

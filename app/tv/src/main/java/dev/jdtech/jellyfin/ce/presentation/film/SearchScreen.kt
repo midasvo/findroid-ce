@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
@@ -150,8 +151,9 @@ internal fun SearchScreenLayout(
 
     LazyColumn(
         state = listState,
-        contentPadding =
-            PaddingValues(horizontal = TvSafeArea.horizontal, vertical = TvSafeArea.vertical),
+        // The safe area is padding on the items, not on the list: the rows of cards run to the
+        // screen edge, so they don't clip the focus ring and halo of their first and last card.
+        contentPadding = PaddingValues(vertical = TvSafeArea.vertical),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -184,7 +186,8 @@ internal fun SearchScreenLayout(
                         }
                     ),
                 modifier =
-                    Modifier.fillMaxWidth()
+                    Modifier.padding(horizontal = TvSafeArea.horizontal)
+                        .fillMaxWidth()
                         .focusPosition(focusPosition, ROW_FIELD, 0)
                         .onFocusChanged {
                             // It also reports "not focused" when attached: only act on a loss.
@@ -239,11 +242,16 @@ internal fun SearchScreenLayout(
                     Text(
                         text = stringResource(group.title),
                         style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.padding(horizontal = TvSafeArea.horizontal),
                     )
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),
-                        // Room for the focused card to scale up.
-                        contentPadding = PaddingValues(vertical = MaterialTheme.spacings.small),
+                        // Room for the focused card to scale up, and the safe area.
+                        contentPadding =
+                            PaddingValues(
+                                horizontal = TvSafeArea.horizontal,
+                                vertical = MaterialTheme.spacings.small,
+                            ),
                         modifier = Modifier.focusRestorer().testTag(searchRowTag(group.kind)),
                     ) {
                         itemsIndexed(items, key = { _, item -> item.id }) { index, item ->

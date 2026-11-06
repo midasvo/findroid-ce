@@ -1,9 +1,9 @@
 package dev.jdtech.jellyfin.ce.presentation.screensaver
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,11 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.MaterialTheme
@@ -33,6 +31,8 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Switch
 import androidx.tv.material3.Text
 import dev.jdtech.jellyfin.ce.presentation.player.TvSelectionDialog
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedBorder
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedGlow
 import dev.jdtech.jellyfin.ce.ui.tvSafeAreaPadding
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.settings.R as SettingsR
@@ -109,10 +109,11 @@ fun ScreensaverSettingsScreen(
             color = MaterialTheme.colorScheme.onSurface,
         )
 
-        Spacer(modifier = Modifier.height(MaterialTheme.spacings.large))
-
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
+            // Padding inside the list instead of a spacer above it, so the list doesn't clip the
+            // focus ring and its halo.
+            contentPadding = PaddingValues(vertical = MaterialTheme.spacings.large),
             modifier = Modifier.fillMaxWidth(0.7f),
         ) {
             item {
@@ -204,11 +205,8 @@ private fun ScreensaverActionCard(
                 containerColor = MaterialTheme.colorScheme.surface,
                 focusedContainerColor = MaterialTheme.colorScheme.surface,
             ),
-        border =
-            ClickableSurfaceDefaults.border(
-                focusedBorder =
-                    Border(BorderStroke(4.dp, Color.White), shape = MaterialTheme.shapes.small)
-            ),
+        border = ClickableSurfaceDefaults.border(focusedBorder = ephyraFocusedBorder()),
+        glow = ClickableSurfaceDefaults.glow(focusedGlow = ephyraFocusedGlow()),
         scale = ClickableSurfaceScale.None,
         modifier = modifier.fillMaxWidth(),
     ) {
@@ -247,11 +245,8 @@ private fun ScreensaverSwitchCard(
                 containerColor = MaterialTheme.colorScheme.surface,
                 focusedContainerColor = MaterialTheme.colorScheme.surface,
             ),
-        border =
-            ClickableSurfaceDefaults.border(
-                focusedBorder =
-                    Border(BorderStroke(4.dp, Color.White), shape = MaterialTheme.shapes.small)
-            ),
+        border = ClickableSurfaceDefaults.border(focusedBorder = ephyraFocusedBorder()),
+        glow = ClickableSurfaceDefaults.glow(focusedGlow = ephyraFocusedGlow()),
         scale = ClickableSurfaceScale.None,
         modifier = modifier.fillMaxWidth(),
     ) {

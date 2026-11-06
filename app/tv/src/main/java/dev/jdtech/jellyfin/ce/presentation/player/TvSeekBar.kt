@@ -1,5 +1,6 @@
 package dev.jdtech.jellyfin.ce.presentation.player
 
+import android.graphics.BlurMaskFilter
 import android.view.KeyEvent
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Canvas
@@ -18,12 +19,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
+import dev.jdtech.jellyfin.ce.ui.focus.EphyraFocusGlowAlpha
 
 /**
  * CE (#126): the TV seek bar. It takes focus like any button. While focused, Left/Right move a
@@ -55,7 +60,18 @@ fun TvSeekBar(
 
     val shown = pendingMs ?: positionMs
     val fraction = if (durationMs > 0) (shown.toFloat() / durationMs).coerceIn(0f, 1f) else 0f
-    val color = if (pendingMs != null) MaterialTheme.colorScheme.primary else Color.White
+    // Progress is alive: the played track and the thumb are primary (VISION §1, §3.4).
+    val color = MaterialTheme.colorScheme.primary
+    // The thumb's halo (VISION §6): primary at EphyraFocusGlowAlpha, blurred 20 dp.
+    val density = LocalDensity.current
+    val haloPaint =
+        remember(color, density) {
+            Paint().apply {
+                this.color = color.copy(alpha = EphyraFocusGlowAlpha)
+                asFrameworkPaint().maskFilter =
+                    BlurMaskFilter(with(density) { 20.dp.toPx() }, BlurMaskFilter.Blur.NORMAL)
+            }
+        }
 
     Canvas(
         modifier =
@@ -138,7 +154,9 @@ fun TvSeekBar(
             )
         }
         if (isFocused) {
-            drawCircle(color = Color.White, radius = size.height / 2, center = Offset(size.width * fraction, y))
+            val thumb = Offset(size.width * fraction, y)
+            drawIntoCanvas { it.drawCircle(thumb, size.height / 2, haloPaint) }
+            drawCircle(color = color, radius = size.height / 2, center = thumb)
         }
     }
 }

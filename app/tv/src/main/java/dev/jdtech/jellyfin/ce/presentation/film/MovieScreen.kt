@@ -56,6 +56,7 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import dev.jdtech.jellyfin.ce.ui.PersonCard
 import dev.jdtech.jellyfin.ce.ui.focus.RestoreFocus
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraButtonBorder
 import dev.jdtech.jellyfin.ce.ui.focus.focusPosition
 import dev.jdtech.jellyfin.ce.ui.focus.rememberFocusPosition
 import dev.jdtech.jellyfin.core.R as CoreR
@@ -247,6 +248,7 @@ private fun MovieScreenLayout(state: MovieState, onAction: (MovieAction) -> Unit
                                 val favoriteCol = if (hasTrailer) 3 else 2
 
                                 Button(
+                                    border = ephyraButtonBorder(),
                                     onClick = {
                                         if (versions.size > 1) {
                                             versionDialogOpen = true
@@ -266,6 +268,7 @@ private fun MovieScreenLayout(state: MovieState, onAction: (MovieAction) -> Unit
                                 }
                                 movie.trailer?.let { trailerUri ->
                                     Button(
+                                        border = ephyraButtonBorder(),
                                         onClick = {
                                             onAction(MovieAction.PlayTrailer(trailerUri))
                                         },
@@ -285,6 +288,7 @@ private fun MovieScreenLayout(state: MovieState, onAction: (MovieAction) -> Unit
                                     }
                                 }
                                 Button(
+                                    border = ephyraButtonBorder(),
                                     onClick = {
                                         when (movie.played) {
                                             true -> onAction(MovieAction.UnmarkAsPlayed)
@@ -316,6 +320,7 @@ private fun MovieScreenLayout(state: MovieState, onAction: (MovieAction) -> Unit
                                     )
                                 }
                                 Button(
+                                    border = ephyraButtonBorder(),
                                     onClick = {
                                         when (movie.favorite) {
                                             true -> onAction(MovieAction.UnmarkAsFavorite)
