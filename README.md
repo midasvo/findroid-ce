@@ -162,6 +162,21 @@ Betas are untested builds — expect bugs. Every push to `main` publishes one.
 
 </details>
 
+### Via IzzyOnDroid (F-Droid)
+
+<a href="https://apt.izzysoft.de/packages/nl.midasvo.findroid.ce">
+  <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="Get it on IzzyOnDroid">
+</a>
+
+Ephyra is available in the [IzzyOnDroid repository](https://apt.izzysoft.de/fdroid/). If you use an
+F-Droid client (such as F-Droid, Neo Store, or Droid-ify), add the repository:
+
+```
+https://apt.izzysoft.de/fdroid/repo
+```
+
+Then search for **Ephyra** or open [its package page](https://apt.izzysoft.de/packages/nl.midasvo.findroid.ce).
+
 ### Manual
 
 Grab the latest APK from the [Releases](https://github.com/midasvo/ephyra/releases) page:
