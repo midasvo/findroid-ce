@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -487,7 +486,7 @@ private fun ItemCardSkeleton(modifier: Modifier = Modifier) {
             modifier =
                 Modifier.fillMaxWidth()
                     .aspectRatio(0.66f)
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(MaterialTheme.shapes.small)
                     .background(MaterialTheme.colorScheme.surface)
         )
         Spacer(modifier = Modifier.height(MaterialTheme.spacings.small))

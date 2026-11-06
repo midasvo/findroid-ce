@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -159,7 +158,7 @@ private fun HomeRowItem(
     ) {
         Surface(
             onClick = { onAction(HomeRowsAction.OnVisibleChange(entry.key, !entry.row.visible)) },
-            shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(10.dp)),
+            shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
             colors =
                 ClickableSurfaceDefaults.colors(
                     containerColor = MaterialTheme.colorScheme.surface,
@@ -168,7 +167,7 @@ private fun HomeRowItem(
             border =
                 ClickableSurfaceDefaults.border(
                     focusedBorder =
-                        Border(BorderStroke(4.dp, Color.White), shape = RoundedCornerShape(10.dp))
+                        Border(BorderStroke(4.dp, Color.White), shape = MaterialTheme.shapes.small)
                 ),
             scale = ClickableSurfaceScale.None,
             modifier = toggleModifier.weight(1f),

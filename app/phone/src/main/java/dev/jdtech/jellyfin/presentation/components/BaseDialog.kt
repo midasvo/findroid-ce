@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,7 +35,7 @@ fun BaseDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier.fillMaxWidth().heightIn(max = 540.dp),
-            shape = RoundedCornerShape(28.dp),
+            shape = MaterialTheme.shapes.large,
         ) {
             Column(modifier = Modifier.padding(top = MaterialTheme.spacings.default)) {
                 Text(

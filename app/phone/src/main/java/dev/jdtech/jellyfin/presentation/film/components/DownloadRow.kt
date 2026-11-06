@@ -195,7 +195,7 @@ fun DownloadArtwork(
         modifier =
             modifier
                 .aspectRatio(16f / 9f)
-                .clip(RoundedCornerShape(10.dp))
+                .clip(MaterialTheme.shapes.small)
                 .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                 .then(
                     if (onPlayClick != null) {

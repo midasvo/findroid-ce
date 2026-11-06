@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,11 +52,11 @@ fun PersonCard(
     Column(modifier = modifier.width(150.dp).testTag(personCardTag(person.id))) {
         Surface(
             onClick = onClick,
-            shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(10.dp)),
+            shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
             border =
                 ClickableSurfaceDefaults.border(
                     focusedBorder =
-                        Border(BorderStroke(4.dp, Color.White), shape = RoundedCornerShape(10.dp))
+                        Border(BorderStroke(4.dp, Color.White), shape = MaterialTheme.shapes.small)
                 ),
             scale = ClickableSurfaceScale.None,
         ) {

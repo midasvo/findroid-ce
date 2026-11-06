@@ -810,7 +810,7 @@ private fun QueueCard(
 ) {
     Surface(
         onClick = onClick,
-        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(10.dp)),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
         colors =
             ClickableSurfaceDefaults.colors(
                 containerColor = Color.Transparent,
@@ -819,7 +819,7 @@ private fun QueueCard(
         border =
             ClickableSurfaceDefaults.border(
                 focusedBorder =
-                    Border(BorderStroke(3.dp, Color.White), shape = RoundedCornerShape(10.dp))
+                    Border(BorderStroke(3.dp, Color.White), shape = MaterialTheme.shapes.small)
             ),
         scale = ClickableSurfaceScale.None,
         modifier = modifier.width(QUEUE_CARD_WIDTH).onFocusChanged { if (it.isFocused) onFocus() },

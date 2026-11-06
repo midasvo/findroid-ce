@@ -127,7 +127,7 @@ private fun ChapterRow(
                 modifier =
                     Modifier.width(160.dp)
                         .aspectRatio(16f / 9f)
-                        .clip(RoundedCornerShape(4.dp)),
+                        .clip(MaterialTheme.shapes.extraSmall),
                 contentAlignment = Alignment.Center,
             ) {
                 if (imageUrl != null) {
@@ -143,7 +143,7 @@ private fun ChapterRow(
                     Spacer(
                         modifier =
                             Modifier.fillMaxWidth().fillMaxHeight()
-                                .clip(RoundedCornerShape(4.dp))
+                                .clip(MaterialTheme.shapes.extraSmall)
                                 .background(MaterialTheme.colorScheme.surface)
                     )
                 }

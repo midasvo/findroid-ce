@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -199,7 +198,7 @@ private fun ScreensaverActionCard(
 ) {
     Surface(
         onClick = onClick,
-        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(10.dp)),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
         colors =
             ClickableSurfaceDefaults.colors(
                 containerColor = MaterialTheme.colorScheme.surface,
@@ -208,7 +207,7 @@ private fun ScreensaverActionCard(
         border =
             ClickableSurfaceDefaults.border(
                 focusedBorder =
-                    Border(BorderStroke(4.dp, Color.White), shape = RoundedCornerShape(10.dp))
+                    Border(BorderStroke(4.dp, Color.White), shape = MaterialTheme.shapes.small)
             ),
         scale = ClickableSurfaceScale.None,
         modifier = modifier.fillMaxWidth(),
@@ -242,7 +241,7 @@ private fun ScreensaverSwitchCard(
 ) {
     Surface(
         onClick = onClick,
-        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(10.dp)),
+        shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
         colors =
             ClickableSurfaceDefaults.colors(
                 containerColor = MaterialTheme.colorScheme.surface,
@@ -251,7 +250,7 @@ private fun ScreensaverSwitchCard(
         border =
             ClickableSurfaceDefaults.border(
                 focusedBorder =
-                    Border(BorderStroke(4.dp, Color.White), shape = RoundedCornerShape(10.dp))
+                    Border(BorderStroke(4.dp, Color.White), shape = MaterialTheme.shapes.small)
             ),
         scale = ClickableSurfaceScale.None,
         modifier = modifier.fillMaxWidth(),
