@@ -12,6 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -66,7 +67,15 @@ class FocusPosition internal constructor(row: Int, column: Int, key: String?) {
     }
 
     /** Requests focus for the saved position. Returns false when that element isn't laid out. */
-    fun requestFocus(): Boolean = requesters[row to column]?.requestFocus() ?: false
+    fun requestFocus(): Boolean =
+        try {
+            requesters[row to column]?.requestFocus(FocusDirection.Enter) ?: false
+        } catch (_: IllegalStateException) {
+            requesters[row to column]?.requestFocus() ?: false
+        }
+
+    /** FocusRequester for the saved position, if one is currently registered. */
+    fun currentRequester(): FocusRequester? = requesters[row to column]
 
     /** Moves back to the default element, for when the saved one is gone. */
     internal fun resetToDefault() = save(defaultRow, defaultColumn)
@@ -152,4 +161,4 @@ fun RestoreFocus(
     }
 }
 
-private const val RESTORE_ATTEMPTS = 10
+private const val RESTORE_ATTEMPTS = 60

@@ -31,6 +31,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -164,6 +165,8 @@ private const val ITEM_SETTINGS = "settings"
 
 val ClosedDrawerWidth = 80.dp
 
+@OptIn(ExperimentalComposeUiApi::class)
+@Suppress("DEPRECATION")
 @Composable
 fun MainScreenLayout(
     user: User?,
@@ -187,6 +190,11 @@ fun MainScreenLayout(
     val homeFocusRequester = remember { FocusRequester() }
     val settingsFocusRequester = remember { FocusRequester() }
     val contentFocusRequester = remember { FocusRequester() }
+    val drawerFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
+    fun drawerRequester(key: String): FocusRequester =
+        if (key == DESTINATION_HOME) homeFocusRequester
+        else drawerFocusRequesters.getOrPut(key) { FocusRequester() }
+    val activeDrawerRequester = drawerRequester(activeDestinationKey)
     // The drawer item that opened another route (profile or settings). This screen leaves the
     // composition while that route is shown, so the effect below runs again on the way back.
     var returnFocusTo by rememberSaveable { mutableStateOf<String?>(null) }
@@ -245,6 +253,13 @@ fun MainScreenLayout(
             Column(
                 modifier =
                     Modifier.fillMaxHeight()
+                        .focusProperties {
+                            right = contentFocusRequester
+                            exit = { direction ->
+                                if (direction == FocusDirection.Right) contentFocusRequester
+                                else FocusRequester.Default
+                            }
+                        }
                         .focusGroup()
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(vertical = TvSafeArea.vertical, horizontal = 12.dp)
@@ -301,7 +316,12 @@ fun MainScreenLayout(
                     item(key = DESTINATION_SEARCH) {
                         NavigationDrawerItem(
                             selected = activeDestinationKey == DESTINATION_SEARCH,
-                            onClick = { showDestination(DESTINATION_SEARCH, fallback = null) },
+                            onClick = {
+                                showDestination(
+                                    DESTINATION_SEARCH,
+                                    fallback = drawerRequester(DESTINATION_SEARCH),
+                                )
+                            },
                             leadingContent = {
                                 Icon(
                                     painter = painterResource(id = CoreR.drawable.ic_search),
@@ -309,7 +329,9 @@ fun MainScreenLayout(
                                     modifier = Modifier.size(24.dp),
                                 )
                             },
-                            modifier = Modifier.testTag("drawer_item_search"),
+                            modifier =
+                                Modifier.focusRequester(drawerRequester(DESTINATION_SEARCH))
+                                    .testTag("drawer_item_search"),
                         ) {
                             Text(
                                 text = stringResource(id = CoreR.string.search),
@@ -322,7 +344,7 @@ fun MainScreenLayout(
                     item(key = DESTINATION_HOME) {
                         NavigationDrawerItem(
                             selected = activeDestinationKey == DESTINATION_HOME,
-                            onClick = { showDestination(DESTINATION_HOME, fallback = null) },
+                            onClick = { showDestination(DESTINATION_HOME, fallback = homeFocusRequester) },
                             leadingContent = {
                                 Icon(
                                     painter = painterResource(id = CoreR.drawable.ic_home),
@@ -346,7 +368,12 @@ fun MainScreenLayout(
                         item(key = DESTINATION_FAVORITES) {
                             NavigationDrawerItem(
                                 selected = activeDestinationKey == DESTINATION_FAVORITES,
-                                onClick = { showDestination(DESTINATION_FAVORITES, fallback = null) },
+                                onClick = {
+                                    showDestination(
+                                        DESTINATION_FAVORITES,
+                                        fallback = drawerRequester(DESTINATION_FAVORITES),
+                                    )
+                                },
                                 leadingContent = {
                                     Icon(
                                         painter = painterResource(id = CoreR.drawable.ic_heart),
@@ -354,7 +381,9 @@ fun MainScreenLayout(
                                         modifier = Modifier.size(24.dp),
                                     )
                                 },
-                                modifier = Modifier.testTag("drawer_item_favorites"),
+                                modifier =
+                                    Modifier.focusRequester(drawerRequester(DESTINATION_FAVORITES))
+                                        .testTag("drawer_item_favorites"),
                             ) {
                                 Text(
                                     text = stringResource(id = CoreR.string.title_favorite),
@@ -369,7 +398,9 @@ fun MainScreenLayout(
                         val itemKey = libraryDestinationKey(library.id)
                         NavigationDrawerItem(
                             selected = activeDestinationKey == itemKey,
-                            onClick = { showDestination(itemKey, fallback = null) },
+                            onClick = {
+                                showDestination(itemKey, fallback = drawerRequester(itemKey))
+                            },
                             leadingContent = {
                                 Icon(
                                     painter = painterResource(id = library.type.drawerIconRes()),
@@ -377,7 +408,9 @@ fun MainScreenLayout(
                                     modifier = Modifier.size(24.dp),
                                 )
                             },
-                            modifier = Modifier.testTag("drawer_item_library_${library.id}"),
+                            modifier =
+                                Modifier.focusRequester(drawerRequester(itemKey))
+                                    .testTag("drawer_item_library_${library.id}"),
                         ) {
                             Text(
                                 text = library.name,
@@ -425,6 +458,13 @@ fun MainScreenLayout(
                 Modifier.fillMaxSize()
                     .padding(start = ClosedDrawerWidth)
                     .focusRequester(contentFocusRequester)
+                    .focusProperties {
+                        left = activeDrawerRequester
+                        exit = { direction ->
+                            if (direction == FocusDirection.Left) activeDrawerRequester
+                            else FocusRequester.Default
+                        }
+                    }
                     .focusGroup()
         ) {
             saveableStateHolder.SaveableStateProvider(activeDestinationKey) {

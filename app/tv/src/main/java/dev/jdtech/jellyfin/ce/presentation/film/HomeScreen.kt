@@ -206,6 +206,24 @@ private fun HomeScreenLayout(
 ) {
     val rows = remember(state) { state.rows() }
     val hero = remember { HeroFocus() }
+
+    // If hero has no item yet, restore it immediately from the saved focus key so the hero area
+    // does not flash black on return.
+    if (hero.item == null && rows.isNotEmpty()) {
+        val savedKey = focusPosition.key
+        val match =
+            if (savedKey != null) {
+                rows.withIndex().firstNotNullOfOrNull { (_, r) ->
+                    val cIndex = r.items.indexOfFirst { it.id.toString() == savedKey }
+                    if (cIndex >= 0) r.items to cIndex else null
+                }
+            } else null
+        if (match != null) {
+            hero.focus(match.first, match.second)
+        } else if (rows.first().items.isNotEmpty()) {
+            hero.focus(rows.first().items, 0)
+        }
+    }
     // The row states, so a return can scroll the saved card into view before focusing it.
     val rowStates = remember { mutableMapOf<UUID, LazyListState>() }
     val rowSpec = LocalBringIntoViewSpec.current
@@ -366,7 +384,7 @@ private fun rememberHeroImages(): HeroImages {
 @Composable
 private fun HomeHero(hero: HeroFocus, images: HeroImages) {
     val item by
-        produceState<FindroidItem?>(initialValue = null, hero, images) {
+        produceState<FindroidItem?>(initialValue = hero.item, hero, images) {
             snapshotFlow { hero.item }
                 .collectLatest { focused ->
                     // The first card shows straight away.

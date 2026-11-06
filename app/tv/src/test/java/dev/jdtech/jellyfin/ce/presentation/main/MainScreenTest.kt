@@ -40,11 +40,14 @@ class MainScreenTest {
     private var settingsOpened = false
     private var usersOpened = false
 
+    private var focusManager: androidx.compose.ui.focus.FocusManager? = null
+
     private fun setUpMainScreen(showFavorites: Boolean = true) {
         settingsOpened = false
         usersOpened = false
 
         rule.setContent {
+            focusManager = androidx.compose.ui.platform.LocalFocusManager.current
             FindroidTheme {
                 MainScreenLayout(
                     user = dummyUser,
@@ -62,7 +65,9 @@ class MainScreenTest {
                     favoritesContent = {
                         Box(Modifier.fillMaxSize().testTag("placeholder_favorites").focusable())
                     },
-                    libraryContent = { Box(Modifier.fillMaxSize().testTag("library_screen_content_${it.id}")) },
+                    libraryContent = {
+                        Box(Modifier.fillMaxSize().testTag("library_screen_content_${it.id}").focusable())
+                    },
                 )
             }
         }
@@ -228,7 +233,9 @@ class MainScreenTest {
                     favoritesContent = {
                         Box(Modifier.fillMaxSize().testTag("placeholder_favorites").focusable())
                     },
-                    libraryContent = { Box(Modifier.fillMaxSize().testTag("library_screen_content_${it.id}")) },
+                    libraryContent = {
+                        Box(Modifier.fillMaxSize().testTag("library_screen_content_${it.id}").focusable())
+                    },
                 )
             }
         }
@@ -242,5 +249,31 @@ class MainScreenTest {
 
         rule.onNode(hasTestTag("placeholder_favorites")).assertDoesNotExist()
         rule.onNodeWithTag("home_screen_content").assertIsDisplayed()
+    }
+
+    private fun pressDpadLeft() {
+        rule.runOnIdle {
+            focusManager?.moveFocus(androidx.compose.ui.focus.FocusDirection.Left)
+        }
+        rule.waitForIdle()
+    }
+
+    @Test
+    fun leftFromContentFocusesActiveDrawerItem() {
+        setUpMainScreen()
+        rule.waitForIdle()
+
+        // Home is active by default. Request focus on content, then press Left.
+        rule.onNodeWithTag("home_screen_content").requestFocus()
+        pressDpadLeft()
+        rule.onNodeWithTag("drawer_item_home").assertIsFocused()
+
+        // Navigate to Favorites
+        selectDrawerItem("drawer_item_favorites")
+        rule.onNodeWithTag("placeholder_favorites").assertIsFocused()
+
+        // Press Left from Favorites content -> lands on Favorites drawer item
+        pressDpadLeft()
+        rule.onNodeWithTag("drawer_item_favorites").assertIsFocused()
     }
 }
