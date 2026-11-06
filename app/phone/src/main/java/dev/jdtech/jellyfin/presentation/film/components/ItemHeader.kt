@@ -22,6 +22,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import dev.jdtech.jellyfin.core.presentation.ephyra.backdropCrossfadeMillis
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidSeason
@@ -56,7 +59,11 @@ fun ItemHeader(
         showLogo = showLogo,
         backdropImage = {
             AsyncImage(
-                model = backdropUri,
+                model =
+                    ImageRequest.Builder(context)
+                        .data(backdropUri)
+                        .crossfade(backdropCrossfadeMillis())
+                        .build(),
                 contentDescription = null,
                 modifier =
                     Modifier.fillMaxSize()
@@ -98,7 +105,11 @@ fun ItemHeader(
         showLogo = showLogo,
         backdropImage = {
             AsyncImage(
-                model = backdropUri,
+                model =
+                    ImageRequest.Builder(context)
+                        .data(backdropUri)
+                        .crossfade(backdropCrossfadeMillis())
+                        .build(),
                 contentDescription = null,
                 modifier =
                     Modifier.fillMaxSize()
