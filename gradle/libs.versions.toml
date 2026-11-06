@@ -25,7 +25,7 @@ junit = "4.13.2"
 kotlin = "2.4.21"
 kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.12.0"
-ksp = "2.3.12"
+ksp = "2.3.13"
 # CE-owned: pinned to 0.26.0 (ktfmt 0.62). Upstream's bump to 0.27.0 (ktfmt 0.64) changes
 # formatting tree-wide and left their own main red on Lint — the bump PR only touched this
 # file, and lint.yaml's path filter (**.kt/**.kts) meant Lint never ran on it. Unpin once
