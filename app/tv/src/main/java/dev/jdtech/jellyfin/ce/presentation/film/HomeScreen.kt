@@ -494,7 +494,7 @@ private fun HeroTitle(item: FindroidItem, images: HeroImages) {
     if (logoFailed) {
         Text(
             text = title,
-            style = MaterialTheme.typography.displaySmall,
+            style = MaterialTheme.typography.displayMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )

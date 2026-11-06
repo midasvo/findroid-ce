@@ -1,19 +1,23 @@
-<img src="images/branding/ephyra/ephyra-icon-rounded.png" alt="Ephyra icon: a cyan and violet jellyfish whose tentacles fork" width="96" align="right">
+<p align="center">
+  <img src="images/branding/ephyra/ephyra-banner.png" alt="Ephyra: a Jellyfin client for your phone and your TV" width="720">
+</p>
 
-# Ephyra
+<p align="center">
+  <a href="https://github.com/midasvo/ephyra/releases/latest"><img src="https://img.shields.io/github/v/release/midasvo/ephyra?label=release&color=4FD8F0" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-B9A3FF" alt="License: GPLv3"></a>
+</p>
 
-Ephyra is a Jellyfin client for Android phones, tablets and Android TV. It is a fork of
-[Findroid](https://github.com/jarnedemeulemeester/findroid) that puts its effort into three things:
-downloads that are worth using, playback of demanding files, and a TV app made for a remote.
+<p align="center">
+  <a href="#install">Install</a> ·
+  <a href="#what-ephyra-adds-to-findroid">What Ephyra adds</a> ·
+  <a href="#android-tv">Android TV</a> ·
+  <a href="#bugs-and-contributions">Bugs and contributions</a> ·
+  <a href="#privacy">Privacy</a>
+</p>
 
-It was called Findroid CE until version 2.0.0. If you still have Findroid CE installed, the update
-installs over it and keeps your login, settings and downloads.
-
-You need a [Jellyfin](https://jellyfin.org/) server and a device running Android 10 or newer.
-
-[What Ephyra adds](#what-ephyra-adds-to-findroid) · [Install](#install) · [Android TV](#android-tv) ·
-[Bugs and contributions](#bugs-ideas-and-contributions) · [Privacy](#privacy) · [Thanks](#thanks) ·
-[License](#license)
+Ephyra is a Jellyfin client for Android phones, tablets and Android TV, forked from
+[Findroid](https://github.com/jarnedemeulemeester/findroid). It needs a
+[Jellyfin](https://jellyfin.org/) server and Android 10 or newer.
 
 <table>
   <tr>
@@ -33,53 +37,12 @@ You need a [Jellyfin](https://jellyfin.org/) server and a device running Android
 
 <sub>All artwork shown belongs to its respective owners.</sub>
 
-## What Ephyra adds to Findroid
-
-**Downloads.** Ephyra has its own download engine, built on OkHttp instead of Android's
-DownloadManager. Downloads resume after an interruption and can go to an SD card. Each one asks for
-a quality: the original file, or a conversion by the server anywhere from 4K down to 360p. You can
-download a whole season or series at once, with a limit on how many run at the same time. The
-downloads screen shows progress per episode and per show, how much space each takes, and supports
-multi-select and undo. Smart Downloads, off by default, keeps the next few episodes of whatever you
-are watching downloaded and removes them once you have watched them.
-
-**Playback.** Dolby Vision plays directly on devices that support it and is transcoded on the rest;
-Dolby Vision downloads can be converted to a device-compatible copy too. For audio, the platform
-decoder is tried first, which is what Atmos needs, and ffmpeg takes over if a decoder fails. PGS,
-VobSub and DVB subtitles play without transcoding, and subtitle colour, outline, font and size are
-yours to set. You can choose a version before playing and change the video quality during playback.
-Playback carries on into the next season, and the audio and subtitle tracks you pick for a series
-stick for its next episodes, per user, on ExoPlayer and mpv and for downloads. There is a chapter
-list, a skip, ask or ignore action per type of media segment, and an "Are you still watching?"
-prompt after a long stretch of autoplay. Background audio, off by default, keeps playing with the
-screen off and puts the controls on the lock screen. It lives under Settings → Player → Background
-playback.
-
-**Library.** Favorites has its own tab in the main navigation. You choose which rows Home shows and
-in what order, under Settings → Interface → Home rows. The hide-watched filter stays on across
-libraries. Offline mode switches on by itself when there is no connection. Errors get a screen with
-a Retry button and empty libraries get a real empty state, rather than a spinner. Text on detail
-screens can be copied with a long press, and cast and crew can be hidden.
-
-**Android TV.** A separate app for the TV, described [below](#android-tv).
-
-The rest, the native UI, ExoPlayer and mpv playback, offline mode and picture-in-picture, is
-Findroid's work, and Findroid's changes are merged in regularly. The [changelog](CHANGELOG.md) has
-the release-by-release detail.
-
 ## Install
 
 ### Obtainium
 
-Add this URL in [Obtainium](https://github.com/ImranR98/Obtainium) and it will pick up every new
-release:
-
-```
-https://github.com/midasvo/ephyra
-```
-
-Leave **Include prereleases** off. Set **Filter APKs by regular expression** so Obtainium offers the
-right file for the device:
+Add `https://github.com/midasvo/ephyra` in [Obtainium](https://github.com/ImranR98/Obtainium).
+Leave **Include prereleases** off and set **Filter APKs by regular expression**:
 
 | Device | Filter |
 |---|---|
@@ -87,40 +50,70 @@ right file for the device:
 | Android TV, 64-bit | `.*-tv-arm64-v8a\.apk` |
 | Android TV, 32-bit (Xiaomi Mi Box and similar) | `.*-tv-armeabi-v7a\.apk` |
 
-An existing entry for `midasvo/findroid-ce` keeps working, because GitHub redirects the old address.
-
 ### Releases page
 
-Download the APK from [Releases](https://github.com/midasvo/ephyra/releases). Phone and tablet
-builds are named `ephyra-v<version>-libre-<abi>.apk`, TV builds `ephyra-v<version>-libre-tv-<abi>.apk`.
-Nearly every current device is `arm64-v8a`; older 32-bit TV boxes such as the Xiaomi Mi Box need
-`armeabi-v7a`.
-
-Ephyra has its own application ID, `nl.midasvo.findroid.ce`, so it installs next to Findroid rather
-than over it. The phone and TV builds share that ID.
+Download from [Releases](https://github.com/midasvo/ephyra/releases):
+`ephyra-v<version>-libre-<abi>.apk` for phones and tablets, `ephyra-v<version>-libre-tv-<abi>.apk`
+for Android TV. Nearly everything is `arm64-v8a`; 32-bit TV boxes need `armeabi-v7a`.
 
 ### F-Droid
 
-Ephyra has been [submitted to F-Droid](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/56048)
-and is waiting for review. The F-Droid build is set up to be reproducible and verified against the
-GitHub release APKs, so once it is listed you will be able to switch between the two sources without
-reinstalling. Until then, use Obtainium or the releases page.
+[Submitted](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/56048), waiting for review. The
+build is reproducible and verified against the GitHub APKs, so once listed you can switch sources
+without reinstalling.
 
-### Beta builds
+### Coming from Findroid CE or Findroid
 
-Every push to `main` publishes a prerelease tagged `v<next version>-beta.<n>`. Betas install as a
-separate app, **Ephyra Beta**, with their own data, so they never touch the stable install. Nobody
-tests them before they go out, so expect rough edges.
+- Ephyra was Findroid CE until 2.0.0. The update installs over it and keeps your login, settings and
+  downloads. An Obtainium entry for `midasvo/findroid-ce` keeps working; GitHub redirects it.
+- Ephyra has its own application ID (`nl.midasvo.findroid.ce`), so it installs next to Findroid.
+  Phone and TV share that ID.
 
-To follow them in Obtainium, add the repository URL a second time with:
+### Beta
 
-- **Include prereleases** on
-- **Filter release titles by regular expression**: `^Beta`
-- **Filter APKs by regular expression**: `-beta\.\d+-libre-arm64-v8a\.apk$`, or
-  `-beta\.\d+-libre-tv-armeabi-v7a\.apk$` on a 32-bit TV box
+Every push to `main` publishes a prerelease, `v<next version>-beta.<n>`. It installs as a separate
+app, **Ephyra Beta**, with its own data. Untested; expect bugs.
 
-The title filter matters: right after a stable release, the stable version is newer than the latest
-beta, and without the filter Obtainium would offer it to the beta entry.
+Obtainium: add the repository URL again with **Include prereleases** on, **Filter release titles by
+regular expression** `^Beta`, and **Filter APKs by regular expression**
+`-beta\.\d+-libre-arm64-v8a\.apk$` (TV, 32-bit: `-beta\.\d+-libre-tv-armeabi-v7a\.apk$`). The title
+filter stops the entry from switching to stable right after a release.
+
+## What Ephyra adds to Findroid
+
+**Downloads**
+
+- Resumable, with SD card support. Built on OkHttp, not Android's DownloadManager.
+- A quality per download: the original, or a server conversion from 4K down to 360p.
+- Whole seasons or series at once, with a limit on concurrent downloads.
+- Downloads screen with progress per episode and per show, a storage breakdown, multi-select and undo.
+- Smart Downloads (opt-in): keeps the next episodes of what you're watching, removes them once watched.
+
+**Playback**
+
+- Dolby Vision direct play where the device supports it, transcoding where it doesn't. Dolby Vision
+  downloads can be converted to a device-compatible copy.
+- Platform decoder first (Atmos), ffmpeg if a decoder fails.
+- PGS, VobSub and DVB subtitles without transcoding. Subtitle colour, outline, font and size.
+- Version picker before playing, quality switch during playback.
+- Audio and subtitle choice remembered per series and per user, on ExoPlayer, mpv and downloads.
+- Plays on into the next season. Chapter list. Skip, ask or ignore per media segment type.
+  "Still watching?" prompt after a run of autoplayed episodes.
+- Background audio with lock screen controls (opt-in, Settings → Player → Background playback).
+
+**Library**
+
+- Favorites tab.
+- Home rows you choose and reorder (Settings → Interface → Home rows).
+- Hide-watched filter, kept across libraries.
+- Offline mode switches on by itself without a connection.
+- Error screens with Retry, and real empty states.
+- Long-press to copy text on detail screens. Option to hide cast and crew.
+
+**Android TV**: a separate app built for the remote, [below](#android-tv).
+
+The rest is Findroid's, and Findroid's changes are merged in regularly. Release-by-release detail
+is in the [changelog](CHANGELOG.md).
 
 ## Android TV
 
@@ -138,59 +131,52 @@ beta, and without the filter Obtainium would offer it to the beta entry.
   </tr>
 </table>
 
-The TV app uses the same login and server as the phone app and ships in the same releases, as the
-`-tv-` APKs above. It was built around the remote rather than adapted from the phone layout:
+Same login and server as the phone app, same releases (the `-tv-` APKs). Built for the remote:
 
-- A side drawer with Search, Home, Favorites, your libraries and Settings.
-- Home shows a large hero for the focused item, and the rows stay where they are instead of
-  reshuffling. You pick which rows show and in what order, as on the phone.
-- Library grids have an A to Z jump bar, a counter and the hide-watched filter.
-- Episodes open in their season with the details first, instead of playing straight away. Movies and
-  shows have a cast row, and every person has a page.
-- The player seeks with the D-pad, takes media keys, shows trickplay thumbnails while seeking, and
-  has an overlay with the series, the time it ends, previous and next, and the queue.
-- The display can switch to the video's frame rate during playback.
-- Continue Watching and Next Up appear in the Watch Next row on the Android TV home screen.
-- A screensaver with artwork from your library, and optional theme music on show pages.
-- Collections, trailers and every relevant setting are reachable with the remote. Settings that only
-  make sense on a phone are hidden.
+- Side drawer: Search, Home, Favorites, your libraries, Settings.
+- Home with a hero for the focused item. Rows stay put; you choose and order them.
+- Library grid with an A to Z jump bar, a counter and the hide-watched filter.
+- Episodes open in their season, details first. Cast rows and person pages.
+- Player: D-pad seeking, media keys, trickplay thumbnails, an overlay with the series, end time,
+  previous, next and the queue.
+- Refresh rate switching to match the video.
+- Continue Watching and Next Up in the Android TV home screen's Watch Next row.
+- Screensaver with your library's artwork. Optional theme music on show pages.
+- Collections, trailers and settings all reachable with the remote. Phone-only settings are hidden.
 
-The research behind it, where Findroid's TV app fell short, the decisions, and what is still planned,
-is in [docs/tv-research/](docs/tv-research/).
+Background and roadmap: [docs/tv-research/](docs/tv-research/).
 
-## Bugs, ideas and contributions
+## Bugs and contributions
 
-Open an [issue](https://github.com/midasvo/ephyra/issues). For playback problems, attach the device
-profile from the About screen (Export device profile). It lists what the device can decode, which
-answers most transcoding questions on the spot.
+[Open an issue](https://github.com/midasvo/ephyra/issues). For playback problems, attach the device
+profile from About → Export device profile.
 
-Pull requests are welcome. [CLAUDE.md](CLAUDE.md) describes the modules and the architecture,
-[docs/identity/VISION.md](docs/identity/VISION.md) the visual identity, and
-[docs/upstream-sync.md](docs/upstream-sync.md) how Findroid's changes are merged in. A debug build is
-one command:
+Pull requests are welcome. Start with [CLAUDE.md](CLAUDE.md) for the module layout,
+[docs/identity/VISION.md](docs/identity/VISION.md) for the visual identity and
+[docs/upstream-sync.md](docs/upstream-sync.md) for how Findroid's changes come in.
 
 ```bash
 ./gradlew :app:phone:assembleLibreDebug
 ```
 
-Strings shared with Findroid are translated on Findroid's Weblate. Ephyra's own strings live in
-`strings_ce.xml` files next to them, in the same 36 languages; corrections go in a pull request.
+Strings shared with Findroid are translated on Findroid's Weblate. Ephyra's own live in
+`strings_ce.xml` files, in 36 languages; fixes go in a pull request.
 
 ## Privacy
 
-Ephyra collects nothing and talks only to the Jellyfin servers you add. The
-[privacy policy](https://midasvo.nl/ephyra/privacy.html) says the same at greater length.
+Ephyra collects nothing and only talks to the Jellyfin servers you add.
+[Privacy policy](https://midasvo.nl/ephyra/privacy.html).
 
 ## Thanks
 
-Ephyra would not exist without [Findroid](https://github.com/jarnedemeulemeester/findroid) by
+[Findroid](https://github.com/jarnedemeulemeester/findroid) by
 [Jarne Demeulemeester](https://github.com/jarnedemeulemeester) and its
 [contributors](https://github.com/jarnedemeulemeester/findroid/graphs/contributors).
 
-An ephyra is the juvenile stage of a jellyfish, the animal in the Jellyfin logo. The icon was made
-for this project; its sources and the script that generates them are in
-[images/branding/ephyra/](images/branding/ephyra/).
+An ephyra is a young jellyfish, the animal in the Jellyfin logo. The icon and banner were made for
+this project: [images/branding/ephyra/](images/branding/ephyra/).
 
 ## License
 
-[GPLv3](LICENSE).
+[GPLv3](LICENSE). The Outfit font is used under the
+[SIL Open Font License 1.1](core/OUTFIT-LICENSE.txt).
