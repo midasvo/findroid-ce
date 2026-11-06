@@ -10,6 +10,7 @@ import androidx.tv.material3.ButtonBorder
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Glow
 import androidx.tv.material3.MaterialTheme
+import dev.jdtech.jellyfin.core.presentation.ephyra.reducedMotion
 
 /**
  * The TV focus ring (docs/identity/VISION.md §5, §6): 3 dp `primary`, drawn 2 dp outside the
@@ -51,5 +52,12 @@ fun ephyraFocusedGlow(): Glow =
         elevation = 20.dp,
     )
 
-/** Focused cards grow to this. Buttons and the seek bar keep 1. */
-const val EphyraFocusScale = 1.06f
+/**
+ * Focused cards grow to this. Buttons and the seek bar keep 1. Under [reducedMotion] the card keeps
+ * its size and the ring alone marks focus (VISION §6).
+ *
+ * tv-material animates the scale with its own spec (300 ms in 1.1.0); its `scale()` takes no
+ * animation spec, so the timing isn't Ephyra's token.
+ */
+val EphyraFocusScale: Float
+    @Composable get() = if (reducedMotion()) 1f else 1.06f

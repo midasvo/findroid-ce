@@ -5,8 +5,12 @@ import coil3.PlatformContext
 import coil3.memory.MemoryCache
 import coil3.request.Disposable
 import coil3.request.ImageRequest
+import coil3.request.ImageResult
 import coil3.size.Precision
 import coil3.size.Scale
+import coil3.transition.CrossfadeTransition
+import coil3.transition.Transition
+import coil3.transition.TransitionTarget
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.utils.withImageSize
@@ -93,6 +97,19 @@ internal class HeroImages(
 
     private fun ImageRequest.isCached() = imageLoader.memoryCache?.get(key()) != null
 }
+
+/**
+ * The hero backdrop's crossfade over [durationMillis] (VISION §6: backdrops never cut), 0 for none.
+ * Coil's own `crossfade` cuts to an image that comes from the memory cache, and the prefetch puts
+ * nearly every backdrop there, so this one fades those too.
+ */
+internal fun heroCrossfade(durationMillis: Int): Transition.Factory =
+    if (durationMillis <= 0) Transition.Factory.NONE
+    else
+        object : Transition.Factory {
+            override fun create(target: TransitionTarget, result: ImageResult): Transition =
+                CrossfadeTransition(target, result, durationMillis)
+        }
 
 /** The hero shows an episode on its show's backdrop and logo. */
 internal fun heroBackdropUrl(item: FindroidItem, widthPx: Int): String? {

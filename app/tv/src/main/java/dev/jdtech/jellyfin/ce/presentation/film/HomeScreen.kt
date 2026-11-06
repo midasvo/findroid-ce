@@ -59,6 +59,7 @@ import androidx.tv.material3.Text
 import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.memory.MemoryCache
+import coil3.request.transitionFactory
 import dev.jdtech.jellyfin.ce.ui.TvSafeArea
 import dev.jdtech.jellyfin.ce.ui.focus.FocusPosition
 import dev.jdtech.jellyfin.ce.ui.focus.RestoreFocus
@@ -68,6 +69,8 @@ import dev.jdtech.jellyfin.ce.ui.itemInfoLine
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyHomeSection
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyHomeSuggestions
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyHomeView
+import dev.jdtech.jellyfin.core.presentation.ephyra.EphyraMotion
+import dev.jdtech.jellyfin.core.presentation.ephyra.backdropCrossfadeMillis
 import dev.jdtech.jellyfin.film.R as FilmR
 import dev.jdtech.jellyfin.film.presentation.home.HomeAction
 import dev.jdtech.jellyfin.film.presentation.home.HomeState
@@ -447,14 +450,21 @@ private fun HomeHero(hero: HeroFocus, images: HeroImages) {
  * The backdrop at the size it's shown, top right behind the hero and the first row. It's asked from
  * the server at that width, not as the original, and decoded at that size: on a weak TV box a full
  * 4K backdrop per focus change is what makes Home stutter. The previous backdrop stays as the
- * placeholder, so the switch crossfades instead of flashing the background.
+ * placeholder, so the switch crossfades over [EphyraMotion.DURATION_LONG] instead of flashing the
+ * background.
  */
 @Composable
 private fun HeroBackdrop(item: FindroidItem, images: HeroImages) {
     val previous = remember { PreviousImage() }
+    val crossfadeMillis = backdropCrossfadeMillis()
     val request =
-        remember(item, images) {
-            images.backdrop(item)?.newBuilder()?.placeholderMemoryCacheKey(previous.key)?.build()
+        remember(item, images, crossfadeMillis) {
+            images
+                .backdrop(item)
+                ?.newBuilder()
+                ?.placeholderMemoryCacheKey(previous.key)
+                ?.transitionFactory(heroCrossfade(crossfadeMillis))
+                ?.build()
         } ?: return
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
         // Faded out to the left and bottom with an alpha mask, so it blends into the app's
