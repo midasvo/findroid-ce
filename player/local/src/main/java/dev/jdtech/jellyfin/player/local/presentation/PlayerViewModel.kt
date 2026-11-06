@@ -424,7 +424,10 @@ constructor(
             else -> throw RuntimeException("$playerBackend is not a valid player backend")
         }
 
-        mediaSession = MediaSession.Builder(application, player).build()
+        // A new player can open while the old one is still alive (a Watch Next link while playing,
+        // #187), so each session needs its own ID: Media3 allows only one session per ID.
+        mediaSession =
+            MediaSession.Builder(application, player).setId(UUID.randomUUID().toString()).build()
         // PlaybackService keeps the process alive, with a media notification, while the player
         // activity is in the background. Without background audio the player pauses when the
         // activity does, so the service is not needed.
@@ -474,7 +477,10 @@ constructor(
                     )
                 } catch (e: Exception) {
                     Timber.e(e)
-                    Toast.makeText(application, e.localizedMessage, Toast.LENGTH_LONG).show()
+                    // A Toast without text throws, and some errors (an NPE) have no message.
+                    e.localizedMessage?.let {
+                        Toast.makeText(application, it, Toast.LENGTH_LONG).show()
+                    }
                     failure = e
                     null
                 }
@@ -618,9 +624,11 @@ constructor(
         player.removeListener(this)
         player.release()
 
+        val released = mediaSession
         mediaSession?.release()
         mediaSession = null
-        if (isBackgroundAudioEnabled) {
+        // A newer player may already have handed the service its own session: leave that one.
+        if (isBackgroundAudioEnabled && PlaybackService.mediaSession === released) {
             PlaybackService.mediaSession = null
             try {
                 application.stopService(Intent(application, PlaybackService::class.java))
@@ -1280,7 +1288,10 @@ constructor(
                     // the UI does not claim a quality that is not being delivered.
                     maxBitrate = previousBitrate
                     appPreferences.setValue(appPreferences.playerMaxBitrate, previousBitrate)
-                    Toast.makeText(application, e.localizedMessage, Toast.LENGTH_LONG).show()
+                    // A Toast without text throws, and some errors (an NPE) have no message.
+                    e.localizedMessage?.let {
+                        Toast.makeText(application, it, Toast.LENGTH_LONG).show()
+                    }
                     return@launch
                 }
 
