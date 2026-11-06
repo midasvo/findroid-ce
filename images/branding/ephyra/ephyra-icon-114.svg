@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="114" height="114">
+  <defs>
+    <linearGradient id="iconBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1A2F6B"/>
+      <stop offset="1" stop-color="#070D22"/>
+    </linearGradient>
+    <radialGradient id="iconBgHalo" cx="0.5" cy="0.45" r="0.5">
+      <stop offset="0" stop-color="#5B6CF0" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#5B6CF0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ephGlow" cx="0" cy="-30" r="110" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#9B7CF6" stop-opacity="0.55"/>
+      <stop offset="0.5" stop-color="#4FD8F0" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#4FD8F0" stop-opacity="0"/>
+    </radialGradient>
+    <g id="ephMark">
+      <g transform="translate(0 -8)">
+        <circle cy="-30" r="110" fill="url(#ephGlow)"/>
+        <path d="M -64 -2 C -64 -40 -36 -66 0 -66 C 36 -66 64 -40 64 -2 Z" fill="#9B7CF6"/>
+        <path d="M -64 -2 C -64 -40 -36 -66 0 -66 C 12 -66 22 -63 30 -58 C 6 -44 -4 -22 2 -2 Z" fill="#4FD8F0"/>
+        <path d="M -46 -20 C -45 -40 -30 -54 -10 -57 C -27 -47 -38 -36 -38 -20 A 4 4 0 0 1 -46 -20 Z" fill="#E4FBFF" opacity="0.85"/>
+        <g fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 11 6 L 11 80 M 36 6 L 36 46 C 36 58 29 62 26 76 M 36 46 C 36 58 43 62 46 76 M 58 6 C 58 28 72 34 77 18" stroke="#9B7CF6"/>
+          <path d="M -11 6 L -11 80 M -36 6 L -36 46 C -36 58 -43 62 -46 76 M -36 46 C -36 58 -29 62 -26 76 M -58 6 C -58 28 -72 34 -77 18" stroke="#4FD8F0"/>
+        </g>
+      </g>
+    </g>
+  </defs>
+  <rect width="512" height="512" fill="url(#iconBg)"/>
+  <rect width="512" height="512" fill="url(#iconBgHalo)"/>
+    <circle cx="57.8" cy="218.2" r="1.4" fill="#4FD8F0" opacity="0.39"/>
+    <circle cx="176.7" cy="300.6" r="1.8" fill="#4FD8F0" opacity="0.48"/>
+    <circle cx="153.7" cy="390.5" r="2.0" fill="#9B7CF6" opacity="0.60"/>
+    <circle cx="200.6" cy="45.0" r="1.7" fill="#4FD8F0" opacity="0.15"/>
+    <circle cx="377.5" cy="414.4" r="1.1" fill="#9B7CF6" opacity="0.24"/>
+    <circle cx="79.6" cy="392.5" r="2.5" fill="#9B7CF6" opacity="0.37"/>
+    <circle cx="478.2" cy="201.9" r="1.2" fill="#4FD8F0" opacity="0.62"/>
+    <circle cx="370.3" cy="405.3" r="3.2" fill="#4FD8F0" opacity="0.19"/>
+    <circle cx="238.1" cy="254.5" r="1.6" fill="#9B7CF6" opacity="0.60"/>
+    <circle cx="224.1" cy="356.2" r="1.5" fill="#4FD8F0" opacity="0.56"/>
+    <circle cx="353.0" cy="215.8" r="1.2" fill="#9B7CF6" opacity="0.55"/>
+    <circle cx="287.8" cy="198.7" r="3.3" fill="#9B7CF6" opacity="0.55"/>
+    <circle cx="223.1" cy="499.7" r="1.9" fill="#4FD8F0" opacity="0.39"/>
+    <circle cx="149.3" cy="257.5" r="1.9" fill="#4FD8F0" opacity="0.35"/>
+  <use href="#ephMark" transform="translate(256 256) scale(2.0)"/>
+</svg>

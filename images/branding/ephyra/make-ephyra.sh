@@ -127,9 +127,11 @@ $(mark_defs)
 </svg>
 EOF
 
-# Store icon, full bleed: Play and F-Droid round the corners themselves.
-cat > "$OUT/ephyra-icon.svg" <<EOF
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+# Store icon, full bleed: Play, F-Droid and Amazon round the corners themselves. Amazon also
+# wants a 114x114 copy, so the same drawing is written at both sizes.
+icon() { # file size
+cat > "$OUT/$1" <<EOF
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="$2" height="$2">
   <defs>
 $(bg_defs iconBg 0.5 0.45)
 $(mark_defs)
@@ -140,6 +142,9 @@ $(specks 512 512 14 7)
   <use href="#ephMark" transform="translate(256 256) scale(2.0)"/>
 </svg>
 EOF
+}
+icon ephyra-icon.svg 512
+icon ephyra-icon-114.svg 114
 
 # Rounded version for the README, GitHub avatar and so on.
 cat > "$OUT/ephyra-icon-rounded.svg" <<EOF
@@ -180,6 +185,24 @@ wide ephyra-tv-banner.svg 640 360 150 180 1.25 270 212 96 5
 
 # Play Store Android TV banner, 1280x720.
 wide ephyra-tv-banner-play.svg 1280 720 300 360 2.5 540 424 192 13
+
+# Amazon Fire TV app icon, 1280x720. Mark and wordmark stay inside Amazon's 882x448 safe area.
+wide ephyra-firetv-icon.svg 1280 720 370 360 1.8 545 410 148 17
+
+# Amazon Fire TV background, 1920x1080. Fire TV draws the title and description over the left
+# side, so no wordmark, and the mark stays inside the 1214x830 safe area.
+cat > "$OUT/ephyra-firetv-background.svg" <<EOF
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+$(bg_defs wideBg 0.68 0.5)
+$(mark_defs)
+  </defs>
+  <rect width="1920" height="1080" fill="url(#wideBg)"/>
+  <rect width="1920" height="1080" fill="url(#wideBgHalo)"/>
+$(specks 1920 1080 106 19)
+  <use href="#ephMark" transform="translate(1300 540) scale(3.2)"/>
+</svg>
+EOF
 
 # Android resources. Copy android/* into core/src/main/res.
 group_open() {
@@ -357,6 +380,9 @@ if [ -n "${BROWSER:-}" ]; then
   render ephyra-feature-graphic.svg ephyra-feature-graphic.png 1024 500
   render ephyra-tv-banner.svg ephyra-tv-banner.png 640 360
   render ephyra-tv-banner-play.svg ephyra-tv-banner-play.png 1280 720
+  render ephyra-icon-114.svg ephyra-icon-114.png 114 114
+  render ephyra-firetv-icon.svg ephyra-firetv-icon.png 1280 720
+  render ephyra-firetv-background.svg ephyra-firetv-background.png 1920 1080
   cp "$OUT/ephyra-tv-banner.png" "$OUT/android/mipmap-xhdpi/ic_banner.png"
 else
   echo "BROWSER not set: skipped the PNGs"

@@ -59,10 +59,9 @@ The App Submission API can automate this later, the way `fastlane android deploy
 
 ## Store listing
 
-Reuse `fastlane/metadata/android/en-US/`: title, short and full description, icon. Amazon asks for
-its own image sizes (icons, Fire TV background and screenshots at 1920×1080). Check the current
-requirements in the console. The screenshots come from the Jellyfin demo server, same as for Play
-(`docs/play-store.md`), to avoid IP rejections.
+`docs/amazon-appstore-submission.md` has the listing text, the images and the value for every
+console field. The Amazon images come from `make-ephyra.sh`. The screenshots come from the
+Jellyfin demo server, same as for Play (`docs/play-store.md`), to avoid IP rejections.
 
 ## App content forms
 
