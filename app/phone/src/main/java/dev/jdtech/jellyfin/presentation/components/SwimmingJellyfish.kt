@@ -1,4 +1,4 @@
-package dev.jdtech.jellyfin.presentation.settings
+package dev.jdtech.jellyfin.presentation.components
 
 import android.provider.Settings
 import androidx.compose.foundation.Canvas
@@ -42,7 +42,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * CE (#211): the About screen's easter egg, phone only (a TV remote can't tap a logo).
+ * CE (#211): the Ephyra logo as a jellyfish that swims, on the phone's welcome and About screens
+ * (not on TV: a remote can't tap a logo).
  *
  * The Ephyra jellyfish, drawn live instead of from the vector, so it can swim:
  * - it breathes: the bell pulses gently, and now and then it gives a small stroke on its own;
