@@ -8,7 +8,6 @@ import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
@@ -21,6 +20,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -70,11 +70,9 @@ import androidx.media3.common.C
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.PlayerView
-import androidx.tv.material3.Border
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
-import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.Glow
 import androidx.tv.material3.Icon
 import androidx.tv.material3.IconButton
@@ -83,6 +81,9 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import dagger.hilt.android.EntryPointAccessors
+import dev.jdtech.jellyfin.ce.ui.focus.EphyraFocusScale
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedBorder
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedGlow
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.di.SubtitleStyleEntryPoint
 import dev.jdtech.jellyfin.models.FindroidEpisode
@@ -777,15 +778,23 @@ private fun QueueRow(
             var hadFocus by remember { mutableStateOf(false) }
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
-                contentPadding = PaddingValues(vertical = MaterialTheme.spacings.extraSmall),
+                // The row clips at its edges: room for the focused card's ring and halo, offset so
+                // the cards stay where they were.
+                contentPadding =
+                    PaddingValues(
+                        horizontal = QUEUE_FOCUS_ROOM,
+                        vertical = MaterialTheme.spacings.extraSmall,
+                    ),
                 modifier =
-                    Modifier.focusRestorer(focusRequester).onFocusChanged {
-                        if (it.hasFocus) {
-                            hadFocus = true
-                        } else if (hadFocus) {
-                            onClosed()
-                        }
-                    },
+                    Modifier.offset(x = -QUEUE_FOCUS_ROOM)
+                        .focusRestorer(focusRequester)
+                        .onFocusChanged {
+                            if (it.hasFocus) {
+                                hadFocus = true
+                            } else if (hadFocus) {
+                                onClosed()
+                            }
+                        },
             ) {
                 itemsIndexed(queue, key = { _, item -> item.id }) { index, item ->
                     QueueCard(
@@ -816,12 +825,9 @@ private fun QueueCard(
                 containerColor = Color.Transparent,
                 focusedContainerColor = Color.Transparent,
             ),
-        border =
-            ClickableSurfaceDefaults.border(
-                focusedBorder =
-                    Border(BorderStroke(3.dp, Color.White), shape = MaterialTheme.shapes.small)
-            ),
-        scale = ClickableSurfaceScale.None,
+        border = ClickableSurfaceDefaults.border(focusedBorder = ephyraFocusedBorder()),
+        glow = ClickableSurfaceDefaults.glow(focusedGlow = ephyraFocusedGlow()),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = EphyraFocusScale),
         modifier = modifier.width(QUEUE_CARD_WIDTH).onFocusChanged { if (it.isFocused) onFocus() },
     ) {
         Column(modifier = Modifier.padding(MaterialTheme.spacings.extraSmall)) {
@@ -1038,6 +1044,7 @@ private suspend fun focusWhenReady(requester: FocusRequester) {
 private const val CONTROLS_HIDE_MS = 5_000L
 private const val SEEK_INDICATOR_MS = 1_000L
 private val QUEUE_CARD_WIDTH = 200.dp
+private val QUEUE_FOCUS_ROOM = 24.dp
 
 private tailrec fun Context.findActivity(): Activity? =
     when (this) {

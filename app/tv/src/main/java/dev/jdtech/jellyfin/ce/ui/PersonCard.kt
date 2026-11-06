@@ -1,6 +1,5 @@
 package dev.jdtech.jellyfin.ce.ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -26,14 +24,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
-import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
+import dev.jdtech.jellyfin.ce.ui.focus.EphyraFocusScale
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedBorder
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedGlow
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyPerson
 import dev.jdtech.jellyfin.models.FindroidItemPerson
@@ -53,12 +52,9 @@ fun PersonCard(
         Surface(
             onClick = onClick,
             shape = ClickableSurfaceDefaults.shape(shape = MaterialTheme.shapes.small),
-            border =
-                ClickableSurfaceDefaults.border(
-                    focusedBorder =
-                        Border(BorderStroke(4.dp, Color.White), shape = MaterialTheme.shapes.small)
-                ),
-            scale = ClickableSurfaceScale.None,
+            border = ClickableSurfaceDefaults.border(focusedBorder = ephyraFocusedBorder()),
+            glow = ClickableSurfaceDefaults.glow(focusedGlow = ephyraFocusedGlow()),
+            scale = ClickableSurfaceDefaults.scale(focusedScale = EphyraFocusScale),
         ) {
             Box(
                 modifier =

@@ -310,6 +310,7 @@
             android:contentDescription="@string/player_controls_progress"
             app:played_color="?attr/colorPrimary"
             app:scrubber_color="?attr/colorPrimary"
+            app:scrubber_drawable="@drawable/ephyra_scrubber"
             app:buffered_color="#4D4FD8F0" />
 
     </LinearLayout>

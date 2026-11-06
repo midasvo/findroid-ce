@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CE: the player's scrubber (docs/identity/VISION.md §6). A cyan dot with a soft halo:
+     primary at 45 % fading out over a 32 dp circle, under a 12 dp solid primary dot.
+     The View player is dark-only, so there is no light variant. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="32dp"
+        android:height="32dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="16dp"
+                android:startColor="#734FD8F0"
+                android:endColor="#004FD8F0" />
+        </shape>
+    </item>
+    <item
+        android:width="12dp"
+        android:height="12dp"
+        android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="#4FD8F0" />
+        </shape>
+    </item>
+</layer-list>

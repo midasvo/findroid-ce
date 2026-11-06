@@ -20,11 +20,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.ClickableSurfaceScale
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedBorder
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyUser
 import dev.jdtech.jellyfin.models.User
@@ -51,9 +53,14 @@ fun UserItem(
                 ),
             border =
                 ClickableSurfaceDefaults.border(
-                    border = Border(BorderStroke(1.dp, Color.White), shape = CircleShape),
-                    focusedBorder = Border(BorderStroke(4.dp, Color.White), shape = CircleShape),
+                    border =
+                        Border(
+                            BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface),
+                            shape = CircleShape,
+                        ),
+                    focusedBorder = ephyraFocusedBorder(CircleShape),
                 ),
+            scale = ClickableSurfaceScale.None,
             shape = ClickableSurfaceDefaults.shape(shape = CircleShape, focusedShape = CircleShape),
             modifier = Modifier.fillMaxWidth().aspectRatio(1f),
         ) {
