@@ -12,7 +12,8 @@ AutoName: Ephyra
 
 RepoType: git
 Repo: https://github.com/midasvo/ephyra.git
-Binaries: https://github.com/midasvo/ephyra/releases/download/v%v/ephyra-v%v-libre-arm64-v8a.apk
+Binaries: 
+  https://github.com/midasvo/ephyra/releases/download/v%v/ephyra-v%v-libre-arm64-v8a.apk
 
 Builds:
   - versionName: 2.0.0
@@ -27,6 +28,7 @@ AllowedAPKSigningKeys: e2d940cbed02a4719a2dc0e54735c4565a7b7b4549b75a820bd723546
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-UpdateCheckData: buildSrc/src/main/kotlin/EphyraVersion.kt|const val CODE = (\d+)|.|const val NAME = "([\d.]+)"
+UpdateCheckData: buildSrc/src/main/kotlin/EphyraVersion.kt|const val CODE = (\d+)|.|const
+  val NAME = "([\d.]+)"
 CurrentVersion: 2.0.0
 CurrentVersionCode: 2000000
