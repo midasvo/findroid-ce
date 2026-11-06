@@ -5,14 +5,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
@@ -55,11 +56,20 @@ private fun WelcomeScreenLayout(onAction: (WelcomeAction) -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.align(Alignment.Center),
         ) {
+            // CE (#220): the mark at 200 dp on a primary halo 1.6 × its size across.
+            val halo = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
             Icon(
                 painter = painterResource(id = R.drawable.ic_banner),
                 contentDescription = null,
                 tint = Color.Unspecified,
-                modifier = Modifier.width(250.dp),
+                modifier =
+                    Modifier.height(200.dp).drawBehind {
+                        val radius = 0.8f * 200.dp.toPx()
+                        drawCircle(
+                            Brush.radialGradient(listOf(halo, halo.copy(alpha = 0f)), radius = radius),
+                            radius = radius,
+                        )
+                    },
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacings.medium))
             Text(
