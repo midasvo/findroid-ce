@@ -3,6 +3,7 @@
   "labels": [
     "dependencies"
   ],
+  "dependencyDashboard": true,
   "extends": [
     "config:recommended",
     "schedule:weekly",
@@ -10,6 +11,7 @@
   ],
   "packageRules": [
     {
+      "description": "Group Kotlin and KSP updates together",
       "groupName": "kotlin",
       "matchPackageNames": [
         "/org.jetbrains.kotlin.*/",
@@ -17,11 +19,38 @@
       ]
     },
     {
-      "matchUpdateTypes": ["minor", "patch"],
+      "description": "Group GitHub Actions workflow updates together",
+      "groupName": "github-actions",
+      "matchManagers": [
+        "github-actions"
+      ]
+    },
+    {
+      "description": "Group Ruby / Fastlane dependencies together",
+      "groupName": "fastlane",
+      "matchManagers": [
+        "bundler"
+      ]
+    },
+    {
+      "description": "Ignore ktfmt updates until repository formatting is updated",
+      "matchPackageNames": [
+        "com.ncorti.ktfmt.gradle",
+        "com.facebook:ktfmt"
+      ],
+      "enabled": false
+    },
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "automerge": true
     },
     {
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "automerge": false
     }
   ]
