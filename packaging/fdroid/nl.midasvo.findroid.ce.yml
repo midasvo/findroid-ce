@@ -10,22 +10,6 @@ Changelog: https://github.com/midasvo/ephyra/releases
 
 AutoName: Ephyra
 
-Description: |-
-  Ephyra is a native Jellyfin client for Android phones, tablets, and
-  Android TV. It is a community-driven fork of Findroid designed to play
-  movies and series from your Jellyfin server.
-
-  Features:
-  * Resumable download engine with SD card and quality selection
-  * Redesigned downloads screen, bulk downloads, and Smart Downloads
-  * Dolby Vision direct play and improved audio codec handling (Atmos, ffmpeg fallback)
-  * Video quality selector and version picker during playback
-  * Subtitle styling (colors, size, fonts) and wide format support (PGS, VobSub, SSA/ASS)
-  * Per-series audio and subtitle track memory
-  * Chapter list and media segment skipping (intro/outro)
-  * Background audio playback
-  * Dedicated Android TV app interface designed for TV remotes
-
 RepoType: git
 Repo: https://github.com/midasvo/ephyra.git
 Binaries: https://github.com/midasvo/ephyra/releases/download/v%v/ephyra-v%v-libre-arm64-v8a.apk
