@@ -48,15 +48,15 @@ with. **Decision needed** once support has answered.
 There's no maintained fastlane action for Amazon, so the first releases are manual uploads in the
 Amazon Developer Console of the APKs that `release.yml` already builds:
 
-| Device | APK |
-|---|---|
-| Fire TV (most sticks are 32-bit) | `ephyra-v<version>-libre-tv-armeabi-v7a.apk` |
-| Fire TV 64-bit (4K Max 2nd gen) | `ephyra-v<version>-libre-tv-arm64-v8a.apk` |
-| Fire tablets | `ephyra-v<version>-libre-arm64-v8a.apk`, `...-armeabi-v7a.apk` |
+| Device | APK | versionCode |
+|---|---|---|
+| Fire TV | `ephyra-v<version>-libre-tv-armeabi-v7a.apk` | `TV_CODE` |
+| Fire tablets | `ephyra-v<version>-libre-armeabi-v7a.apk` | `CODE` |
 
-Amazon allows several APKs per app and targets each to devices in the console. Every APK needs a
-different versionCode; the TV APKs already sit one higher (`EphyraVersion.TV_CODE`). Check in the
-console that the ABI splits don't collide, and give them distinct codes if they do.
+Amazon allows several APKs per app and targets each to devices in the console, but every APK needs
+a different versionCode. Our ABI splits all share one code (`CODE` for phone, `TV_CODE` for TV), so
+upload only one ABI per app. `armeabi-v7a` runs on every Fire device, the 64-bit ones included,
+since Fire OS runs 32-bit apps too. Per-ABI uploads would need a versionCode offset per ABI first.
 
 The App Submission API can automate this later, the way `fastlane android deploy` does for Play.
 
