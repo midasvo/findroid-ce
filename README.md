@@ -8,6 +8,7 @@
 </p>
 
 <p align="center">
+  <a href="https://midasvo.nl/ephyra/">Website</a> ·
   <a href="#install">Install</a> ·
   <a href="#what-ephyra-adds-to-findroid">What Ephyra adds</a> ·
   <a href="#android-tv">Android TV</a> ·
