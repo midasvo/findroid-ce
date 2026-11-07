@@ -132,7 +132,8 @@ fun SeasonScreen(
             seasonViewModel.loadSeason(
                 UUID.fromString(it),
                 includeSeriesSeasons = true,
-                seriesId = seriesId ?: episodeState.episode?.seriesId,
+                // Read from the flow, not the composable state: this effect runs outside composition.
+                seriesId = seriesId ?: episodeViewModel.state.value.episode?.seriesId,
             )
         }
     }
