@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import dev.jdtech.jellyfin.core.R as CoreR
@@ -20,6 +21,7 @@ enum class Direction {
 @Composable
 fun ItemPoster(item: FindroidItem, direction: Direction, modifier: Modifier = Modifier) {
     val sources =
+        remember(item.images, item.id, direction) {
         when (direction) {
             Direction.HORIZONTAL ->
                 when (item) {
@@ -33,6 +35,7 @@ fun ItemPoster(item: FindroidItem, direction: Direction, modifier: Modifier = Mo
                     is FindroidSeason -> listOf(item.images.primary, item.images.showPrimary)
                     else -> listOf(item.images.primary)
                 }
+        }
         }
 
     ArtworkImage(

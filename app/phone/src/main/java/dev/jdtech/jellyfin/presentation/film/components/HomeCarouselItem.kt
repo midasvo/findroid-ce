@@ -1,9 +1,9 @@
 package dev.jdtech.jellyfin.presentation.film.components
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,14 +11,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.stringResource
@@ -33,15 +34,15 @@ import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.utils.copyOnLongClick
 
+private val scrimColorStops =
+    arrayOf(
+        0.0f to Color.Black.copy(alpha = 0.1f),
+        0.5f to Color.Black.copy(alpha = 0.5f),
+        1f to Color.Black.copy(alpha = 0.6f),
+    )
+
 @Composable
 fun HomeCarouselItem(item: FindroidItem, onAction: (HomeAction) -> Unit) {
-    val colorStops =
-        arrayOf(
-            0.0f to Color.Black.copy(alpha = 0.1f),
-            0.5f to Color.Black.copy(alpha = 0.5f),
-            1f to Color.Black.copy(alpha = 0.6f),
-        )
-
     Box(
         modifier =
             Modifier
@@ -59,9 +60,13 @@ fun HomeCarouselItem(item: FindroidItem, onAction: (HomeAction) -> Unit) {
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxWidth(),
         )
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            drawRect(brush = Brush.verticalGradient(colorStops = colorStops))
-        }
+        Spacer(
+            modifier =
+                Modifier.fillMaxSize().drawWithCache {
+                    val brush = Brush.verticalGradient(colorStops = scrimColorStops)
+                    onDrawBehind { drawRect(brush = brush) }
+                }
+        )
         Column(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.small),
             modifier =
@@ -69,8 +74,7 @@ fun HomeCarouselItem(item: FindroidItem, onAction: (HomeAction) -> Unit) {
                         horizontal = MaterialTheme.spacings.default,
                         vertical = MaterialTheme.spacings.medium,
                     )
-                    .align(Alignment.BottomStart)
-                    .onGloballyPositioned { coordinates -> coordinates.size },
+                    .align(Alignment.BottomStart),
         ) {
             val genres =
                 when (item) {

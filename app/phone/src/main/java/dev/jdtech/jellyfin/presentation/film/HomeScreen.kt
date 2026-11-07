@@ -170,13 +170,14 @@ private fun HomeScreenLayout(
                 contentPadding = PaddingValues(top = contentPaddingTop, bottom = paddingBottom),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
             ) {
-                items(rows, key = { it.id }) { row ->
+                items(rows, key = { it.id }, contentType = { it::class }) { row ->
                     when (row) {
                         is HomeItem.Suggestions ->
                             HomeCarousel(
                                 items = row.items,
                                 itemsPadding = itemsPadding,
                                 onAction = onAction,
+                                isParentScrolling = { listState.isScrollInProgress },
                             )
                         is HomeItem.Section ->
                             HomeSection(

@@ -6,6 +6,12 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+composeCompiler {
+    stabilityConfigurationFiles.add(
+        rootProject.layout.projectDirectory.file("compose_stability.conf")
+    )
+}
+
 java { toolchain { languageVersion = Versions.JAVA } }
 
 android {
