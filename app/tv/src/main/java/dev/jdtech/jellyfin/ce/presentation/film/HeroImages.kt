@@ -132,22 +132,30 @@ internal fun rememberHeroImages(): HeroImages {
 /**
  * A detail page's full-screen backdrop. It is requested at the page's own size, with the hero's
  * smaller copy of the same image as the placeholder, so a page opened from Home doesn't show a bare
- * background while the backdrop decodes (#257). Without a hero copy in the memory cache it loads as
+ * background while the backdrop decodes (#257), and at most [DETAIL_BACKDROP_MAX_WIDTH_PX] wide.
+ * Without a hero copy in the memory cache it loads as
  * before.
  */
 @Composable
 internal fun rememberDetailBackdrop(uri: Uri?): ImageRequest? {
     val context = LocalContext.current
     val images = rememberHeroImages()
-    return remember(uri, images) {
+    val widthPx = LocalWindowInfo.current.containerSize.width.coerceAtMost(DETAIL_BACKDROP_MAX_WIDTH_PX)
+    return remember(uri, images, widthPx) {
         uri?.let {
             ImageRequest.Builder(context)
                 .data(it)
+                .size(widthPx, widthPx * 9 / 16)
+                .scale(Scale.FILL)
+                .precision(Precision.INEXACT)
                 .placeholderMemoryCacheKey(images.backdropCacheKey(it))
                 .build()
         }
     }
 }
+
+/** A detail page's backdrop is decoded at most this wide: 4K TVs don't need a 3840 px bitmap. */
+internal const val DETAIL_BACKDROP_MAX_WIDTH_PX = 1280
 
 /** The hero backdrop's share of the screen width, from the right. */
 internal const val HERO_BACKDROP_WIDTH = .7f
