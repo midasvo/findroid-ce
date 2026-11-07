@@ -151,4 +151,9 @@
     <string name="about_source_code">Kildekode</string>
     <string name="pref_ask_user_on_start">Spørg, hvem der ser med, ved start</string>
     <string name="pref_ask_user_on_start_summary">Når denne server har mere end én bruger, åbner appen på brugerlisten i stedet for Hjem</string>
+    <string name="settings_home_cache_title">Husk rækker på startsiden</string>
+    <string name="settings_home_cache_summary">Viser rækkerne fra dit sidste besøg, mens serveren svarer. Når det er slået fra, venter startsiden på serveren ved hver start.</string>
+    <string name="settings_clear_cache_title">Ryd cache</string>
+    <string name="settings_clear_cache_summary">Fjerner de cachede billeder og de huskede rækker på startsiden.</string>
+    <string name="settings_cache_cleared">Cache ryddet</string>
 </resources>

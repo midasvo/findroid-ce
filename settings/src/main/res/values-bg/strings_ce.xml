@@ -151,4 +151,9 @@
     <string name="about_source_code">Изходен код</string>
     <string name="pref_ask_user_on_start">Питай кой гледа при стартиране</string>
     <string name="pref_ask_user_on_start_summary">Когато този сървър има повече от един потребител, приложението се отваря със списъка с потребители вместо с Начало</string>
+    <string name="settings_home_cache_title">Запомняне на редовете на началния екран</string>
+    <string name="settings_home_cache_summary">Показва редовете от последното ви посещение, докато сървърът отговаря. Когато е изключено, началният екран чака сървъра при всяко стартиране.</string>
+    <string name="settings_clear_cache_title">Изчистване на кеша</string>
+    <string name="settings_clear_cache_summary">Премахва кешираните изображения и запомнените редове на началния екран.</string>
+    <string name="settings_cache_cleared">Кешът е изчистен</string>
 </resources>

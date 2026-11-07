@@ -151,4 +151,9 @@
     <string name="about_source_code">Källkod</string>
     <string name="pref_ask_user_on_start">Fråga vem som tittar vid start</string>
     <string name="pref_ask_user_on_start_summary">När den här servern har fler än en användare öppnas appen på användarlistan i stället för Hem</string>
+    <string name="settings_home_cache_title">Kom ihåg rader på startsidan</string>
+    <string name="settings_home_cache_summary">Visar raderna från ditt senaste besök medan servern svarar. När det är av väntar startsidan på servern vid varje start.</string>
+    <string name="settings_clear_cache_title">Rensa cache</string>
+    <string name="settings_clear_cache_summary">Tar bort de cachade bilderna och de sparade raderna på startsidan.</string>
+    <string name="settings_cache_cleared">Cachen rensad</string>
 </resources>

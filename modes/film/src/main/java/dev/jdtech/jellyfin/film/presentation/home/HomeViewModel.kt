@@ -179,6 +179,11 @@ constructor(
         val cache = homeCache ?: return
         if (userId == null || cacheChecked || !_state.value.isEmpty) return
         cacheChecked = true
+        if (!appPreferences.getValue(appPreferences.homeCache)) {
+            // Turned off: whatever an earlier start wrote goes, so nothing stale is kept around.
+            cache.clear()
+            return
+        }
         val rows = cache.read(serverId, userId) ?: return
         _state.update {
             if (!it.isEmpty) {
@@ -201,6 +206,7 @@ constructor(
         val cache = homeCache ?: return
         val user = _state.value.user ?: return
         if (server == null || repository is JellyfinRepositoryOfflineImpl) return
+        if (!appPreferences.getValue(appPreferences.homeCache)) return
         cache.write(server.id, user.id, _state.value)
     }
 

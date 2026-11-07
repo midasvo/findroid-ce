@@ -151,4 +151,9 @@
     <string name="about_source_code">源代码</string>
     <string name="pref_ask_user_on_start">启动时询问谁在观看</string>
     <string name="pref_ask_user_on_start_summary">当此服务器有多个用户时，应用将打开用户列表，而不是主页</string>
+    <string name="settings_home_cache_title">记住主页行</string>
+    <string name="settings_home_cache_summary">在服务器响应期间显示你上次访问时的行。关闭后，主页每次启动都会等待服务器。</string>
+    <string name="settings_clear_cache_title">清除缓存</string>
+    <string name="settings_clear_cache_summary">移除缓存的图片和记住的主页行。</string>
+    <string name="settings_cache_cleared">缓存已清除</string>
 </resources>

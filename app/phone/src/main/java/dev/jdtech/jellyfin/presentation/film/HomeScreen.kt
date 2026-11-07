@@ -140,7 +140,11 @@ private fun HomeScreenLayout(
     val userFade = remember { Animatable(1f) }
     var shownUserId by remember { mutableStateOf(state.user?.id) }
     LaunchedEffect(state.user?.id) {
-        if (state.user?.id != shownUserId) {
+        if (shownUserId == null) {
+            // The first user of this screen isn't a switch: a cold start arrives with no user and
+            // gets one a moment later, and the rows must not dip for that.
+            shownUserId = state.user?.id
+        } else if (state.user?.id != shownUserId) {
             shownUserId = state.user?.id
             userFade.animateTo(0f, tween(EphyraMotion.DURATION_SHORT, easing = EphyraMotion.EasingExit))
             userFade.animateTo(1f, tween(EphyraMotion.DURATION_MEDIUM, easing = EphyraMotion.EasingEnter))

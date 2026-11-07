@@ -151,4 +151,9 @@
     <string name="about_source_code">Вихідний код</string>
     <string name="pref_ask_user_on_start">Питати, хто дивиться, під час запуску</string>
     <string name="pref_ask_user_on_start_summary">Якщо на цьому сервері більше одного користувача, застосунок відкривається зі списком користувачів замість головної</string>
+    <string name="settings_home_cache_title">Запам\'ятовувати ряди на головній</string>
+    <string name="settings_home_cache_summary">Показує ряди з минулого відвідування, поки сервер відповідає. Якщо вимкнено, головна під час кожного запуску чекає на сервер.</string>
+    <string name="settings_clear_cache_title">Очистити кеш</string>
+    <string name="settings_clear_cache_summary">Видаляє кешовані зображення та запам\'ятовані ряди на головній.</string>
+    <string name="settings_cache_cleared">Кеш очищено</string>
 </resources>

@@ -151,4 +151,9 @@
     <string name="about_source_code">Código fuente</string>
     <string name="pref_ask_user_on_start">Preguntar quién está viendo al iniciar</string>
     <string name="pref_ask_user_on_start_summary">Cuando este servidor tiene más de un usuario, la app abre la lista de usuarios en lugar de Inicio</string>
+    <string name="settings_home_cache_title">Recordar las filas de Inicio</string>
+    <string name="settings_home_cache_summary">Muestra las filas de tu última visita mientras responde el servidor. Si está desactivado, Inicio espera al servidor en cada arranque.</string>
+    <string name="settings_clear_cache_title">Borrar la cache</string>
+    <string name="settings_clear_cache_summary">Elimina las imágenes en cache y las filas de Inicio recordadas.</string>
+    <string name="settings_cache_cleared">Cache borrada</string>
 </resources>

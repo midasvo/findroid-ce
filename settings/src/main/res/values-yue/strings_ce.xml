@@ -151,4 +151,9 @@
     <string name="about_source_code">原始碼</string>
     <string name="pref_ask_user_on_start">啟動時問邊個睇</string>
     <string name="pref_ask_user_on_start_summary">當呢部伺服器有多過一個用戶，App 會開用戶清單，而唔係主頁</string>
+    <string name="settings_home_cache_title">記住主頁行列</string>
+    <string name="settings_home_cache_summary">伺服器回應期間，先顯示你上次睇過嘅行列。閂咗嘅話，主頁每次啟動都會等伺服器。</string>
+    <string name="settings_clear_cache_title">清除快取</string>
+    <string name="settings_clear_cache_summary">移除已快取嘅圖片同記住咗嘅主頁行列。</string>
+    <string name="settings_cache_cleared">已清除快取</string>
 </resources>

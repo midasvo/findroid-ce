@@ -151,4 +151,9 @@
     <string name="about_source_code">Codi font</string>
     <string name="pref_ask_user_on_start">Pregunta qui està mirant en iniciar</string>
     <string name="pref_ask_user_on_start_summary">Quan aquest servidor té més d\'un usuari, l\'aplicació s\'obre a la llista d\'usuaris en lloc d\'Inici</string>
+    <string name="settings_home_cache_title">Recorda les files de l\'inici</string>
+    <string name="settings_home_cache_summary">Mostra les files de la teva darrera visita mentre el servidor respon. Si està desactivat, l\'inici espera el servidor a cada arrencada.</string>
+    <string name="settings_clear_cache_title">Esborra la memòria cau</string>
+    <string name="settings_clear_cache_summary">Elimina les imatges de la memòria cau i les files de l\'inici recordades.</string>
+    <string name="settings_cache_cleared">S\'ha esborrat la memòria cau</string>
 </resources>

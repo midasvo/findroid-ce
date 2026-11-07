@@ -116,6 +116,13 @@ class HomeCache @Inject constructor(@ApplicationContext context: Context) {
             }
         }
 
+    /** Drops every server's and user's rows: the Clear cache row in settings, or the setting off. */
+    suspend fun clear() =
+        withContext(Dispatchers.IO) {
+            dir.listFiles()?.forEach { file -> file.delete() }
+            Unit
+        }
+
     private fun sectionJson(section: HomeItem.Section) =
         JSONObject()
             .put("id", section.homeSection.id.toString())

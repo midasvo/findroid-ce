@@ -151,4 +151,9 @@
     <string name="about_source_code">Lähtekood</string>
     <string name="pref_ask_user_on_start">Küsi käivitamisel, kes vaatab</string>
     <string name="pref_ask_user_on_start_summary">Kui sellel serveril on rohkem kui üks kasutaja, avab rakendus avalehe asemel kasutajate loendi</string>
+    <string name="settings_home_cache_title">Jäta avalehe read meelde</string>
+    <string name="settings_home_cache_summary">Näitab su viimase külastuse ridu, kuni server vastab. Kui see on välja lülitatud, ootab avaleht igal käivitamisel serveri vastust.</string>
+    <string name="settings_clear_cache_title">Tühjenda vahemälu</string>
+    <string name="settings_clear_cache_summary">Eemaldab vahemällu salvestatud pildid ja meelde jäetud avalehe read.</string>
+    <string name="settings_cache_cleared">Vahemälu tühjendatud</string>
 </resources>

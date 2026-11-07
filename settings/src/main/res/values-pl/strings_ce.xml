@@ -151,4 +151,9 @@
     <string name="about_source_code">Kod źródłowy</string>
     <string name="pref_ask_user_on_start">Pytaj, kto ogląda, przy uruchomieniu</string>
     <string name="pref_ask_user_on_start_summary">Gdy ten serwer ma więcej niż jednego użytkownika, aplikacja otwiera listę użytkowników zamiast ekranu głównego</string>
+    <string name="settings_home_cache_title">Zapamiętuj wiersze ekranu głównego</string>
+    <string name="settings_home_cache_summary">Pokazuje wiersze z ostatniej wizyty, dopóki serwer nie odpowie. Po wyłączeniu ekran główny przy każdym uruchomieniu czeka na serwer.</string>
+    <string name="settings_clear_cache_title">Wyczyść pamięć podręczną</string>
+    <string name="settings_clear_cache_summary">Usuwa obrazy z pamięci podręcznej i zapamiętane wiersze ekranu głównego.</string>
+    <string name="settings_cache_cleared">Wyczyszczono pamięć podręczną</string>
 </resources>

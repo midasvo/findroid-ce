@@ -151,4 +151,9 @@
     <string name="about_source_code">原始碼</string>
     <string name="pref_ask_user_on_start">啟動時詢問誰在觀看</string>
     <string name="pref_ask_user_on_start_summary">當此伺服器有多位使用者時，應用程式會開啟使用者清單，而非首頁</string>
+    <string name="settings_home_cache_title">記住首頁列</string>
+    <string name="settings_home_cache_summary">在伺服器回應期間顯示你上次造訪時的列。關閉後，首頁每次啟動都會等待伺服器。</string>
+    <string name="settings_clear_cache_title">清除快取</string>
+    <string name="settings_clear_cache_summary">移除快取的圖片和記住的首頁列。</string>
+    <string name="settings_cache_cleared">快取已清除</string>
 </resources>

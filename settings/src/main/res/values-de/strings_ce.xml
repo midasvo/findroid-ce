@@ -151,4 +151,9 @@
     <string name="about_source_code">Quellcode</string>
     <string name="pref_ask_user_on_start">Beim Start fragen, wer zuschaut</string>
     <string name="pref_ask_user_on_start_summary">Wenn dieser Server mehr als einen Benutzer hat, öffnet die App die Benutzerliste statt der Startseite</string>
+    <string name="settings_home_cache_title">Zeilen der Startseite merken</string>
+    <string name="settings_home_cache_summary">Zeigt die Zeilen deines letzten Besuchs, während der Server antwortet. Ist die Option aus, wartet die Startseite bei jedem Start auf den Server.</string>
+    <string name="settings_clear_cache_title">Cache leeren</string>
+    <string name="settings_clear_cache_summary">Entfernt die zwischengespeicherten Bilder und die gemerkten Zeilen der Startseite.</string>
+    <string name="settings_cache_cleared">Cache geleert</string>
 </resources>

@@ -151,4 +151,9 @@
     <string name="about_source_code">सोर्स कोड</string>
     <string name="pref_ask_user_on_start">शुरू करते समय पूछें कि कौन देख रहा है</string>
     <string name="pref_ask_user_on_start_summary">जब इस सर्वर पर एक से अधिक उपयोगकर्ता हों, तो ऐप होम की जगह उपयोगकर्ता सूची खोलता है</string>
+    <string name="settings_home_cache_title">होम की पंक्तियाँ याद रखें</string>
+    <string name="settings_home_cache_summary">सर्वर के जवाब देने तक आपकी पिछली विज़िट की पंक्तियाँ दिखाता है। बंद होने पर, होम हर बार शुरू होने पर सर्वर का इंतज़ार करता है।</string>
+    <string name="settings_clear_cache_title">कैश (cache) साफ़ करें</string>
+    <string name="settings_clear_cache_summary">कैश की गई छवियाँ और याद रखी गई होम की पंक्तियाँ हटाता है।</string>
+    <string name="settings_cache_cleared">कैश साफ़ किया गया</string>
 </resources>

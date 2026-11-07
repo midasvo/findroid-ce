@@ -151,4 +151,9 @@
     <string name="about_source_code">Código-fonte</string>
     <string name="pref_ask_user_on_start">Perguntar quem está a ver ao iniciar</string>
     <string name="pref_ask_user_on_start_summary">Quando este servidor tem mais do que um utilizador, a aplicação abre na lista de utilizadores em vez do Início</string>
+    <string name="settings_home_cache_title">Lembrar as linhas do início</string>
+    <string name="settings_home_cache_summary">Mostra as linhas da tua última visita enquanto o servidor responde. Desativado, o início espera pelo servidor em cada arranque.</string>
+    <string name="settings_clear_cache_title">Limpar cache</string>
+    <string name="settings_clear_cache_summary">Remove as imagens em cache e as linhas do início memorizadas.</string>
+    <string name="settings_cache_cleared">Cache limpa</string>
 </resources>

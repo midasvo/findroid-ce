@@ -151,4 +151,9 @@
     <string name="about_source_code">Mənbə kodu</string>
     <string name="pref_ask_user_on_start">Başlanğıcda kimin izlədiyini soruş</string>
     <string name="pref_ask_user_on_start_summary">Bu serverdə birdən çox istifadəçi olduqda, tətbiq Ana səhifə əvəzinə istifadəçi siyahısı ilə açılır</string>
+    <string name="settings_home_cache_title">Əsas səhifə sıralarını yadda saxla</string>
+    <string name="settings_home_cache_summary">Server cavab verənə qədər son ziyarətinizdəki sıraları göstərir. Söndürülübsə, Əsas səhifə hər açılışda serveri gözləyir.</string>
+    <string name="settings_clear_cache_title">Keşi təmizlə</string>
+    <string name="settings_clear_cache_summary">Keşlənmiş şəkilləri və yadda saxlanmış Əsas səhifə sıralarını silir.</string>
+    <string name="settings_cache_cleared">Keş təmizləndi</string>
 </resources>

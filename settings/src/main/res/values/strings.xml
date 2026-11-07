@@ -197,6 +197,11 @@
     <string name="home_next_up_max_days_suffix">days</string>
     <string name="settings_image_display_size_title">Load artwork at display size</string>
     <string name="settings_image_display_size_summary">Ask the server for images at the size they are shown. Uses less data, but the server has to resize each image the first time.</string>
+    <string name="settings_home_cache_title">Remember Home rows</string>
+    <string name="settings_home_cache_summary">Show the rows from your last visit while the server answers. Off, Home waits for the server on every start.</string>
+    <string name="settings_clear_cache_title">Clear cache</string>
+    <string name="settings_clear_cache_summary">Removes the cached images and the remembered Home rows.</string>
+    <string name="settings_cache_cleared">Cache cleared</string>
     <string name="pref_player_tv_ok_pauses">OK pauses playback</string>
     <string name="pref_player_tv_ok_pauses_summary">Pressing OK during playback pauses it and shows the controls. When this is off, OK only shows the controls.</string>
     <string name="pref_player_tv_match_refresh_rate">Match display refresh rate</string>

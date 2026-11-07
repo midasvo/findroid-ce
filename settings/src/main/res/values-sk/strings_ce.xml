@@ -151,4 +151,9 @@
     <string name="about_source_code">Zdrojový kód</string>
     <string name="pref_ask_user_on_start">Pri spustení sa opýtať, kto sa pozerá</string>
     <string name="pref_ask_user_on_start_summary">Ak má tento server viac ako jedného používateľa, aplikácia sa otvorí na zozname používateľov namiesto Domov</string>
+    <string name="settings_home_cache_title">Pamätať si riadky domovskej obrazovky</string>
+    <string name="settings_home_cache_summary">Zobrazí riadky z poslednej návštevy, kým server neodpovie. Keď je vypnuté, domovská obrazovka pri každom spustení čaká na server.</string>
+    <string name="settings_clear_cache_title">Vymazať vyrovnávaciu pamäť</string>
+    <string name="settings_clear_cache_summary">Odstráni obrázky vo vyrovnávacej pamäti a zapamätané riadky domovskej obrazovky.</string>
+    <string name="settings_cache_cleared">Vyrovnávacia pamäť bola vymazaná</string>
 </resources>
