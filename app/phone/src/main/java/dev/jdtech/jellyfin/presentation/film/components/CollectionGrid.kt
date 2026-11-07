@@ -17,6 +17,8 @@ import dev.jdtech.jellyfin.models.CollectionSection
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.GridCellsAdaptiveWithMinColumns
+import dev.jdtech.jellyfin.presentation.utils.Layout
+import dev.jdtech.jellyfin.presentation.utils.currentWidthClass
 
 @Composable
 fun CollectionGrid(
@@ -25,7 +27,7 @@ fun CollectionGrid(
     onAction: (CollectionAction) -> Unit,
 ) {
     LazyVerticalGrid(
-        columns = GridCellsAdaptiveWithMinColumns(minSize = 160.dp, minColumns = 2),
+        columns = GridCellsAdaptiveWithMinColumns(minSize = Layout.gridMinCell(currentWidthClass()), minColumns = 2),
         modifier = Modifier.padding(innerPadding).fillMaxSize(),
         contentPadding = PaddingValues(all = MaterialTheme.spacings.default),
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),

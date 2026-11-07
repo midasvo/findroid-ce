@@ -40,6 +40,8 @@ import dev.jdtech.jellyfin.film.presentation.search.SearchAction
 import dev.jdtech.jellyfin.film.presentation.search.SearchState
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.GridCellsAdaptiveWithMinColumns
+import dev.jdtech.jellyfin.presentation.utils.Layout
+import dev.jdtech.jellyfin.presentation.utils.currentWidthClass
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
 
 @Composable
@@ -149,7 +151,7 @@ fun FilmSearchBar(
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             LazyVerticalGrid(
-                columns = GridCellsAdaptiveWithMinColumns(minSize = 160.dp, minColumns = 2),
+                columns = GridCellsAdaptiveWithMinColumns(minSize = Layout.gridMinCell(currentWidthClass()), minColumns = 2),
                 modifier = Modifier.fillMaxSize(),
                 contentPadding =
                     PaddingValues(

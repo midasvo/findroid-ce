@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,7 @@ import dev.jdtech.jellyfin.presentation.film.components.TopContentScrim
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.GridCellsAdaptiveWithMinColumns
+import dev.jdtech.jellyfin.presentation.utils.Layout
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
 
 @Composable
@@ -126,7 +128,10 @@ private fun MediaScreenLayout(
             expanded = searchExpanded,
             onExpand = onSearchExpand,
             onAction = onSearchAction,
-            modifier = Modifier.fillMaxWidth(),
+            // Capped to a readable width while collapsed; the expanded results fill the window.
+            modifier =
+                if (searchExpanded) Modifier.fillMaxWidth()
+                else Modifier.widthIn(max = Layout.textMaxWidth),
             paddingStart = paddingStart,
             paddingEnd = paddingEnd,
         )

@@ -28,6 +28,8 @@ import dev.jdtech.jellyfin.models.FindroidSeason
 import dev.jdtech.jellyfin.models.isDownloaded
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
+import dev.jdtech.jellyfin.presentation.utils.Layout
+import dev.jdtech.jellyfin.presentation.utils.currentWidthClass
 import dev.jdtech.jellyfin.utils.copyOnLongClick
 
 @Composable
@@ -38,15 +40,16 @@ fun ItemCard(
     modifier: Modifier = Modifier,
     showSeriesName: Boolean = false,
 ) {
+    val widthClass = currentWidthClass()
     val width =
         when (direction) {
-            Direction.HORIZONTAL -> 260
-            Direction.VERTICAL -> 150
+            Direction.HORIZONTAL -> Layout.cardHorizontal(widthClass)
+            Direction.VERTICAL -> Layout.cardVertical(widthClass)
         }
     Column(
         modifier =
             modifier
-                .width(width.dp)
+                .width(width)
                 .clip(MaterialTheme.shapes.small)
                 .copyOnLongClick(item.name, onClick = { onClick(item) })
     ) {
