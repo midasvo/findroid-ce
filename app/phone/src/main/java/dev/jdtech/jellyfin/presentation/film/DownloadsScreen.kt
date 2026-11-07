@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,9 +16,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.recalculateWindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -34,6 +38,7 @@ import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
@@ -54,6 +59,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -66,6 +72,7 @@ import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadProgress
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadStatus
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyEpisode
+import dev.jdtech.jellyfin.core.presentation.dummy.dummyMovie
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyMovies
 import dev.jdtech.jellyfin.film.presentation.downloads.ActiveDownload
 import dev.jdtech.jellyfin.film.presentation.downloads.DownloadSortOrder
@@ -89,7 +96,10 @@ import dev.jdtech.jellyfin.presentation.film.components.groupedItemShape
 import dev.jdtech.jellyfin.presentation.film.components.playDownloadedItem
 import dev.jdtech.jellyfin.presentation.film.components.rememberUndoController
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
+import dev.jdtech.jellyfin.presentation.utils.Layout
 import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
+import dev.jdtech.jellyfin.presentation.utils.WidthClass
+import dev.jdtech.jellyfin.presentation.utils.currentWidthClass
 import java.util.UUID
 
 /** Queues longer than this collapse behind a "Show all" toggle. */
@@ -154,7 +164,14 @@ private fun DownloadsScreenLayout(
     onStorageClick: () -> Unit,
 ) {
     val context = LocalContext.current
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val widthClass = currentWidthClass()
+    val compact = widthClass == WidthClass.Compact
+    val expandedWidth = widthClass == WidthClass.Expanded
+    // Compact keeps the large collapsing bar; wider windows use the small bar FavoritesScreen has,
+    // so both screens put the title (and the sort action) in the same place (T11).
+    val scrollBehavior =
+        if (compact) TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+        else TopAppBarDefaults.pinnedScrollBehavior()
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Cancelling and removing are deferred behind an Undo snackbar; until it resolves the
@@ -214,50 +231,64 @@ private fun DownloadsScreenLayout(
                 .recalculateWindowInsets()
                 .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            LargeTopAppBar(
-                title = {
-                    Text(
-                        if (selecting) {
-                            stringResource(CoreR.string.downloads_selected_count, selectedIds.size)
-                        } else stringResource(CoreR.string.title_download)
-                    )
-                },
-                navigationIcon = {
+            val title: @Composable () -> Unit = {
+                Text(
                     if (selecting) {
-                        IconButton(onClick = ::exitSelection) {
-                            Icon(
-                                painter = painterResource(CoreR.drawable.ic_x),
-                                contentDescription = stringResource(CoreR.string.close),
-                            )
+                        stringResource(CoreR.string.downloads_selected_count, selectedIds.size)
+                    } else stringResource(CoreR.string.title_download)
+                )
+            }
+            val navigationIcon: @Composable () -> Unit = {
+                if (selecting) {
+                    IconButton(onClick = ::exitSelection) {
+                        Icon(
+                            painter = painterResource(CoreR.drawable.ic_x),
+                            contentDescription = stringResource(CoreR.string.close),
+                        )
+                    }
+                }
+            }
+            val actions: @Composable RowScope.() -> Unit = {
+                if (selecting) {
+                    IconButton(
+                        onClick = {
+                            removeItems(libraryItems.filter { it.id in selectedIds })
+                            exitSelection()
+                        },
+                        enabled = selectedIds.isNotEmpty(),
+                    ) {
+                        Icon(
+                            painter = painterResource(CoreR.drawable.ic_trash),
+                            contentDescription = stringResource(CoreR.string.remove),
+                        )
+                    }
+                } else {
+                    if (libraryItems.isNotEmpty()) {
+                        TextButton(onClick = { selecting = true }) {
+                            Text(stringResource(CoreR.string.select))
                         }
                     }
-                },
-                actions = {
-                    if (selecting) {
-                        IconButton(
-                            onClick = {
-                                removeItems(libraryItems.filter { it.id in selectedIds })
-                                exitSelection()
-                            },
-                            enabled = selectedIds.isNotEmpty(),
-                        ) {
-                            Icon(
-                                painter = painterResource(CoreR.drawable.ic_trash),
-                                contentDescription = stringResource(CoreR.string.remove),
-                            )
-                        }
-                    } else {
-                        if (libraryItems.isNotEmpty()) {
-                            TextButton(onClick = { selecting = true }) {
-                                Text(stringResource(CoreR.string.select))
-                            }
-                        }
-                        SortMenu(sortOrder = state.sortOrder, onSortOrderChange = onSortOrderChange)
-                    }
-                },
-                windowInsets = WindowInsets.statusBars.union(WindowInsets.displayCutout),
-                scrollBehavior = scrollBehavior,
-            )
+                    SortMenu(sortOrder = state.sortOrder, onSortOrderChange = onSortOrderChange)
+                }
+            }
+            val insets = WindowInsets.statusBars.union(WindowInsets.displayCutout)
+            if (compact) {
+                LargeTopAppBar(
+                    title = title,
+                    navigationIcon = navigationIcon,
+                    actions = actions,
+                    windowInsets = insets,
+                    scrollBehavior = scrollBehavior,
+                )
+            } else {
+                TopAppBar(
+                    title = title,
+                    navigationIcon = navigationIcon,
+                    actions = actions,
+                    windowInsets = insets,
+                    scrollBehavior = scrollBehavior,
+                )
+            }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         contentWindowInsets = WindowInsets.statusBars.union(WindowInsets.displayCutout),
@@ -276,13 +307,21 @@ private fun DownloadsScreenLayout(
             return@Scaffold
         }
 
-        LazyColumn(
+        // One column below Expanded, which lays out exactly like the list it replaces.
+        val spacing = if (expandedWidth) Layout.gutter(widthClass) else 2.dp
+        LazyVerticalGrid(
+            columns = if (expandedWidth) GridCells.Adaptive(minSize = 480.dp) else GridCells.Fixed(1),
             modifier = Modifier.padding(innerPadding).fillMaxSize(),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+            horizontalArrangement = Arrangement.spacedBy(spacing),
+            verticalArrangement = Arrangement.spacedBy(spacing),
         ) {
             if (state.storageUsedBytes > 0 || state.storageFreeBytes > 0) {
-                item(key = "storage", contentType = "storage") {
+                item(
+                    key = "storage",
+                    span = { GridItemSpan(maxLineSpan) },
+                    contentType = "storage",
+                ) {
                     StorageSummary(
                         moviesBytes = state.moviesBytes,
                         showsBytes = state.showsBytes,
@@ -291,7 +330,7 @@ private fun DownloadsScreenLayout(
                         totalBytes = state.storageTotalBytes,
                         isExternal = state.storageIsExternal,
                         onClick = onStorageClick,
-                        modifier = Modifier.animateItem(),
+                        modifier = Modifier.widthIn(max = Layout.textMaxWidth).animateItem(),
                     )
                 }
             }
@@ -306,7 +345,11 @@ private fun DownloadsScreenLayout(
             }
 
             for (section in sections) {
-                item(key = "section:${section.id}", contentType = "section:header") {
+                item(
+                    key = "section:${section.id}",
+                    span = { GridItemSpan(maxLineSpan) },
+                    contentType = "section:header",
+                ) {
                     SectionHeader(
                         title = section.name.asString(),
                         modifier = Modifier.animateItem(),
@@ -325,7 +368,9 @@ private fun DownloadsScreenLayout(
                         item = item,
                         sizeBytes = state.itemSizes[item.id],
                         episodeCount = state.episodeCounts[item.id],
-                        shape = groupedItemShape(index, section.items.size),
+                        shape =
+                            if (expandedWidth) groupedItemShape(0, 1)
+                            else groupedItemShape(index, section.items.size),
                         selected = if (selecting) selected else null,
                         onClick = {
                             when {
@@ -343,7 +388,7 @@ private fun DownloadsScreenLayout(
                                 { context.playDownloadedItem(item) }
                             } else null,
                         onRemove = { removeItems(listOf(item)) },
-                        modifier = Modifier.animateItem(),
+                        modifier = Modifier.widthIn(max = Layout.textMaxWidth).animateItem(),
                     )
                 }
             }
@@ -351,13 +396,17 @@ private fun DownloadsScreenLayout(
     }
 }
 
-private fun LazyListScope.downloadingSection(
+private fun LazyGridScope.downloadingSection(
     queueItems: List<ActiveDownload>,
     onCancelDownload: (ActiveDownload) -> Unit,
     onDismissDownload: (ActiveDownload) -> Unit,
     onRetryDownload: (ActiveDownload) -> Unit,
 ) {
-    item(key = "downloading:header", contentType = "downloading:header") {
+    item(
+        key = "downloading:header",
+        span = { GridItemSpan(maxLineSpan) },
+        contentType = "downloading:header",
+    ) {
         val context = LocalContext.current
         val bytesPerSecond =
             queueItems
@@ -371,14 +420,18 @@ private fun LazyListScope.downloadingSection(
             modifier = Modifier.animateItem(),
         )
     }
-    item(key = "downloading:rows", contentType = "downloading:rows") {
+    item(
+        key = "downloading:rows",
+        span = { GridItemSpan(maxLineSpan) },
+        contentType = "downloading:rows",
+    ) {
         // One item holding the whole group, so "Show all" can expand it in place.
         var showAll by rememberSaveable { mutableStateOf(false) }
         val collapsible = queueItems.size > COLLAPSED_QUEUE_SIZE + 1
         val visible =
             if (collapsible && !showAll) queueItems.take(COLLAPSED_QUEUE_SIZE) else queueItems
         Column(
-            modifier = Modifier.animateItem(),
+            modifier = Modifier.widthIn(max = Layout.textMaxWidth).animateItem(),
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             visible.forEachIndexed { index, download ->
@@ -644,6 +697,42 @@ private fun DownloadsScreenLayoutEmptyPreview() {
     FindroidTheme {
         DownloadsScreenLayout(
             state = DownloadsState(),
+            onItemClick = {},
+            onShowClick = {},
+            onItemsDelete = {},
+            onSortOrderChange = {},
+            onCancelDownload = {},
+            onDismissDownload = {},
+            onRetryDownload = {},
+            onRetryClick = {},
+            onBrowseLibraryClick = {},
+            onStorageClick = {},
+        )
+    }
+}
+
+@Preview(widthDp = 1280, heightDp = 800)
+@Composable
+private fun DownloadsScreenLayoutTabletPreview() {
+    val movies =
+        List(6) { index -> dummyMovie.copy(id = UUID.randomUUID(), name = "Movie ${index + 1}") }
+    FindroidTheme {
+        DownloadsScreenLayout(
+            state =
+                DownloadsState(
+                    sections =
+                        listOf(
+                            CollectionSection(
+                                id = Constants.FAVORITE_TYPE_MOVIES,
+                                name = UiText.StringResource(CoreR.string.movies_label),
+                                items = movies,
+                            )
+                        ),
+                    moviesBytes = 9_000_000_000L,
+                    storageUsedBytes = 9_000_000_000L,
+                    storageFreeBytes = 10_000_000_000L,
+                    storageTotalBytes = 64_000_000_000L,
+                ),
             onItemClick = {},
             onShowClick = {},
             onItemsDelete = {},

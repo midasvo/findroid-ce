@@ -60,6 +60,8 @@ import dev.jdtech.jellyfin.presentation.film.components.SortByDialog
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.GridCellsAdaptiveWithMinColumns
+import dev.jdtech.jellyfin.presentation.utils.Layout
+import dev.jdtech.jellyfin.presentation.utils.currentWidthClass
 import dev.jdtech.jellyfin.presentation.utils.plus
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
@@ -158,7 +160,7 @@ private fun LibraryScreenLayout(
             )
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyVerticalGrid(
-                    columns = GridCellsAdaptiveWithMinColumns(minSize = 160.dp, minColumns = 2),
+                    columns = GridCellsAdaptiveWithMinColumns(minSize = Layout.gridMinCell(currentWidthClass()), minColumns = 2),
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = contentPadding + innerPadding,
                     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.default),

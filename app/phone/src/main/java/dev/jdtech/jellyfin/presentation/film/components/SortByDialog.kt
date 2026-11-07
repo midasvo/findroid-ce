@@ -34,11 +34,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.compose.ui.window.Dialog
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.models.SortBy
@@ -73,9 +76,13 @@ fun SortByDialog(
         }
     }
 
+    // 540 dp on a tall window; on a short one (a tablet or phone in landscape) the window height
+    // minus a margin, so the dialog never runs off the screen.
+    val windowHeight = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
+
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
-            modifier = Modifier.fillMaxWidth().heightIn(max = 540.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(max = min(540.dp, windowHeight - 96.dp)),
             shape = MaterialTheme.shapes.large,
             colors =
                 CardDefaults.cardColors(
