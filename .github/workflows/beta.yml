@@ -132,6 +132,12 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
+      - name: Collect R8 mappings
+        run: |
+          mkdir mapping
+          cp app/phone/build/outputs/mapping/libreStaging/mapping.txt "mapping/ephyra-${{ steps.version.outputs.tag }}-mapping.txt"
+          cp app/tv/build/outputs/mapping/libreStaging/mapping.txt "mapping/ephyra-${{ steps.version.outputs.tag }}-tv-mapping.txt"
+
       - name: Create GitHub prerelease
         uses: softprops/action-gh-release@v3
         with:
@@ -152,6 +158,7 @@ jobs:
           files: |
             app/phone/build/outputs/apk/libre/staging/*.apk
             app/tv/build/outputs/apk/libre/staging/*.apk
+            mapping/*.txt
           fail_on_unmatched_files: true
 
       - name: Delete old beta prereleases
