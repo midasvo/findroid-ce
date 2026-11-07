@@ -94,7 +94,6 @@ fun ItemCard(
             }
         Text(
             text = title,
-            modifier = Modifier.copyOnLongClick(title),
             style = MaterialTheme.typography.bodyMedium,
             maxLines = if (subtitle == null) 2 else 1,
             overflow = TextOverflow.Ellipsis,
@@ -102,7 +101,6 @@ fun ItemCard(
         if (subtitle != null) {
             Text(
                 text = subtitle,
-                modifier = Modifier.copyOnLongClick(subtitle),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
                 maxLines = 1,

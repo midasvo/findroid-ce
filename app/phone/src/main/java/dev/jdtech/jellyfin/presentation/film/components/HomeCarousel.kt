@@ -38,6 +38,7 @@ fun HomeCarousel(
     items: List<FindroidItem>,
     itemsPadding: PaddingValues,
     onAction: (HomeAction) -> Unit,
+    isParentScrolling: () -> Boolean = { false },
 ) {
     val pagerState = rememberPagerState(pageCount = { items.size })
     val pagerIsDragged by pagerState.interactionSource.collectIsDraggedAsState()
@@ -48,6 +49,8 @@ fun HomeCarousel(
         LaunchedEffect(pagerState) {
             while (true) {
                 delay(autoScrollDelay)
+                // Don't animate a page change on top of the user's scroll of the list below.
+                if (isParentScrolling()) continue
                 val nextPage =
                     if (pagerState.canScrollForward) {
                         pagerState.currentPage + 1

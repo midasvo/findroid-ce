@@ -23,6 +23,12 @@ val keystoreProps: Properties? =
 // marks the staging build as a beta and keeps its versionCode increasing across branches.
 val betaBuild: Int? = System.getenv("BETA_BUILD")?.toIntOrNull()
 
+composeCompiler {
+    stabilityConfigurationFiles.add(
+        rootProject.layout.projectDirectory.file("compose_stability.conf")
+    )
+}
+
 java { toolchain { languageVersion = Versions.JAVA } }
 
 android {
