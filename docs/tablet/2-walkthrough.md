@@ -45,3 +45,5 @@ Two changes, verified on the tablet AVD and on a simulated 412×915 dp phone (un
 ![](screenshots/movie-after.jpg) ![](screenshots/season-after.jpg)
 
 These are stop-gaps. They make the pages readable; the design in [4-design.md](4-design.md) replaces the single column with a real tablet layout.
+
+**R6 (player orientation and edge gestures):** `PlayerActivity` no longer forces `sensorLandscape` from the manifest. It picks the orientation at runtime: forced landscape when the full-screen window's shorter side is under 600 dp (phones, folded foldables), unspecified otherwise, so a tablet plays in portrait (T7). On a player at least 840 × 480 dp, brightness and volume swipes only start within `clamp(width × 0.2, 96 dp, 240 dp)` of the left or right edge; a vertical swipe in the middle does nothing (T6, upstream #1144). Verified on a 1280×800 dp tablet AVD in both orientations and on the same AVD resized to a 411×914 dp phone.

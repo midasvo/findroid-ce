@@ -64,6 +64,12 @@ class PlayerGestureHelper(
     private var swipeGestureBrightnessOpen = false
     private var swipeGestureProgressOpen = false
 
+    /**
+     * CE (R6): set when a vertical swipe started between the edge zones of a wide player, so the
+     * rest of that swipe is ignored and cannot turn into a seek. Cleared on release.
+     */
+    private var swipeGestureInDeadZone = false
+
     private var lastScaleEvent: Long = 0
 
     private var playbackSpeedIncrease: Float = 2f
@@ -258,6 +264,8 @@ class PlayerGestureHelper(
                     if (inExclusionArea(firstEvent)) return false
                     // Disables seek gestures if view is locked
                     if (isControlsLocked) return false
+                    // A vertical swipe between the edge zones stays a no-op (R6)
+                    if (swipeGestureInDeadZone) return true
 
                     // Check whether swipe was oriented vertically
                     if (abs(distanceY / distanceX) < 2) {
@@ -323,6 +331,16 @@ class PlayerGestureHelper(
 
                     if (swipeGestureValueTrackerProgress > -1 || swipeGestureProgressOpen) {
                         return false
+                    }
+
+                    if (swipeGestureInDeadZone) return true
+                    if (
+                        !swipeGestureVolumeOpen &&
+                            !swipeGestureBrightnessOpen &&
+                            outsideVerticalGestureEdgeZones(firstEvent)
+                    ) {
+                        swipeGestureInDeadZone = true
+                        return true
                     }
 
                     val viewCenterX = playerView.measuredWidth / 2
@@ -496,6 +514,7 @@ class PlayerGestureHelper(
                 }
             }
             currentNumberOfPointers = 0
+            swipeGestureInDeadZone = false
         }
         if (
             lastPlaybackSpeed > 0 &&
@@ -518,6 +537,31 @@ class PlayerGestureHelper(
             (seconds / 60) % 60,
             seconds % 60,
         )
+    }
+
+    /**
+     * CE (R6, T6, upstream #1144): whether [firstEvent] is too far from both side edges for a
+     * brightness or volume swipe. Only on a player at least
+     * [Constants.GESTURE_EDGE_ZONE_MIN_PLAYER_WIDTH] by [Constants.GESTURE_EDGE_ZONE_MIN_PLAYER_HEIGHT]
+     * dp (a tablet or an unfolded foldable); anything smaller keeps the left and right halves.
+     * Reads the view's size at gesture time for the same reason as [inExclusionArea].
+     */
+    private fun outsideVerticalGestureEdgeZones(firstEvent: MotionEvent): Boolean {
+        val density = playerView.resources.displayMetrics.density
+        val widthDp = playerView.width / density
+        val heightDp = playerView.height / density
+        if (
+            widthDp < Constants.GESTURE_EDGE_ZONE_MIN_PLAYER_WIDTH ||
+                heightDp < Constants.GESTURE_EDGE_ZONE_MIN_PLAYER_HEIGHT
+        ) {
+            return false
+        }
+        val zonePx =
+            (widthDp * Constants.GESTURE_EDGE_ZONE_FRACTION).coerceIn(
+                Constants.GESTURE_EDGE_ZONE_MIN,
+                Constants.GESTURE_EDGE_ZONE_MAX,
+            ) * density
+        return firstEvent.x > zonePx && firstEvent.x < playerView.width - zonePx
     }
 
     /**

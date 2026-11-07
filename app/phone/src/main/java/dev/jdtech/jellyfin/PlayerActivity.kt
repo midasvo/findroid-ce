@@ -31,6 +31,7 @@ import androidx.media3.common.C
 import androidx.media3.ui.DefaultTimeBar
 import androidx.media3.ui.PlayerControlView
 import androidx.media3.ui.PlayerView
+import androidx.window.layout.WindowMetricsCalculator
 import dagger.hilt.android.AndroidEntryPoint
 import dev.jdtech.jellyfin.databinding.ActivityPlayerBinding
 import dev.jdtech.jellyfin.player.local.PlaybackSessionStore
@@ -53,6 +54,9 @@ import timber.log.Timber
 
 var isControlsLocked: Boolean = false
 
+/** Below this many dp a window is compact width (Material window size classes). */
+private const val COMPACT_WIDTH_DP = 600
+
 @AndroidEntryPoint
 class PlayerActivity : BasePlayerActivity() {
 
@@ -74,6 +78,40 @@ class PlayerActivity : BasePlayerActivity() {
     private lateinit var skipSegmentButton: Button
 
     private var stillWatchingDialog: StillWatchingDialogFragment? = null
+
+    /**
+     * CE (R6, T7): the orientation the player asks for while the controls are not locked. Phones
+     * keep the forced landscape; tablets and unfolded foldables play in whatever orientation they
+     * are held. Set by [updatePlayerOrientation].
+     */
+    private var playerOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+
+    /**
+     * Picks [playerOrientation] from the window the player gets when it fills the screen: forced
+     * landscape when that window is compact width (< 600 dp) held in portrait, i.e. its shorter
+     * side is under 600 dp; otherwise unspecified.
+     *
+     * The shorter side and not the current width, because a phone held in landscape is wider than
+     * 600 dp and must still lock. The maximum window and not the current one, because a requested
+     * orientation only applies to a full-screen window: a tablet that starts the player in
+     * split-screen, or returns from picture-in-picture, must not lock itself to landscape. Folding
+     * or unfolding changes the maximum window, hence the call from [onConfigurationChanged].
+     */
+    private fun updatePlayerOrientation() {
+        val bounds = WindowMetricsCalculator.getOrCreate().computeMaximumWindowMetrics(this).bounds
+        val shorterSideDp = minOf(bounds.width(), bounds.height()) / resources.displayMetrics.density
+        playerOrientation =
+            if (shorterSideDp < COMPACT_WIDTH_DP) ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            else ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        if (!isControlsLocked && requestedOrientation != playerOrientation) {
+            requestedOrientation = playerOrientation
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        updatePlayerOrientation()
+    }
 
     private val isPipSupported by lazy {
         // Check if device has PiP feature
@@ -118,6 +156,9 @@ class PlayerActivity : BasePlayerActivity() {
         val startFromBeginning = intent.extras?.getBoolean("startFromBeginning") ?: false
         val mediaSourceId = intent.extras?.getString("mediaSourceId")
 
+        isControlsLocked = false
+        updatePlayerOrientation()
+
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -135,8 +176,6 @@ class PlayerActivity : BasePlayerActivity() {
 
         val playerControls = binding.playerView.findViewById<View>(R.id.player_controls)
         val lockedControls = binding.playerView.findViewById<View>(R.id.locked_player_view)
-
-        isControlsLocked = false
 
         configureInsets(playerControls)
         configureInsets(lockedControls)
@@ -351,7 +390,7 @@ class PlayerActivity : BasePlayerActivity() {
         unlockButton.setOnClickListener {
             exoPlayerControlView.visibility = View.VISIBLE
             lockedLayout.visibility = View.GONE
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            requestedOrientation = playerOrientation
             isControlsLocked = false
         }
 
