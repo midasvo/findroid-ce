@@ -222,7 +222,11 @@ private fun SeasonScreenLayout(
                 Modifier.fillMaxSize()
                     .background(
                         Brush.horizontalGradient(
-                            listOf(Color.Black, Color.Black.copy(alpha = .85f), Color.Transparent)
+                            listOf(
+                                MaterialTheme.colorScheme.surface,
+                                Color.Black.copy(alpha = .85f),
+                                Color.Transparent,
+                            )
                         )
                     )
         )

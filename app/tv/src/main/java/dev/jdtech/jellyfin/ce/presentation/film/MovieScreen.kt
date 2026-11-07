@@ -155,7 +155,7 @@ private fun MovieScreenLayout(state: MovieState, onAction: (MovieAction) -> Unit
                             Modifier.fillMaxSize()
                                 .background(
                                     Brush.radialGradient(
-                                        listOf(Color.Black.copy(alpha = .2f), Color.Black),
+                                        listOf(Color.Black.copy(alpha = .2f), MaterialTheme.colorScheme.surface),
                                         center = Offset(size.width, 0f),
                                         radius = size.width * .8f,
                                     )
