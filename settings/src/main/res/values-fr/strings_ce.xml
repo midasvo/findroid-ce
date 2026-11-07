@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Passer le chapitre</string>
     <string name="player_gestures_hold_disabled">Désactivé</string>
     <string name="player_gestures_hold_speed">Vitesse 2x</string>
-    <string name="pref_developer_enable_trickplay">Chargeur de trickplay différé (expérimental)</string>
-    <string name="pref_developer_enable_trickplay_summary">Décode les miniatures de prévisualisation à la demande au lieu de précharger chaque vignette. Réduit l\'utilisation de la mémoire sur les vidéos longues, mais peut brièvement manquer la première image lors du défilement vers une nouvelle feuille de sprites. Désactivé par défaut.</string>
     <string name="pref_download_internal_storage">Stockage interne (%s libre)</string>
     <string name="pref_download_max_concurrent">Téléchargements simultanés max.</string>
     <string name="pref_download_sd_card">Carte SD %1$d (%2$s libre)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Afficher une confirmation après ce nombre de minutes sans appui, recherche ou pause. Définir sur 0 pour désactiver.</string>
     <string name="pref_player_still_watching_prompt_timeout">Délai d\'expiration de l\'invite</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Secondes d\'attente de confirmation avant de mettre en pause.</string>
-    <string name="settings_category_developer">Options pour les développeurs</string>
-    <string name="settings_category_developer_experimental">Expérimental</string>
     <string name="subtitle_background_color">Couleur d\'arrière-plan</string>
     <string name="subtitle_color_black">Noir</string>
     <string name="subtitle_color_cyan">Cyan</string>

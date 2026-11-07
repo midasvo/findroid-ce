@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Bölümü atla</string>
     <string name="player_gestures_hold_disabled">Devre dışı</string>
     <string name="player_gestures_hold_speed">2x hız</string>
-    <string name="pref_developer_enable_trickplay">Tembel önizleme yükleyici (deneysel)</string>
-    <string name="pref_developer_enable_trickplay_summary">Tüm kareleri önceden yüklemek yerine kaydırma çubuğu önizleme küçük resimlerini isteğe bağlı olarak çözer. Uzun videolarda bellek kullanımını azaltır, ancak yeni bir görsel sayfasına geçerken ilk kare kısa süreliğine görünmeyebilir. Varsayılan olarak kapalıdır.</string>
     <string name="pref_download_internal_storage">Dahili depolama (%s boş)</string>
     <string name="pref_download_max_concurrent">En fazla eşzamanlı indirme</string>
     <string name="pref_download_sd_card">SD kart %1$d (%2$s boş)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Dokunma, arama veya duraklatma olmadan geçen bu kadar dakikadan sonra onay göster. Devre dışı bırakmak için 0 yapın.</string>
     <string name="pref_player_still_watching_prompt_timeout">Uyarı zaman aşımı</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Oynatmayı duraklatmadan önce onay için beklenecek saniye.</string>
-    <string name="settings_category_developer">Geliştirici seçenekleri</string>
-    <string name="settings_category_developer_experimental">Deneysel</string>
     <string name="subtitle_background_color">Arka plan rengi</string>
     <string name="subtitle_color_black">Siyah</string>
     <string name="subtitle_color_cyan">Camgöbeği</string>

@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Пропустить главу</string>
     <string name="player_gestures_hold_disabled">Отключено</string>
     <string name="player_gestures_hold_speed">Скорость 2x</string>
-    <string name="pref_developer_enable_trickplay">Ленивая загрузка Trickplay (экспериментально)</string>
-    <string name="pref_developer_enable_trickplay_summary">Декодировать эскизы предпросмотра при перемотке по запросу вместо предварительной загрузки всей сетки. Снижает потребление памяти при длинных видео, но может кратковременно пропускать первый кадр при переходе к новому спрайт-листу. По умолчанию отключено.</string>
     <string name="pref_download_internal_storage">Внутренняя память (%s свободно)</string>
     <string name="pref_download_max_concurrent">Макс. число одновременных загрузок</string>
     <string name="pref_download_sd_card">SD-карта %1$d (%2$s свободно)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Показывать подтверждение после указанного числа минут без касаний, перемотки или паузы. Укажите 0 для отключения.</string>
     <string name="pref_player_still_watching_prompt_timeout">Время ожидания ответа на запрос</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Количество секунд ожидания подтверждения перед приостановкой воспроизведения.</string>
-    <string name="settings_category_developer">Для разработчиков</string>
-    <string name="settings_category_developer_experimental">Экспериментальные функции</string>
     <string name="subtitle_background_color">Цвет фона</string>
     <string name="subtitle_color_black">Чёрный</string>
     <string name="subtitle_color_cyan">Голубой</string>

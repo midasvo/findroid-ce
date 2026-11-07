@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Preskoči poglavje</string>
     <string name="player_gestures_hold_disabled">Onemogočeno</string>
     <string name="player_gestures_hold_speed">2x hitrost</string>
-    <string name="pref_developer_enable_trickplay">Lenobno nalaganje Trickplay (eksperimentalno)</string>
-    <string name="pref_developer_enable_trickplay_summary">Dekodiraj sličice za predogled pri previjanju na zahtevo namesto predhodnega nalaganja celotne mreže. Zmanjša porabo pomnilnika pri dolgih videoposnetkih, vendar lahko pri previjanju na novo predlogo sličic za kratek čas zgreši prvi okvir. Privzeto izklopljeno.</string>
     <string name="pref_download_internal_storage">Notranji pomnilnik (%s prosto)</string>
     <string name="pref_download_max_concurrent">Najv. število sočasnih prenosov</string>
     <string name="pref_download_sd_card">SD kartica %1$d (%2$s prosto)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Pokaži potrditev po toliko minutah brez dotika, iskanja ali premora. Nastavite na 0, da onemogočite.</string>
     <string name="pref_player_still_watching_prompt_timeout">Časovna omejitev poziva</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Število sekund čakanja na potrditev pred začasno ustavitvijo predvajanja.</string>
-    <string name="settings_category_developer">Možnosti za razvijalce</string>
-    <string name="settings_category_developer_experimental">Eksperimentalno</string>
     <string name="subtitle_background_color">Barva ozadja</string>
     <string name="subtitle_color_black">Črna</string>
     <string name="subtitle_color_cyan">Cian</string>

@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Sari peste capitol</string>
     <string name="player_gestures_hold_disabled">Dezactivat</string>
     <string name="player_gestures_hold_speed">Viteză 2x</string>
-    <string name="pref_developer_enable_trickplay">Încărcare leneșă pentru trickplay (experimental)</string>
-    <string name="pref_developer_enable_trickplay_summary">Decodifică miniaturile de previzualizare la cerere în loc să preîncarce fiecare cadru dinainte. Reduce memoria utilizată pentru videoclipuri lungi, dar poate pierde temporar primul cadru la deplasarea într-o nouă foaie de sprite-uri. Dezactivat implicit.</string>
     <string name="pref_download_internal_storage">Stocare internă (%s liberi)</string>
     <string name="pref_download_max_concurrent">Număr maxim de descărcări simultane</string>
     <string name="pref_download_sd_card">Card SD %1$d (%2$s liberi)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Afișează o confirmare după atâtea minute fără atingere, căutare sau pauză. Setează la 0 pentru a dezactiva.</string>
     <string name="pref_player_still_watching_prompt_timeout">Timp de expirare mesaj</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Secunde de așteptare pentru confirmare înainte de a întrerupe redarea.</string>
-    <string name="settings_category_developer">Opțiuni pentru dezvoltatori</string>
-    <string name="settings_category_developer_experimental">Experimental</string>
     <string name="subtitle_background_color">Culoare fundal</string>
     <string name="subtitle_color_black">Negru</string>
     <string name="subtitle_color_cyan">Cian</string>

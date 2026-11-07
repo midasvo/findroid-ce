@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Lewati bab</string>
     <string name="player_gestures_hold_disabled">Dinonaktifkan</string>
     <string name="player_gestures_hold_speed">Kecepatan 2x</string>
-    <string name="pref_developer_enable_trickplay">Pemuat trickplay lambat (eksperimental)</string>
-    <string name="pref_developer_enable_trickplay_summary">Dekode gambar mini pratinjau bilah geser sesuai permintaan daripada memuat di awal setiap ubin. Mengurangi penggunaan memori pada video panjang tetapi mungkin melewatkan bingkai pertama sebentar saat menggeser ke lembar sprite baru. Nonaktif secara default.</string>
     <string name="pref_download_internal_storage">Penyimpanan internal (%s kosong)</string>
     <string name="pref_download_max_concurrent">Maksimum unduhan bersamaan</string>
     <string name="pref_download_sd_card">Kartu SD %1$d (%2$s kosong)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Tampilkan konfirmasi setelah sekian menit tanpa ketukan, pencarian, atau jeda. Atur ke 0 untuk menonaktifkan.</string>
     <string name="pref_player_still_watching_prompt_timeout">Batas waktu peringatan</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Detik menunggu konfirmasi sebelum menjeda pemutaran.</string>
-    <string name="settings_category_developer">Opsi pengembang</string>
-    <string name="settings_category_developer_experimental">Eksperimental</string>
     <string name="subtitle_background_color">Warna latar belakang</string>
     <string name="subtitle_color_black">Hitam</string>
     <string name="subtitle_color_cyan">Sian</string>

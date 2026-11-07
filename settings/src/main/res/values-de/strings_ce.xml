@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Kapitel überspringen</string>
     <string name="player_gestures_hold_disabled">Deaktiviert</string>
     <string name="player_gestures_hold_speed">2x-Geschwindigkeit</string>
-    <string name="pref_developer_enable_trickplay">Verzögerter Trickplay-Lader (experimentell)</string>
-    <string name="pref_developer_enable_trickplay_summary">Vorschaubilder für die Suchleiste bei Bedarf dekodieren, anstatt jedes Tile vorab zu laden. Verringert die Speichernutzung bei langen Videos, kann jedoch beim Spulen in ein neues Sprite-Sheet kurzzeitig das erste Bild verpassen. Standardmäßig deaktiviert.</string>
     <string name="pref_download_internal_storage">Interner Speicher (%s frei)</string>
     <string name="pref_download_max_concurrent">Max. gleichzeitige Downloads</string>
     <string name="pref_download_sd_card">SD-Karte %1$d (%2$s frei)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Bestätigung nach so vielen Minuten ohne Tippen, Spulen oder Pause anzeigen. Auf 0 setzen, um zu deaktivieren.</string>
     <string name="pref_player_still_watching_prompt_timeout">Zeitüberschreitung der Aufforderung</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Sekunden bis zur Pause, während auf eine Bestätigung gewartet wird.</string>
-    <string name="settings_category_developer">Entwickleroptionen</string>
-    <string name="settings_category_developer_experimental">Experimentell</string>
     <string name="subtitle_background_color">Hintergrundfarbe</string>
     <string name="subtitle_color_black">Schwarz</string>
     <string name="subtitle_color_cyan">Türkis</string>

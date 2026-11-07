@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">跳過章節</string>
     <string name="player_gestures_hold_disabled">已停用</string>
     <string name="player_gestures_hold_speed">2 倍速</string>
-    <string name="pref_developer_enable_trickplay">延遲載入預覽縮圖（實驗性）</string>
-    <string name="pref_developer_enable_trickplay_summary">視需要解碼進度列預覽縮圖，而非事先載入所有圖塊。可降低長影片的記憶體用量，但在滑動至新縮圖表時可能會短暫漏掉第一影格。預設關閉。</string>
     <string name="pref_download_internal_storage">內部儲存空間（剩餘 %s）</string>
     <string name="pref_download_max_concurrent">上限並行下載數</string>
     <string name="pref_download_sd_card">SD 卡 %1$d（剩餘 %2$s）</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">在未點擊、跳轉或暫停的情況下經過此分鐘數後顯示確認提示。設為 0 可停用。</string>
     <string name="pref_player_still_watching_prompt_timeout">提示逾時</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">暫停播放前等待確認的秒數。</string>
-    <string name="settings_category_developer">開發人員選項</string>
-    <string name="settings_category_developer_experimental">實驗性功能</string>
     <string name="subtitle_background_color">背景顏色</string>
     <string name="subtitle_color_black">黑色</string>
     <string name="subtitle_color_cyan">青色</string>

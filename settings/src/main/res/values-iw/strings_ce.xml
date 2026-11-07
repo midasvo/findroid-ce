@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">דלג על פרק</string>
     <string name="player_gestures_hold_disabled">מושבת</string>
     <string name="player_gestures_hold_speed">מהירות 2x</string>
-    <string name="pref_developer_enable_trickplay">טעינה עצלה של תמונות תצוגה מקדימה (ניסיוני)</string>
-    <string name="pref_developer_enable_trickplay_summary">פענח תמונות תצוגה מקדימה בסרגל הגרירה לפי דרישה במקום לטעון מראש את כל התמונות. מפחית את השימוש בזיכרון בסרטונים ארוכים, אך עשוי לפספס לזמן קצר את הפריים הראשון בעת גרירה לתמונה חדשה. כבוי כברירת מחדל.</string>
     <string name="pref_download_internal_storage">אחסון פנימי (%s פנויים)</string>
     <string name="pref_download_max_concurrent">מספר הורדות מקבילות מרבי</string>
     <string name="pref_download_sd_card">כרטיס SD %1$d (%2$s פנויים)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">הצג אישור לאחר מספר דקות זה ללא הקשה, דילוג או השהיה. הגדר ל-0 כדי להשבית.</string>
     <string name="pref_player_still_watching_prompt_timeout">זמן קצוב להודעה</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">מספר שניות להמתנה לאישור לפני השהיית הניגון.</string>
-    <string name="settings_category_developer">אפשרויות מפתח</string>
-    <string name="settings_category_developer_experimental">ניסיוני</string>
     <string name="subtitle_background_color">צבע רקע</string>
     <string name="subtitle_color_black">שחור</string>
     <string name="subtitle_color_cyan">טורקיז</string>

@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">チャプターをスキップ</string>
     <string name="player_gestures_hold_disabled">無効</string>
     <string name="player_gestures_hold_speed">2倍速</string>
-    <string name="pref_developer_enable_trickplay">トリックプレイのオンデマンド読み込み（実験的）</string>
-    <string name="pref_developer_enable_trickplay_summary">事前にすべてのタイルを読み込まず、シークバーのプレビューサムネイルを必要に応じてデコードします。長時間の動画でメモリ使用量を削減できますが、新しいスプライトシートへシークした際に最初のフレームが一時的に欠ける場合があります。デフォルトではオフです。</string>
     <string name="pref_download_internal_storage">内部ストレージ（空き %s）</string>
     <string name="pref_download_max_concurrent">最大同時ダウンロード数</string>
     <string name="pref_download_sd_card">SDカード %1$d（空き %2$s）</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">タップ、シーク、一時停止のない状態が指定した分数続いた後に確認を表示します。0 に設定すると無効になります。</string>
     <string name="pref_player_still_watching_prompt_timeout">確認のタイムアウト</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">再生を一時停止するまでに確認を待機する秒数です。</string>
-    <string name="settings_category_developer">開発者向けオプション</string>
-    <string name="settings_category_developer_experimental">実験的機能</string>
     <string name="subtitle_background_color">背景色</string>
     <string name="subtitle_color_black">黒</string>
     <string name="subtitle_color_cyan">シアン</string>

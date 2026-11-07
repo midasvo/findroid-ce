@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Hoppa över kapitel</string>
     <string name="player_gestures_hold_disabled">Inaktiverad</string>
     <string name="player_gestures_hold_speed">2x hastighet</string>
-    <string name="pref_developer_enable_trickplay">Lat trickplay-inläsare (experimentell)</string>
-    <string name="pref_developer_enable_trickplay_summary">Avkoda förhandsgranskningsminiatyrer på begäran istället för att förladda varje bild i förväg. Minskar minnesanvändningen på långa videor men kan kort missa den första bildrutan när du skrubbar in i ett nytt sprite-ark. Avstängt som standard.</string>
     <string name="pref_download_internal_storage">Intern lagring (%s ledigt)</string>
     <string name="pref_download_max_concurrent">Max samtidiga nedladdningar</string>
     <string name="pref_download_sd_card">SD-kort %1$d (%2$s ledigt)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Visa en bekräftelse efter så många minuter utan ett tryck, spolning eller paus. Ställ in på 0 för att inaktivera.</string>
     <string name="pref_player_still_watching_prompt_timeout">Tidsgräns för frågan</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Sekunder att vänta på bekräftelse innan uppspelningen pausas.</string>
-    <string name="settings_category_developer">Utvecklaralternativ</string>
-    <string name="settings_category_developer_experimental">Experimentell</string>
     <string name="subtitle_background_color">Bakgrundsfärg</string>
     <string name="subtitle_color_black">Svart</string>
     <string name="subtitle_color_cyan">Cyan</string>

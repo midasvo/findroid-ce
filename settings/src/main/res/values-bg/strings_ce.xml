@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Прескачане на глава</string>
     <string name="player_gestures_hold_disabled">Деактивирано</string>
     <string name="player_gestures_hold_speed">2x скорост</string>
-    <string name="pref_developer_enable_trickplay">Мързеливо зареждане на Trickplay (експериментално)</string>
-    <string name="pref_developer_enable_trickplay_summary">Декодиране на визуализации за превъртане при поискване, вместо предварително зареждане на цялата мрежа от миниатюри. Намалява потреблението на памет при дълги видеоклипове, но може за кратко да пропусне първия кадър при превъртане към нов лист със спрайтове. По подразбиране е изключено.</string>
     <string name="pref_download_internal_storage">Вътрешна памет (%s свободно)</string>
     <string name="pref_download_max_concurrent">Макс. едновременни изтегляния</string>
     <string name="pref_download_sd_card">SD карта %1$d (%2$s свободно)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Показване на потвърждение след толкова минути без докосване, превъртане или пауза. Задайте 0 за изключване.</string>
     <string name="pref_player_still_watching_prompt_timeout">Време за изчакване на запитването</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Секунди за изчакване на потвърждение преди пауза на възпроизвеждането.</string>
-    <string name="settings_category_developer">Опции за разработчици</string>
-    <string name="settings_category_developer_experimental">Експериментални</string>
     <string name="subtitle_background_color">Цвят на фона</string>
     <string name="subtitle_color_black">Черен</string>
     <string name="subtitle_color_cyan">Циан</string>
