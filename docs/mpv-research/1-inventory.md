@@ -1,0 +1,43 @@
+# Phase 1: how mpv is wired
+
+Read on `main` at `7e21c0de`, Media3 1.11.1, `dev.jdtech.mpv:libmpv:1.0.0` (mpv 0.41.0, FFmpeg 8.1, libplacebo 7.360.1, read from the mpv banner in logcat). The detail is in three documents; this page is the summary and the one device test that phase 1 needed.
+
+- [1a-player-contract.md](1a-player-contract.md): every `Player` method group, the stubs, the advertised commands.
+- [1b-state-machine.md](1b-state-machine.md): every assignment of `playbackState`, `playWhenReady` and `isPlayerReady`, eight transition walkthroughs, the stuck-loader reading, 15 differences from ExoPlayer.
+- [1c-consumers-and-settings.md](1c-consumers-and-settings.md): where the backend is chosen, what each consumer assumes, the mpv preferences and migrations, the CE commits in `MPVPlayer.kt`.
+
+### The short version
+
+**The backend choice.** One `when (playerBackend)` in `PlayerViewModel.init` builds either `ExoPlayer` or `MPVPlayer`. No Hilt module, no `PlaybackService` involvement. The same preference is also read in `JellyfinRepositoryImpl.getPlaybackSources` to pick the device profile: mpv always gets the direct-play profile, so mpv sessions are never transcoded unless the user sets a bitrate cap, and the Dolby Vision direct-play switch does nothing on mpv.
+
+**The contract.** `MPVPlayer` extends `BasePlayer`. 14 methods are `TODO()` stubs (move, replace, remove and clear media items, shuffle, volume, device volume, audio attributes, `TextureView`, ...). Nothing in the app calls them today, but `COMMAND_CHANGE_MEDIA_ITEMS` and `COMMAND_SET_VIDEO_SURFACE` are advertised to the media session, so an outside controller (Bluetooth, Android Auto, a legacy `onRemoveQueueItem`) can reach a stub, and `NotImplementedError` is an `Error` that the app's `catch (e: Exception)` blocks don't stop. The advertised command set also misses `COMMAND_GET_TIMELINE`, `STOP`, `PREPARE` and the volume getters, which is why `dumpsys media_session` shows no queue for mpv. Position, duration and buffered position move in whole seconds because `time-pos` and `duration` are observed as `INT64`. `onPlayerError` never fires: `MPV_EVENT_END_FILE` is not handled, so a file that fails to open stays in `BUFFERING` with the spinner. Both `onPositionDiscontinuity` arities fire today (#70 added the second and kept the first), so that worry from the plan is resolved.
+
+**The state machine.** Every mpv event is posted to the main looper, so state changes run on the main thread in mpv's order. `STATE_READY` is only ever set in two places: the `else` branch of `MPV_EVENT_PLAYBACK_RESTART` (a restart after the first one) and `paused-for-cache` going false after the first restart. The first restart only sets `isPlayerReady`, applies the initial seek and unpauses. Before #267 the initial seek was unconditional, even to 0, so every start raised a second restart and reached `READY` by accident. Since #267 a resume position on the first item goes to `loadfile` as `start=`, the seek is skipped, and nothing sets `READY`. That is the stuck loader; confirmed below. Other findings from the reading, all hypotheses until tested: `onPlaybackStateChanged` fires twice per change and once per play or pause; `resetInternalState()` silently sets `playWhenReady` to false, so a quality switch leaves the player reporting paused while mpv plays; pausing before the first restart doesn't pause mpv; after an audio-focus loss mpv resumes on gain while `playWhenReady` stays false; after the last item the state goes `ENDED` and then silently `IDLE`; `release()` leaves posted handler messages that could touch the destroyed `MPVLib`.
+
+**The consumers.** `PlayerViewModel` waits for `STATE_READY` to set `fileLoaded`, load trickplay and add the previous and next episodes to the playlist. The phone `PlayerView` has `show_buffering="always"`, so its spinner follows `playbackState` alone, and the phone control buttons are disabled until `fileLoaded`. The TV `TvPlayerScreen` has no buffering indicator at all, so a stuck `BUFFERING` is invisible there, and the TV `ui/PlayerScreen.kt` has no caller. The media session is built in the ViewModel for whichever player came out of the `when`; `PlaybackService` only holds it. Refresh-rate switching reads `Format.frameRate`, which mpv fills from `demux-fps`, and mpv additionally calls `Surface.setFrameRate` itself. Subtitle style preferences do not apply to mpv, which draws its own subtitles (hypothesis, not checked against the settings text).
+
+**Settings.** `pref_player_backend` (`exoplayer`), `pref_player_mpv_hwdec` (`mediacodec`), `pref_player_mpv_vo` (`gpu-next`), `pref_player_mpv_ao` (`audiotrack`), plus the config-file editor, all under Settings → Player → mpv options, visible even with ExoPlayer selected. There are no cache, deband or fastseek preferences; `cache=yes`, `cache-pause-initial=yes`, `demuxer-max-bytes=64MiB`, `demuxer-max-back-bytes=32MiB`, `profile=fast` and `keep-open=always` are hard-coded. Both migrations run on a fresh install and change nothing there; the `mpv_migrated` worker is scheduled from the phone app only.
+
+**Upstream.** Twelve CE commits touch `MPVPlayer.kt`. One of them (`592d29bf`, #267) converted the file from LF to CRLF, so `git diff upstream/main` reports 1849/1659 lines while the real difference is 217/27. Every upstream change to this file will conflict on every line until the endings are normalised.
+
+### The stuck loader, reproduced
+
+Device: phone debug build (`7e21c0de`, `phone-libre-x86_64-debug.apk`) on the `emulator-5558` AVD, Android 14, logged in to Kiddos, emulated 3G network. Backend switched through `pref_player_backend` in the app's shared prefs with the app force-stopped. Each run started from the item's page with the Play button; states are the `PlayerViewModel` "Changed player state" log lines.
+
+| Run | Backend | Item | Resume position | `STATE_READY` | What the screen showed |
+|---|---|---|---|---|---|
+| 1 | mpv | Santiago en de zee S01E06 | 18:00 of 22:43 | **never** (watched 60 s; the last `onPlaybackStateChanged` is `BUFFERING` at load) | Video and audio play from 18:00. Spinner in the middle of the picture for the whole minute. The controls open, show the right position and a pause icon. `dumpsys media_session`: `BUFFERING`, `position=-1`, `size=0`. `fileLoaded=false` throughout |
+| 2 | mpv | same, Restart button | none (0) | yes, 3.5 s after `file-loaded`, after `seek` → second `playback-restart` | Normal. `fileLoaded=true`, trickplay loaded. Media session `PLAYING`, still `position=-1`, `size=0` |
+| 3 | ExoPlayer | Lady en de Vagebond II | 30:51 of 69:00 | yes, 17 s after start | Normal, no spinner. Media session `PLAYING`, `position=1851061`, `buffered position=1874206`, `active item id=0` |
+| 4 | mpv | Lady en de Vagebond II | 30:51 of 69:00 | **never** (watched 30 s) | As run 1 |
+
+The event order in run 1 and run 4 is `start-file` → `BUFFERING` (×3) → `file-loaded` → `seek` (mpv's own, for `start=`) → `playback-restart` → "Starting playback..." → nothing. In run 2 the app's seek to 0 follows the first restart and the second restart sets `READY`. This is exactly the reading in [1b-state-machine.md](1b-state-machine.md): the bug is CE-only (#267), the fix is one line in the first-restart branch, and the robust version (set `READY` on the first restart whenever no seek is pending, skip the redundant seek to 0) belongs upstream too.
+
+Side effects seen in the stuck state: no trickplay, no `fileLoaded`, the media session reports buffering with no position, and (from the code) the previous and next episode are never added to the playlist, so the Next button and the outro-to-next-episode path have nothing to go to. Not verified: the Next button and the segments path, because the test episode had no segments.
+
+Screenshots: [phone-mpv-resume-spinner-60s.png](screenshots/phone-mpv-resume-spinner-60s.png) (run 1, 60 s in, spinner at the centre), [phone-exo-resume-30s.png](screenshots/phone-exo-resume-30s.png) (run 3).
+
+Two more things the runs showed, both for phase 2:
+
+- The media session never gets a position from mpv, also when `READY` (run 2). The code reading points at the missing `COMMAND_GET_TIMELINE`; the `position=-1` may be that or `getCurrentPosition()` being `TIME_UNSET` at the moment of the dump. Needs a dump a few seconds in, which run 2 was.
+- ExoPlayer on the emulated 3G link flapped `BUFFERING` ↔ `READY` five times in the first ten seconds of run 3. mpv's `cache-pause-initial` and 64 MiB demuxer cache hide that. Not a finding against either backend, but a phone on a weak link would show the difference, and it belongs in the "start while the server is slow" row.
