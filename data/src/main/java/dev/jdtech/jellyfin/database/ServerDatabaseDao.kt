@@ -118,6 +118,11 @@ interface ServerDatabaseDao {
     @Query("SELECT * FROM sources WHERE itemId IN (:itemIds)")
     suspend fun getSourcesForItems(itemIds: List<UUID>): List<FindroidSourceDto>
 
+    @Query("SELECT EXISTS(SELECT 1 FROM sources)") suspend fun hasSources(): Boolean
+
+    /** Emits again whenever the sources table changes. */
+    @Query("SELECT EXISTS(SELECT 1 FROM sources)") fun observeHasSources(): Flow<Boolean>
+
     @Query("SELECT * FROM sources WHERE downloadId = :downloadId")
     suspend fun getSourceByDownloadId(downloadId: Long): FindroidSourceDto?
 

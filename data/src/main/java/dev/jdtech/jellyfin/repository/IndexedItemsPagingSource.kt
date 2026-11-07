@@ -28,7 +28,8 @@ fun JellyfinRepository.getItemsPagingIndexed(
     filters: List<ItemFilter>? = null,
     onFirstPage: (total: Int) -> Unit = {},
 ): Flow<PagingData<FindroidItem>> {
-    // A jump invalidates the source; the total doesn't change by that, so count only once.
+    // A jump invalidates the source; the total doesn't change by that, so it is taken once, from
+    // the first page's response.
     var total: Int? = null
     var firstPageReported = false
     return Pager(
@@ -41,8 +42,8 @@ fun JellyfinRepository.getItemsPagingIndexed(
                 ),
             pagingSourceFactory = {
                 IndexedItemsPagingSource(
-                    load = { start, limit ->
-                        getItems(
+                    load = { start, limit, includeTotal ->
+                        getItemsPage(
                             parentId = parentId,
                             includeTypes = includeTypes,
                             recursive = recursive,
@@ -51,23 +52,16 @@ fun JellyfinRepository.getItemsPagingIndexed(
                             filters = filters,
                             startIndex = start,
                             limit = limit,
+                            includeTotal = includeTotal,
                         )
                     },
+                    knownTotal = { total },
+                    onTotal = { total = it },
                     onPage = { pageTotal ->
                         if (!firstPageReported) {
                             firstPageReported = true
                             onFirstPage(pageTotal)
                         }
-                    },
-                    count = {
-                        total
-                            ?: getItemCount(
-                                    parentId = parentId,
-                                    includeTypes = includeTypes,
-                                    recursive = recursive,
-                                    filters = filters,
-                                )
-                                .also { total = it }
                     },
                 )
             },
@@ -80,10 +74,14 @@ private const val PAGE_SIZE = 40
 /**
  * The key is an item index: where a refresh is centred, where an append starts and where a prepend
  * ends.
+ *
+ * The total comes from the response of the first page that loads ([knownTotal] is null until then,
+ * and [load] is asked to include it); later pages, and later sources after a jump, reuse it.
  */
 internal class IndexedItemsPagingSource(
-    private val load: suspend (start: Int, limit: Int) -> List<FindroidItem>,
-    private val count: suspend () -> Int,
+    private val load: suspend (start: Int, limit: Int, includeTotal: Boolean) -> ItemsPage,
+    private val knownTotal: () -> Int?,
+    private val onTotal: (Int) -> Unit,
     /** Called with the total after each page that loaded. */
     private val onPage: (total: Int) -> Unit = {},
 ) : PagingSource<Int, FindroidItem>() {
@@ -91,22 +89,21 @@ internal class IndexedItemsPagingSource(
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, FindroidItem> {
         return try {
-            val total = count()
             val key = params.key ?: 0
-            val (start, end) =
-                when (params) {
-                    is LoadParams.Refresh -> {
-                        val start =
-                            (key - params.loadSize / 2).coerceIn(
-                                0,
-                                (total - params.loadSize).coerceAtLeast(0),
-                            )
-                        start to (start + params.loadSize).coerceAtMost(total)
-                    }
-                    is LoadParams.Append -> key to (key + params.loadSize).coerceAtMost(total)
-                    is LoadParams.Prepend -> (key - params.loadSize).coerceAtLeast(0) to key
+            var total = knownTotal()
+            var range = rangeOf(params, key, total)
+            var page = loadRange(range, includeTotal = total == null)
+            if (total == null) {
+                total = page.totalRecordCount ?: (range.first + page.items.size)
+                onTotal(total)
+                // The first request couldn't be clamped to the total; redo it if it fell outside.
+                if (range.first >= total && range.first > 0) {
+                    range = rangeOf(params, key, total)
+                    page = loadRange(range, includeTotal = false)
                 }
-            val items = if (end > start) load(start, end - start) else emptyList()
+            }
+            val start = range.first
+            val items = page.items
             val loadedEnd = start + items.size
             onPage(total)
             LoadResult.Page(
@@ -118,6 +115,32 @@ internal class IndexedItemsPagingSource(
             )
         } catch (e: Exception) {
             LoadResult.Error(e)
+        }
+    }
+
+    private suspend fun loadRange(range: Pair<Int, Int>, includeTotal: Boolean): ItemsPage {
+        val (start, end) = range
+        // A request that needs the total goes out even for an empty range (a limit of 0 returns
+        // no items but still counts).
+        return if (end > start || includeTotal) load(start, end - start, includeTotal)
+        else ItemsPage(emptyList())
+    }
+
+    /** The first and one past the last index to load; the end isn't clamped without a [total]. */
+    private fun rangeOf(params: LoadParams<Int>, key: Int, total: Int?): Pair<Int, Int> {
+        val max = total ?: Int.MAX_VALUE
+        return when (params) {
+            is LoadParams.Refresh -> {
+                val start =
+                    (key - params.loadSize / 2).coerceIn(
+                        0,
+                        if (total != null) (total - params.loadSize).coerceAtLeast(0) else Int.MAX_VALUE,
+                    )
+                start to (start.toLong() + params.loadSize).coerceAtMost(max.toLong()).toInt()
+            }
+            is LoadParams.Append ->
+                key to (key.toLong() + params.loadSize).coerceAtMost(max.toLong()).toInt()
+            is LoadParams.Prepend -> (key - params.loadSize).coerceAtLeast(0) to key
         }
     }
 

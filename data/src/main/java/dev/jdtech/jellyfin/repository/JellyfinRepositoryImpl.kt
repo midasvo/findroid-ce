@@ -32,10 +32,17 @@ import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import java.io.File
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import org.jellyfin.sdk.api.client.extensions.audioApi
 import org.jellyfin.sdk.model.api.BaseItemDto
@@ -134,27 +141,54 @@ class JellyfinRepositoryImpl(
         startIndex: Int?,
         limit: Int?,
     ): List<FindroidItem> =
+        getItemsPage(
+                parentId,
+                includeTypes,
+                recursive,
+                sortBy,
+                sortOrder,
+                filters,
+                startIndex,
+                limit,
+                includeTotal = false,
+            )
+            .items
+
+    override suspend fun getItemsPage(
+        parentId: UUID?,
+        includeTypes: List<BaseItemKind>?,
+        recursive: Boolean,
+        sortBy: SortBy,
+        sortOrder: SortOrder,
+        filters: List<ItemFilter>?,
+        startIndex: Int?,
+        limit: Int?,
+        includeTotal: Boolean,
+    ): ItemsPage =
         withContext(Dispatchers.IO) {
-            jellyfinApi.libraryApi
-                .getItems(
-                    currentUserId,
-                    parentId = parentId,
-                    includeItemTypes = includeTypes,
-                    recursive = recursive,
-                    sortBy = listOf(ItemSortBy.fromName(sortBy.sortString)),
-                    sortOrder = listOf(ItemSortOrder.fromName(sortOrder.sortString)),
-                    filters = filters,
-                    startIndex = startIndex,
-                    limit = limit,
-                    // Cards read the primary image and the first backdrop; nothing reads the
-                    // total here (the paged grid counts separately with getItemCount).
-                    imageTypeLimit = 1,
-                    enableImageTypes = ROW_IMAGE_TYPES,
-                    enableTotalRecordCount = false,
-                )
-                .content
-                .items
-                .toFindroidItems()
+            val result =
+                jellyfinApi.libraryApi
+                    .getItems(
+                        currentUserId,
+                        parentId = parentId,
+                        includeItemTypes = includeTypes,
+                        recursive = recursive,
+                        sortBy = listOf(ItemSortBy.fromName(sortBy.sortString)),
+                        sortOrder = listOf(ItemSortOrder.fromName(sortOrder.sortString)),
+                        filters = filters,
+                        startIndex = startIndex,
+                        limit = limit,
+                        // Cards read the primary image and the first backdrop. The server counts
+                        // only for the first page of a pager (see getItemsPagingIndexed).
+                        imageTypeLimit = 1,
+                        enableImageTypes = ROW_IMAGE_TYPES,
+                        enableTotalRecordCount = includeTotal,
+                    )
+                    .content
+            ItemsPage(
+                items = result.items.toFindroidItems(),
+                totalRecordCount = if (includeTotal) result.totalRecordCount else null,
+            )
         }
 
     override suspend fun getRandomItemsWithBackdrop(
@@ -408,7 +442,7 @@ class JellyfinRepositoryImpl(
                     .content
                     .items
                     .let { items ->
-                        val local = database.getLocalSourcesForItems(items.map { it.id })
+                        val local = localSourcesFor(items.map { it.id })
                         items.mapNotNull { it.toFindroidEpisode(this@JellyfinRepositoryImpl, local) }
                     }
             } else {
@@ -779,10 +813,35 @@ class JellyfinRepositoryImpl(
         return currentUserId
     }
 
+    /**
+     * Whether any source (download) is stored at all. Kept up to date by a Room observer, so a
+     * download that starts, finishes or is deleted while the app runs flips it. Null until the
+     * first value arrives.
+     */
+    private val hasLocalSources: StateFlow<Boolean?> =
+        database
+            .observeHasSources()
+            .map<Boolean, Boolean?> { it }
+            .catch { Timber.w(it, "Couldn't observe the sources table") }
+            .stateIn(
+                CoroutineScope(SupervisorJob() + Dispatchers.IO),
+                SharingStarted.Eagerly,
+                null,
+            )
+
+    /**
+     * The downloaded sources of [itemIds], or nothing without a query when the app has no sources
+     * at all (the usual case for a user who doesn't download).
+     */
+    private suspend fun localSourcesFor(itemIds: List<UUID>): Map<UUID, List<FindroidSource>> {
+        val any = hasLocalSources.value ?: database.hasSources()
+        return if (any) database.getLocalSourcesForItems(itemIds) else emptyMap()
+    }
+
     /** Maps a list with one batched lookup of downloaded sources instead of one query per item. */
     private suspend fun List<BaseItemDto>.toFindroidItems(): List<FindroidItem> {
         val local =
-            database.getLocalSourcesForItems(
+            localSourcesFor(
                 filter { it.type == BaseItemKind.MOVIE || it.type == BaseItemKind.EPISODE }
                     .map { it.id }
             )
