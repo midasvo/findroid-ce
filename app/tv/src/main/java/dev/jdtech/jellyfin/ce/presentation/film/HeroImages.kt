@@ -1,7 +1,15 @@
 package dev.jdtech.jellyfin.ce.presentation.film
 
+import android.net.Uri
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
 import coil3.PlatformContext
+import coil3.SingletonImageLoader
 import coil3.memory.MemoryCache
 import coil3.request.Disposable
 import coil3.request.ImageRequest
@@ -42,6 +50,14 @@ internal class HeroImages(
 
     fun logo(item: FindroidItem): ImageRequest? =
         heroLogoUrl(item, logoWidthPx)?.let { request(it, logoWidthPx, logoHeightPx, Scale.FIT) }
+
+    /**
+     * The memory cache key the hero keeps [uri] under as a backdrop, or null for none. A detail page
+     * uses it as its backdrop's placeholder: opened from Home, it shows the hero's image straight
+     * away while its own, larger one loads (#257).
+     */
+    fun backdropCacheKey(uri: Uri?): MemoryCache.Key? =
+        uri?.toString()?.withImageSize(backdropWidthPx, null)?.let { MemoryCache.Key(it) }
 
     private fun request(url: String, width: Int, height: Int, scale: Scale) =
         ImageRequest.Builder(context)
@@ -97,6 +113,46 @@ internal class HeroImages(
 
     private fun ImageRequest.isCached() = imageLoader.memoryCache?.get(key()) != null
 }
+
+/** The hero's requests at the current window size. */
+@Composable
+internal fun rememberHeroImages(): HeroImages {
+    val context = LocalContext.current
+    val imageLoader = SingletonImageLoader.get(context)
+    val backdropWidthPx =
+        (LocalWindowInfo.current.containerSize.width * HERO_BACKDROP_WIDTH).toInt()
+    val density = LocalDensity.current
+    val logoWidthPx = with(density) { HERO_LOGO_MAX_WIDTH.roundToPx() }
+    val logoHeightPx = with(density) { HERO_LOGO_MAX_HEIGHT.roundToPx() }
+    return remember(context, imageLoader, backdropWidthPx, logoWidthPx, logoHeightPx) {
+        HeroImages(context, imageLoader, backdropWidthPx, logoWidthPx, logoHeightPx)
+    }
+}
+
+/**
+ * A detail page's full-screen backdrop. It is requested at the page's own size, with the hero's
+ * smaller copy of the same image as the placeholder, so a page opened from Home doesn't show a bare
+ * background while the backdrop decodes (#257). Without a hero copy in the memory cache it loads as
+ * before.
+ */
+@Composable
+internal fun rememberDetailBackdrop(uri: Uri?): ImageRequest? {
+    val context = LocalContext.current
+    val images = rememberHeroImages()
+    return remember(uri, images) {
+        uri?.let {
+            ImageRequest.Builder(context)
+                .data(it)
+                .placeholderMemoryCacheKey(images.backdropCacheKey(it))
+                .build()
+        }
+    }
+}
+
+/** The hero backdrop's share of the screen width, from the right. */
+internal const val HERO_BACKDROP_WIDTH = .7f
+internal val HERO_LOGO_MAX_WIDTH = 320.dp
+internal val HERO_LOGO_MAX_HEIGHT = 80.dp
 
 /**
  * The hero backdrop's crossfade over [durationMillis] (VISION §6: backdrops never cut), 0 for none.

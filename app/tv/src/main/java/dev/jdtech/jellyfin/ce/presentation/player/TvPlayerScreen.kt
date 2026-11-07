@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -132,7 +133,15 @@ fun TvPlayerScreen(
 ) {
     val viewModel = hiltViewModel<PlayerViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val progress by viewModel.progress.collectAsStateWithLifecycle()
+    // #257: the position ticks every PROGRESS_TICK_MS while playing. The root keeps the State
+    // without reading it, so only the time labels and the seek bar follow the ticks; the root
+    // reads play state and duration through derivedStateOf, which only change now and then.
+    // The flow stays collected while the controls are hidden: each tick also refreshes the
+    // ViewModel's playing snapshot, which the stop report at an item change uses.
+    val progress = viewModel.progress.collectAsStateWithLifecycle()
+    val isPlaying by remember { derivedStateOf { progress.value.isPlaying } }
+    val durationMs by remember { derivedStateOf { progress.value.durationMs } }
+    val positionMs = remember { { progress.value.positionMs } }
     val queue by viewModel.queue.collectAsStateWithLifecycle()
     val player = viewModel.player
     var playbackError by remember { mutableStateOf<PlaybackException?>(null) }
@@ -217,11 +226,10 @@ fun TvPlayerScreen(
     val segment = uiState.currentSegment
     val skipButtonShown = segment != null && !controlsVisible
     val currentSkipButtonShown by rememberUpdatedState(skipButtonShown)
-    val currentProgress by rememberUpdatedState(progress)
 
     // Hide the controls after a few seconds without a key, unless paused or a dialog is open.
-    LaunchedEffect(controlsVisible, interactions, progress.isPlaying, dialog, pendingSeekMs) {
-        if (controlsVisible && progress.isPlaying && dialog == null && pendingSeekMs == null) {
+    LaunchedEffect(controlsVisible, interactions, isPlaying, dialog, pendingSeekMs) {
+        if (controlsVisible && isPlaying && dialog == null && pendingSeekMs == null) {
             delay(CONTROLS_HIDE_MS)
             controlsVisible = false
         }
@@ -264,7 +272,7 @@ fun TvPlayerScreen(
                 get() = player.currentPosition.coerceAtLeast(0L)
 
             override val durationMs: Long
-                get() = player.duration.takeIf { it != C.TIME_UNSET } ?: currentProgress.durationMs
+                get() = player.duration.takeIf { it != C.TIME_UNSET } ?: progress.value.durationMs
 
             override fun showControls() {
                 controlsVisible = true
@@ -321,6 +329,24 @@ fun TvPlayerScreen(
         }
     }
     val keyHandler = remember { TvPlayerKeyHandler(controls, { seekSettings }) }
+    // #257: built once, so PlayerControls gets the same callbacks on every recomposition.
+    val callbacks = remember {
+        PlayerControlsCallbacks(
+            onOpenQueue = { queueOpen = true },
+            onQueueClosed = { queueOpen = false },
+            onPlayQueueItem = { id ->
+                viewModel.playQueueItem(id)
+                controlsVisible = false
+            },
+            onPrevious = controls::previous,
+            onNext = controls::next,
+            onPendingSeekChange = { pendingSeekMs = it },
+            onSeek = { player.seekTo(it) },
+            onPlayPause = controls::togglePlayPause,
+            onOpenDialog = { dialog = it },
+            onInteraction = { interactions++ },
+        )
+    }
 
     Box(
         modifier =
@@ -390,7 +416,7 @@ fun TvPlayerScreen(
                     }
                     SeekIndicatorView(
                         indicator = indicator,
-                        durationMs = progress.durationMs,
+                        durationMs = durationMs,
                         modifier = Modifier,
                     )
                 }
@@ -430,25 +456,16 @@ fun TvPlayerScreen(
                 playbackSpeed = viewModel.playbackSpeed,
                 queue = queue,
                 queueOpen = queueOpen,
-                onOpenQueue = { queueOpen = true },
-                onQueueClosed = { queueOpen = false },
                 queueFocus = queueFocus,
-                onPlayQueueItem = { id ->
-                    viewModel.playQueueItem(id)
-                    controlsVisible = false
-                },
-                onPrevious = { controls.previous() },
-                onNext = { controls.next() },
-                positionMs = progress.positionMs,
-                durationMs = progress.durationMs,
-                isPlaying = progress.isPlaying,
+                positionMs = positionMs,
+                durationMs = durationMs,
+                isPlaying = isPlaying,
                 pendingSeekMs = pendingSeekMs,
-                onPendingSeekChange = { pendingSeekMs = it },
                 trickplay = uiState.currentTrickplay,
                 seekSettings = seekSettings,
                 chapterMarkers =
-                    remember(uiState.currentChapters, progress.durationMs) {
-                        val duration = progress.durationMs
+                    remember(uiState.currentChapters, durationMs) {
+                        val duration = durationMs
                         if (duration > 0) {
                             uiState.currentChapters.map { it.startPosition.toFloat() / duration }
                         } else {
@@ -458,10 +475,7 @@ fun TvPlayerScreen(
                 hasChapters = uiState.currentChapters.isNotEmpty(),
                 playPauseFocus = playPauseFocus,
                 dialogOpenerFocus = dialogOpenerFocus,
-                onSeek = { player.seekTo(it) },
-                onPlayPause = { controls.togglePlayPause() },
-                onOpenDialog = { dialog = it },
-                onInteraction = { interactions++ },
+                callbacks = callbacks,
             )
         }
     }
@@ -567,36 +581,25 @@ private fun PlayerControls(
     playbackSpeed: Float,
     queue: List<FindroidItem>,
     queueOpen: Boolean,
-    onOpenQueue: () -> Unit,
-    onQueueClosed: () -> Unit,
     queueFocus: FocusRequester,
-    onPlayQueueItem: (UUID) -> Unit,
-    onPrevious: () -> Unit,
-    onNext: () -> Unit,
-    positionMs: Long,
+    positionMs: () -> Long,
     durationMs: Long,
     isPlaying: Boolean,
     pendingSeekMs: Long?,
-    onPendingSeekChange: (Long?) -> Unit,
     trickplay: Trickplay?,
     seekSettings: TvSeekSettings,
     chapterMarkers: List<Float>,
     hasChapters: Boolean,
     playPauseFocus: FocusRequester,
     dialogOpenerFocus: Map<PlayerDialog, FocusRequester>,
-    onSeek: (Long) -> Unit,
-    onPlayPause: () -> Unit,
-    onOpenDialog: (PlayerDialog) -> Unit,
-    onInteraction: () -> Unit,
+    callbacks: PlayerControlsCallbacks,
 ) {
+    val onInteraction = callbacks.onInteraction
+    val onOpenDialog = callbacks.onOpenDialog
     Box(
         modifier =
             Modifier.fillMaxWidth()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f))
-                    )
-                )
+                .background(ControlsScrim)
                 .padding(
                     horizontal = MaterialTheme.spacings.default * 2,
                     vertical = MaterialTheme.spacings.large,
@@ -620,41 +623,27 @@ private fun PlayerControls(
                 overflow = TextOverflow.Ellipsis,
             )
             // A pending seek shows where it lands: the remaining time and end time follow it.
-            val shownPositionMs = pendingSeekMs ?: positionMs
-            val remainingMs = (durationMs - shownPositionMs).coerceAtLeast(0L)
+            val shownPositionMs =
+                remember(pendingSeekMs, positionMs) { { pendingSeekMs ?: positionMs() } }
+            val remainingMs =
+                remember(shownPositionMs, durationMs) {
+                    { (durationMs - shownPositionMs()).coerceAtLeast(0L) }
+                }
             // CE (#134): the thumbnail sits above the time row, over where the pending position lands.
             Box(modifier = Modifier.fillMaxWidth()) {
                 Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.small)) {
                     Row(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = formatTime(shownPositionMs),
-                            style = MaterialTheme.typography.bodyMedium,
+                        TimeText(
+                            timeMs = shownPositionMs,
+                            prefix = "",
                             color = if (pendingSeekMs != null) MaterialTheme.colorScheme.primary else Color.White,
                         )
                         Spacer(modifier = Modifier.weight(1f))
                         if (durationMs > 0) {
-                            // Recomposes with the position while playing, and on the minute while paused.
-                            rememberNow()
-                            val timeFormat = rememberTimeFormat()
-                            val endsAt =
-                                System.currentTimeMillis() +
-                                    (remainingMs / playbackSpeed.coerceAtLeast(0.1f)).toLong()
-                            Text(
-                                text =
-                                    stringResource(
-                                        PlayerR.string.player_ends_at,
-                                        timeFormat.format(Date(endsAt)),
-                                    ),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White.copy(alpha = 0.8f),
-                            )
+                            EndsAtText(remainingMs = remainingMs, playbackSpeed = playbackSpeed)
                             Spacer(modifier = Modifier.width(MaterialTheme.spacings.medium))
                         }
-                        Text(
-                            text = "-${formatTime(remainingMs)}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White,
-                        )
+                        TimeText(timeMs = remainingMs, prefix = "-", color = Color.White)
                     }
                     TvSeekBar(
                         positionMs = positionMs,
@@ -662,8 +651,8 @@ private fun PlayerControls(
                         backStepMs = seekSettings.backMs,
                         forwardStepMs = seekSettings.forwardMs,
                         pendingMs = pendingSeekMs,
-                        onPendingChange = onPendingSeekChange,
-                        onSeek = onSeek,
+                        onPendingChange = callbacks.onPendingSeekChange,
+                        onSeek = callbacks.onSeek,
                         onInteraction = onInteraction,
                         chapterMarkers = chapterMarkers,
                     )
@@ -695,7 +684,7 @@ private fun PlayerControls(
                                 event.key == Key.DirectionDown &&
                                     event.type == KeyEventType.KeyDown
                             if (down && queue.isNotEmpty() && !queueOpen) {
-                                onOpenQueue()
+                                callbacks.onOpenQueue()
                                 true
                             } else {
                                 false
@@ -706,14 +695,14 @@ private fun PlayerControls(
                     icon = CoreR.drawable.ic_skip_back,
                     contentDescription = stringResource(PlayerR.string.player_controls_previous),
                     focusRequester = remember { FocusRequester() },
-                    onClick = onPrevious,
+                    onClick = callbacks.onPrevious,
                     onFocus = onInteraction,
                 )
                 ControlButton(
                     icon = if (isPlaying) CoreR.drawable.ic_pause else CoreR.drawable.ic_play,
                     contentDescription = null,
                     focusRequester = playPauseFocus,
-                    onClick = onPlayPause,
+                    onClick = callbacks.onPlayPause,
                     onFocus = onInteraction,
                 )
                 ControlButton(
@@ -722,7 +711,7 @@ private fun PlayerControls(
                     focusRequester = remember { FocusRequester() },
                     // Stays enabled on the last episode (and does nothing there): turning it off
                     // while it has focus, as the last episode starts, would lose focus.
-                    onClick = onNext,
+                    onClick = callbacks.onNext,
                     onFocus = onInteraction,
                 )
                 ControlButton(
@@ -761,13 +750,69 @@ private fun PlayerControls(
                     queue = queue,
                     open = queueOpen,
                     focusRequester = queueFocus,
-                    onClosed = onQueueClosed,
-                    onPlay = onPlayQueueItem,
+                    onClosed = callbacks.onQueueClosed,
+                    onPlay = callbacks.onPlayQueueItem,
                     onFocus = onInteraction,
                 )
             }
         }
     }
+}
+
+/** #257: the controls' callbacks, built once by [TvPlayerScreen] so they stay the same objects. */
+private class PlayerControlsCallbacks(
+    val onOpenQueue: () -> Unit,
+    val onQueueClosed: () -> Unit,
+    val onPlayQueueItem: (UUID) -> Unit,
+    val onPrevious: () -> Unit,
+    val onNext: () -> Unit,
+    val onPendingSeekChange: (Long?) -> Unit,
+    val onSeek: (Long) -> Unit,
+    val onPlayPause: () -> Unit,
+    val onOpenDialog: (PlayerDialog) -> Unit,
+    val onInteraction: () -> Unit,
+)
+
+private val ControlsScrim =
+    Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f)))
+
+/**
+ * A time label that follows the playback position. It reads [timeMs] itself and only recomposes
+ * when the shown text changes, once a second, rather than on every progress tick (#257).
+ */
+@Composable
+private fun TimeText(timeMs: () -> Long, prefix: String, color: Color) {
+    val text by remember(timeMs, prefix) { derivedStateOf { prefix + formatTime(timeMs()) } }
+    Text(text = text, style = MaterialTheme.typography.bodyMedium, color = color)
+}
+
+/**
+ * "Ends at": the wall-clock time the item ends at. It changes on the minute, so it only recomposes
+ * then (#257): with the position while playing at a speed other than 1x, and on the minute while
+ * paused.
+ */
+@Composable
+private fun EndsAtText(remainingMs: () -> Long, playbackSpeed: Float) {
+    val now = rememberNow()
+    val timeFormat = rememberTimeFormat()
+    val endsAtMinute by
+        remember(remainingMs, playbackSpeed, now) {
+            derivedStateOf {
+                val endsAt =
+                    System.currentTimeMillis() +
+                        (remainingMs() / playbackSpeed.coerceAtLeast(0.1f)).toLong()
+                endsAt / 60_000L
+            }
+        }
+    Text(
+        text =
+            stringResource(
+                PlayerR.string.player_ends_at,
+                timeFormat.format(Date(endsAtMinute * 60_000L)),
+            ),
+        style = MaterialTheme.typography.bodyMedium,
+        color = Color.White.copy(alpha = 0.8f),
+    )
 }
 
 /**

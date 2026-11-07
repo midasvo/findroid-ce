@@ -22,12 +22,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +49,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Border
 import androidx.tv.material3.Button
 import androidx.tv.material3.ClickableSurfaceDefaults
@@ -60,6 +65,7 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import dev.jdtech.jellyfin.ce.ui.TvSafeArea
 import dev.jdtech.jellyfin.ce.ui.focus.EphyraFocusScale
+import dev.jdtech.jellyfin.ce.ui.focus.FocusPosition
 import dev.jdtech.jellyfin.ce.ui.focus.RestoreFocus
 import dev.jdtech.jellyfin.ce.ui.focus.ephyraButtonBorder
 import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedBorder
@@ -90,6 +96,7 @@ import dev.jdtech.jellyfin.ui.components.ProgressBadge
 import java.util.Locale
 import java.util.UUID
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import org.jellyfin.sdk.model.api.MediaStreamType
 
 /**
@@ -110,19 +117,26 @@ fun SeasonScreen(
     seasonViewModel: SeasonViewModel = hiltViewModel(),
     episodeViewModel: EpisodeViewModel = hiltViewModel(),
 ) {
-    val state by seasonViewModel.state.collectAsState()
-    val episodeState by episodeViewModel.state.collectAsState()
+    val seasonState = seasonViewModel.state.collectAsStateWithLifecycle()
+    // Kept as a State and read only by the details panel and the effects below, so loading an
+    // episode doesn't recompose the whole page (#257).
+    val episodeState = episodeViewModel.state.collectAsStateWithLifecycle()
+    val state = seasonState.value
 
     // The season on screen, which changes with the season chips. Null until the season of
     // [episodeId] is known.
     var currentSeasonId by rememberSaveable { mutableStateOf(seasonId?.toString()) }
-    var selectedEpisodeId by rememberSaveable { mutableStateOf(episodeId?.toString()) }
+    val selection =
+        rememberSaveable(saver = EpisodeSelection.Saver) { EpisodeSelection(episodeId?.toString()) }
 
     LaunchedEffect(true) {
         if (currentSeasonId == null && episodeId != null) episodeViewModel.loadEpisode(episodeId)
     }
-    LaunchedEffect(episodeState.episode) {
-        if (currentSeasonId == null) currentSeasonId = episodeState.episode?.seasonId?.toString()
+    LaunchedEffect(Unit) {
+        snapshotFlow { episodeState.value.episode }
+            .collect { episode ->
+                if (currentSeasonId == null) currentSeasonId = episode?.seasonId?.toString()
+            }
     }
     // Runs again on each return to the screen, so watch progress is up to date.
     LaunchedEffect(currentSeasonId) {
@@ -131,36 +145,39 @@ fun SeasonScreen(
         }
     }
 
-    // While another season loads, the old one stays on screen, so focus stays on its chip.
-    val episodes = state.episodes
-    val selected =
-        episodes.firstOrNull { it.id.toString() == selectedEpisodeId } ?: nextUp(episodes)
-
     // The full episode (media streams, versions) loads when focus rests on a card for a moment.
-    LaunchedEffect(selected?.id) {
-        val id = selected?.id ?: return@LaunchedEffect
-        if (episodeState.episode?.id != id) delay(DETAILS_DELAY_MS)
-        episodeViewModel.loadEpisode(id)
+    // Read in a snapshotFlow, so a focus change doesn't recompose this screen.
+    LaunchedEffect(Unit) {
+        snapshotFlow { selection.selected(seasonState.value.episodes)?.id }
+            .collectLatest { id ->
+                if (id == null) return@collectLatest
+                if (episodeState.value.episode?.id != id) delay(DETAILS_DELAY_MS)
+                episodeViewModel.loadEpisode(id)
+            }
     }
     // Watched and Favourite change the full episode. Reload the season so its card follows.
-    LaunchedEffect(episodeState.episode) {
-        val full = episodeState.episode ?: return@LaunchedEffect
-        val card = state.episodes.firstOrNull { it.id == full.id } ?: return@LaunchedEffect
-        if (card.played != full.played || card.favorite != full.favorite) {
-            seasonViewModel.loadSeason(card.seasonId)
-        }
+    LaunchedEffect(Unit) {
+        snapshotFlow { episodeState.value.episode }
+            .collect { full ->
+                if (full == null) return@collect
+                val card =
+                    seasonState.value.episodes.firstOrNull { it.id == full.id } ?: return@collect
+                if (card.played != full.played || card.favorite != full.favorite) {
+                    seasonViewModel.loadSeason(card.seasonId)
+                }
+            }
     }
 
     SeasonScreenLayout(
         state = state,
-        episodes = episodes,
-        selected = selected,
-        episodeState = episodeState.takeIf { it.episode?.id == selected?.id },
-        onSelectEpisode = { selectedEpisodeId = it.id.toString() },
+        // While another season loads, the old one stays on screen, so focus stays on its chip.
+        episodes = state.episodes,
+        selection = selection,
+        episodeState = { episodeState.value },
         onSelectSeason = { season ->
             if (season.id.toString() != currentSeasonId) {
                 currentSeasonId = season.id.toString()
-                selectedEpisodeId = null
+                selection.id = null
             }
         },
         onPlay = { episode, mediaSourceId, startFromBeginning ->
@@ -168,6 +185,25 @@ fun SeasonScreen(
         },
         onAction = episodeViewModel::onAction,
     )
+}
+
+/**
+ * The focused episode (#257). Episode cards write it on focus; only the details panel and each
+ * card's own focus target read it, so a step along the row doesn't recompose the backdrop, the
+ * season chips or the other cards. Saved, so a restored page focuses the same episode.
+ */
+@Stable
+private class EpisodeSelection(initialId: String?) {
+    /** The focused episode's ID, or null for [nextUp]. */
+    var id by mutableStateOf(initialId)
+
+    fun selected(episodes: List<FindroidEpisode>): FindroidEpisode? =
+        episodes.firstOrNull { it.id.toString() == id } ?: nextUp(episodes)
+
+    companion object {
+        val Saver: Saver<EpisodeSelection, String> =
+            Saver(save = { it.id.orEmpty() }, restore = { EpisodeSelection(it.ifEmpty { null }) })
+    }
 }
 
 /** The episode to focus first: the one in progress, else the first unwatched one. */
@@ -181,9 +217,8 @@ private fun nextUp(episodes: List<FindroidEpisode>): FindroidEpisode? =
 private fun SeasonScreenLayout(
     state: SeasonState,
     episodes: List<FindroidEpisode>,
-    selected: FindroidEpisode?,
-    episodeState: EpisodeState?,
-    onSelectEpisode: (FindroidEpisode) -> Unit,
+    selection: EpisodeSelection,
+    episodeState: () -> EpisodeState,
     onSelectSeason: (FindroidSeason) -> Unit,
     onPlay: (episode: FindroidEpisode, mediaSourceId: String?, startFromBeginning: Boolean) -> Unit,
     onAction: (EpisodeAction) -> Unit,
@@ -199,47 +234,18 @@ private fun SeasonScreenLayout(
     val playRequester = remember { FocusRequester() }
     val episodeRequester = remember { FocusRequester() }
 
-    var versionDialogOpen by remember { mutableStateOf(false) }
+    // Not read here: only the details panel and the cards' focus targets follow the selection.
+    val selected = remember(selection, episodes) { derivedStateOf { selection.selected(episodes) } }
 
     Box(modifier = Modifier.fillMaxSize()) {
         val season = state.season
-        if (season == null || selected == null) {
+        // No episodes is the only case without a selected one.
+        if (season == null || episodes.isEmpty()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             return@Box
         }
-        // The full episode, once loaded, has the streams and versions; the card has the rest.
-        val episode = episodeState?.episode ?: selected
-        val versions = remember(episode.sources) { episode.getVersions() }
 
-        AsyncImage(
-            model = season.images.backdrop ?: season.images.showBackdrop,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize(),
-        )
-        Box(
-            modifier =
-                Modifier.fillMaxSize()
-                    .background(
-                        Brush.horizontalGradient(
-                            listOf(
-                                MaterialTheme.colorScheme.surface,
-                                Color.Black.copy(alpha = .85f),
-                                Color.Transparent,
-                            )
-                        )
-                    )
-        )
-        Box(
-            modifier =
-                Modifier.fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            0.5f to Color.Transparent,
-                            1f to Color.Black.copy(alpha = .9f),
-                        )
-                    )
-        )
+        SeasonBackdrop(season = season)
 
         Column(modifier = Modifier.fillMaxSize().padding(vertical = TvSafeArea.vertical)) {
             Column(modifier = Modifier.padding(horizontal = TvSafeArea.horizontal)) {
@@ -288,146 +294,18 @@ private fun SeasonScreenLayout(
                 }
             }
 
-            Column(
+            EpisodeDetails(
+                selected = selected,
+                episodeState = episodeState,
+                focusPosition = focusPosition,
+                playRequester = playRequester,
+                onPlay = onPlay,
+                onAction = onAction,
                 modifier =
                     Modifier.weight(1f)
                         .padding(horizontal = TvSafeArea.horizontal)
-                        .padding(top = MaterialTheme.spacings.medium)
-            ) {
-                Text(
-                    text = episode.name,
-                    style = MaterialTheme.typography.headlineMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(modifier = Modifier.height(MaterialTheme.spacings.extraSmall))
-                Text(
-                    text = itemInfoLine(episode),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = Color.White.copy(alpha = .8f),
-                )
-                Spacer(modifier = Modifier.height(MaterialTheme.spacings.small))
-                Text(
-                    text = episode.overview,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.width(640.dp),
-                )
-                Spacer(modifier = Modifier.height(MaterialTheme.spacings.small))
-                // Reserve the chips' height, so the buttons don't jump when they load.
-                Box(modifier = Modifier.height(24.dp)) {
-                    episodeState?.let { loaded ->
-                        TechnicalChips(chips = technicalChips(loaded.episode, loaded.videoMetadata))
-                    }
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
-                    verticalAlignment = Alignment.CenterVertically,
-                    // A plain Row needs focusGroup() for focusRestorer() to work. The first time
-                    // focus enters the row, it lands on Play instead of the nearest button.
-                    modifier = Modifier.focusRestorer(playRequester).focusGroup(),
-                ) {
-                    val inProgress = episode.playbackPositionTicks > 0 && !episode.played
-                    Button(
-                        border = ephyraButtonBorder(),
-                        onClick = { onPlay(episode, null, false) },
-                        modifier =
-                            Modifier.focusRequester(playRequester)
-                                .focusPosition(focusPosition, ROW_BUTTONS, 0),
-                    ) {
-                        Icon(
-                            painter = painterResource(id = CoreR.drawable.ic_play),
-                            contentDescription = null,
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text =
-                                stringResource(
-                                    id = if (inProgress) CoreR.string.resume else CoreR.string.play
-                                )
-                        )
-                    }
-                    if (inProgress) {
-                        Button(
-                            border = ephyraButtonBorder(),
-                            onClick = { onPlay(episode, null, true) },
-                            modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 1),
-                        ) {
-                            Icon(
-                                painter = painterResource(id = CoreR.drawable.ic_rotate_ccw),
-                                contentDescription = null,
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(text = stringResource(id = CoreR.string.restart))
-                        }
-                    }
-                    IconButton(
-                        border = ephyraButtonBorder(),
-                        onClick = {
-                            onAction(
-                                if (episode.played) EpisodeAction.UnmarkAsPlayed
-                                else EpisodeAction.MarkAsPlayed
-                            )
-                        },
-                        // Watched and Favourite act on the full episode: wait until it's there.
-                        enabled = episodeState != null,
-                        modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 2),
-                    ) {
-                        Icon(
-                            painter = painterResource(id = CoreR.drawable.ic_check),
-                            contentDescription =
-                                stringResource(
-                                    id =
-                                        if (episode.played) CoreR.string.unmark_as_played
-                                        else CoreR.string.mark_as_played
-                                ),
-                            tint = if (episode.played) MaterialTheme.colorScheme.tertiary else LocalContentColor.current,
-                        )
-                    }
-                    IconButton(
-                        border = ephyraButtonBorder(),
-                        onClick = {
-                            onAction(
-                                if (episode.favorite) EpisodeAction.UnmarkAsFavorite
-                                else EpisodeAction.MarkAsFavorite
-                            )
-                        },
-                        enabled = episodeState != null,
-                        modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 3),
-                    ) {
-                        Icon(
-                            painter =
-                                painterResource(
-                                    id =
-                                        if (episode.favorite) CoreR.drawable.ic_heart_filled
-                                        else CoreR.drawable.ic_heart
-                                ),
-                            contentDescription =
-                                stringResource(
-                                    id =
-                                        if (episode.favorite) CoreR.string.remove_from_favorites
-                                        else CoreR.string.add_to_favorites
-                                ),
-                            tint = if (episode.favorite) MaterialTheme.colorScheme.tertiary else LocalContentColor.current,
-                        )
-                    }
-                    if (versions.size > 1) {
-                        IconButton(
-                            border = ephyraButtonBorder(),
-                            onClick = { versionDialogOpen = true },
-                            modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 4),
-                        ) {
-                            Icon(
-                                painter = painterResource(id = CoreR.drawable.ic_list),
-                                contentDescription =
-                                    stringResource(id = CoreR.string.select_video_version_title),
-                            )
-                        }
-                    }
-                }
-            }
+                        .padding(top = MaterialTheme.spacings.medium),
+            )
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacings.medium))
             LazyRow(
@@ -437,12 +315,17 @@ private fun SeasonScreenLayout(
                 modifier = Modifier.focusRestorer(episodeRequester),
             ) {
                 itemsIndexed(episodes, key = { _, item -> item.id }) { index, item ->
+                    // Only the card that gains or loses the selection recomposes.
+                    val isSelected by
+                        remember(selected, item.id) {
+                            derivedStateOf { selected.value?.id == item.id }
+                        }
                     EpisodeRowCard(
                         episode = item,
                         onClick = { onPlay(item, null, false) },
-                        onFocus = { onSelectEpisode(item) },
+                        onFocus = { selection.id = item.id.toString() },
                         modifier =
-                            Modifier.focusRequesterIf(item.id == selected.id, episodeRequester)
+                            Modifier.focusRequesterIf(isSelected, episodeRequester)
                                 .focusPosition(
                                 focusPosition,
                                 ROW_EPISODES,
@@ -457,7 +340,7 @@ private fun SeasonScreenLayout(
         RestoreFocus(position = focusPosition, ready = episodes.isNotEmpty()) { position ->
             // First visit: no episode was focused yet, so point the default at the selected one.
             if (position.row == ROW_EPISODES && position.key == null) {
-                position.save(ROW_EPISODES, 0, selected.id.toString())
+                selected.value?.let { position.save(ROW_EPISODES, 0, it.id.toString()) }
             }
             position.resolve(ROW_EPISODES, episodes.size) { i -> episodes[i].id.toString() }
             position.resolve(ROW_SEASONS, state.seriesSeasons.size) { i ->
@@ -468,19 +351,217 @@ private fun SeasonScreenLayout(
         }
         // After a season switch, show the episode that the row will focus.
         LaunchedEffect(season.id) {
-            episodes.indexOf(selected).takeIf { it >= 0 }?.let { episodesState.scrollIntoView(it) }
+            episodes
+                .indexOf(selected.value)
+                .takeIf { it >= 0 }
+                ?.let { episodesState.scrollIntoView(it) }
         }
+    }
+}
 
-        if (versionDialogOpen) {
-            VersionDialog(
-                versions = versions,
-                onSelect = { mediaSourceId ->
-                    versionDialogOpen = false
-                    onPlay(episode, mediaSourceId, false)
-                },
-                onDismiss = { versionDialogOpen = false },
-            )
+/**
+ * The season's backdrop under its two scrims. It doesn't read the selected episode, so focus moving
+ * along the episodes leaves it alone (#257).
+ */
+@Composable
+private fun SeasonBackdrop(season: FindroidSeason) {
+    AsyncImage(
+        model = rememberDetailBackdrop(season.images.backdrop ?: season.images.showBackdrop),
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier.fillMaxSize(),
+    )
+    Box(
+        modifier =
+            Modifier.fillMaxSize()
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.surface,
+                            Color.Black.copy(alpha = .85f),
+                            Color.Transparent,
+                        )
+                    )
+                )
+    )
+    Box(
+        modifier =
+            Modifier.fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        0.5f to Color.Transparent,
+                        1f to Color.Black.copy(alpha = .9f),
+                    )
+                )
+    )
+}
+
+/**
+ * The selected episode's details, technical chips and buttons. The only part of the page that
+ * recomposes when focus moves along the episodes, or when the full episode loads (#257).
+ */
+@Composable
+private fun EpisodeDetails(
+    selected: State<FindroidEpisode?>,
+    episodeState: () -> EpisodeState,
+    focusPosition: FocusPosition,
+    playRequester: FocusRequester,
+    onPlay: (episode: FindroidEpisode, mediaSourceId: String?, startFromBeginning: Boolean) -> Unit,
+    onAction: (EpisodeAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val card = selected.value ?: return
+    val loaded = episodeState().takeIf { it.episode?.id == card.id }
+    // The full episode, once loaded, has the streams and versions; the card has the rest.
+    val episode = loaded?.episode ?: card
+    val versions = remember(episode.sources) { episode.getVersions() }
+    var versionDialogOpen by remember { mutableStateOf(false) }
+
+    Column(modifier = modifier) {
+        Text(
+            text = episode.name,
+            style = MaterialTheme.typography.headlineMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Spacer(modifier = Modifier.height(MaterialTheme.spacings.extraSmall))
+        Text(
+            text = itemInfoLine(episode),
+            style = MaterialTheme.typography.labelLarge,
+            color = Color.White.copy(alpha = .8f),
+        )
+        Spacer(modifier = Modifier.height(MaterialTheme.spacings.small))
+        Text(
+            text = episode.overview,
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.width(640.dp),
+        )
+        Spacer(modifier = Modifier.height(MaterialTheme.spacings.small))
+        // Reserve the chips' height, so the buttons don't jump when they load.
+        Box(modifier = Modifier.height(24.dp)) {
+            loaded?.let {
+                TechnicalChips(chips = technicalChips(it.episode, it.videoMetadata))
+            }
         }
+        Spacer(modifier = Modifier.weight(1f))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
+            verticalAlignment = Alignment.CenterVertically,
+            // A plain Row needs focusGroup() for focusRestorer() to work. The first time
+            // focus enters the row, it lands on Play instead of the nearest button.
+            modifier = Modifier.focusRestorer(playRequester).focusGroup(),
+        ) {
+            val inProgress = episode.playbackPositionTicks > 0 && !episode.played
+            Button(
+                border = ephyraButtonBorder(),
+                onClick = { onPlay(episode, null, false) },
+                modifier =
+                    Modifier.focusRequester(playRequester)
+                        .focusPosition(focusPosition, ROW_BUTTONS, 0),
+            ) {
+                Icon(
+                    painter = painterResource(id = CoreR.drawable.ic_play),
+                    contentDescription = null,
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text =
+                        stringResource(
+                            id = if (inProgress) CoreR.string.resume else CoreR.string.play
+                        )
+                )
+            }
+            if (inProgress) {
+                Button(
+                    border = ephyraButtonBorder(),
+                    onClick = { onPlay(episode, null, true) },
+                    modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 1),
+                ) {
+                    Icon(
+                        painter = painterResource(id = CoreR.drawable.ic_rotate_ccw),
+                        contentDescription = null,
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(text = stringResource(id = CoreR.string.restart))
+                }
+            }
+            IconButton(
+                border = ephyraButtonBorder(),
+                onClick = {
+                    onAction(
+                        if (episode.played) EpisodeAction.UnmarkAsPlayed
+                        else EpisodeAction.MarkAsPlayed
+                    )
+                },
+                // Watched and Favourite act on the full episode: wait until it's there.
+                enabled = loaded != null,
+                modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 2),
+            ) {
+                Icon(
+                    painter = painterResource(id = CoreR.drawable.ic_check),
+                    contentDescription =
+                        stringResource(
+                            id =
+                                if (episode.played) CoreR.string.unmark_as_played
+                                else CoreR.string.mark_as_played
+                        ),
+                    tint = if (episode.played) MaterialTheme.colorScheme.tertiary else LocalContentColor.current,
+                )
+            }
+            IconButton(
+                border = ephyraButtonBorder(),
+                onClick = {
+                    onAction(
+                        if (episode.favorite) EpisodeAction.UnmarkAsFavorite
+                        else EpisodeAction.MarkAsFavorite
+                    )
+                },
+                enabled = loaded != null,
+                modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 3),
+            ) {
+                Icon(
+                    painter =
+                        painterResource(
+                            id =
+                                if (episode.favorite) CoreR.drawable.ic_heart_filled
+                                else CoreR.drawable.ic_heart
+                        ),
+                    contentDescription =
+                        stringResource(
+                            id =
+                                if (episode.favorite) CoreR.string.remove_from_favorites
+                                else CoreR.string.add_to_favorites
+                        ),
+                    tint = if (episode.favorite) MaterialTheme.colorScheme.tertiary else LocalContentColor.current,
+                )
+            }
+            if (versions.size > 1) {
+                IconButton(
+                    border = ephyraButtonBorder(),
+                    onClick = { versionDialogOpen = true },
+                    modifier = Modifier.focusPosition(focusPosition, ROW_BUTTONS, 4),
+                ) {
+                    Icon(
+                        painter = painterResource(id = CoreR.drawable.ic_list),
+                        contentDescription =
+                            stringResource(id = CoreR.string.select_video_version_title),
+                    )
+                }
+            }
+        }
+    }
+
+    if (versionDialogOpen) {
+        VersionDialog(
+            versions = versions,
+            onSelect = { mediaSourceId ->
+                versionDialogOpen = false
+                onPlay(episode, mediaSourceId, false)
+            },
+            onDismiss = { versionDialogOpen = false },
+        )
     }
 }
 
@@ -615,10 +696,10 @@ private fun SeasonScreenLayoutPreview() {
         SeasonScreenLayout(
             state = SeasonState(season = dummySeason, episodes = dummyEpisodes),
             episodes = dummyEpisodes,
-            selected = dummyEpisodes.first(),
-            episodeState =
-                EpisodeState(episode = dummyEpisodes.first(), videoMetadata = dummyVideoMetadata),
-            onSelectEpisode = {},
+            selection = remember { EpisodeSelection(dummyEpisodes.first().id.toString()) },
+            episodeState = {
+                EpisodeState(episode = dummyEpisodes.first(), videoMetadata = dummyVideoMetadata)
+            },
             onSelectSeason = {},
             onPlay = { _, _, _ -> },
             onAction = {},

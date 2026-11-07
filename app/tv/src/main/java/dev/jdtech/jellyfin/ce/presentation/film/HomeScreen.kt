@@ -38,16 +38,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,7 +51,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.memory.MemoryCache
 import coil3.request.transitionFactory
@@ -368,19 +362,6 @@ private fun HomeRowContent(
 
 internal fun homeCardTag(id: UUID) = "ce_home_card_$id"
 
-@Composable
-private fun rememberHeroImages(): HeroImages {
-    val context = LocalContext.current
-    val imageLoader = SingletonImageLoader.get(context)
-    val backdropWidthPx = (LocalWindowInfo.current.containerSize.width * BACKDROP_WIDTH).toInt()
-    val density = LocalDensity.current
-    val logoWidthPx = with(density) { LOGO_MAX_WIDTH.roundToPx() }
-    val logoHeightPx = with(density) { LOGO_MAX_HEIGHT.roundToPx() }
-    return remember(context, imageLoader, backdropWidthPx, logoWidthPx, logoHeightPx) {
-        HeroImages(context, imageLoader, backdropWidthPx, logoWidthPx, logoHeightPx)
-    }
-}
-
 /**
  * Backdrop, logo (or title), info line and overview of the focused card. A card whose images are in
  * the memory cache shows straight away. Otherwise the hero waits for a prefetch that is still
@@ -466,29 +447,40 @@ private fun HeroBackdrop(item: FindroidItem, images: HeroImages) {
                 ?.transitionFactory(heroCrossfade(crossfadeMillis))
                 ?.build()
         } ?: return
+    // Faded out to the left and bottom, so it blends into the background instead of ending at an
+    // edge. The background is the theme's flat surface (FindroidTheme), so the fades are gradients
+    // in that colour drawn over the image: the same pixels as an alpha mask, without the offscreen
+    // layer the mask needed, which the GPU redrew on every frame of the crossfade (#257).
+    val background = MaterialTheme.colorScheme.surface
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
-        // Faded out to the left and bottom with an alpha mask, so it blends into the app's
-        // gradient background instead of ending at an edge.
         AsyncImage(
             model = request,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             onSuccess = { previous.key = it.result.memoryCacheKey },
             modifier =
-                Modifier.fillMaxWidth(BACKDROP_WIDTH)
+                Modifier.fillMaxWidth(HERO_BACKDROP_WIDTH)
                     .aspectRatio(16f / 9f)
-                    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-                    .drawWithContent {
-                        drawContent()
-                        drawRect(BackdropFadeLeft, blendMode = BlendMode.DstIn)
-                        drawRect(BackdropFadeBottom, blendMode = BlendMode.DstIn)
+                    .drawWithCache {
+                        val fadeLeft = backdropFadeLeft(background)
+                        val fadeBottom = backdropFadeBottom(background)
+                        onDrawWithContent {
+                            drawContent()
+                            drawRect(fadeLeft)
+                            drawRect(fadeBottom)
+                        }
                     },
         )
     }
 }
 
-private val BackdropFadeLeft = Brush.horizontalGradient(0f to Color.Transparent, .45f to Color.Black)
-private val BackdropFadeBottom = Brush.verticalGradient(.5f to Color.Black, 1f to Color.Transparent)
+/** The background over the backdrop's left edge, clear from 45 % of its width. */
+private fun backdropFadeLeft(background: Color) =
+    Brush.horizontalGradient(0f to background, .45f to background.copy(alpha = 0f))
+
+/** The background over the backdrop's bottom half, clear at its middle. */
+private fun backdropFadeBottom(background: Color) =
+    Brush.verticalGradient(.5f to background.copy(alpha = 0f), 1f to background)
 
 /** The memory cache key of the backdrop on screen. Plain field: nothing recomposes on it. */
 private class PreviousImage {
@@ -515,7 +507,7 @@ private fun HeroTitle(item: FindroidItem, images: HeroImages) {
             contentScale = ContentScale.Fit,
             alignment = Alignment.BottomStart,
             onError = { logoFailed = true },
-            modifier = Modifier.widthIn(max = LOGO_MAX_WIDTH).heightIn(max = LOGO_MAX_HEIGHT),
+            modifier = Modifier.widthIn(max = HERO_LOGO_MAX_WIDTH).heightIn(max = HERO_LOGO_MAX_HEIGHT),
         )
     }
 }
@@ -542,9 +534,6 @@ private suspend fun LazyListState.scrollIntoView(index: Int) {
 private val HERO_HEIGHT = 200.dp
 private val ROW_TITLE_HEIGHT = 36.dp
 private const val HERO_TEXT_WIDTH = .55f
-private const val BACKDROP_WIDTH = .7f
-private val LOGO_MAX_WIDTH = 320.dp
-private val LOGO_MAX_HEIGHT = 80.dp
 private const val HERO_DELAY_MS = 300L
 private const val PREFETCH_DELAY_MS = 150L
 private const val PREFETCH_NEIGHBOURS = 3

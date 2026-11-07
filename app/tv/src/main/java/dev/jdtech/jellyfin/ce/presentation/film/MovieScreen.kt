@@ -144,7 +144,7 @@ private fun MovieScreenLayout(state: MovieState, onAction: (MovieAction) -> Unit
                     }
             ) {
                 AsyncImage(
-                    model = movie.images.backdrop,
+                    model = rememberDetailBackdrop(movie.images.backdrop),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
