@@ -128,6 +128,7 @@ fun SeasonScreen(
     // Runs again on each return to the screen, so watch progress is up to date.
     LaunchedEffect(currentSeasonId) {
         currentSeasonId?.let {
+            if (!seasonViewModel.shouldReload(UUID.fromString(it))) return@let
             // Every season chip is of the same series, so [seriesId] holds for all of them.
             seasonViewModel.loadSeason(
                 UUID.fromString(it),

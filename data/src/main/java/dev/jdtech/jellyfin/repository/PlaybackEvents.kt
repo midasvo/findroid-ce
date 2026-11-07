@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * Tells screens when the player has finished reporting an item. That happens after the player has
  * closed, so later than the moment the screen underneath it resumes.
  */
-class PlaybackEvents {
+class PlaybackEvents(private val dataChanges: DataChangeEvents = DataChangeEvents()) {
     private val _stopped =
         MutableSharedFlow<UUID>(extraBufferCapacity = 8, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     /** Emits the id of the item whose playback stop has been reported. */
@@ -24,10 +24,13 @@ class PlaybackEvents {
     val playingItemId: StateFlow<UUID?> = _playingItemId.asStateFlow()
 
     fun onStopped(itemId: UUID) {
+        dataChanges.playbackPending = false
+        dataChanges.onChanged()
         _stopped.tryEmit(itemId)
     }
 
     fun onPlaying(itemId: UUID?) {
+        if (itemId != null) dataChanges.playbackPending = true
         _playingItemId.value = itemId
     }
 }

@@ -14,6 +14,7 @@ import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidSources
 import dev.jdtech.jellyfin.models.UiText
+import dev.jdtech.jellyfin.repository.DataChangeEvents
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.Downloader
@@ -51,6 +52,7 @@ constructor(
     private val repositoryProvider: Provider<JellyfinRepository>,
     private val database: ServerDatabaseDao,
     @ApplicationContext private val context: Context,
+    private val dataChanges: DataChangeEvents = DataChangeEvents(),
 ) {
     // Resolved per use, never captured: the active repository can change at runtime without
     // this @Singleton being recreated (offline <-> online switch).
@@ -604,6 +606,8 @@ constructor(
                         _entries.value =
                             sort(_entries.value.map { updates[it.id] ?: it })
                     }
+                    // A finished download changes what the screens show (#251).
+                    if (completedNow.isNotEmpty()) dataChanges.onChanged()
                     // A failed entry keeps its partial .download file and source row so
                     // the next attempt (auto-retry or manual retry) can resume from where
                     // it left off via Range. We only clear the speed sample — no file/row cleanup.

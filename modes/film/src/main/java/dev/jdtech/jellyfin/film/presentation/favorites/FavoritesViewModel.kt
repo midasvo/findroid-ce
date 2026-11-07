@@ -28,7 +28,9 @@ class FavoritesViewModel @Inject constructor(private val repository: JellyfinRep
 
     fun loadItems(): Job =
         viewModelScope.launch {
-            _state.emit(_state.value.copy(isLoading = true, error = null))
+            // With content on screen the refresh happens quietly (#251).
+            val hasContent = _state.value.sections.isNotEmpty()
+            _state.emit(_state.value.copy(isLoading = !hasContent, error = null))
 
             try {
                 val items = repository.getFavoriteItems()

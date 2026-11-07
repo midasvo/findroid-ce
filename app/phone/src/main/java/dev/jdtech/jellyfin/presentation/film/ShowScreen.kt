@@ -87,7 +87,9 @@ fun ShowScreen(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    ReloadOnResume { viewModel.loadShow(showId = showId, downloadsOnly = downloadsOnly) }
+    ReloadOnResume(shouldReload = { viewModel.shouldReload(showId, downloadsOnly, stopEventFollows = true) }) {
+        viewModel.loadShow(showId = showId, downloadsOnly = downloadsOnly)
+    }
 
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {

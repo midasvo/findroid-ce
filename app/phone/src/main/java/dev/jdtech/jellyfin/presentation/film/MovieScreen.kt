@@ -83,7 +83,9 @@ fun MovieScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val downloaderState by downloaderViewModel.state.collectAsStateWithLifecycle()
 
-    ReloadOnResume { viewModel.loadMovie(movieId = movieId) }
+    ReloadOnResume(shouldReload = { viewModel.shouldReload(movieId, stopEventFollows = true) }) {
+        viewModel.loadMovie(movieId = movieId)
+    }
 
     LaunchedEffect(state.movie) { state.movie?.let { movie -> downloaderViewModel.update(movie) } }
 

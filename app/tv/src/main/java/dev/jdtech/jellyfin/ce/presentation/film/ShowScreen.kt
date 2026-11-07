@@ -93,7 +93,7 @@ fun ShowScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(true) {
-        viewModel.loadShow(showId)
+        if (viewModel.shouldReload(showId)) viewModel.loadShow(showId)
         viewModel.loadThemeSong(showId)
     }
     val themeMusic = rememberThemeMusic(state.themeSongUrl)

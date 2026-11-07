@@ -89,7 +89,7 @@ fun SeasonScreen(
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    ReloadOnResume {
+    ReloadOnResume(shouldReload = { viewModel.shouldReload(seasonId, downloadsOnly, stopEventFollows = true) }) {
         viewModel.loadSeason(seasonId = seasonId, downloadsOnly = downloadsOnly, seriesId = seriesId)
     }
 

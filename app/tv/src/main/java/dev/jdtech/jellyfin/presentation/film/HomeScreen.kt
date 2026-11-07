@@ -42,7 +42,7 @@ fun HomeScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(true) { viewModel.loadData() }
+    LaunchedEffect(true) { viewModel.loadDataIfNeeded() }
 
     LaunchedEffect(state.isLoading) { isLoading(state.isLoading) }
 
