@@ -29,6 +29,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -44,6 +46,7 @@ import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.OutlinedButton
 import androidx.tv.material3.Text
+import dev.jdtech.jellyfin.ce.ui.focus.dpadLeavesTextField
 import dev.jdtech.jellyfin.core.R
 import dev.jdtech.jellyfin.models.UiText
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
@@ -98,6 +101,8 @@ private fun LoginScreenLayout(
     var password by rememberSaveable { mutableStateOf("") }
 
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val doLogin = { onAction(LoginAction.OnLoginClick(username, password)) }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -151,7 +156,10 @@ private fun LoginScreenLayout(
                     ),
                 isError = state.error != null,
                 enabled = !state.isLoading,
-                modifier = Modifier.width(360.dp).focusRequester(focusRequester),
+                modifier =
+                    Modifier.width(360.dp)
+                        .focusRequester(focusRequester)
+                        .dpadLeavesTextField(focusManager, keyboardController),
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacings.medium))
             OutlinedTextField(
@@ -190,7 +198,8 @@ private fun LoginScreenLayout(
                         )
                     }
                 },
-                modifier = Modifier.width(360.dp),
+                modifier =
+                    Modifier.width(360.dp).dpadLeavesTextField(focusManager, keyboardController),
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacings.default))
             Box {

@@ -30,6 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -42,6 +44,7 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import dev.jdtech.jellyfin.ce.ui.focus.dpadLeavesTextField
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyDiscoveredServer
 import dev.jdtech.jellyfin.presentation.setup.components.DiscoveredServerItem
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
@@ -72,6 +75,8 @@ fun AddServerScreen(onSuccess: () -> Unit, viewModel: AddServerViewModel = hiltV
 private fun AddServerScreenLayout(state: AddServerState, onAction: (AddServerAction) -> Unit) {
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     var serverAddress by rememberSaveable { mutableStateOf("") }
 
@@ -138,7 +143,10 @@ private fun AddServerScreenLayout(state: AddServerState, onAction: (AddServerAct
                         )
                     }
                 },
-                modifier = Modifier.width(360.dp).focusRequester(focusRequester),
+                modifier =
+                    Modifier.width(360.dp)
+                        .focusRequester(focusRequester)
+                        .dpadLeavesTextField(focusManager, keyboardController),
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacings.medium))
             Box {
