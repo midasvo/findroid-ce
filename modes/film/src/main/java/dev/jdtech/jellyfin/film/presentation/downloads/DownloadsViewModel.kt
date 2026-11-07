@@ -84,9 +84,22 @@ constructor(
     /** Exponential moving average of each active download's transfer rate. */
     private val speedAverages = mutableMapOf<UUID, Double>()
 
+    /** The screen's first ON_RESUME comes right after [init]'s load, so it doesn't load again. */
+    private var skipNextResume = true
+
+    /** Called on each ON_RESUME of the screen: refreshes the list when the user returns to it. */
+    fun onScreenResumed() {
+        if (skipNextResume) {
+            skipNextResume = false
+            return
+        }
+        loadItems()
+    }
+
     init {
-        // The first load comes from the screen's ON_RESUME, which also refreshes the list
-        // whenever the user returns to the tab.
+        // Load at once rather than on the screen's first ON_RESUME, which only comes after the
+        // navigation transition (#256: ~200 ms later on a phone).
+        loadItems()
 
         // Observe queue entries -> queueItems
         viewModelScope.launch {
