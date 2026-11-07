@@ -45,6 +45,11 @@ constructor(
     private var indexed = false
     private var letterIndexJob: Job? = null
 
+    /** Built indexes, so switching sort or filter back doesn't ask the server again. */
+    private data class LetterIndexKey(val unplayedOnly: Boolean, val ascending: Boolean)
+
+    private val letterIndexCache = mutableMapOf<LetterIndexKey, LetterIndex>()
+
     /**
      * @param indexed CE (#135): load the grid with placeholders, so it knows its length and can
      *   jump, and build a [LetterIndex] when sorting by name. TV uses this, phone doesn't.
@@ -75,7 +80,10 @@ constructor(
             initSorting()
 
             val filters = if (filterWatched) listOf(ItemFilter.IS_UNPLAYED) else null
-            if (indexed) loadLetterIndex(itemType, recursive, filters)
+            if (indexed) resetLetterIndex()
+            // Captured now: a late first page of a superseded grid must not index the new sort.
+            val indexKey = letterIndexKey()
+            val nameSort = sortBy == SortBy.NAME
 
             try {
                 val items =
@@ -87,6 +95,13 @@ constructor(
                                 sortBy = serverSortBy(),
                                 sortOrder = sortOrder,
                                 filters = filters,
+                                // The 26 letter counts compete with the grid's own requests,
+                                // so they wait for the first page and reuse its total.
+                                onFirstPage = { total ->
+                                    if (nameSort) {
+                                        loadLetterIndex(indexKey, total, itemType, recursive, filters)
+                                    }
+                                },
                             )
                         } else {
                             jellyfinRepository.getItemsPaging(
@@ -112,36 +127,49 @@ constructor(
             SortBy.SERIES_DATE_PLAYED
         else sortBy
 
+    private fun letterIndexKey() =
+        LetterIndexKey(unplayedOnly = filterWatched, ascending = sortOrder == SortOrder.ASCENDING)
+
+    /** Clears the bar, or shows the cached index for this sort and filter right away. */
+    private fun resetLetterIndex() {
+        letterIndexJob?.cancel()
+        val cached = if (sortBy == SortBy.NAME) letterIndexCache[letterIndexKey()] else null
+        _state.update { it.copy(letterIndex = cached) }
+    }
+
     /**
      * Asks the server where each letter starts. Each is a count without items, so this stays cheap
-     * in a large library. The bar is hidden until all counts are in, and for any other sort.
+     * in a large library. The bar is hidden until all counts are in, and for any other sort. Runs
+     * after the grid's first page, with that page's [total].
      */
     private fun loadLetterIndex(
+        key: LetterIndexKey,
+        total: Int,
         itemType: List<BaseItemKind>?,
         recursive: Boolean,
         filters: List<ItemFilter>?,
     ) {
+        if (letterIndexCache.containsKey(key)) return
+        val ascending = key.ascending
         letterIndexJob?.cancel()
-        _state.update { it.copy(letterIndex = null) }
-        if (sortBy != SortBy.NAME) return
-        val ascending = sortOrder == SortOrder.ASCENDING
         letterIndexJob =
             viewModelScope.launch {
                 val index =
                     try {
                         coroutineScope {
-                            fun countAsync(nameLessThan: String?) = async {
-                                jellyfinRepository.getItemCount(
-                                    parentId = parentId,
-                                    includeTypes = itemType,
-                                    recursive = recursive,
-                                    filters = filters,
-                                    nameLessThan = nameLessThan,
-                                )
-                            }
-                            val total = countAsync(null)
-                            val before = LetterIndex.BOUNDARIES.map { countAsync(it) }
-                            LetterIndex.build(before.awaitAll(), total.await(), ascending)
+                            val before =
+                                LetterIndex.BOUNDARIES.map { boundary ->
+                                    async {
+                                        jellyfinRepository.getItemCount(
+                                            parentId = parentId,
+                                            includeTypes = itemType,
+                                            recursive = recursive,
+                                            filters = filters,
+                                            nameLessThan = boundary,
+                                        )
+                                    }
+                                }
+                            LetterIndex.build(before.awaitAll(), total, ascending)
                         }
                     } catch (e: CancellationException) {
                         throw e
@@ -149,7 +177,8 @@ constructor(
                         Timber.w(e, "Couldn't load the letter index")
                         null
                     }
-                _state.update { it.copy(letterIndex = index) }
+                if (index != null) letterIndexCache[key] = index
+                if (key == letterIndexKey()) _state.update { it.copy(letterIndex = index) }
             }
     }
 

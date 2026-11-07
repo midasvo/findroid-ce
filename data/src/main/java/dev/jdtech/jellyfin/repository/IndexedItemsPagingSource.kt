@@ -26,9 +26,11 @@ fun JellyfinRepository.getItemsPagingIndexed(
     sortBy: SortBy = SortBy.defaultValue,
     sortOrder: SortOrder = SortOrder.ASCENDING,
     filters: List<ItemFilter>? = null,
+    onFirstPage: (total: Int) -> Unit = {},
 ): Flow<PagingData<FindroidItem>> {
     // A jump invalidates the source; the total doesn't change by that, so count only once.
     var total: Int? = null
+    var firstPageReported = false
     return Pager(
             config =
                 PagingConfig(
@@ -51,6 +53,12 @@ fun JellyfinRepository.getItemsPagingIndexed(
                             limit = limit,
                         )
                     },
+                    onPage = { pageTotal ->
+                        if (!firstPageReported) {
+                            firstPageReported = true
+                            onFirstPage(pageTotal)
+                        }
+                    },
                     count = {
                         total
                             ?: getItemCount(
@@ -67,7 +75,7 @@ fun JellyfinRepository.getItemsPagingIndexed(
         .flow
 }
 
-private const val PAGE_SIZE = 30
+private const val PAGE_SIZE = 40
 
 /**
  * The key is an item index: where a refresh is centred, where an append starts and where a prepend
@@ -76,6 +84,8 @@ private const val PAGE_SIZE = 30
 internal class IndexedItemsPagingSource(
     private val load: suspend (start: Int, limit: Int) -> List<FindroidItem>,
     private val count: suspend () -> Int,
+    /** Called with the total after each page that loaded. */
+    private val onPage: (total: Int) -> Unit = {},
 ) : PagingSource<Int, FindroidItem>() {
     override val jumpingSupported: Boolean = true
 
@@ -98,6 +108,7 @@ internal class IndexedItemsPagingSource(
                 }
             val items = if (end > start) load(start, end - start) else emptyList()
             val loadedEnd = start + items.size
+            onPage(total)
             LoadResult.Page(
                 data = items,
                 prevKey = if (start > 0) start else null,

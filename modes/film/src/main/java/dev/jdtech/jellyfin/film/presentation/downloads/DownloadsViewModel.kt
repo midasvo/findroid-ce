@@ -19,9 +19,9 @@ import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidMovie
 import dev.jdtech.jellyfin.models.FindroidShow
 import dev.jdtech.jellyfin.models.toFindroidEpisode
-import dev.jdtech.jellyfin.models.FindroidSourceDto
+import dev.jdtech.jellyfin.models.FindroidSource
 import dev.jdtech.jellyfin.models.FindroidSourceType
-import dev.jdtech.jellyfin.models.getSourcesGroupedByItem
+import dev.jdtech.jellyfin.models.getLocalSourcesForItems
 import dev.jdtech.jellyfin.models.UiText
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
@@ -311,7 +311,7 @@ constructor(
         val movies: List<FindroidMovie>,
         val shows: List<FindroidShow>,
         val episodesByShow: Map<UUID, List<FindroidEpisodeDto>>,
-        val sourcesByItem: Map<UUID, List<FindroidSourceDto>>,
+        val sourcesByItem: Map<UUID, List<FindroidSource>>,
         val itemSizes: Map<UUID, Long>,
         val episodeCounts: Map<UUID, Int>,
     ) {
@@ -339,7 +339,7 @@ constructor(
             // One batched read for every movie and episode instead of a query per item
             // (and per pass).
             val sourcesByItem =
-                database.getSourcesGroupedByItem(
+                database.getLocalSourcesForItems(
                     items.filter { it !is FindroidShow }.map { it.id } +
                         episodesByShow.values.flatten().map { it.id }
                 )

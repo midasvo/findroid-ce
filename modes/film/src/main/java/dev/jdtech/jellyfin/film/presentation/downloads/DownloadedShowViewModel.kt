@@ -7,7 +7,7 @@ import dev.jdtech.jellyfin.core.presentation.downloader.DownloadQueue
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidSourceType
-import dev.jdtech.jellyfin.models.getSourcesGroupedByItem
+import dev.jdtech.jellyfin.models.getLocalSourcesForItems
 import dev.jdtech.jellyfin.models.toFindroidEpisode
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.utils.Downloader
@@ -43,7 +43,7 @@ constructor(
                     // One query for every episode's sources, reused for the filter, the
                     // conversion and the sizes.
                     val sourcesByEpisode =
-                        database.getSourcesGroupedByItem(allEpisodes.map { it.id })
+                        database.getLocalSourcesForItems(allEpisodes.map { it.id })
                     val episodes =
                         allEpisodes
                             .filter { ep ->
@@ -55,7 +55,7 @@ constructor(
                                 it.toFindroidEpisode(
                                     database,
                                     userId,
-                                    sourcesByEpisode[it.id].orEmpty(),
+                                    sourcesByEpisode,
                                 )
                             }
                             .sortedWith(

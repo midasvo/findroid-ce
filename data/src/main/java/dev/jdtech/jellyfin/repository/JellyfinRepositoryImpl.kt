@@ -18,6 +18,7 @@ import dev.jdtech.jellyfin.models.FindroidSource
 import dev.jdtech.jellyfin.models.SortBy
 import dev.jdtech.jellyfin.models.SortOrder
 import dev.jdtech.jellyfin.models.toFindroidCollection
+import dev.jdtech.jellyfin.models.getLocalSourcesForItems
 import dev.jdtech.jellyfin.models.toFindroidEpisode
 import dev.jdtech.jellyfin.models.toFindroidItem
 import dev.jdtech.jellyfin.models.toFindroidMovie
@@ -145,10 +146,15 @@ class JellyfinRepositoryImpl(
                     filters = filters,
                     startIndex = startIndex,
                     limit = limit,
+                    // Cards read the primary image and the first backdrop; nothing reads the
+                    // total here (the paged grid counts separately with getItemCount).
+                    imageTypeLimit = 1,
+                    enableImageTypes = ROW_IMAGE_TYPES,
+                    enableTotalRecordCount = false,
                 )
                 .content
                 .items
-                .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
+                .toFindroidItems()
         }
 
     override suspend fun getRandomItemsWithBackdrop(
@@ -167,7 +173,7 @@ class JellyfinRepositoryImpl(
                 )
                 .content
                 .items
-                .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
+                .toFindroidItems()
         }
 
     override suspend fun getItemsPaging(
@@ -179,7 +185,13 @@ class JellyfinRepositoryImpl(
         filters: List<ItemFilter>?,
     ): Flow<PagingData<FindroidItem>> {
         return Pager(
-                config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+                config =
+                    PagingConfig(
+                        pageSize = LIBRARY_PAGE_SIZE,
+                        prefetchDistance = LIBRARY_PAGE_SIZE,
+                        initialLoadSize = LIBRARY_PAGE_SIZE * 2,
+                        enablePlaceholders = false,
+                    ),
                 pagingSourceFactory = {
                     ItemsPagingSource(this, parentId, includeTypes, recursive, sortBy, sortOrder, filters)
                 },
@@ -232,10 +244,11 @@ class JellyfinRepositoryImpl(
                     personIds = personIds,
                     includeItemTypes = includeTypes,
                     recursive = recursive,
+                    enableTotalRecordCount = false,
                 )
                 .content
                 .items
-                .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
+                .toFindroidItems()
         }
 
     override suspend fun getFavoriteItems(): List<FindroidItem> =
@@ -247,10 +260,11 @@ class JellyfinRepositoryImpl(
                     includeItemTypes =
                         listOf(BaseItemKind.MOVIE, BaseItemKind.SERIES, BaseItemKind.EPISODE),
                     recursive = true,
+                    enableTotalRecordCount = false,
                 )
                 .content
                 .items
-                .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
+                .toFindroidItems()
         }
 
     override suspend fun getSearchItems(
@@ -287,7 +301,7 @@ class JellyfinRepositoryImpl(
             )
             .content
             .items
-            .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
+            .toFindroidItems()
 
     override suspend fun getSuggestions(): List<FindroidItem> =
         withContext(Dispatchers.IO) {
@@ -300,7 +314,7 @@ class JellyfinRepositoryImpl(
                 )
                 .content
                 .items
-                .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
+                .toFindroidItems()
         }
 
     override suspend fun getResumeItems(): List<FindroidItem> =
@@ -317,7 +331,7 @@ class JellyfinRepositoryImpl(
                 )
                 .content
                 .items
-                .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
+                .toFindroidItems()
         }
 
     override suspend fun getLatestMedia(parentId: UUID): List<FindroidItem> =
@@ -331,7 +345,7 @@ class JellyfinRepositoryImpl(
                     enableImageTypes = ROW_IMAGE_TYPES,
                 )
                 .content
-                .mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, database) }
+                .toFindroidItems()
         }
 
     override suspend fun getSeasons(seriesId: UUID, offline: Boolean): List<FindroidSeason> =
@@ -391,7 +405,10 @@ class JellyfinRepositoryImpl(
                     )
                     .content
                     .items
-                    .mapNotNull { it.toFindroidEpisode(this@JellyfinRepositoryImpl, database) }
+                    .let { items ->
+                        val local = database.getLocalSourcesForItems(items.map { it.id })
+                        items.mapNotNull { it.toFindroidEpisode(this@JellyfinRepositoryImpl, local) }
+                    }
             } else {
                 val episodes =
                     if (seasonId != null) database.getEpisodesBySeasonId(seasonId)
@@ -760,6 +777,16 @@ class JellyfinRepositoryImpl(
         return currentUserId
     }
 
+    /** Maps a list with one batched lookup of downloaded sources instead of one query per item. */
+    private suspend fun List<BaseItemDto>.toFindroidItems(): List<FindroidItem> {
+        val local =
+            database.getLocalSourcesForItems(
+                filter { it.type == BaseItemKind.MOVIE || it.type == BaseItemKind.EPISODE }
+                    .map { it.id }
+            )
+        return mapNotNull { it.toFindroidItem(this@JellyfinRepositoryImpl, local) }
+    }
+
     private companion object {
         /**
          * The only images row cards (home rows, next up) render: `FindroidImages` reads the
@@ -768,6 +795,9 @@ class JellyfinRepositoryImpl(
          * for) every backdrop, logo, thumb and banner of each item.
          */
         val ROW_IMAGE_TYPES = listOf(ImageType.PRIMARY, ImageType.BACKDROP)
+
+        /** Library grid page; a fling on a 2-4 column grid outruns anything smaller. */
+        private const val LIBRARY_PAGE_SIZE = 40
 
         private const val SEARCH_LIMIT = 50
         private const val SEARCH_LIMIT_PER_KIND = 20

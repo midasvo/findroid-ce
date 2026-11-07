@@ -40,16 +40,3 @@ fun FindroidSource.toFindroidSourceDto(itemId: UUID, path: String): FindroidSour
         path = path,
     )
 }
-
-/** Reads the sources of all [itemIds] with a few `IN` queries instead of one query per item. */
-suspend fun ServerDatabaseDao.getSourcesGroupedByItem(
-    itemIds: Collection<UUID>
-): Map<UUID, List<FindroidSourceDto>> =
-    itemIds
-        .distinct()
-        .chunked(SOURCE_QUERY_CHUNK)
-        .flatMap { getSourcesByItemIds(it) }
-        .groupBy { it.itemId }
-
-// Well under SQLite's bound-variable limit, which is 999 on older Android versions.
-private const val SOURCE_QUERY_CHUNK = 500
