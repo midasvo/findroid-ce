@@ -113,9 +113,10 @@ Defined in a CE-owned `EphyraColors` object next to `ColorDark`/`ColorLight` (sa
   `onSurfaceVariant`; failed `error`.
 - **Watched tick, favourite heart, star rating**: `tertiary`. Unfilled versions use
   `onSurfaceVariant`.
-- **Storage summary segments**: Movies `primary`, TV `tertiary`, Other `secondary`, Free
-  `surfaceContainerHighest`. These four differ in lightness as well as hue, so they still read for
-  deuteranopia and protanopia.
+- **Storage summary segments**: Movies `primary`, TV `tertiary`, Other `onSurfaceVariant`, Free
+  `surfaceContainerHighest`. Other is a neutral on purpose: `secondary` sat too close to the violet
+  of TV. These four differ in lightness as well as hue, so they still read for deuteranopia and
+  protanopia.
 - **Destructive actions** ("Remove all downloads", delete): `error`.
 - **Text on artwork** (hero titles, player overlay): white `#FFFFFF` and white at 70 % over a
   `scrimOverArt` gradient. Never `onSurface` (it is pale cyan and tints the image).
@@ -283,5 +284,5 @@ artwork in upstream files) is left alone: it is already what §3.4 asks for.
 6. **TV `darkSchemeTv`** lacks `outline*` and `surfaceContainer*` roles; the TV screens use the
    phone `MaterialTheme` for those. Check nothing on TV still reads the old `#001721` gradient.
 7. **Jellyfin's own purple-blue.** The secondary (`#A3B0FF`) sits close to Jellyfin's brand
-   gradient. It is rarely visible (nav indicator, storage "Other"); if it ever reads as "Jellyfin",
+   gradient. It is rarely visible (nav indicator, count badges); if it ever reads as "Jellyfin",
    shift it toward the cyan.
