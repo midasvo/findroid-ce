@@ -50,6 +50,8 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.ModalNavigationDrawer
 import androidx.tv.material3.NavigationDrawerItem
+import androidx.tv.material3.NavigationDrawerItemBorder
+import androidx.tv.material3.NavigationDrawerItemDefaults
 import androidx.tv.material3.Text
 import androidx.tv.material3.rememberDrawerState
 import dev.jdtech.jellyfin.ce.presentation.film.FavoritesScreen
@@ -57,6 +59,7 @@ import dev.jdtech.jellyfin.ce.presentation.film.HomeScreen
 import dev.jdtech.jellyfin.ce.presentation.film.LibraryScreen
 import dev.jdtech.jellyfin.ce.presentation.film.SearchScreen
 import dev.jdtech.jellyfin.ce.ui.TvSafeArea
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedBorder
 import dev.jdtech.jellyfin.ce.ui.tvSafeAreaPadding
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.film.presentation.media.MediaViewModel
@@ -280,6 +283,7 @@ fun MainScreenLayout(
                             modifier = Modifier.size(24.dp),
                         )
                     },
+                    border = ephyraDrawerItemBorder(),
                     modifier =
                         Modifier.focusRequester(profileFocusRequester)
                             .testTag("drawer_item_profile"),
@@ -329,6 +333,7 @@ fun MainScreenLayout(
                                     modifier = Modifier.size(24.dp),
                                 )
                             },
+                            border = ephyraDrawerItemBorder(),
                             modifier =
                                 Modifier.focusRequester(drawerRequester(DESTINATION_SEARCH))
                                     .testTag("drawer_item_search"),
@@ -352,6 +357,7 @@ fun MainScreenLayout(
                                     modifier = Modifier.size(24.dp),
                                 )
                             },
+                            border = ephyraDrawerItemBorder(),
                             modifier =
                                 Modifier.focusRequester(homeFocusRequester)
                                     .testTag("drawer_item_home"),
@@ -381,6 +387,7 @@ fun MainScreenLayout(
                                         modifier = Modifier.size(24.dp),
                                     )
                                 },
+                                border = ephyraDrawerItemBorder(),
                                 modifier =
                                     Modifier.focusRequester(drawerRequester(DESTINATION_FAVORITES))
                                         .testTag("drawer_item_favorites"),
@@ -408,6 +415,7 @@ fun MainScreenLayout(
                                     modifier = Modifier.size(24.dp),
                                 )
                             },
+                            border = ephyraDrawerItemBorder(),
                             modifier =
                                 Modifier.focusRequester(drawerRequester(itemKey))
                                     .testTag("drawer_item_library_${library.id}"),
@@ -439,6 +447,7 @@ fun MainScreenLayout(
                             modifier = Modifier.size(24.dp),
                         )
                     },
+                    border = ephyraDrawerItemBorder(),
                     modifier =
                         Modifier.focusRequester(settingsFocusRequester)
                             .testTag("drawer_item_settings"),
@@ -490,6 +499,22 @@ fun MainScreenLayout(
             }
         }
     }
+}
+
+/**
+ * The focus ring on a drawer item (VISION §6): ring only, on the item's own rounded shape, over
+ * tv-material's focused fill. Drawn inside the edge, because the destination list clips its items
+ * to its bounds and the items fill its width.
+ */
+@Composable
+private fun ephyraDrawerItemBorder(): NavigationDrawerItemBorder {
+    val ring = ephyraFocusedBorder(NavigationDrawerItemDefaults.shape().shape, inside = true)
+    return NavigationDrawerItemDefaults.border(
+        focusedBorder = ring,
+        focusedSelectedBorder = ring,
+        pressedBorder = ring,
+        pressedSelectedBorder = ring,
+    )
 }
 
 /** Requests focus, or returns false when [this] is not attached or nothing can take focus. */
