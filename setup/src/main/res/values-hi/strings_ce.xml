@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">Ephyra में आपका स्वागत है</string>
     <string name="ce_welcome_text">Ephyra, Jellyfin के लिए एक थर्ड-पार्टी क्लाइंट है। Ephyra में अपने आप कोई मीडिया नहीं होता।\n\nइस क्लाइंट का उपयोग करने के लिए आपको अपना Jellyfin सर्वर होस्ट करना होगा।</string>
+    <string name="ce_users_sign_in">साइन इन करें</string>
+    <string name="ce_users_other_on_server">%s पर अन्य उपयोगकर्ता</string>
+    <string name="ce_users_switch_server">सर्वर बदलें</string>
+    <string name="ce_users_signed_in">साइन इन है</string>
+    <string name="ce_users_switch_user">उपयोगकर्ता बदलें</string>
 </resources>

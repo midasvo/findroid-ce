@@ -46,4 +46,9 @@
    <!-- CE (#172): CE keys, so upstream's welcome strings stay untouched -->
    <string name="ce_welcome">Welcome to Ephyra</string>
    <string name="ce_welcome_text">Ephyra is a third-party client for Jellyfin. Ephyra by itself does not contain any media.\n\nIn order to use this client, you need to host your own Jellyfin server.</string>
+    <string name="ce_users_sign_in">Sign in</string>
+    <string name="ce_users_other_on_server">Other users on %s</string>
+    <string name="ce_users_switch_server">Switch server</string>
+    <string name="ce_users_signed_in">Signed in</string>
+    <string name="ce_users_switch_user">Switch user</string>
 </resources>

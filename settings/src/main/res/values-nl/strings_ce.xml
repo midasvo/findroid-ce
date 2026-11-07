@@ -149,4 +149,6 @@
     <string name="about_build_phone">Telefoon, %1$d-bit (%2$s)</string>
     <string name="about_report_problem_summary_phone">Opent een bugmelding op GitHub waarin deze gegevens al zijn ingevuld.</string>
     <string name="about_source_code">Broncode</string>
+    <string name="pref_ask_user_on_start">Bij het opstarten vragen wie er kijkt</string>
+    <string name="pref_ask_user_on_start_summary">Als deze server meer dan één gebruiker heeft, opent de app op de gebruikerslijst in plaats van Start</string>
 </resources>

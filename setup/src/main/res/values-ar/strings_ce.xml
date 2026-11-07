@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">أهلاً بك في Ephyra</string>
     <string name="ce_welcome_text">Ephyra هو عميل غير رسمي لـ Jellyfin. لا يحتوي Ephyra بحد ذاته على أي وسائط.\n\nلاستخدام هذا العميل، عليك استضافة خادم Jellyfin خاص بك.</string>
+    <string name="ce_users_sign_in">تسجيل الدخول</string>
+    <string name="ce_users_other_on_server">مستخدمون آخرون على %s</string>
+    <string name="ce_users_switch_server">تبديل الخادم</string>
+    <string name="ce_users_signed_in">تم تسجيل الدخول</string>
+    <string name="ce_users_switch_user">تبديل المستخدم</string>
 </resources>

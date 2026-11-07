@@ -15,7 +15,7 @@ private const val IMAGE_QUALITY = 90
 private val IMAGE_SIZE_STEPS = listOf(160, 240, 320, 480, 640, 960, 1280, 1920, 2560, 3840)
 
 private val JELLYFIN_IMAGE_URL =
-    Regex("""^https?://.+/items/[^/?]+/images/[^?]+(\?.*)?$""", RegexOption.IGNORE_CASE)
+    Regex("""^https?://.+/(?:items|users)/[^/?]+/images/[^?]+(\?.*)?$""", RegexOption.IGNORE_CASE)
 
 private val SIZED_IMAGE_URL =
     Regex("""[?&](fillWidth|fillHeight|maxWidth|maxHeight|width|height)=""", RegexOption.IGNORE_CASE)

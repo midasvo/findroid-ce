@@ -149,4 +149,6 @@
     <string name="about_build_phone">Telefon, %1$d bites (%2$s)</string>
     <string name="about_report_problem_summary_phone">Megnyit egy hibajelentést a GitHubon, amelyben ezek az adatok már ki vannak töltve.</string>
     <string name="about_source_code">Forráskód</string>
+    <string name="pref_ask_user_on_start">Induláskor kérdezze meg, ki nézi</string>
+    <string name="pref_ask_user_on_start_summary">Ha a szervernek egynél több felhasználója van, az alkalmazás a Kezdőlap helyett a felhasználólistán nyílik meg</string>
 </resources>

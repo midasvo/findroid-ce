@@ -149,4 +149,6 @@
     <string name="about_build_phone">手機，%1$d 位元（%2$s）</string>
     <string name="about_report_problem_summary_phone">喺 GitHub 開啟已經填好呢啲資料嘅錯誤回報。</string>
     <string name="about_source_code">原始碼</string>
+    <string name="pref_ask_user_on_start">啟動時問邊個睇</string>
+    <string name="pref_ask_user_on_start_summary">當呢部伺服器有多過一個用戶，App 會開用戶清單，而唔係主頁</string>
 </resources>

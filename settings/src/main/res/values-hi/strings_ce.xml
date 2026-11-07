@@ -149,4 +149,6 @@
     <string name="about_build_phone">फ़ोन, %1$d-बिट (%2$s)</string>
     <string name="about_report_problem_summary_phone">GitHub पर ये जानकारी पहले से भरी हुई बग रिपोर्ट खोलता है।</string>
     <string name="about_source_code">सोर्स कोड</string>
+    <string name="pref_ask_user_on_start">शुरू करते समय पूछें कि कौन देख रहा है</string>
+    <string name="pref_ask_user_on_start_summary">जब इस सर्वर पर एक से अधिक उपयोगकर्ता हों, तो ऐप होम की जगह उपयोगकर्ता सूची खोलता है</string>
 </resources>

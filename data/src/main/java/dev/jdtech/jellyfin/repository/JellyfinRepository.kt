@@ -26,6 +26,9 @@ interface JellyfinRepository {
 
     suspend fun getUserViews(): List<BaseItemDto>
 
+    /** Stores the current user's profile picture tag, as the server has it now. */
+    suspend fun refreshCurrentUserImage()
+
     suspend fun getEpisode(itemId: UUID): FindroidEpisode
 
     suspend fun getMovie(itemId: UUID): FindroidMovie

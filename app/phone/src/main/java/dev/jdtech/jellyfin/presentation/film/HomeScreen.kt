@@ -1,5 +1,9 @@
 package dev.jdtech.jellyfin.presentation.film
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,6 +25,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
@@ -29,11 +34,13 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.jdtech.jellyfin.api.JellyfinApi
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyHomeSection
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyHomeSuggestions
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyHomeView
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyServer
+import dev.jdtech.jellyfin.core.presentation.ephyra.EphyraMotion
 import dev.jdtech.jellyfin.film.presentation.home.HomeAction
 import dev.jdtech.jellyfin.film.presentation.home.HomeState
 import dev.jdtech.jellyfin.film.presentation.home.HomeViewModel
@@ -48,6 +55,7 @@ import dev.jdtech.jellyfin.presentation.film.components.HomeCarousel
 import dev.jdtech.jellyfin.presentation.film.components.HomeHeader
 import dev.jdtech.jellyfin.presentation.film.components.HomeSection
 import dev.jdtech.jellyfin.presentation.film.components.HomeView
+import dev.jdtech.jellyfin.presentation.film.components.ProfileBottomSheet
 import dev.jdtech.jellyfin.presentation.film.components.ServerSelectionBottomSheet
 import dev.jdtech.jellyfin.presentation.film.components.TopContentScrim
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
@@ -63,6 +71,9 @@ fun HomeScreen(
     onSettingsClick: () -> Unit,
     onManageServers: () -> Unit,
     onItemClick: (item: FindroidItem) -> Unit,
+    onAddUser: () -> Unit,
+    onPublicUserClick: (username: String) -> Unit,
+    onUserSwitched: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -71,6 +82,14 @@ fun HomeScreen(
 
     HomeScreenLayout(
         state = state,
+        baseUrl = JellyfinApi.getInstance(LocalContext.current).api.baseUrl,
+        onAddUser = onAddUser,
+        onPublicUserClick = onPublicUserClick,
+        onUserSwitched = {
+            // Home stays alive across a switch, so load the new user's rows now.
+            viewModel.loadData()
+            onUserSwitched()
+        },
         onAction = { action ->
             when (action) {
                 is HomeAction.OnItemClick -> onItemClick(action.item)
@@ -87,7 +106,14 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HomeScreenLayout(state: HomeState, onAction: (HomeAction) -> Unit) {
+private fun HomeScreenLayout(
+    state: HomeState,
+    onAction: (HomeAction) -> Unit,
+    baseUrl: String? = null,
+    onAddUser: () -> Unit = {},
+    onPublicUserClick: (String) -> Unit = {},
+    onUserSwitched: () -> Unit = {},
+) {
     val scope = rememberCoroutineScope()
     val safePadding = rememberSafePadding(handleStartInsets = false)
 
@@ -104,7 +130,22 @@ private fun HomeScreenLayout(state: HomeState, onAction: (HomeAction) -> Unit) {
     val showServerSelectionSheetState = rememberModalBottomSheetState()
     var showServerSelectionBottomSheet by remember { mutableStateOf(false) }
 
+    val profileSheetState = rememberModalBottomSheetState()
+    var showProfileBottomSheet by remember { mutableStateOf(false) }
+
     val listState = rememberLazyListState()
+
+    // A switch to another user dips the rows to dark and brings the new ones up (VISION §6), so it
+    // reads as a change of person rather than a reload. One list, so the scroll state stays shared.
+    val userFade = remember { Animatable(1f) }
+    var shownUserId by remember { mutableStateOf(state.user?.id) }
+    LaunchedEffect(state.user?.id) {
+        if (state.user?.id != shownUserId) {
+            shownUserId = state.user?.id
+            userFade.animateTo(0f, tween(EphyraMotion.DURATION_SHORT, easing = EphyraMotion.EasingExit))
+            userFade.animateTo(1f, tween(EphyraMotion.DURATION_MEDIUM, easing = EphyraMotion.EasingEnter))
+        }
+    }
 
     // Sections arrive in any order, and a list keeps its first item in place when another lands
     // above it. That would leave the carousel out of view, so stay at the top instead.
@@ -121,7 +162,10 @@ private fun HomeScreenLayout(state: HomeState, onAction: (HomeAction) -> Unit) {
     Box(modifier = Modifier.fillMaxSize().semantics { isTraversalGroup = true }) {
         PullToRefreshBox(isRefreshing = state.isLoading, onRefresh = { onAction(HomeAction.OnRetryClick) }) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().semantics { traversalIndex = 1f },
+                modifier =
+                    Modifier.fillMaxSize()
+                        .graphicsLayer { alpha = userFade.value }
+                        .semantics { traversalIndex = 1f },
                 state = listState,
                 contentPadding = PaddingValues(top = contentPaddingTop, bottom = paddingBottom),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
@@ -189,9 +233,39 @@ private fun HomeScreenLayout(state: HomeState, onAction: (HomeAction) -> Unit) {
         onErrorClick = { showErrorDialog = true },
         onRetryClick = { onAction(HomeAction.OnRetryClick) },
         onSearchClick = { onAction(HomeAction.OnSearchClick) },
-        onUserClick = { onAction(HomeAction.OnSettingsClick) },
+        onUserClick = { showProfileBottomSheet = true },
+        user = state.user,
+        baseUrl = baseUrl,
         modifier = Modifier.padding(start = paddingStart, top = paddingTop, end = paddingEnd),
     )
+
+    if (showProfileBottomSheet) {
+        ProfileBottomSheet(
+            baseUrl = baseUrl,
+            onSwitchServer = {
+                showProfileBottomSheet = false
+                showServerSelectionBottomSheet = true
+            },
+            onPublicUserClick = { username ->
+                showProfileBottomSheet = false
+                onPublicUserClick(username)
+            },
+            onAddUser = {
+                showProfileBottomSheet = false
+                onAddUser()
+            },
+            onSettings = {
+                showProfileBottomSheet = false
+                onAction(HomeAction.OnSettingsClick)
+            },
+            onUserSwitched = {
+                showProfileBottomSheet = false
+                onUserSwitched()
+            },
+            onDismissRequest = { showProfileBottomSheet = false },
+            sheetState = profileSheetState,
+        )
+    }
 
     if (showServerSelectionBottomSheet) {
         ServerSelectionBottomSheet(

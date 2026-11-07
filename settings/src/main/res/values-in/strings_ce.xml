@@ -149,4 +149,6 @@
     <string name="about_build_phone">Ponsel, %1$d-bit (%2$s)</string>
     <string name="about_report_problem_summary_phone">Membuka laporan bug di GitHub yang sudah berisi detail ini.</string>
     <string name="about_source_code">Kode sumber</string>
+    <string name="pref_ask_user_on_start">Tanya siapa yang menonton saat mulai</string>
+    <string name="pref_ask_user_on_start_summary">Saat server ini memiliki lebih dari satu pengguna, aplikasi terbuka di daftar pengguna, bukan Beranda</string>
 </resources>

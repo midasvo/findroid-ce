@@ -37,6 +37,8 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val displayCastAndCrew = Preference("pref_display_cast_and_crew", true)
     // CE (#188): show the Favorites tab in the bottom navigation bar.
     val showFavoritesTab = Preference("pref_show_favorites_tab", true)
+    // CE (#245): open on the user list when the server has more than one saved user.
+    val askUserOnStart = Preference("pref_ask_user_on_start", false)
 
     // Player
     val playerBackend = Preference("pref_player_backend", "exoplayer")

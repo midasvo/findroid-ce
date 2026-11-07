@@ -149,4 +149,6 @@
     <string name="about_build_phone">Điện thoại, %1$d-bit (%2$s)</string>
     <string name="about_report_problem_summary_phone">Mở báo cáo lỗi trên GitHub với các thông tin này đã được điền sẵn.</string>
     <string name="about_source_code">Mã nguồn</string>
+    <string name="pref_ask_user_on_start">Hỏi ai đang xem khi khởi động</string>
+    <string name="pref_ask_user_on_start_summary">Khi máy chủ này có nhiều hơn một người dùng, ứng dụng sẽ mở danh sách người dùng thay vì Trang chủ</string>
 </resources>

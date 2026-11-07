@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">ברוכים הבאים ל-Ephyra</string>
     <string name="ce_welcome_text">Ephyra הוא לקוח צד שלישי עבור Jellyfin. Ephyra עצמו אינו מכיל מדיה כלשהי.\n\nכדי להשתמש בלקוח זה, עליך לארח שרת Jellyfin משלך.</string>
+    <string name="ce_users_sign_in">התחברות</string>
+    <string name="ce_users_other_on_server">משתמשים נוספים ב-%s</string>
+    <string name="ce_users_switch_server">החלפת שרת</string>
+    <string name="ce_users_signed_in">מחובר</string>
+    <string name="ce_users_switch_user">החלפת משתמש</string>
 </resources>

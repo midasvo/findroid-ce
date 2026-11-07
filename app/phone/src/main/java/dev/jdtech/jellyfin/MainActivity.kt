@@ -57,6 +57,7 @@ class MainActivity : AppCompatActivity() {
                             hasCurrentServer = state.hasCurrentServer,
                             hasCurrentUser = state.hasCurrentUser,
                             showFavoritesTab = state.showFavoritesTab,
+                            askUserOnStart = state.askUserOnStart,
                         )
                     }
                 }

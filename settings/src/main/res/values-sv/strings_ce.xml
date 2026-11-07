@@ -149,4 +149,6 @@
     <string name="about_build_phone">Telefon, %1$d-bitars (%2$s)</string>
     <string name="about_report_problem_summary_phone">Öppnar en felrapport på GitHub där de här uppgifterna redan är ifyllda.</string>
     <string name="about_source_code">Källkod</string>
+    <string name="pref_ask_user_on_start">Fråga vem som tittar vid start</string>
+    <string name="pref_ask_user_on_start_summary">När den här servern har fler än en användare öppnas appen på användarlistan i stället för Hem</string>
 </resources>

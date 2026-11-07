@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">Tervetuloa Ephyraan</string>
     <string name="ce_welcome_text">Ephyra on kolmannen osapuolen Jellyfin-asiakasohjelma. Ephyra ei itsessään sisällä mitään mediaa.\n\nKäyttääksesi tätä sovellusta tarvitset oman Jellyfin-palvelimen.</string>
+    <string name="ce_users_sign_in">Kirjaudu sisään</string>
+    <string name="ce_users_other_on_server">Muut käyttäjät palvelimella %s</string>
+    <string name="ce_users_switch_server">Vaihda palvelinta</string>
+    <string name="ce_users_signed_in">Kirjautunut sisään</string>
+    <string name="ce_users_switch_user">Vaihda käyttäjää</string>
 </resources>

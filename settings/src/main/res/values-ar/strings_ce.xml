@@ -149,4 +149,6 @@
     <string name="about_build_phone">هاتف، %1$d بت (%2$s)</string>
     <string name="about_report_problem_summary_phone">يفتح بلاغًا عن خطأ على GitHub مع تعبئة هذه التفاصيل مسبقًا.</string>
     <string name="about_source_code">الشيفرة المصدرية</string>
+    <string name="pref_ask_user_on_start">اسأل من يشاهد عند البدء</string>
+    <string name="pref_ask_user_on_start_summary">عندما يكون لهذا الخادم أكثر من مستخدم، يفتح التطبيق على قائمة المستخدمين بدلاً من الرئيسية</string>
 </resources>

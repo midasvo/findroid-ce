@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
                         hasServers = state.hasServers,
                         hasCurrentServer = state.hasCurrentServer,
                         hasCurrentUser = state.hasCurrentUser,
+                        askUserOnStart = state.askUserOnStart,
                         watchNextLink = watchNextLink,
                         onWatchNextLinkOpened = { watchNextLink = null },
                     )

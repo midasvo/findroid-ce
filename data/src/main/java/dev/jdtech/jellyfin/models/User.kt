@@ -23,4 +23,6 @@ data class User(
     val name: String,
     @ColumnInfo(index = true) val serverId: String,
     val accessToken: String? = null,
+    /** Tag of the user's Jellyfin profile picture; null when they have none. */
+    val primaryImageTag: String? = null,
 )

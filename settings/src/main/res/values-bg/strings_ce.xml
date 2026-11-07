@@ -149,4 +149,6 @@
     <string name="about_build_phone">Телефон, %1$d-битова (%2$s)</string>
     <string name="about_report_problem_summary_phone">Отваря доклад за грешка в GitHub с вече попълнени данни.</string>
     <string name="about_source_code">Изходен код</string>
+    <string name="pref_ask_user_on_start">Питай кой гледа при стартиране</string>
+    <string name="pref_ask_user_on_start_summary">Когато този сървър има повече от един потребител, приложението се отваря със списъка с потребители вместо с Начало</string>
 </resources>
