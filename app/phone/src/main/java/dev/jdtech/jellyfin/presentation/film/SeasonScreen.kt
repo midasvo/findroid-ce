@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -69,6 +70,7 @@ import dev.jdtech.jellyfin.presentation.film.components.rememberUndoController
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
+import dev.jdtech.jellyfin.presentation.utils.Layout
 import dev.jdtech.jellyfin.presentation.utils.ReloadOnResume
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
 import dev.jdtech.jellyfin.utils.copyOnLongClick
@@ -331,7 +333,9 @@ private fun SeasonScreenLayout(
                         episode = episode,
                         shape = groupedItemShape(index, episodes.size),
                         onClick = { onAction(SeasonAction.NavigateToItem(episode)) },
-                        modifier = Modifier.padding(start = paddingStart, end = paddingEnd),
+                        modifier =
+                            Modifier.widthIn(max = Layout.textMaxWidth)
+                                .padding(start = paddingStart, end = paddingEnd),
                         downloadProgress = episodeProgress[episode.id],
                         onPlayClick =
                             if (episode.canPlay) {

@@ -5,6 +5,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,6 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -137,30 +140,37 @@ private fun ItemHeaderBase(
             else -> item.images.logo
         }
 
-    Box(modifier = Modifier.height(288.dp).clipToBounds()) {
-        backdropImage()
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            drawRect(Color.Black.copy(alpha = 0.1f))
-            drawRect(
-                brush =
-                    Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, backgroundColor),
-                        startY = 0f,
-                    )
-            )
-        }
-        content()
-        if (showLogo) {
-            AsyncImage(
-                model = logoUri,
-                contentDescription = null,
-                modifier =
-                    Modifier.align(Alignment.BottomCenter)
-                        .padding(MaterialTheme.spacings.default)
-                        .height(100.dp)
-                        .fillMaxWidth(),
-                contentScale = ContentScale.Fit,
-            )
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val windowHeight =
+            with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
+        // Phones keep the fixed 288 dp. Wider windows grow the header towards 16:9 so the
+        // backdrop isn't cropped to a thin strip, but never past half the window height.
+        val headerHeight = maxOf(288.dp, minOf(maxWidth * 9f / 16f, windowHeight * 0.5f))
+        Box(modifier = Modifier.height(headerHeight).clipToBounds()) {
+            backdropImage()
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                drawRect(Color.Black.copy(alpha = 0.1f))
+                drawRect(
+                    brush =
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, backgroundColor),
+                            startY = 0f,
+                        )
+                )
+            }
+            content()
+            if (showLogo) {
+                AsyncImage(
+                    model = logoUri,
+                    contentDescription = null,
+                    modifier =
+                        Modifier.align(Alignment.BottomCenter)
+                            .padding(MaterialTheme.spacings.default)
+                            .height(100.dp)
+                            .fillMaxWidth(),
+                    contentScale = ContentScale.Fit,
+                )
+            }
         }
     }
 }
