@@ -110,6 +110,10 @@ interface ServerDatabaseDao {
     @Query("SELECT * FROM sources WHERE itemId = :itemId")
     suspend fun getSources(itemId: UUID): List<FindroidSourceDto>
 
+    /** One query for a whole list. Callers chunk [itemIds] (see [getLocalSourcesForItems]). */
+    @Query("SELECT * FROM sources WHERE itemId IN (:itemIds)")
+    suspend fun getSourcesForItems(itemIds: List<UUID>): List<FindroidSourceDto>
+
     @Query("SELECT * FROM sources WHERE downloadId = :downloadId")
     suspend fun getSourceByDownloadId(downloadId: Long): FindroidSourceDto?
 
@@ -173,6 +177,9 @@ interface ServerDatabaseDao {
 
     @Query("SELECT * FROM mediastreams WHERE sourceId = :sourceId")
     suspend fun getMediaStreamsBySourceId(sourceId: String): List<FindroidMediaStreamDto>
+
+    @Query("SELECT * FROM mediastreams WHERE sourceId IN (:sourceIds)")
+    suspend fun getMediaStreamsForSources(sourceIds: List<String>): List<FindroidMediaStreamDto>
 
     @Query("SELECT * FROM mediastreams WHERE downloadId = :downloadId")
     suspend fun getMediaStreamByDownloadId(downloadId: Long): FindroidMediaStreamDto?
@@ -282,6 +289,15 @@ interface ServerDatabaseDao {
     @Query("SELECT * FROM seasons") suspend fun getSeasons(): List<FindroidSeasonDto>
 
     @Query("SELECT * FROM episodes") suspend fun getEpisodes(): List<FindroidEpisodeDto>
+
+    @Query("SELECT itemId FROM userdata WHERE userId = :userId AND favorite = 1")
+    suspend fun getFavoriteItemIds(userId: UUID): List<UUID>
+
+    @Query("SELECT itemId FROM userdata WHERE userId = :userId AND playbackPositionTicks > 0")
+    suspend fun getResumableItemIds(userId: UUID): List<UUID>
+
+    @Query("SELECT itemId FROM userdata WHERE userId = :userId AND played = 1")
+    suspend fun getPlayedItemIds(userId: UUID): List<UUID>
 
     @Query("SELECT * FROM userdata WHERE itemId = :itemId AND userId = :userId")
     suspend fun getUserData(itemId: UUID, userId: UUID): FindroidUserDataDto?

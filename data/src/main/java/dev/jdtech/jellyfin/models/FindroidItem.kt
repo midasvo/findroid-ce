@@ -26,10 +26,24 @@ interface FindroidItem {
 suspend fun BaseItemDto.toFindroidItem(
     jellyfinRepository: JellyfinRepository,
     serverDatabase: ServerDatabaseDao? = null,
+): FindroidItem? =
+    toFindroidItem(
+        jellyfinRepository,
+        if (serverDatabase != null && type in LOCAL_SOURCE_KINDS)
+            serverDatabase.getLocalSourcesForItems(listOf(id))
+        else emptyMap(),
+    )
+
+private val LOCAL_SOURCE_KINDS = setOf(BaseItemKind.MOVIE, BaseItemKind.EPISODE)
+
+/** For lists: [localSources] comes from one [getLocalSourcesForItems] call for all items. */
+suspend fun BaseItemDto.toFindroidItem(
+    jellyfinRepository: JellyfinRepository,
+    localSources: Map<UUID, List<FindroidSource>>,
 ): FindroidItem? {
     return when (type) {
-        BaseItemKind.MOVIE -> toFindroidMovie(jellyfinRepository, serverDatabase)
-        BaseItemKind.EPISODE -> toFindroidEpisode(jellyfinRepository, serverDatabase)
+        BaseItemKind.MOVIE -> toFindroidMovie(jellyfinRepository, localSources)
+        BaseItemKind.EPISODE -> toFindroidEpisode(jellyfinRepository, localSources)
         BaseItemKind.SEASON -> toFindroidSeason(jellyfinRepository)
         BaseItemKind.SERIES -> toFindroidShow(jellyfinRepository)
         BaseItemKind.BOX_SET -> toFindroidBoxSet(jellyfinRepository)

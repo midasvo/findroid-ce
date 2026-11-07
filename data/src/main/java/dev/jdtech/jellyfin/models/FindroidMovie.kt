@@ -39,12 +39,20 @@ data class FindroidMovie(
 suspend fun BaseItemDto.toFindroidMovie(
     jellyfinRepository: JellyfinRepository,
     serverDatabase: ServerDatabaseDao? = null,
+): FindroidMovie =
+    toFindroidMovie(
+        jellyfinRepository,
+        serverDatabase?.getLocalSourcesForItems(listOf(id)).orEmpty(),
+    )
+
+/** For lists: [localSources] comes from one [getLocalSourcesForItems] call for all items. */
+suspend fun BaseItemDto.toFindroidMovie(
+    jellyfinRepository: JellyfinRepository,
+    localSources: Map<UUID, List<FindroidSource>>,
 ): FindroidMovie {
     val sources = mutableListOf<FindroidSource>()
     sources.addAll(mediaSources?.map { it.toFindroidSource(jellyfinRepository, id) } ?: emptyList())
-    if (serverDatabase != null) {
-        sources.addAll(serverDatabase.getSources(id).map { it.toFindroidSource(serverDatabase) })
-    }
+    sources.addAll(localSources[id].orEmpty())
     return FindroidMovie(
         id = id,
         name = name.orEmpty(),
@@ -81,9 +89,16 @@ suspend fun BaseItemDto.toFindroidMovie(
 suspend fun FindroidMovieDto.toFindroidMovie(
     database: ServerDatabaseDao,
     userId: UUID,
+): FindroidMovie = toFindroidMovie(database, userId, database.getLocalSourcesForItems(listOf(id)))
+
+/** For lists: [localSources] comes from one [getLocalSourcesForItems] call for all items. */
+suspend fun FindroidMovieDto.toFindroidMovie(
+    database: ServerDatabaseDao,
+    userId: UUID,
+    localSources: Map<UUID, List<FindroidSource>>,
 ): FindroidMovie {
     val userData = database.getUserDataOrCreateNew(id, userId)
-    val sources = database.getSources(id).map { it.toFindroidSource(database) }
+    val sources = localSources[id].orEmpty()
     val trickplayInfos = mutableMapOf<String, FindroidTrickplayInfo>()
     for (source in sources) {
         database.getTrickplayInfo(source.id)?.toFindroidTrickplayInfo()?.let {

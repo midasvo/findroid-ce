@@ -60,18 +60,44 @@ suspend fun MediaSourceInfo.toFindroidSource(
 
 suspend fun FindroidSourceDto.toFindroidSource(
     serverDatabaseDao: ServerDatabaseDao
-): FindroidSource {
+): FindroidSource = toFindroidSource(serverDatabaseDao.getMediaStreamsBySourceId(id))
+
+/** Maps with already-fetched [streams], so a list of sources costs no query per source. */
+fun FindroidSourceDto.toFindroidSource(streams: List<FindroidMediaStreamDto>): FindroidSource {
     return FindroidSource(
         id = id,
         name = name,
         type = type,
         path = path,
         size = File(path).length(),
-        mediaStreams =
-            serverDatabaseDao.getMediaStreamsBySourceId(id).map { it.toFindroidMediaStream() },
+        mediaStreams = streams.map { it.toFindroidMediaStream() },
         downloadId = downloadId,
     )
 }
+
+/**
+ * The downloaded (local) sources of every item in [itemIds], keyed by item id, in two queries
+ * however long the list is (none when it is empty). Items without a download are absent.
+ */
+suspend fun ServerDatabaseDao.getLocalSourcesForItems(
+    itemIds: Collection<UUID>
+): Map<UUID, List<FindroidSource>> {
+    if (itemIds.isEmpty()) return emptyMap()
+    val dtos = itemIds.distinct().chunked(SQL_CHUNK).flatMap { getSourcesForItems(it) }
+    if (dtos.isEmpty()) return emptyMap()
+    val streams =
+        dtos
+            .map { it.id }
+            .chunked(SQL_CHUNK)
+            .flatMap { getMediaStreamsForSources(it) }
+            .groupBy { it.sourceId }
+    return dtos
+        .groupBy { it.itemId }
+        .mapValues { (_, sources) -> sources.map { it.toFindroidSource(streams[it.id].orEmpty()) } }
+}
+
+// Stays under SQLite's historical limit of 999 bound variables per statement.
+private const val SQL_CHUNK = 500
 
 enum class FindroidSourceType {
     REMOTE,

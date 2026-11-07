@@ -42,12 +42,17 @@ data class FindroidEpisode(
 suspend fun BaseItemDto.toFindroidEpisode(
     jellyfinRepository: JellyfinRepository,
     database: ServerDatabaseDao? = null,
+): FindroidEpisode? =
+    toFindroidEpisode(jellyfinRepository, database?.getLocalSourcesForItems(listOf(id)).orEmpty())
+
+/** For lists: [localSources] comes from one [getLocalSourcesForItems] call for all items. */
+suspend fun BaseItemDto.toFindroidEpisode(
+    jellyfinRepository: JellyfinRepository,
+    localSources: Map<UUID, List<FindroidSource>>,
 ): FindroidEpisode? {
     val sources = mutableListOf<FindroidSource>()
     sources.addAll(mediaSources?.map { it.toFindroidSource(jellyfinRepository, id) } ?: emptyList())
-    if (database != null) {
-        sources.addAll(database.getSources(id).map { it.toFindroidSource(database) })
-    }
+    sources.addAll(localSources[id].orEmpty())
     return try {
         FindroidEpisode(
             id = id,
@@ -90,9 +95,17 @@ suspend fun BaseItemDto.toFindroidEpisode(
 suspend fun FindroidEpisodeDto.toFindroidEpisode(
     database: ServerDatabaseDao,
     userId: UUID,
+): FindroidEpisode =
+    toFindroidEpisode(database, userId, database.getLocalSourcesForItems(listOf(id)))
+
+/** For lists: [localSources] comes from one [getLocalSourcesForItems] call for all items. */
+suspend fun FindroidEpisodeDto.toFindroidEpisode(
+    database: ServerDatabaseDao,
+    userId: UUID,
+    localSources: Map<UUID, List<FindroidSource>>,
 ): FindroidEpisode {
     val userData = database.getUserDataOrCreateNew(id, userId)
-    val sources = database.getSources(id).map { it.toFindroidSource(database) }
+    val sources = localSources[id].orEmpty()
     val trickplayInfos = mutableMapOf<String, FindroidTrickplayInfo>()
     for (source in sources) {
         database.getTrickplayInfo(source.id)?.toFindroidTrickplayInfo()?.let {
