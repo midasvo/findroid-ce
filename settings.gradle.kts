@@ -11,6 +11,7 @@ include(":player:local")
 include(":setup")
 include(":modes:film")
 include(":settings")
+include(":baselineprofile")
 
 pluginManagement {
     repositories {

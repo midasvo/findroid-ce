@@ -14,14 +14,22 @@
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+-keepattributes SourceFile,LineNumberTable
 
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
-#-renamesourcefileattribute SourceFile
+-renamesourcefileattribute SourceFile
 
-# Keep class names of all classes for easy debugging (and fix navigation route checking)
--keepnames class dev.jdtech.jellyfin.** { *; }
+# Navigation 3 routes are @Serializable NavKeys and the back stack is saved and restored by
+# class name, so the route classes keep theirs. The rest of the app may be renamed, merged and
+# inlined by R8 (#249). Member names are not read by name: the generated serializers and
+# kotlinx.serialization's consumer rules cover the fields.
+-keepnames class * implements androidx.navigation3.runtime.NavKey
+
+# Names stay so crash traces in issues are readable (the mapping.txt is attached to releases, but
+# not everyone retraces). R8 may still shrink, inline and merge app code: unlike the old
+# -keepnames this does not forbid optimization (#249).
+-keep,allowshrinking,allowoptimization class dev.jdtech.jellyfin.** { *; }
 
 # These classes are from okhttp and are not used in Android
 -dontwarn org.bouncycastle.jsse.BCSSLSocket
