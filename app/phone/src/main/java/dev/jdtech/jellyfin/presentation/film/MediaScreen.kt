@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -21,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass
 import dev.jdtech.jellyfin.core.presentation.dummy.dummyCollections
@@ -53,7 +54,10 @@ fun MediaScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val searchState by searchViewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(true) { viewModel.loadData() }
+    // Reloads only when stale or dirty (#251), and keeps the list on screen while it does.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        if (viewModel.shouldReload()) viewModel.loadData(silent = state.libraries.isNotEmpty())
+    }
 
     MediaScreenLayout(
         state = state,
