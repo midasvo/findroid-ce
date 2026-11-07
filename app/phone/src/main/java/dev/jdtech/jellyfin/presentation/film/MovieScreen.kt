@@ -81,7 +81,8 @@ fun MovieScreen(
     val isOfflineMode = LocalOfflineMode.current
 
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val downloaderState by downloaderViewModel.state.collectAsStateWithLifecycle()
+    // Not read here: a progress tick must only recompose the download card.
+    val downloaderState = downloaderViewModel.state.collectAsStateWithLifecycle()
 
     ReloadOnResume { viewModel.loadMovie(movieId = movieId) }
 
@@ -109,7 +110,7 @@ fun MovieScreen(
 
     MovieScreenLayout(
         state = state,
-        downloaderState = downloaderState,
+        downloaderState = { downloaderState.value },
         onAction = { action ->
             when (action) {
                 is MovieAction.Play -> {
@@ -141,7 +142,7 @@ fun MovieScreen(
 @Composable
 private fun MovieScreenLayout(
     state: MovieState,
-    downloaderState: DownloaderState,
+    downloaderState: () -> DownloaderState,
     onAction: (MovieAction) -> Unit,
     onDownloaderAction: (DownloaderAction) -> Unit,
 ) {
@@ -245,7 +246,7 @@ private fun MovieScreenLayout(
                     }
                     ItemButtonsBar(
                         item = movie,
-                        downloaderState = downloaderState,
+                        downloaderStateProvider = downloaderState,
                         onPlayClick = { startFromBeginning ->
                             onAction(MovieAction.Play(startFromBeginning = startFromBeginning))
                         },
@@ -339,7 +340,7 @@ private fun EpisodeScreenLayoutPreview() {
     FindroidTheme {
         MovieScreenLayout(
             state = MovieState(movie = dummyMovie, videoMetadata = dummyVideoMetadata),
-            downloaderState = DownloaderState(),
+            downloaderState = { DownloaderState() },
             onAction = {},
             onDownloaderAction = {},
         )

@@ -175,10 +175,21 @@ private fun SeasonScreenLayout(
             state.episodeDownloadProgress.filterValues { it.status != DownloadStatus.NONE }.keys
         )
     }
-    val episodeProgress = state.episodeDownloadProgress - undo.hiddenIds
+    val hiddenIds = undo.hiddenIds
+    val episodeProgress = remember(state.episodeDownloadProgress, hiddenIds) {
+        state.episodeDownloadProgress - hiddenIds
+    }
+    val offlineMode = LocalOfflineMode.current
+    // These only depend on the episode list, so a progress tick must not redo them.
     val episodes =
-        if (LocalOfflineMode.current) state.episodes.filterNot { it.id in undo.hiddenIds }
-        else state.episodes
+        remember(state.episodes, hiddenIds, offlineMode) {
+            if (offlineMode) state.episodes.filterNot { it.id in hiddenIds } else state.episodes
+        }
+    val hasDownloads =
+        remember(episodes, hiddenIds) {
+            episodes.any { it.isDownloaded() && it.id !in hiddenIds }
+        }
+    val anyCanDownload = remember(episodes) { episodes.any { it.canDownload } }
     fun removeDownload(episode: FindroidEpisode, @StringRes message: Int) {
         undo.run(ids = setOf(episode.id), message = context.getString(message, episode.name)) {
             onAction(SeasonAction.DeleteEpisodeDownload(episode))
@@ -194,8 +205,6 @@ private fun SeasonScreenLayout(
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 item {
-                    val hasDownloads =
-                        episodes.any { it.isDownloaded() && it.id !in undo.hiddenIds }
                     ItemHeader(
                         item = season,
                         lazyListState = lazyListState,
@@ -258,7 +267,7 @@ private fun SeasonScreenLayout(
                         modifier =
                             Modifier.padding(start = paddingStart, end = paddingEnd).fillMaxWidth(),
                         canPlay = episodes.isNotEmpty(),
-                        canDownload = episodes.any { it.canDownload },
+                        canDownload = anyCanDownload,
                         isDownloaded = hasDownloads,
                         hasMoreToDownload =
                             episodes.any {

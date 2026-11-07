@@ -31,6 +31,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -1248,6 +1250,14 @@ class SettingsViewModel @Inject constructor(
                 }
             }
 
+            // Disk syscalls (directories, StatFs): once per load, and off the main thread.
+            val storageOptions =
+                if (preferences.any { group -> group.preferences.any { it is PreferenceDynamicSelect } }) {
+                    withContext(Dispatchers.IO) { getStorageOptions() }
+                } else {
+                    emptyList()
+                }
+
             // Update all (visible) preferences with there current values
             preferences =
                 preferences
@@ -1332,7 +1342,7 @@ class SettingsViewModel @Inject constructor(
                                                 preference.copy(
                                                     enabled = preference.enabled &&
                                                         preference.dependencies.all { appPreferences.getValue(it) },
-                                                    dynamicOptions = getStorageOptions(),
+                                                    dynamicOptions = storageOptions,
                                                     value = appPreferences.getValue(preference.backendPreference),
                                                 )
                                             }
