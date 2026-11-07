@@ -20,6 +20,7 @@
         <item name="colorOnSecondary">@android:color/white</item>
         <item name="colorSecondaryContainer">@color/secondary_container_light</item>
         <item name="colorOnSecondaryContainer">@color/on_secondary_container_light</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
 
         <!-- Surface -->
         <item name="android:colorBackground">@color/neutral_50</item>
