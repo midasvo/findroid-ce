@@ -9,36 +9,27 @@ import dagger.assisted.AssistedInject
 import dev.jdtech.jellyfin.api.JellyfinApi
 import dev.jdtech.jellyfin.core.presentation.downloader.SmartDownloads
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
-import timber.log.Timber
-import dev.jdtech.jellyfin.models.FindroidItem
-import dev.jdtech.jellyfin.models.User
-import dev.jdtech.jellyfin.models.toFindroidEpisode
-import dev.jdtech.jellyfin.models.toFindroidMovie
-import dev.jdtech.jellyfin.settings.domain.AppPreferences
+import dev.jdtech.jellyfin.models.FindroidUserDataDto
+import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jellyfin.sdk.api.client.ApiClient
+import org.jellyfin.sdk.api.client.extensions.userDataApi
 import org.jellyfin.sdk.model.api.UpdateUserItemDataDto
+import timber.log.Timber
 
 @HiltWorker
 class SyncWorker
 @AssistedInject
 constructor(
-    @Assisted private val context: Context,
-    @Assisted private val workerParams: WorkerParameters,
+    @Assisted context: Context,
+    @Assisted workerParams: WorkerParameters,
     val database: ServerDatabaseDao,
-    val appPreferences: AppPreferences,
+    private val jellyfinApi: JellyfinApi,
     private val smartDownloads: SmartDownloads,
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
-        val jellyfinApi =
-            JellyfinApi(
-                androidContext = context.applicationContext,
-                requestTimeout = appPreferences.getValue(appPreferences.requestTimeout),
-                connectTimeout = appPreferences.getValue(appPreferences.connectTimeout),
-                socketTimeout = appPreferences.getValue(appPreferences.socketTimeout),
-            )
-
         return withContext(Dispatchers.IO) {
             val servers = database.getServers()
             var hadFailures = false
@@ -51,21 +42,13 @@ constructor(
                         it.id == server.currentServerAddressId
                     } ?: continue
                 for (user in serverWithAddressesAndUsers.users) {
-                    jellyfinApi.apply {
-                        api.update(baseUrl = serverAddress.address, accessToken = user.accessToken)
-                        userId = user.id
-                    }
-                    val movies =
-                        database.getMoviesByServerId(server.id).map {
-                            it.toFindroidMovie(database, user.id)
-                        }
-                    val episodes =
-                        database.getEpisodesByServerId(server.id).map {
-                            it.toFindroidEpisode(database, user.id)
-                        }
+                    // Only the rows still marked to be synced: most runs have none, and then no
+                    // item is loaded, no client is built and no request is made (#250).
+                    val pending = database.getAllUserDataToBeSynced(server.id, user.id)
+                    if (pending.isEmpty()) continue
 
-                    if (!syncUserData(jellyfinApi, user, movies)) hadFailures = true
-                    if (!syncUserData(jellyfinApi, user, episodes)) hadFailures = true
+                    val api = apiFor(serverAddress.address, user.accessToken, user.id)
+                    if (!syncUserData(api, user.id, pending)) hadFailures = true
                 }
             }
 
@@ -73,6 +56,7 @@ constructor(
                 Result.retry()
             } else {
                 // Progress watched offline has reached the server, so what to remove can be told.
+                // Without completed downloads this is a single query and no requests.
                 try {
                     smartDownloads.checkAll()
                 } catch (e: Exception) {
@@ -83,19 +67,38 @@ constructor(
         }
     }
 
+    /**
+     * The app's own client when it is signed in as [userId] at [baseUrl], otherwise a client for
+     * that user from the same Jellyfin instance. The app's client is never pointed at another user,
+     * because the screens use it at the same time.
+     */
+    private fun apiFor(baseUrl: String, accessToken: String?, userId: UUID): ApiClient {
+        val current = jellyfinApi.api
+        if (
+            jellyfinApi.userId == userId &&
+                current.baseUrl == baseUrl &&
+                current.accessToken == accessToken
+        ) {
+            return current
+        }
+        return jellyfinApi.jellyfin.createApi(
+            baseUrl = baseUrl,
+            accessToken = accessToken,
+            httpClientOptions = current.httpClientOptions,
+        )
+    }
+
     private suspend fun syncUserData(
-        jellyfinApi: JellyfinApi,
-        user: User,
-        items: List<FindroidItem>,
+        api: ApiClient,
+        userId: UUID,
+        items: List<FindroidUserDataDto>,
     ): Boolean {
         var allOk = true
-        for (item in items) {
-            val userData = database.getUserDataToBeSynced(user.id, item.id) ?: continue
-
+        for (userData in items) {
             try {
-                jellyfinApi.userDataApi.updateItemUserData(
-                    itemId = item.id,
-                    userId = user.id,
+                api.userDataApi.updateItemUserData(
+                    itemId = userData.itemId,
+                    userId = userId,
                     data =
                         UpdateUserItemDataDto(
                             playbackPositionTicks = userData.playbackPositionTicks,
@@ -104,7 +107,7 @@ constructor(
                         ),
                 )
 
-                database.setUserDataToBeSynced(user.id, item.id, false)
+                database.setUserDataToBeSynced(userId, userData.itemId, false)
             } catch (e: Exception) {
                 Timber.e(e, "Failed to sync user data")
                 allOk = false

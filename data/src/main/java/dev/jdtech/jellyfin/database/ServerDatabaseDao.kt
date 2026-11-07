@@ -60,6 +60,10 @@ interface ServerDatabaseDao {
     suspend fun getServerWithAddressAndUser(id: String): ServerWithAddressAndUser?
 
     @Transaction
+    @Query("SELECT * FROM servers WHERE id = :id")
+    fun observeServerWithAddressAndUser(id: String): Flow<ServerWithAddressAndUser?>
+
+    @Transaction
     @Query("SELECT * FROM servers")
     suspend fun getServersWithAddresses(): List<ServerWithAddresses>
 
@@ -298,6 +302,17 @@ interface ServerDatabaseDao {
 
     @Query("SELECT * FROM userdata WHERE userId = :userId AND itemId = :itemId AND toBeSynced = 1")
     suspend fun getUserDataToBeSynced(userId: UUID, itemId: UUID): FindroidUserDataDto?
+
+    /**
+     * The user data rows of [userId] that still have to reach the server, limited to the downloaded
+     * movies and episodes of [serverId], which are the items the sync covers.
+     */
+    @Query(
+        "SELECT * FROM userdata WHERE userId = :userId AND toBeSynced = 1 AND (" +
+            "itemId IN (SELECT id FROM movies WHERE serverId = :serverId) OR " +
+            "itemId IN (SELECT id FROM episodes WHERE serverId = :serverId))"
+    )
+    suspend fun getAllUserDataToBeSynced(serverId: String, userId: UUID): List<FindroidUserDataDto>
 
     @Query(
         "UPDATE userdata SET toBeSynced = :toBeSynced WHERE itemId = :itemId AND userId = :userId"

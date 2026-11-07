@@ -84,7 +84,9 @@ class DownloaderImpl(
     private val database: ServerDatabaseDao,
     private val jellyfinRepositoryProvider: Provider<JellyfinRepository>,
     private val appPreferences: AppPreferences,
-    private val workManager: WorkManager,
+    // A Provider, so building this @Singleton (during Application.onCreate's field injection) does
+    // not set up WorkManager; it is only needed once an image download is started (#250).
+    private val workManagerProvider: Provider<WorkManager>,
     private val engine: MediaDownloadEngine,
 ) : Downloader {
 
@@ -1063,7 +1065,7 @@ class DownloaderImpl(
         // Episode downloads trigger image fetches for episode + season + show,
         // and a whole season download would otherwise enqueue the same show worker
         // N times. Dedupe on itemId so we only hit the image endpoint once per item.
-        workManager.enqueueUniqueWork(
+        workManagerProvider.get().enqueueUniqueWork(
             "image-download-${item.id}",
             ExistingWorkPolicy.KEEP,
             downloadImagesRequest,

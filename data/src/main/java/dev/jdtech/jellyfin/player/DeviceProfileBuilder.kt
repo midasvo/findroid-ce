@@ -65,7 +65,9 @@ class DeviceProfileBuilder(context: Context) {
 
     private val displayManager = context.getSystemService(DisplayManager::class.java)
 
-    private val probedCodecs: ProbedCodecs = probeCodecs()
+    // Probed on first use, not at construction: building the profile is only needed for playback
+    // and downloads, and the probe walks every decoder (#250).
+    private val probedCodecs: ProbedCodecs by lazy { probeCodecs() }
 
     /**
      * Honest, hardware-probed profile for ExoPlayer. Files the device cannot
