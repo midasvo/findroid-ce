@@ -386,7 +386,10 @@ class JellyfinRepositoryOfflineImpl(
         }
 
     // Offline playback is always a local file — no server, no transcoding.
-    override suspend fun getPlaybackSources(itemId: UUID): List<FindroidSource> =
+    override suspend fun getPlaybackSources(
+        itemId: UUID,
+        mediaSourceId: String?,
+    ): List<FindroidSource> =
         getMediaSources(itemId, includePath = false)
 
     override suspend fun getStreamUrl(itemId: UUID, mediaSourceId: String): String {

@@ -351,6 +351,12 @@ class MPVPlayer(
     private var initialCommands = mutableListOf<Array<String>>()
     private var initialIndex: Int = 0
     private var initialSeekTo: Long = 0L
+
+    /**
+     * The start position handed to mpv with the first `loadfile`, so it opens there instead of at 0
+     * and seeking afterwards. The seek in [applyInitialSeek] is skipped for it once the file is up.
+     */
+    private var startPassedToLoadMs: Long? = null
     private var oldMediaItem: MediaItem? = null
 
     // mpv events
@@ -528,7 +534,14 @@ class MPVPlayer(
                 MpvEvent.MPV_EVENT_PLAYBACK_RESTART -> {
                     if (!isPlayerReady) {
                         isPlayerReady = true
-                        applyInitialSeek()
+                        val passed = startPassedToLoadMs
+                        startPassedToLoadMs = null
+                        if (passed != null && passed == initialSeekTo) {
+                            // mpv opened at the start position already.
+                            initialSeekTo = 0L
+                        } else {
+                            applyInitialSeek()
+                        }
                         if (playWhenReady) {
                             Timber.d("Starting playback...")
                             mpvLib.setPropertyBoolean("pause", false)
@@ -929,14 +942,18 @@ class MPVPlayer(
 
     /** Prepares the player. */
     override fun prepare() {
+        startPassedToLoadMs = null
         internalMediaItems.forEachIndexed { index, mediaItem ->
-            mpvLib.command(
-                arrayOf(
-                    "loadfile",
-                    "${mediaItem.localConfiguration?.uri}",
-                    if (index == 0) "replace" else "append",
-                )
-            )
+            val uri = "${mediaItem.localConfiguration?.uri}"
+            if (index == 0 && initialIndex == 0 && initialSeekTo > 0L) {
+                // mpv 0.38+ (the bundled build is 0.41): loadfile <url> <flags> <index> <options>.
+                // An index of -1 is the default, the options are what is needed here.
+                val startSeconds = initialSeekTo.toDouble().div(C.MILLIS_PER_SECOND)
+                mpvLib.command(arrayOf("loadfile", uri, "replace", "-1", "start=$startSeconds"))
+                startPassedToLoadMs = initialSeekTo
+            } else {
+                mpvLib.command(arrayOf("loadfile", uri, if (index == 0) "replace" else "append"))
+            }
         }
         prepareMediaItem(initialIndex)
     }

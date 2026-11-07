@@ -440,8 +440,18 @@ class JellyfinRepositoryImpl(
             sources
         }
 
-    override suspend fun getPlaybackSources(itemId: UUID): List<FindroidSource> =
+    override suspend fun getPlaybackSources(
+        itemId: UUID,
+        mediaSourceId: String?,
+    ): List<FindroidSource> =
         withContext(Dispatchers.IO) {
+            // A downloaded copy wins over any server source (see PlaylistManager), so do not wait
+            // for the server when it is the one that will play.
+            val localSources = database.getSources(itemId).map { it.toFindroidSource(database) }
+            if (localSources.isNotEmpty() && (mediaSourceId == null || localSources.any { it.id == mediaSourceId })) {
+                return@withContext localSources
+            }
+
             // mpv software-decodes practically everything, so keep it on the permissive
             // direct-play profile. ExoPlayer gets the honest, hardware-probed profile so
             // the server transcodes anything it cannot direct-play, such as Dolby Vision
