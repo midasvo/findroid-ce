@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">Dobrodošli v Ephyri</string>
     <string name="ce_welcome_text">Ephyra je odjemalec tretje osebe za Jellyfin. Ephyra sama po sebi ne vsebuje nobenih medijev.\n\nZa uporabo tega odjemalca potrebujete lasten strežnik Jellyfin.</string>
+    <string name="ce_users_sign_in">Prijava</string>
+    <string name="ce_users_other_on_server">Drugi uporabniki na %s</string>
+    <string name="ce_users_switch_server">Zamenjaj strežnik</string>
+    <string name="ce_users_signed_in">Prijavljen</string>
+    <string name="ce_users_switch_user">Zamenjaj uporabnika</string>
 </resources>

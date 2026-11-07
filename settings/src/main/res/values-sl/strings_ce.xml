@@ -149,4 +149,6 @@
     <string name="about_build_phone">Telefon, %1$d-bitna (%2$s)</string>
     <string name="about_report_problem_summary_phone">Odpre poročilo o napaki na GitHubu z že izpolnjenimi podatki.</string>
     <string name="about_source_code">Izvorna koda</string>
+    <string name="pref_ask_user_on_start">Ob zagonu vprašaj, kdo gleda</string>
+    <string name="pref_ask_user_on_start_summary">Če ima ta strežnik več kot enega uporabnika, se aplikacija odpre na seznamu uporabnikov namesto na domu</string>
 </resources>

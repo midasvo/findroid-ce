@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">Tere tulemast Ephyrasse</string>
     <string name="ce_welcome_text">Ephyra on Jellyfini kolmanda osapoole klient. Ephyra ise ei sisalda mingit meediat.\n\nSelle kliendi kasutamiseks pead majutama oma Jellyfini serverit.</string>
+    <string name="ce_users_sign_in">Logi sisse</string>
+    <string name="ce_users_other_on_server">Teised kasutajad serveris %s</string>
+    <string name="ce_users_switch_server">Vaheta serverit</string>
+    <string name="ce_users_signed_in">Sisse logitud</string>
+    <string name="ce_users_switch_user">Vaheta kasutajat</string>
 </resources>

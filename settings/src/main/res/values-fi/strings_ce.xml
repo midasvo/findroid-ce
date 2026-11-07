@@ -149,4 +149,6 @@
     <string name="about_build_phone">Puhelin, %1$d-bittinen (%2$s)</string>
     <string name="about_report_problem_summary_phone">Avaa GitHubissa virheraportin, jossa nämä tiedot on jo täytetty.</string>
     <string name="about_source_code">Lähdekoodi</string>
+    <string name="pref_ask_user_on_start">Kysy käynnistettäessä, kuka katsoo</string>
+    <string name="pref_ask_user_on_start_summary">Kun palvelimella on useampi kuin yksi käyttäjä, sovellus avautuu Kodin sijaan käyttäjäluetteloon</string>
 </resources>

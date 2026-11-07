@@ -149,4 +149,6 @@
     <string name="about_build_phone">Telefón, %1$d-bitová (%2$s)</string>
     <string name="about_report_problem_summary_phone">Otvorí hlásenie chyby na GitHube s už vyplnenými údajmi.</string>
     <string name="about_source_code">Zdrojový kód</string>
+    <string name="pref_ask_user_on_start">Pri spustení sa opýtať, kto sa pozerá</string>
+    <string name="pref_ask_user_on_start_summary">Ak má tento server viac ako jedného používateľa, aplikácia sa otvorí na zozname používateľov namiesto Domov</string>
 </resources>

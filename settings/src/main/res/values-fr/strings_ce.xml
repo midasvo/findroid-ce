@@ -149,4 +149,6 @@
     <string name="about_build_phone">Téléphone, %1$d bits (%2$s)</string>
     <string name="about_report_problem_summary_phone">Ouvre un rapport de bug sur GitHub avec ces informations déjà remplies.</string>
     <string name="about_source_code">Code source</string>
+    <string name="pref_ask_user_on_start">Demander qui regarde au démarrage</string>
+    <string name="pref_ask_user_on_start_summary">Lorsque ce serveur compte plus d\'un utilisateur, l\'application s\'ouvre sur la liste des utilisateurs au lieu de l\'accueil</string>
 </resources>

@@ -149,4 +149,6 @@
     <string name="about_build_phone">Teléfono, %1$d bits (%2$s)</string>
     <string name="about_report_problem_summary_phone">Abre un informe de error en GitHub con estos datos ya rellenados.</string>
     <string name="about_source_code">Código fuente</string>
+    <string name="pref_ask_user_on_start">Preguntar quién está viendo al iniciar</string>
+    <string name="pref_ask_user_on_start_summary">Cuando este servidor tiene más de un usuario, la aplicación se abre en la lista de usuarios en lugar de en Inicio</string>
 </resources>

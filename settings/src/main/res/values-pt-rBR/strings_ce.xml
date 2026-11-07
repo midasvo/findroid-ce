@@ -149,4 +149,6 @@
     <string name="about_build_phone">Celular, %1$d bits (%2$s)</string>
     <string name="about_report_problem_summary_phone">Abre um relatório de bug no GitHub com esses dados já preenchidos.</string>
     <string name="about_source_code">Código-fonte</string>
+    <string name="pref_ask_user_on_start">Perguntar quem está assistindo ao iniciar</string>
+    <string name="pref_ask_user_on_start_summary">Quando este servidor tem mais de um usuário, o app abre na lista de usuários em vez do Início</string>
 </resources>

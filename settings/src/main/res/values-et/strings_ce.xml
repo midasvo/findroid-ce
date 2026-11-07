@@ -149,4 +149,6 @@
     <string name="about_build_phone">Telefon, %1$d-bitine (%2$s)</string>
     <string name="about_report_problem_summary_phone">Avab GitHubis veateate, kus need andmed on juba täidetud.</string>
     <string name="about_source_code">Lähtekood</string>
+    <string name="pref_ask_user_on_start">Küsi käivitamisel, kes vaatab</string>
+    <string name="pref_ask_user_on_start_summary">Kui sellel serveril on rohkem kui üks kasutaja, avab rakendus avalehe asemel kasutajate loendi</string>
 </resources>

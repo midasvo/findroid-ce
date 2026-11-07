@@ -4,6 +4,9 @@ import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -58,10 +62,14 @@ import dev.jdtech.jellyfin.ce.presentation.film.FavoritesScreen
 import dev.jdtech.jellyfin.ce.presentation.film.HomeScreen
 import dev.jdtech.jellyfin.ce.presentation.film.LibraryScreen
 import dev.jdtech.jellyfin.ce.presentation.film.SearchScreen
+import dev.jdtech.jellyfin.api.JellyfinApi
 import dev.jdtech.jellyfin.ce.ui.TvSafeArea
+import dev.jdtech.jellyfin.ce.ui.components.UserAvatar
 import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedBorder
 import dev.jdtech.jellyfin.ce.ui.tvSafeAreaPadding
 import dev.jdtech.jellyfin.core.R as CoreR
+import dev.jdtech.jellyfin.core.presentation.ephyra.EphyraMotion
+import dev.jdtech.jellyfin.core.presentation.ephyra.reducedMotion
 import dev.jdtech.jellyfin.film.presentation.media.MediaViewModel
 import dev.jdtech.jellyfin.models.CollectionType
 import dev.jdtech.jellyfin.models.FindroidCollection
@@ -185,6 +193,8 @@ fun MainScreenLayout(
     libraryContent: @Composable (library: FindroidCollection) -> Unit,
 ) {
     val context = LocalContext.current
+    val baseUrl =
+        remember(context) { runCatching { JellyfinApi.getInstance(context).api.baseUrl }.getOrNull() }
     val coroutineScope = rememberCoroutineScope()
     var activeDestinationKey by rememberSaveable { mutableStateOf(DESTINATION_HOME) }
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -277,11 +287,30 @@ fun MainScreenLayout(
                         navigateToUsers()
                     },
                     leadingContent = {
-                        Icon(
-                            painter = painterResource(id = CoreR.drawable.ic_user),
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                        )
+                        // The drawer gives leading content a 24 dp box; the 32 dp face overflows it
+                        // evenly (requiredSize centres), so the rail and the item height stay put.
+                        Crossfade(
+                            targetState = user,
+                            animationSpec =
+                                if (reducedMotion()) snap()
+                                else tween(EphyraMotion.DURATION_MEDIUM),
+                            label = "drawer_avatar",
+                        ) { shown ->
+                            if (shown != null) {
+                                UserAvatar(
+                                    user = shown,
+                                    baseUrl = baseUrl,
+                                    size = 32.dp,
+                                    modifier = Modifier.requiredSize(32.dp),
+                                )
+                            } else {
+                                Icon(
+                                    painter = painterResource(id = CoreR.drawable.ic_user),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp),
+                                )
+                            }
+                        }
                     },
                     border = ephyraDrawerItemBorder(),
                     modifier =

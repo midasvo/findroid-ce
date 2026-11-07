@@ -938,7 +938,12 @@ class SettingsViewModel @Inject constructor(
                                     eventsChannel.send(SettingsEvent.NavigateToUsers)
                                 }
                             },
-                        )
+                        ),
+                        PreferenceSwitch(
+                            nameStringResource = R.string.pref_ask_user_on_start,
+                            descriptionStringRes = R.string.pref_ask_user_on_start_summary,
+                            backendPreference = appPreferences.askUserOnStart,
+                        ),
                     )
             ),
             PreferenceGroup(

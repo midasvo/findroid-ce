@@ -149,4 +149,6 @@
     <string name="about_build_phone">Telefon, %1$d biți (%2$s)</string>
     <string name="about_report_problem_summary_phone">Deschide un raport de eroare pe GitHub cu aceste detalii deja completate.</string>
     <string name="about_source_code">Cod sursă</string>
+    <string name="pref_ask_user_on_start">Întreabă cine se uită la pornire</string>
+    <string name="pref_ask_user_on_start_summary">Când acest server are mai mulți utilizatori, aplicația se deschide pe lista de utilizatori în loc de Acasă</string>
 </resources>

@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">Ephyra へようこそ</string>
     <string name="ce_welcome_text">Ephyra は Jellyfin のサードパーティ製クライアントです。Ephyra 自体にはメディアは含まれていません。\n\nこのクライアントを使用するには、ご自身で Jellyfin サーバーをホストする必要があります。</string>
+    <string name="ce_users_sign_in">サインイン</string>
+    <string name="ce_users_other_on_server">%s のその他のユーザー</string>
+    <string name="ce_users_switch_server">サーバーを切り替え</string>
+    <string name="ce_users_signed_in">サインイン済み</string>
+    <string name="ce_users_switch_user">ユーザーを切り替え</string>
 </resources>

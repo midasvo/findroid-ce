@@ -149,4 +149,6 @@
     <string name="about_build_phone">手机，%1$d 位（%2$s）</string>
     <string name="about_report_problem_summary_phone">在 GitHub 上打开已填好这些信息的错误报告。</string>
     <string name="about_source_code">源代码</string>
+    <string name="pref_ask_user_on_start">启动时询问谁在观看</string>
+    <string name="pref_ask_user_on_start_summary">当此服务器有多个用户时，应用将打开用户列表，而不是主页</string>
 </resources>

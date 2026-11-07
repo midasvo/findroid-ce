@@ -149,4 +149,6 @@
     <string name="about_build_phone">Телефон, %1$d-біт (%2$s)</string>
     <string name="about_report_problem_summary_phone">Відкриває звіт про помилку на GitHub з уже заповненими даними.</string>
     <string name="about_source_code">Вихідний код</string>
+    <string name="pref_ask_user_on_start">Питати, хто дивиться, під час запуску</string>
+    <string name="pref_ask_user_on_start_summary">Якщо на цьому сервері більше одного користувача, застосунок відкривається зі списком користувачів замість головної</string>
 </resources>

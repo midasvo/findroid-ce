@@ -62,6 +62,8 @@ class JellyfinRepositoryOfflineImpl(
         throw Exception("System info not available in offline mode")
     }
 
+    override suspend fun refreshCurrentUserImage() = Unit
+
     override suspend fun getUserViews(): List<BaseItemDto> {
         return withContext(Dispatchers.IO) {
             val serverId = currentServerId() ?: return@withContext emptyList()

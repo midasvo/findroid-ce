@@ -717,6 +717,13 @@ class JellyfinRepositoryImpl(
         }
     }
 
+    override suspend fun refreshCurrentUserImage() {
+        withContext(Dispatchers.IO) {
+            val user = jellyfinApi.userApi.getCurrentUser().content
+            database.updateUserPrimaryImageTag(user.id, user.primaryImageTag)
+        }
+    }
+
     override suspend fun getUserConfiguration(): UserConfiguration =
         withContext(Dispatchers.IO) { jellyfinApi.userApi.getCurrentUser().content.configuration!! }
 

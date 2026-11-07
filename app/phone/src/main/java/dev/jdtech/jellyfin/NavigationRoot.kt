@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.painterResource
@@ -113,6 +115,7 @@ fun NavigationRoot(
     hasCurrentServer: Boolean,
     hasCurrentUser: Boolean,
     showFavoritesTab: Boolean = true,
+    askUserOnStart: Boolean = false,
 ) {
     val setupComplete = hasServers && hasCurrentServer && hasCurrentUser
 
@@ -160,6 +163,18 @@ fun NavigationRoot(
             setupBackStack.add(setupStartRoute)
         }
         appliedSetupMode.setupComplete = setupComplete
+    }
+
+    // "Ask who is watching" (#245): once per app start, push the Users screen on top of Home. Saved
+    // so a rotation does not ask again; a new process starts with it unset.
+    var askedUserOnStart by rememberSaveable { mutableStateOf(false) }
+    // Keyed on setupComplete only: the preference is read once the main mode is entered, so
+    // flipping the switch in Settings does not push the screen there and then.
+    LaunchedEffect(setupComplete) {
+        if (setupComplete && !askedUserOnStart) {
+            askedUserOnStart = true
+            if (askUserOnStart) navigator.navigate(UsersRoute)
+        }
     }
 
     // The activity-scoped permission ViewModel is shared by the interstitial and the setup screen.
@@ -462,6 +477,10 @@ private fun EntryProviderScope<NavKey>.mainEntries(
                 },
             onManageServers = dropUnlessResumed { navigator.navigate(ServersRoute) },
             onItemClick = resumedAction { item -> navigateToItem(navigator, item) },
+            onAddUser = dropUnlessResumed { navigator.navigate(LoginRoute()) },
+            onPublicUserClick =
+                resumedAction { username -> navigator.navigate(LoginRoute(username = username)) },
+            onUserSwitched = { navigator.navigateHome() },
         )
     }
     entry<MediaRoute> {

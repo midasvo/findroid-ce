@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -85,12 +86,25 @@ constructor(
                     }
                 }
 
+            // Asking who is watching only makes sense when there is a choice: more than one saved
+            // user on the current server.
+            val askUserOnStart =
+                combine(
+                    appPreferences.observe(appPreferences.askUserOnStart),
+                    appPreferences.observe(appPreferences.currentServer).flatMapLatest { serverId ->
+                        if (serverId == null) flowOf(0) else database.observeUsersCount(serverId)
+                    },
+                ) { enabled, usersCount ->
+                    enabled && usersCount > 1
+                }
+
             combine(
                     setupFlags,
                     appPreferences.observe(appPreferences.dynamicColors),
                     appPreferences.observe(appPreferences.offlineMode),
                     appPreferences.observe(appPreferences.showFavoritesTab),
-                ) { flags, dynamicColors, offlineMode, showFavoritesTab ->
+                    askUserOnStart,
+                ) { flags, dynamicColors, offlineMode, showFavoritesTab, askUserOnStart ->
                     MainState(
                         isLoading = false,
                         isDynamicColors = dynamicColors,
@@ -99,6 +113,7 @@ constructor(
                         hasCurrentUser = flags.hasCurrentUser,
                         isOfflineMode = offlineMode || !networkConnectivity.isOnline(),
                         showFavoritesTab = showFavoritesTab,
+                        askUserOnStart = askUserOnStart,
                     )
                 }
                 .collect { mainState -> _state.emit(mainState) }
@@ -120,4 +135,5 @@ data class MainState(
     val hasCurrentUser: Boolean = false,
     val isOfflineMode: Boolean = false,
     val showFavoritesTab: Boolean = true,
+    val askUserOnStart: Boolean = false,
 )

@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">Witaj w Ephyra</string>
     <string name="ce_welcome_text">Ephyra to zewnętrzny klient dla Jellyfin. Sama aplikacja nie zawiera żadnych multimediów.\n\nAby korzystać z tego klienta, musisz posiadać własny serwer Jellyfin.</string>
+    <string name="ce_users_sign_in">Zaloguj się</string>
+    <string name="ce_users_other_on_server">Inni użytkownicy na serwerze %s</string>
+    <string name="ce_users_switch_server">Przełącz serwer</string>
+    <string name="ce_users_signed_in">Zalogowano</string>
+    <string name="ce_users_switch_user">Przełącz użytkownika</string>
 </resources>

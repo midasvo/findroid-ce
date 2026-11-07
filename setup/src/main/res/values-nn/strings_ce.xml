@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">Velkomen til Ephyra</string>
     <string name="ce_welcome_text">Ephyra er ein tredjepartsklient for Jellyfin. Ephyra inneheld ikkje noko media i seg sjølv.\n\nFor å bruke denne klienten må du ha din eigen Jellyfin-tenar.</string>
+    <string name="ce_users_sign_in">Logg inn</string>
+    <string name="ce_users_other_on_server">Andre brukarar på %s</string>
+    <string name="ce_users_switch_server">Byt tenar</string>
+    <string name="ce_users_signed_in">Logga inn</string>
+    <string name="ce_users_switch_user">Byt brukar</string>
 </resources>

@@ -149,4 +149,6 @@
     <string name="about_build_phone">휴대폰, %1$d비트(%2$s)</string>
     <string name="about_report_problem_summary_phone">이 정보가 미리 입력된 버그 신고를 GitHub에서 엽니다.</string>
     <string name="about_source_code">소스 코드</string>
+    <string name="pref_ask_user_on_start">시작할 때 누가 시청하는지 묻기</string>
+    <string name="pref_ask_user_on_start_summary">이 서버에 사용자가 둘 이상이면 홈 대신 사용자 목록으로 앱이 열립니다</string>
 </resources>

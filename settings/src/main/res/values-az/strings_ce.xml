@@ -149,4 +149,6 @@
     <string name="about_build_phone">Telefon, %1$d-bit (%2$s)</string>
     <string name="about_report_problem_summary_phone">Bu məlumatlar artıq doldurulmuş xəta hesabatını GitHub-da açır.</string>
     <string name="about_source_code">Mənbə kodu</string>
+    <string name="pref_ask_user_on_start">Başlanğıcda kimin izlədiyini soruş</string>
+    <string name="pref_ask_user_on_start_summary">Bu serverdə birdən çox istifadəçi olduqda, tətbiq Ana səhifə əvəzinə istifadəçi siyahısı ilə açılır</string>
 </resources>

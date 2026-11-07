@@ -1,9 +1,12 @@
 package dev.jdtech.jellyfin.presentation.film.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -31,6 +34,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.jdtech.jellyfin.core.R as CoreR
+import dev.jdtech.jellyfin.core.presentation.ephyra.EphyraMotion
+import dev.jdtech.jellyfin.models.User
+import dev.jdtech.jellyfin.presentation.components.UserAvatar
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
@@ -46,6 +52,8 @@ fun HomeHeader(
     onSearchClick: () -> Unit,
     onUserClick: () -> Unit,
     modifier: Modifier = Modifier,
+    user: User? = null,
+    baseUrl: String? = null,
 ) {
     val isOfflineMode = LocalOfflineMode.current
 
@@ -184,10 +192,22 @@ fun HomeHeader(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        painter = painterResource(CoreR.drawable.ic_user),
-                        contentDescription = null,
-                    )
+                    val fade = tween<Float>(EphyraMotion.DURATION_MEDIUM, easing = EphyraMotion.EasingEnter)
+                    AnimatedContent(
+                        targetState = user,
+                        transitionSpec = { fadeIn(fade) togetherWith fadeOut(fade) },
+                        contentKey = { it?.id },
+                        label = "header-avatar",
+                    ) { shown ->
+                        if (shown != null) {
+                            UserAvatar(user = shown, baseUrl = baseUrl, size = 32.dp)
+                        } else {
+                            Icon(
+                                painter = painterResource(CoreR.drawable.ic_user),
+                                contentDescription = null,
+                            )
+                        }
+                    }
                 }
             }
         }

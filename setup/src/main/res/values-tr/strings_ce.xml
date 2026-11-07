@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">Ephyra\'ya Hoş Geldiniz</string>
     <string name="ce_welcome_text">Ephyra, Jellyfin için üçüncü taraf bir istemcidir. Ephyra kendi başına hiçbir medya içermez.\n\nBu istemciyi kullanabilmek için kendi Jellyfin sunucunuzu barındırmanız gerekir.</string>
+    <string name="ce_users_sign_in">Oturum aç</string>
+    <string name="ce_users_other_on_server">%s üzerindeki diğer kullanıcılar</string>
+    <string name="ce_users_switch_server">Sunucu değiştir</string>
+    <string name="ce_users_signed_in">Oturum açıldı</string>
+    <string name="ce_users_switch_user">Kullanıcı değiştir</string>
 </resources>

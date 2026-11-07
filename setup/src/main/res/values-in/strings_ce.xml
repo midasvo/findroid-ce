@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">Selamat datang di Ephyra</string>
     <string name="ce_welcome_text">Ephyra adalah klien pihak ketiga untuk Jellyfin. Ephyra sendiri tidak menyediakan konten media apa pun.\n\nUntuk menggunakan klien ini, Anda perlu meng-host server Jellyfin Anda sendiri.</string>
+    <string name="ce_users_sign_in">Masuk</string>
+    <string name="ce_users_other_on_server">Pengguna lain di %s</string>
+    <string name="ce_users_switch_server">Ganti server</string>
+    <string name="ce_users_signed_in">Sudah masuk</string>
+    <string name="ce_users_switch_user">Ganti pengguna</string>
 </resources>

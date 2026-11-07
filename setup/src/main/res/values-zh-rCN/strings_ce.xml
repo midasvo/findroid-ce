@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">欢迎使用 Ephyra</string>
     <string name="ce_welcome_text">Ephyra 是 Jellyfin 的第三方客户端。Ephyra 本身不包含任何媒体内容。\n\n要使用此客户端，您需要托管您自己的 Jellyfin 服务器。</string>
+    <string name="ce_users_sign_in">登录</string>
+    <string name="ce_users_other_on_server">%s 上的其他用户</string>
+    <string name="ce_users_switch_server">切换服务器</string>
+    <string name="ce_users_signed_in">已登录</string>
+    <string name="ce_users_switch_user">切换用户</string>
 </resources>

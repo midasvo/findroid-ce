@@ -3,7 +3,10 @@ package dev.jdtech.jellyfin
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -51,6 +54,7 @@ fun NavigationRoot(
     hasServers: Boolean,
     hasCurrentServer: Boolean,
     hasCurrentUser: Boolean,
+    askUserOnStart: Boolean = false,
     watchNextLink: WatchNextLink? = null,
     onWatchNextLinkOpened: () -> Unit = {},
 ) {
@@ -93,6 +97,18 @@ fun NavigationRoot(
             backStack.add(MainRoute)
             backStack.addAll(watchNextRoutes(watchNextLink))
             onWatchNextLinkOpened()
+        }
+    }
+
+    // "Ask who is watching" (#245): once per app start, push the Users screen on top of Main. A
+    // Watch Next link wins. Saved so a rotation does not ask again.
+    var askedUserOnStart by rememberSaveable { mutableStateOf(false) }
+    // Keyed on setupComplete only: the preference is read once the main mode is entered, so
+    // flipping the switch in Settings does not push the screen there and then.
+    LaunchedEffect(setupComplete) {
+        if (setupComplete && !askedUserOnStart) {
+            askedUserOnStart = true
+            if (askUserOnStart && watchNextLink == null) backStack.add(UsersRoute)
         }
     }
 

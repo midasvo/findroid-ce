@@ -246,6 +246,7 @@ class SetupRepositoryImpl(
                 name = authenticationResult.user!!.name!!,
                 serverId = authenticationResult.serverId!!,
                 accessToken = authenticationResult.accessToken!!,
+                primaryImageTag = authenticationResult.user?.primaryImageTag,
             )
 
         database.insertUser(user)
@@ -264,9 +265,18 @@ class SetupRepositoryImpl(
     override suspend fun getPublicUsers(serverId: String): List<User> =
         withContext(Dispatchers.IO) {
             jellyfinApi.userApi.getPublicUsers().content.mapNotNull {
-                User(id = it.id, name = it.name ?: return@mapNotNull null, serverId = serverId)
+                User(
+                    id = it.id,
+                    name = it.name ?: return@mapNotNull null,
+                    serverId = serverId,
+                    primaryImageTag = it.primaryImageTag,
+                )
             }
         }
+
+    override suspend fun updateUserImageTag(userId: UUID, tag: String?) {
+        database.updateUserPrimaryImageTag(userId, tag)
+    }
 
     override suspend fun getCurrentUser(): User? {
         val currentServer = getCurrentServer() ?: return null

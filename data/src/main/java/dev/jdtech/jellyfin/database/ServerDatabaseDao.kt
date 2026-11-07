@@ -69,6 +69,9 @@ interface ServerDatabaseDao {
 
     @Query("SELECT COUNT(*) FROM servers") fun observeServersCount(): Flow<Int>
 
+    @Query("SELECT COUNT(*) FROM users WHERE serverId = :serverId")
+    fun observeUsersCount(serverId: String): Flow<Int>
+
     @Query("SELECT * FROM servers WHERE id = :id") fun observeServer(id: String): Flow<Server?>
 
     @Query("SELECT currentUserId FROM servers WHERE id = :id")
@@ -77,6 +80,9 @@ interface ServerDatabaseDao {
     @Query("DELETE FROM servers WHERE id = :id") suspend fun deleteServer(id: String)
 
     @Query("DELETE FROM users WHERE id = :id") suspend fun deleteUser(id: UUID)
+
+    @Query("UPDATE users SET primaryImageTag = :tag WHERE id = :id")
+    suspend fun updateUserPrimaryImageTag(id: UUID, tag: String?)
 
     @Query("DELETE FROM serverAddresses WHERE id = :id") suspend fun deleteServerAddress(id: UUID)
 

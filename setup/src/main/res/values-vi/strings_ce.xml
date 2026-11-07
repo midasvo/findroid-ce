@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">Chào mừng đến với Ephyra</string>
     <string name="ce_welcome_text">Ephyra là ứng dụng khách bên thứ ba dành cho Jellyfin. Bản thân Ephyra không chứa bất kỳ nội dung đa phương tiện nào.\n\nĐể sử dụng ứng dụng này, bạn cần tự lưu trữ máy chủ Jellyfin của riêng mình.</string>
+    <string name="ce_users_sign_in">Đăng nhập</string>
+    <string name="ce_users_other_on_server">Người dùng khác trên %s</string>
+    <string name="ce_users_switch_server">Chuyển máy chủ</string>
+    <string name="ce_users_signed_in">Đã đăng nhập</string>
+    <string name="ce_users_switch_user">Chuyển người dùng</string>
 </resources>

@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">Ephyra에 오신 것을 환영합니다</string>
     <string name="ce_welcome_text">Ephyra는 Jellyfin용 서드파티 클라이언트입니다. Ephyra 자체에는 미디어가 포함되어 있지 않습니다.\n\n이 클라이언트를 사용하려면 직접 Jellyfin 서버를 운영해야 합니다.</string>
+    <string name="ce_users_sign_in">로그인</string>
+    <string name="ce_users_other_on_server">%s의 다른 사용자</string>
+    <string name="ce_users_switch_server">서버 전환</string>
+    <string name="ce_users_signed_in">로그인됨</string>
+    <string name="ce_users_switch_user">사용자 전환</string>
 </resources>

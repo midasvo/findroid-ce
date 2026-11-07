@@ -63,10 +63,15 @@ class JellyfinImageSizeInterceptorTest {
     }
 
     @Test
+    fun `adds the size to a user image`() {
+        val url = "https://demo.example/Users/abc/Images/Primary?tag=t1"
+        assertEquals("$url&fillWidth=160&fillHeight=160&quality=90", url.withImageSize(100, 100))
+    }
+
+    @Test
     fun `other urls pass through`() {
         listOf(
                 "https://example.com/poster.jpg",
-                "https://demo.example/users/abc/Images/Primary",
                 "https://demo.example/videos/abc/Trickplay/320/0.jpg",
             )
             .forEach { assertEquals(it, it.withImageSize(300, 450)) }

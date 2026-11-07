@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">Üdvözöl az Ephyra</string>
     <string name="ce_welcome_text">Az Ephyra egy harmadik féltől származó Jellyfin-kliens. Az Ephyra önmagában nem tartalmaz médiát.\n\nA kliens használatához saját Jellyfin-szervert kell üzemeltetned.</string>
+    <string name="ce_users_sign_in">Bejelentkezés</string>
+    <string name="ce_users_other_on_server">További felhasználók a(z) %s szerveren</string>
+    <string name="ce_users_switch_server">Szerverváltás</string>
+    <string name="ce_users_signed_in">Bejelentkezve</string>
+    <string name="ce_users_switch_user">Felhasználóváltás</string>
 </resources>

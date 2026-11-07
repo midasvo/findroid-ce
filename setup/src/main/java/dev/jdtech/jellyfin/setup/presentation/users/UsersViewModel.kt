@@ -27,16 +27,37 @@ class UsersViewModel @Inject constructor(private val repository: SetupRepository
             val users = repository.getUsers(server.id)
             val userIds = users.map { it.id }
 
-            _state.emit(UsersState(users = users, serverName = server.name))
+            _state.emit(
+                UsersState(
+                    users = users,
+                    serverName = server.name,
+                    currentUserId = server.currentUserId,
+                )
+            )
 
             try {
                 val publicUsers = repository.getPublicUsers(server.id)
+                // Pick up changed profile pictures of the saved users.
+                val publicById = publicUsers.associateBy { it.id }
+                val refreshed =
+                    users.map { user ->
+                        val tag = publicById[user.id]?.primaryImageTag
+                        if (publicById.containsKey(user.id) && tag != user.primaryImageTag) {
+                            repository.updateUserImageTag(user.id, tag)
+                            user.copy(primaryImageTag = tag)
+                        } else {
+                            user
+                        }
+                    }
                 _state.emit(
                     _state.value.copy(
-                        publicUsers = publicUsers.filterNot { userIds.contains(it.id) }
+                        users = refreshed,
+                        publicUsers = publicUsers.filterNot { userIds.contains(it.id) },
                     )
                 )
-            } catch (e: Exception) { Timber.e(e, "Failed to load public users") }
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to load public users")
+            }
         }
     }
 

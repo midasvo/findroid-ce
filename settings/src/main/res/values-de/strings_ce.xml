@@ -149,4 +149,6 @@
     <string name="about_build_phone">Smartphone, %1$d-Bit (%2$s)</string>
     <string name="about_report_problem_summary_phone">Öffnet einen Fehlerbericht auf GitHub mit diesen Angaben.</string>
     <string name="about_source_code">Quellcode</string>
+    <string name="pref_ask_user_on_start">Beim Start fragen, wer zuschaut</string>
+    <string name="pref_ask_user_on_start_summary">Wenn dieser Server mehr als einen Benutzer hat, öffnet die App die Benutzerliste statt der Startseite</string>
 </resources>

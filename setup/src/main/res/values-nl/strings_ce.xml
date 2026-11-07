@@ -2,4 +2,9 @@
 <resources>
     <string name="ce_welcome">Welkom bij Ephyra</string>
     <string name="ce_welcome_text">Ephyra is een client van derden voor Jellyfin. Ephyra bevat zelf geen media.\n\nOm deze client te gebruiken, heb je een eigen Jellyfin-server nodig.</string>
+    <string name="ce_users_sign_in">Inloggen</string>
+    <string name="ce_users_other_on_server">Andere gebruikers op %s</string>
+    <string name="ce_users_switch_server">Van server wisselen</string>
+    <string name="ce_users_signed_in">Ingelogd</string>
+    <string name="ce_users_switch_user">Van gebruiker wisselen</string>
 </resources>

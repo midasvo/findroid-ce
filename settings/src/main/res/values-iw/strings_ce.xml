@@ -149,4 +149,6 @@
     <string name="about_build_phone">טלפון, %1$d ביט (%2$s)</string>
     <string name="about_report_problem_summary_phone">פותח דיווח באג ב־GitHub שבו הפרטים האלה כבר מולאו.</string>
     <string name="about_source_code">קוד מקור</string>
+    <string name="pref_ask_user_on_start">לשאול מי צופה בעת ההפעלה</string>
+    <string name="pref_ask_user_on_start_summary">כאשר לשרת הזה יש יותר ממשתמש אחד, האפליקציה נפתחת ברשימת המשתמשים במקום במסך הבית</string>
 </resources>

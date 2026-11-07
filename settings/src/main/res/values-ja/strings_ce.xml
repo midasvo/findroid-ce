@@ -149,4 +149,6 @@
     <string name="about_build_phone">スマートフォン、%1$d ビット（%2$s）</string>
     <string name="about_report_problem_summary_phone">これらの情報が入力済みのバグ報告を GitHub で開きます。</string>
     <string name="about_source_code">ソースコード</string>
+    <string name="pref_ask_user_on_start">起動時に誰が視聴するか尋ねる</string>
+    <string name="pref_ask_user_on_start_summary">このサーバーに複数のユーザーがいる場合、ホームではなくユーザー一覧でアプリを開きます</string>
 </resources>

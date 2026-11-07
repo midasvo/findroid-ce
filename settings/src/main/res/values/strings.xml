@@ -266,4 +266,6 @@
     <string name="about_source_code">Source code</string>
     <string name="about_hdr" translatable="false">HDR</string>
     <string name="about_dolby_vision" translatable="false">Dolby Vision</string>
+    <string name="pref_ask_user_on_start">Ask who is watching at start</string>
+    <string name="pref_ask_user_on_start_summary">When this server has more than one user, the app opens on the user list instead of Home</string>
 </resources>

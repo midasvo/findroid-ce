@@ -72,6 +72,11 @@ constructor(
                     appPreferences.getValue(appPreferences.currentServer)?.let { serverId ->
                         loadServerName(serverId)
                     }
+                if (server != null) {
+                    logFailure("user image") { repository.refreshCurrentUserImage() }
+                    val user = logFailure("user") { database.getServerCurrentUser(server.id) }
+                    _state.update { it.copy(user = user.getOrNull()) }
+                }
                 // CE (#142): the rows this user chose for this server, in their order.
                 val stored = homeRowsStore.read(HomeRowsProfile.of(server))
                 val legacy = homeRowsStore.legacy()

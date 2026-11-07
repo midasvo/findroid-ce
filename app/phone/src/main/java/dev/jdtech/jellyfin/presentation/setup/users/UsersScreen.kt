@@ -3,14 +3,17 @@ package dev.jdtech.jellyfin.presentation.setup.users
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -26,18 +29,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.jdtech.jellyfin.api.JellyfinApi
 import dev.jdtech.jellyfin.core.R as CoreR
+import dev.jdtech.jellyfin.core.presentation.dummy.dummyUser
 import dev.jdtech.jellyfin.models.User
 import dev.jdtech.jellyfin.presentation.setup.components.RootLayout
 import dev.jdtech.jellyfin.presentation.setup.components.UserItem
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
+import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.setup.R as SetupR
 import dev.jdtech.jellyfin.setup.presentation.users.UsersAction
 import dev.jdtech.jellyfin.setup.presentation.users.UsersEvent
@@ -68,6 +74,7 @@ fun UsersScreen(
 
     UsersScreenLayout(
         state = state,
+        baseUrl = JellyfinApi.getInstance(LocalContext.current).api.baseUrl,
         showBack = showBack,
         onAction = { action ->
             when (action) {
@@ -85,6 +92,7 @@ fun UsersScreen(
 @Composable
 private fun UsersScreenLayout(
     state: UsersState,
+    baseUrl: String? = null,
     showBack: Boolean = true,
     onAction: (UsersAction) -> Unit,
 ) {
@@ -99,20 +107,25 @@ private fun UsersScreenLayout(
                     .fillMaxWidth()
                     .align(Alignment.Center)
         ) {
-            Spacer(modifier = Modifier.weight(0.2f))
-            Image(
-                painter = painterResource(id = CoreR.drawable.ic_banner),
-                contentDescription = null,
-                modifier = Modifier.width(250.dp).align(Alignment.CenterHorizontally),
-            )
-            Spacer(modifier = Modifier.height(32.dp))
+            if (showBack) {
+                Spacer(modifier = Modifier.height(64.dp))
+            } else {
+                Spacer(modifier = Modifier.weight(0.2f))
+                Image(
+                    painter = painterResource(id = CoreR.drawable.ic_banner),
+                    contentDescription = null,
+                    modifier = Modifier.width(250.dp).align(Alignment.CenterHorizontally),
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+            }
             Text(
                 text = stringResource(SetupR.string.users),
                 style = MaterialTheme.typography.headlineMedium,
             )
             Text(
-                text = stringResource(SetupR.string.server_subtitle, state.serverName ?: ""),
-                style = MaterialTheme.typography.titleMedium,
+                text = state.serverName ?: "",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(24.dp))
             if (state.users.isEmpty() && state.publicUsers.isEmpty()) {
@@ -122,30 +135,51 @@ private fun UsersScreenLayout(
                 )
                 Spacer(modifier = Modifier.weight(1f))
             } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 112.dp),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
+                    contentPadding = PaddingValues(bottom = 96.dp),
                     modifier = Modifier.fillMaxWidth().weight(1f),
                 ) {
-                    items(state.users) { user ->
+                    items(state.users, key = { "u-" + it.id }) { user ->
                         UserItem(
-                            name = user.name,
-                            modifier = Modifier.fillMaxWidth(),
+                            user = user,
+                            baseUrl = baseUrl,
+                            current = user.id == state.currentUserId,
                             onClick = { onAction(UsersAction.OnUserClick(userId = user.id)) },
                             onLongClick = {
                                 selectedUser = user
                                 openDeleteDialog = true
                             },
+                            onRemoveClick = {
+                                selectedUser = user
+                                openDeleteDialog = true
+                            },
                         )
                     }
-                    items(state.publicUsers) { user ->
-                        UserItem(
-                            name = user.name,
-                            modifier = Modifier.fillMaxWidth().alpha(0.7f),
-                            onClick = {
-                                onAction(UsersAction.OnPublicUserClick(username = user.name))
-                            },
-                            onLongClick = {},
-                        )
+                    if (state.publicUsers.isNotEmpty()) {
+                        item(key = "public-header", span = { GridItemSpan(maxLineSpan) }) {
+                            Text(
+                                text =
+                                    stringResource(
+                                        SetupR.string.ce_users_other_on_server,
+                                        state.serverName ?: "",
+                                    ),
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.padding(top = MaterialTheme.spacings.small),
+                            )
+                        }
+                        items(state.publicUsers, key = { "p-" + it.id }) { user ->
+                            UserItem(
+                                user = user,
+                                baseUrl = baseUrl,
+                                subtitle = stringResource(SetupR.string.ce_users_sign_in),
+                                onClick = {
+                                    onAction(UsersAction.OnPublicUserClick(username = user.name))
+                                },
+                            )
+                        }
                     }
                 }
             }
@@ -214,9 +248,11 @@ private fun UsersScreenLayoutPreview() {
         UsersScreenLayout(
             state =
                 UsersState(
-                    users = listOf(User(id = UUID.randomUUID(), name = "Bob", serverId = "")),
+                    users = listOf(dummyUser, User(id = UUID.randomUUID(), name = "Bob", serverId = "")),
                     publicUsers =
                         listOf(User(id = UUID.randomUUID(), name = "Alice", serverId = "")),
+                    serverName = "Jellyfin",
+                    currentUserId = dummyUser.id,
                 ),
             onAction = {},
         )
