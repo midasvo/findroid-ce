@@ -113,6 +113,10 @@ interface ServerDatabaseDao {
     @Query("SELECT * FROM sources WHERE itemId = :itemId")
     suspend fun getSources(itemId: UUID): List<FindroidSourceDto>
 
+    /** Sources of many items in one query. Keep [itemIds] under SQLite's variable limit. */
+    @Query("SELECT * FROM sources WHERE itemId IN (:itemIds)")
+    suspend fun getSourcesByItemIds(itemIds: List<UUID>): List<FindroidSourceDto>
+
     @Query("SELECT * FROM sources WHERE downloadId = :downloadId")
     suspend fun getSourceByDownloadId(downloadId: Long): FindroidSourceDto?
 
