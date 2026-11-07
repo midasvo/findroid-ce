@@ -2,7 +2,7 @@ package dev.jdtech.jellyfin.baselineprofile
 
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Direction
+import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.Until
 
 const val PACKAGE_NAME = "nl.midasvo.findroid.ce"
@@ -34,10 +34,12 @@ fun MacrobenchmarkScope.appJourney(): Boolean {
         return false
     }
 
-    home.setGestureMargin(device.displayWidth / 5)
-    repeat(2) { home.fling(Direction.DOWN) }
+    // Swipe the screen instead of flinging the found list: Home recomposes while its rows load
+    // and a held UiObject2 goes stale.
     device.waitForIdle()
-    repeat(2) { home.fling(Direction.UP) }
+    repeat(2) { swipeVertical(up = true) }
+    device.waitForIdle()
+    repeat(2) { swipeVertical(up = false) }
     device.waitForIdle()
 
     // First card (movie, show or episode) -> its detail screen, then the first card on that.
@@ -49,12 +51,28 @@ fun MacrobenchmarkScope.appJourney(): Boolean {
     return true
 }
 
-private fun MacrobenchmarkScope.openFirstCard(): Boolean {
-    val list = device.wait(Until.findObject(By.scrollable(true)), SCREEN_TIMEOUT_MS) ?: return false
-    val card =
-        list.findObjects(By.clickable(true)).firstOrNull { it.visibleBounds.height() > 100 }
-            ?: return false
-    card.click()
+private fun MacrobenchmarkScope.swipeVertical(up: Boolean) {
+    val x = device.displayWidth / 2
+    val high = device.displayHeight / 4
+    val low = device.displayHeight * 3 / 4
+    if (up) device.swipe(x, low, x, high, 25) else device.swipe(x, high, x, low, 25)
     device.waitForIdle()
-    return true
+}
+
+private fun MacrobenchmarkScope.openFirstCard(): Boolean {
+    repeat(3) {
+        try {
+            val list =
+                device.wait(Until.findObject(By.scrollable(true)), SCREEN_TIMEOUT_MS) ?: return false
+            val card =
+                list.findObjects(By.clickable(true)).firstOrNull { it.visibleBounds.height() > 100 }
+                    ?: return false
+            card.click()
+            device.waitForIdle()
+            return true
+        } catch (_: StaleObjectException) {
+            device.waitForIdle()
+        }
+    }
+    return false
 }

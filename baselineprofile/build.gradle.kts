@@ -35,10 +35,12 @@ android {
 }
 
 baselineProfile {
-    managedDevices += "pixel6Api34"
     // -Pbaselineprofile.useConnectedDevices=true runs on the attached phone instead, which is how
-    // a profile for a logged-in server is recorded (see README.md).
-    useConnectedDevices = providers.gradleProperty("baselineprofile.useConnectedDevices").isPresent
+    // a profile for a logged-in server is recorded (see README.md). The plugin runs managed
+    // devices as well when both are set, so the managed device is only added without the flag.
+    val useConnected = providers.gradleProperty("baselineprofile.useConnectedDevices").isPresent
+    if (!useConnected) managedDevices += "pixel6Api34"
+    useConnectedDevices = useConnected
 }
 
 dependencies {
