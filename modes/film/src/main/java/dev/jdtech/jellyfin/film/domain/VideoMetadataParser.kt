@@ -5,6 +5,7 @@ import dev.jdtech.jellyfin.models.AudioCodec
 import dev.jdtech.jellyfin.models.DisplayProfile
 import dev.jdtech.jellyfin.models.FindroidSource
 import dev.jdtech.jellyfin.models.Resolution
+import dev.jdtech.jellyfin.models.SpatialAudio
 import dev.jdtech.jellyfin.models.VideoCodec
 import dev.jdtech.jellyfin.models.VideoMetadata
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +24,7 @@ object VideoMetadataParser {
         val displayProfiles = mutableListOf<DisplayProfile>()
         val audioCodecs = mutableListOf<AudioCodec?>()
         val isAtmosAudio = mutableListOf<Boolean>()
+        val spatialAudio = mutableListOf<SpatialAudio>()
 
         withContext(Dispatchers.Default) {
             source.mediaStreams.forEach { stream ->
@@ -48,6 +50,21 @@ object VideoMetadataParser {
                          * Atmos
                          */
                         stream.displayTitle?.apply { isAtmosAudio.add(contains("ATMOS", true)) }
+
+                        /**
+                         * CE: spatial audio from [org.jellyfin.sdk.model.api.MediaStream.profile],
+                         * falling back to the display title (older offline downloads have no
+                         * stored profile)
+                         */
+                        val profile = stream.profile.orEmpty()
+                        val title = stream.displayTitle.orEmpty()
+                        when {
+                            profile.contains("atmos", true) -> SpatialAudio.ATMOS
+                            profile.contains("dts:x", true) ||
+                                profile.contains("dts-x", true) -> SpatialAudio.DTS_X
+                            title.contains("atmos", true) -> SpatialAudio.ATMOS
+                            else -> null
+                        }?.let { spatialAudio.add(it) }
 
                         /** Match audio codec from [org.jellyfin.sdk.model.api.MediaStream.codec] */
                         audioCodecs.add(
@@ -75,19 +92,22 @@ object VideoMetadataParser {
                              * [org.jellyfin.sdk.model.api.MediaStream.videoRangeType]
                              */
                             when (videoRangeType) {
-                                VideoRangeType.SDR -> DisplayProfile.SDR
-                                VideoRangeType.HDR10 -> DisplayProfile.HDR10
-                                VideoRangeType.HDR10_PLUS -> DisplayProfile.HDR10_PLUS
-                                VideoRangeType.HLG -> DisplayProfile.HLG
+                                VideoRangeType.SDR -> listOf(DisplayProfile.SDR)
+                                VideoRangeType.HDR10 -> listOf(DisplayProfile.HDR10)
+                                VideoRangeType.HDR10_PLUS -> listOf(DisplayProfile.HDR10_PLUS)
+                                VideoRangeType.HLG -> listOf(DisplayProfile.HLG)
+                                // CE: these carry an HDR10+ layer next to the Dolby Vision one
+                                VideoRangeType.DOVI_WITH_ELHDR10_PLUS,
+                                VideoRangeType.DOVI_WITH_HDR10_PLUS ->
+                                    listOf(DisplayProfile.DOLBY_VISION, DisplayProfile.HDR10_PLUS)
                                 VideoRangeType.DOVI,
                                 VideoRangeType.DOVI_WITH_EL,
-                                VideoRangeType.DOVI_WITH_ELHDR10_PLUS,
                                 VideoRangeType.DOVI_WITH_HLG,
                                 VideoRangeType.DOVI_WITH_SDR,
-                                VideoRangeType.DOVI_WITH_HDR10,
-                                VideoRangeType.DOVI_WITH_HDR10_PLUS -> DisplayProfile.DOLBY_VISION
-                                else -> null
-                            }?.let { displayProfiles.add(it) }
+                                VideoRangeType.DOVI_WITH_HDR10 ->
+                                    listOf(DisplayProfile.DOLBY_VISION)
+                                else -> emptyList()
+                            }.let { displayProfiles.addAll(it) }
 
                             /**
                              * Force stream [org.jellyfin.sdk.model.api.MediaStream.height] and
@@ -144,6 +164,7 @@ object VideoMetadataParser {
             audioChannels = audioChannels.toSet().toList(),
             audioCodecs = audioCodecs.toSet().toList(),
             isAtmos = isAtmosAudio,
+            spatialAudio = spatialAudio.toSet().toList(),
         )
     }
 }

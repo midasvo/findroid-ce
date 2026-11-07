@@ -35,6 +35,7 @@ val dummyEpisode =
                                 language = "en",
                                 type = MediaStreamType.VIDEO,
                                 codec = "hevc",
+                                profile = null,
                                 isExternal = false,
                                 path = "",
                                 channelLayout = null,

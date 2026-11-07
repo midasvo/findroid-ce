@@ -573,7 +573,11 @@ private fun EpisodeDetails(
     }
 }
 
-/** Resolution, video codec, HDR format, and the language and format of the first audio track. */
+/**
+ * Resolution, video codec, every HDR format (Dolby Vision and its HDR10+ fallback are separate
+ * chips), and the language and format of the first audio track, with its spatial audio format
+ * (e.g. "English Dolby TrueHD Atmos 7.1").
+ */
 private fun technicalChips(episode: FindroidEpisode?, metadata: VideoMetadata?): List<String> {
     val source = episode?.sources?.firstOrNull() ?: return emptyList()
     val video = source.mediaStreams.firstOrNull { it.type == MediaStreamType.VIDEO }
@@ -581,14 +585,18 @@ private fun technicalChips(episode: FindroidEpisode?, metadata: VideoMetadata?):
     return buildList {
         video?.height?.let { add(resolutionName(it)) }
         metadata?.videoCodecs?.firstOrNull()?.let { add(it.raw) }
-        metadata?.displayProfiles?.firstOrNull { it != DisplayProfile.SDR }?.let { add(it.raw) }
+        metadata?.displayProfiles?.filter { it != DisplayProfile.SDR }?.forEach { add(it.raw) }
         audio?.let { stream ->
             val language =
                 stream.language
                     .takeIf { it.isNotBlank() }
                     ?.let { code -> Locale.forLanguageTag(code).displayLanguage.ifBlank { code } }
             val format =
-                listOfNotNull(audioCodecName(stream.codec), metadata?.audioChannels?.firstOrNull()?.raw)
+                listOfNotNull(
+                        audioCodecName(stream.codec),
+                        metadata?.spatialAudio?.firstOrNull()?.raw,
+                        metadata?.audioChannels?.firstOrNull()?.raw,
+                    )
                     .joinToString(" ")
             add(listOfNotNull(language, format.ifBlank { null }).joinToString(" "))
         }
