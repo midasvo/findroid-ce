@@ -151,4 +151,9 @@
     <string name="about_source_code">Izvorna koda</string>
     <string name="pref_ask_user_on_start">Ob zagonu vprašaj, kdo gleda</string>
     <string name="pref_ask_user_on_start_summary">Če ima ta strežnik več kot enega uporabnika, se aplikacija odpre na seznamu uporabnikov namesto na domu</string>
+    <string name="settings_home_cache_title">Zapomni si vrstice na domačem zaslonu</string>
+    <string name="settings_home_cache_summary">Prikaže vrstice z zadnjega obiska, medtem ko strežnik odgovarja. Če je izklopljeno, domači zaslon ob vsakem zagonu počaka na strežnik.</string>
+    <string name="settings_clear_cache_title">Počisti predpomnilnik</string>
+    <string name="settings_clear_cache_summary">Odstrani slike v predpomnilniku in zapomnjene vrstice na domačem zaslonu.</string>
+    <string name="settings_cache_cleared">Predpomnilnik je počiščen</string>
 </resources>

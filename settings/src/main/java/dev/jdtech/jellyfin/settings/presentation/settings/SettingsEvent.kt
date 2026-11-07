@@ -23,4 +23,7 @@ sealed interface SettingsEvent {
     data object NavigateToHomeRows : SettingsEvent
 
     data object RestartActivity : SettingsEvent
+
+    /** The Clear cache row did its work. */
+    data object CacheCleared : SettingsEvent
 }

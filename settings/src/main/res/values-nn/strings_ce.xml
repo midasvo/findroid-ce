@@ -151,4 +151,9 @@
     <string name="about_source_code">Kjeldekode</string>
     <string name="pref_ask_user_on_start">Spør kven som ser på ved oppstart</string>
     <string name="pref_ask_user_on_start_summary">Når denne tenaren har fleire enn éin brukar, opnar appen på brukarlista i staden for Heim</string>
+    <string name="settings_home_cache_title">Hugs radene på startsida</string>
+    <string name="settings_home_cache_summary">Viser radene frå siste besøk medan tenaren svarer. Er det av, ventar startsida på tenaren ved kvar oppstart.</string>
+    <string name="settings_clear_cache_title">Tøm hurtigminnet</string>
+    <string name="settings_clear_cache_summary">Fjernar dei mellomlagra bilda og dei hugsa radene på startsida.</string>
+    <string name="settings_cache_cleared">Hurtigminnet er tømt</string>
 </resources>

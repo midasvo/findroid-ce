@@ -151,4 +151,9 @@
     <string name="about_source_code">Code source</string>
     <string name="pref_ask_user_on_start">Demander qui regarde au démarrage</string>
     <string name="pref_ask_user_on_start_summary">Lorsque ce serveur compte plus d\'un utilisateur, l\'application s\'ouvre sur la liste des utilisateurs au lieu de l\'accueil</string>
+    <string name="settings_home_cache_title">Mémoriser les rangées de l\'accueil</string>
+    <string name="settings_home_cache_summary">Affiche les rangées de votre dernière visite pendant que le serveur répond. Désactivé, l\'accueil attend le serveur à chaque démarrage.</string>
+    <string name="settings_clear_cache_title">Vider le cache</string>
+    <string name="settings_clear_cache_summary">Supprime les images en cache et les rangées de l\'accueil mémorisées.</string>
+    <string name="settings_cache_cleared">Cache vidé</string>
 </resources>

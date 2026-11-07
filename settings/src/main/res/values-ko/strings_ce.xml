@@ -151,4 +151,9 @@
     <string name="about_source_code">소스 코드</string>
     <string name="pref_ask_user_on_start">시작할 때 누가 시청하는지 묻기</string>
     <string name="pref_ask_user_on_start_summary">이 서버에 사용자가 둘 이상이면 홈 대신 사용자 목록으로 앱이 열립니다</string>
+    <string name="settings_home_cache_title">홈 행 기억하기</string>
+    <string name="settings_home_cache_summary">서버가 응답하는 동안 지난번에 본 행을 표시합니다. 끄면 홈은 시작할 때마다 서버를 기다립니다.</string>
+    <string name="settings_clear_cache_title">캐시 지우기</string>
+    <string name="settings_clear_cache_summary">캐시된 이미지와 기억해 둔 홈 행을 삭제합니다.</string>
+    <string name="settings_cache_cleared">캐시를 지웠습니다</string>
 </resources>

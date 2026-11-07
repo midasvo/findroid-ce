@@ -151,4 +151,9 @@
     <string name="about_source_code">Lähdekoodi</string>
     <string name="pref_ask_user_on_start">Kysy käynnistettäessä, kuka katsoo</string>
     <string name="pref_ask_user_on_start_summary">Kun palvelimella on useampi kuin yksi käyttäjä, sovellus avautuu Kodin sijaan käyttäjäluetteloon</string>
+    <string name="settings_home_cache_title">Muista etusivun rivit</string>
+    <string name="settings_home_cache_summary">Näyttää edellisen käyntisi rivit, kunnes palvelin vastaa. Kun asetus on pois päältä, etusivu odottaa palvelinta joka käynnistyksellä.</string>
+    <string name="settings_clear_cache_title">Tyhjennä välimuisti</string>
+    <string name="settings_clear_cache_summary">Poistaa välimuistissa olevat kuvat ja muistetut etusivun rivit.</string>
+    <string name="settings_cache_cleared">Välimuisti tyhjennetty</string>
 </resources>

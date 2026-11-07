@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin.presentation.settings
 
 import android.app.Activity
+import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -82,6 +83,9 @@ fun SettingsSubScreen(
             is SettingsEvent.NavigateToSubtitleStyle ->
                 navigateToSubSettings(indexes + SettingsR.string.subtitle_style)
             is SettingsEvent.UpdateTheme -> Unit
+            is SettingsEvent.CacheCleared ->
+                Toast.makeText(context, SettingsR.string.settings_cache_cleared, Toast.LENGTH_SHORT)
+                    .show()
             is SettingsEvent.LaunchIntent -> {
                 try {
                     context.startActivity(event.intent)

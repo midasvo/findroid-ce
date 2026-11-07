@@ -1,6 +1,7 @@
 package dev.jdtech.jellyfin.presentation.settings
 
 import android.app.Activity
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -72,6 +73,9 @@ fun SettingsScreen(
                     )
                 )
             is SettingsEvent.UpdateTheme -> Unit
+            is SettingsEvent.CacheCleared ->
+                Toast.makeText(context, SettingsR.string.settings_cache_cleared, Toast.LENGTH_SHORT)
+                    .show()
             is SettingsEvent.LaunchIntent -> {
                 try {
                     context.startActivity(event.intent)

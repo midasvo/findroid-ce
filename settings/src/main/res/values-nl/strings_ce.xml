@@ -151,4 +151,9 @@
     <string name="about_source_code">Broncode</string>
     <string name="pref_ask_user_on_start">Bij het opstarten vragen wie er kijkt</string>
     <string name="pref_ask_user_on_start_summary">Als deze server meer dan één gebruiker heeft, opent de app op de gebruikerslijst in plaats van Start</string>
+    <string name="settings_home_cache_title">Rijen op Home onthouden</string>
+    <string name="settings_home_cache_summary">Toont de rijen van je laatste bezoek terwijl de server antwoordt. Uit wacht Home bij elke start op de server.</string>
+    <string name="settings_clear_cache_title">Cache wissen</string>
+    <string name="settings_clear_cache_summary">Verwijdert de gecachete afbeeldingen en de onthouden rijen op Home.</string>
+    <string name="settings_cache_cleared">Cache gewist</string>
 </resources>

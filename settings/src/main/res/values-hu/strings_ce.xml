@@ -151,4 +151,9 @@
     <string name="about_source_code">Forráskód</string>
     <string name="pref_ask_user_on_start">Induláskor kérdezze meg, ki nézi</string>
     <string name="pref_ask_user_on_start_summary">Ha a szervernek egynél több felhasználója van, az alkalmazás a Kezdőlap helyett a felhasználólistán nyílik meg</string>
+    <string name="settings_home_cache_title">Kezdőlap sorainak megjegyzése</string>
+    <string name="settings_home_cache_summary">Megjeleníti az utolsó látogatás sorait, amíg a szerver válaszol. Kikapcsolva a kezdőlap minden indításkor megvárja a szervert.</string>
+    <string name="settings_clear_cache_title">Gyorsítótár törlése</string>
+    <string name="settings_clear_cache_summary">Eltávolítja a gyorsítótárazott képeket és a megjegyzett kezdőlapi sorokat.</string>
+    <string name="settings_cache_cleared">Gyorsítótár törölve</string>
 </resources>

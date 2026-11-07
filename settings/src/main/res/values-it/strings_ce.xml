@@ -151,4 +151,9 @@
     <string name="about_source_code">Codice sorgente</string>
     <string name="pref_ask_user_on_start">Chiedi chi sta guardando all\'avvio</string>
     <string name="pref_ask_user_on_start_summary">Quando questo server ha più di un utente, l\'app si apre sull\'elenco degli utenti invece che sulla Home</string>
+    <string name="settings_home_cache_title">Ricorda le righe della Home</string>
+    <string name="settings_home_cache_summary">Mostra le righe dell\'ultima visita mentre il server risponde. Se disattivato, la Home attende il server a ogni avvio.</string>
+    <string name="settings_clear_cache_title">Svuota la cache</string>
+    <string name="settings_clear_cache_summary">Rimuove le immagini nella cache e le righe della Home memorizzate.</string>
+    <string name="settings_cache_cleared">Cache svuotata</string>
 </resources>

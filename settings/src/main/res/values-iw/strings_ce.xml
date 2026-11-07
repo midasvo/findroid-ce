@@ -151,4 +151,9 @@
     <string name="about_source_code">קוד מקור</string>
     <string name="pref_ask_user_on_start">לשאול מי צופה בעת ההפעלה</string>
     <string name="pref_ask_user_on_start_summary">כאשר לשרת הזה יש יותר ממשתמש אחד, האפליקציה נפתחת ברשימת המשתמשים במקום במסך הבית</string>
+    <string name="settings_home_cache_title">זכור את שורות דף הבית</string>
+    <string name="settings_home_cache_summary">מציג את השורות מהביקור האחרון שלך בזמן שהשרת מגיב. כשהאפשרות כבויה, דף הבית ממתין לשרת בכל הפעלה.</string>
+    <string name="settings_clear_cache_title">נקה מטמון</string>
+    <string name="settings_clear_cache_summary">מסיר את התמונות השמורות במטמון ואת שורות דף הבית שנשמרו.</string>
+    <string name="settings_cache_cleared">המטמון נוקה</string>
 </resources>

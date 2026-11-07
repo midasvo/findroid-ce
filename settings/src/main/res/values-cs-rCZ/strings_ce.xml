@@ -151,4 +151,9 @@
     <string name="about_source_code">Zdrojový kód</string>
     <string name="pref_ask_user_on_start">Při spuštění se zeptat, kdo se dívá</string>
     <string name="pref_ask_user_on_start_summary">Pokud má tento server více než jednoho uživatele, aplikace se otevře na seznamu uživatelů místo Domů</string>
+    <string name="settings_home_cache_title">Pamatovat si řádky domovské obrazovky</string>
+    <string name="settings_home_cache_summary">Zobrazí řádky z poslední návštěvy, dokud server neodpoví. Když je vypnuto, domovská obrazovka při každém spuštění čeká na server.</string>
+    <string name="settings_clear_cache_title">Vymazat mezipaměť</string>
+    <string name="settings_clear_cache_summary">Odstraní obrázky v mezipaměti a zapamatované řádky domovské obrazovky.</string>
+    <string name="settings_cache_cleared">Mezipaměť byla vymazána</string>
 </resources>

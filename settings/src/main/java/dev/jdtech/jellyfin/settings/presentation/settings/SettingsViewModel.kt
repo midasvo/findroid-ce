@@ -15,6 +15,8 @@ import dev.jdtech.jellyfin.settings.domain.models.PermissionDefinitions
 import dev.jdtech.jellyfin.settings.presentation.enums.AppVariant
 import dev.jdtech.jellyfin.settings.presentation.enums.DeviceType
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceAppLanguage
+import dev.jdtech.jellyfin.settings.domain.AppCaches
+import dev.jdtech.jellyfin.settings.presentation.models.PreferenceAction
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceCategory
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceDynamicSelect
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceFileEdit
@@ -39,6 +41,7 @@ class SettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appPreferences: AppPreferences,
     private val appVariant: AppVariant = AppVariant.PHONE,
+    private val appCaches: AppCaches = AppCaches.None,
 ) : ViewModel() {
     private val _state = MutableStateFlow(SettingsState())
     val state = _state.asStateFlow()
@@ -1141,6 +1144,30 @@ class SettingsViewModel @Inject constructor(
                                                         R.string.settings_image_display_size_summary,
                                                     backendPreference =
                                                         appPreferences.imageDisplaySize,
+                                                ),
+                                                // CE (#251): the remembered Home rows, apart from
+                                                // the image cache, for those who'd rather wait for
+                                                // the server than see yesterday's rows first.
+                                                PreferenceSwitch(
+                                                    nameStringResource =
+                                                        R.string.settings_home_cache_title,
+                                                    descriptionStringRes =
+                                                        R.string.settings_home_cache_summary,
+                                                    backendPreference = appPreferences.homeCache,
+                                                ),
+                                                PreferenceAction(
+                                                    nameStringResource =
+                                                        R.string.settings_clear_cache_title,
+                                                    descriptionStringRes =
+                                                        R.string.settings_clear_cache_summary,
+                                                    onClick = {
+                                                        viewModelScope.launch {
+                                                            appCaches.clear()
+                                                            eventsChannel.send(
+                                                                SettingsEvent.CacheCleared
+                                                            )
+                                                        }
+                                                    },
                                                 ),
                                             )
                                     )

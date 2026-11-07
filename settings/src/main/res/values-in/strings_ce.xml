@@ -151,4 +151,9 @@
     <string name="about_source_code">Kode sumber</string>
     <string name="pref_ask_user_on_start">Tanya siapa yang menonton saat mulai</string>
     <string name="pref_ask_user_on_start_summary">Saat server ini memiliki lebih dari satu pengguna, aplikasi terbuka di daftar pengguna, bukan Beranda</string>
+    <string name="settings_home_cache_title">Ingat baris Beranda</string>
+    <string name="settings_home_cache_summary">Menampilkan baris dari kunjungan terakhir Anda selagi server menjawab. Jika nonaktif, Beranda menunggu server setiap kali dibuka.</string>
+    <string name="settings_clear_cache_title">Hapus cache</string>
+    <string name="settings_clear_cache_summary">Menghapus gambar yang di-cache dan baris Beranda yang diingat.</string>
+    <string name="settings_cache_cleared">Cache dihapus</string>
 </resources>

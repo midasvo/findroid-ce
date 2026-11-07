@@ -151,4 +151,9 @@
     <string name="about_source_code">Cod sursă</string>
     <string name="pref_ask_user_on_start">Întreabă cine se uită la pornire</string>
     <string name="pref_ask_user_on_start_summary">Când acest server are mai mulți utilizatori, aplicația se deschide pe lista de utilizatori în loc de Acasă</string>
+    <string name="settings_home_cache_title">Ține minte rândurile paginii principale</string>
+    <string name="settings_home_cache_summary">Afișează rândurile de la ultima vizită cât timp serverul răspunde. Dezactivat, pagina principală așteaptă serverul la fiecare pornire.</string>
+    <string name="settings_clear_cache_title">Golește cache-ul</string>
+    <string name="settings_clear_cache_summary">Elimină imaginile din cache și rândurile memorate ale paginii principale.</string>
+    <string name="settings_cache_cleared">Cache-ul a fost golit</string>
 </resources>

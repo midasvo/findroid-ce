@@ -151,4 +151,9 @@
     <string name="about_source_code">الشيفرة المصدرية</string>
     <string name="pref_ask_user_on_start">اسأل من يشاهد عند البدء</string>
     <string name="pref_ask_user_on_start_summary">عندما يكون لهذا الخادم أكثر من مستخدم، يفتح التطبيق على قائمة المستخدمين بدلاً من الرئيسية</string>
+    <string name="settings_home_cache_title">تذكّر صفوف الصفحة الرئيسية</string>
+    <string name="settings_home_cache_summary">اعرض صفوف زيارتك الأخيرة أثناء استجابة الخادم. عند الإيقاف، تنتظر الصفحة الرئيسية الخادم عند كل بدء تشغيل.</string>
+    <string name="settings_clear_cache_title">مسح التخزين المؤقت</string>
+    <string name="settings_clear_cache_summary">يزيل الصور المخزّنة مؤقتًا وصفوف الصفحة الرئيسية المحفوظة.</string>
+    <string name="settings_cache_cleared">تم مسح التخزين المؤقت</string>
 </resources>

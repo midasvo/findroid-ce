@@ -151,4 +151,9 @@
     <string name="about_source_code">ソースコード</string>
     <string name="pref_ask_user_on_start">起動時に誰が視聴するか尋ねる</string>
     <string name="pref_ask_user_on_start_summary">このサーバーに複数のユーザーがいる場合、ホームではなくユーザー一覧でアプリを開きます</string>
+    <string name="settings_home_cache_title">ホームの行を記憶</string>
+    <string name="settings_home_cache_summary">サーバーが応答するまで、前回表示した行を表示します。オフにすると、ホームは起動のたびにサーバーの応答を待ちます。</string>
+    <string name="settings_clear_cache_title">キャッシュを消去</string>
+    <string name="settings_clear_cache_summary">キャッシュされた画像と記憶したホームの行を削除します。</string>
+    <string name="settings_cache_cleared">キャッシュを消去しました</string>
 </resources>
