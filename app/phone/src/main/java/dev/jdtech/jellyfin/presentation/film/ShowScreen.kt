@@ -65,9 +65,10 @@ import dev.jdtech.jellyfin.presentation.film.components.SeasonSelectionDialog
 import dev.jdtech.jellyfin.presentation.film.components.rememberTopBarBackgroundAlpha
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
-import dev.jdtech.jellyfin.presentation.utils.Layout
+import dev.jdtech.jellyfin.presentation.utils.LightStatusBarOverArtwork
 import dev.jdtech.jellyfin.presentation.utils.ReloadOnResume
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
+import dev.jdtech.jellyfin.presentation.utils.useWideItemLayout
 import dev.jdtech.jellyfin.utils.copyOnLongClick
 import dev.jdtech.jellyfin.utils.getShowDateString
 import java.util.UUID
@@ -161,6 +162,12 @@ private fun ShowScreenLayout(
     onDownloadSeasons: (seasonIds: Set<UUID>, maxBitrate: Int?) -> Unit,
     onDeleteShowDownloads: () -> Unit,
 ) {
+    // CE: medium and expanded windows get the hero layout (docs/tablet/4-design.md §6).
+    if (useWideItemLayout()) {
+        ShowWideLayout(state, onAction, onDownloadSeasons, onDeleteShowDownloads)
+        return
+    }
+
     val safePadding = rememberSafePadding()
 
     val paddingStart = safePadding.start + MaterialTheme.spacings.default
@@ -206,11 +213,7 @@ private fun ShowScreenLayout(
                         }
                     },
                 )
-                Column(
-                    modifier =
-                        Modifier.widthIn(max = Layout.textMaxWidth)
-                            .padding(start = paddingStart, end = paddingEnd)
-                ) {
+                Column(modifier = Modifier.padding(start = paddingStart, end = paddingEnd)) {
                     Spacer(Modifier.height(MaterialTheme.spacings.small))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -379,6 +382,7 @@ private fun ShowScreenLayout(
             )
         }
 
+        LightStatusBarOverArtwork(state.show != null, rememberTopBarBackgroundAlpha(scrollState))
         ItemTopBar(
             hasBackButton = true,
             hasHomeButton = true,

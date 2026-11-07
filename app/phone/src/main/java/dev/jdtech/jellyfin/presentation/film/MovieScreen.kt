@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
@@ -61,9 +60,10 @@ import dev.jdtech.jellyfin.presentation.film.components.rememberTopBarBackground
 import dev.jdtech.jellyfin.presentation.theme.FindroidTheme
 import dev.jdtech.jellyfin.presentation.theme.spacings
 import dev.jdtech.jellyfin.presentation.utils.LocalOfflineMode
-import dev.jdtech.jellyfin.presentation.utils.Layout
+import dev.jdtech.jellyfin.presentation.utils.LightStatusBarOverArtwork
 import dev.jdtech.jellyfin.presentation.utils.ReloadOnResume
 import dev.jdtech.jellyfin.presentation.utils.rememberSafePadding
+import dev.jdtech.jellyfin.presentation.utils.useWideItemLayout
 import dev.jdtech.jellyfin.utils.ObserveAsEvents
 import dev.jdtech.jellyfin.utils.copyOnLongClick
 import java.util.UUID
@@ -150,6 +150,12 @@ private fun MovieScreenLayout(
     onAction: (MovieAction) -> Unit,
     onDownloaderAction: (DownloaderAction) -> Unit,
 ) {
+    // CE: medium and expanded windows get the hero layout (docs/tablet/4-design.md §6).
+    if (useWideItemLayout()) {
+        MovieWideLayout(state, downloaderState, onAction, onDownloaderAction)
+        return
+    }
+
     val safePadding = rememberSafePadding()
 
     val paddingStart = safePadding.start + MaterialTheme.spacings.default
@@ -193,11 +199,7 @@ private fun MovieScreenLayout(
                         }
                     },
                 )
-                Column(
-                    modifier =
-                        Modifier.widthIn(max = Layout.textMaxWidth)
-                            .padding(start = paddingStart, end = paddingEnd)
-                ) {
+                Column(modifier = Modifier.padding(start = paddingStart, end = paddingEnd)) {
                     Spacer(Modifier.height(MaterialTheme.spacings.small))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -320,6 +322,7 @@ private fun MovieScreenLayout(
             )
         }
 
+        LightStatusBarOverArtwork(state.movie != null, rememberTopBarBackgroundAlpha(scrollState))
         ItemTopBar(
             hasBackButton = true,
             hasHomeButton = true,
