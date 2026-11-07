@@ -14,8 +14,11 @@ import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.utils.Downloader
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -96,44 +99,134 @@ constructor(
     /**
      * @param includeSeriesSeasons also load the other seasons of the series into
      *   [SeasonState.seriesSeasons], so TV can switch season on the same page.
+     * @param seriesId the season's series, when the caller knows it. Then the season, its episodes
+     *   and the series' seasons are all requested at once (#252). Without it, the series is taken
+     *   from the season already on screen, or else from the season once it has loaded.
      */
     fun loadSeason(
         seasonId: UUID,
         downloadsOnly: Boolean = this.downloadsOnly,
         includeSeriesSeasons: Boolean = this.includeSeriesSeasons,
+        seriesId: UUID? = null,
     ) {
         this.seasonId = seasonId
         this.downloadsOnly = downloadsOnly
         this.includeSeriesSeasons = includeSeriesSeasons
         viewModelScope.launch {
-            _state.emit(_state.value.copy(error = null))
+            val previous = _state.value
+            _state.emit(previous.copy(error = null))
+            // Another season of the same series (TV season chips) shares the series id.
+            val knownSeriesId =
+                seriesId
+                    ?: previous.season?.takeIf { it.id == seasonId }?.seriesId
+                    ?: previous.seriesSeasons.firstOrNull { it.id == seasonId }?.seriesId
+            // While another season loads, the old one stays on screen with its episodes, so the
+            // new season only shows early when nothing or the same season is on screen.
+            val showSeasonEarly = previous.season == null || previous.season.id == seasonId
             try {
-                val season = repository.getSeason(seasonId)
+                // coroutineScope { } is required: without it a failure inside an async { }
+                // child goes straight to viewModelScope and crashes the app, past this
+                // try/catch (see HomeViewModel.loadData).
+                coroutineScope {
+                    val seasonAsync = async {
+                        repository.getSeason(seasonId).also { season ->
+                            if (showSeasonEarly) _state.update { it.copy(season = season) }
+                        }
+                    }
+                    val resolvedSeriesId = knownSeriesId ?: seasonAsync.await().seriesId
+                    val episodesAsync = async {
+                        repository.getEpisodes(
+                            seriesId = resolvedSeriesId,
+                            seasonId = seasonId,
+                            fields = seasonEpisodeFields,
+                            offline = downloadsOnly,
+                        )
+                    }
+                    val seriesSeasonsAsync = async {
+                        if (includeSeriesSeasons) {
+                            repository.getSeasons(resolvedSeriesId, offline = downloadsOnly)
+                        } else {
+                            emptyList()
+                        }
+                    }
+                    val season = seasonAsync.await()
+                    val episodes = episodesAsync.await()
+                    val seriesSeasons = seriesSeasonsAsync.await()
+                    _state.emit(
+                        _state.value.copy(
+                            season = season,
+                            episodes = episodes,
+                            seriesSeasons = seriesSeasons,
+                            episodeDownloadProgress =
+                                buildDownloadProgressMap(episodes, downloadQueue.entries.value),
+                        )
+                    )
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _state.emit(_state.value.copy(error = e))
+            }
+        }
+    }
+
+    /**
+     * Marks the season played or unplayed and updates the season in place (#252) instead of
+     * loading the page again. Only the episodes are fetched again: the server marks them too, the
+     * offline repository doesn't, so their state has to come from the repository.
+     */
+    private fun setPlayed(played: Boolean) {
+        viewModelScope.launch {
+            try {
+                if (played) repository.markAsPlayed(seasonId)
+                else repository.markAsUnplayed(seasonId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.e(e, if (played) "Failed to mark as played" else "Failed to unmark as played")
+                return@launch
+            }
+            _state.update { state -> state.copy(season = state.season?.copy(played = played)) }
+            val seriesId = _state.value.season?.takeIf { it.id == seasonId }?.seriesId ?: return@launch
+            try {
                 val episodes =
                     repository.getEpisodes(
-                        seriesId = season.seriesId,
+                        seriesId = seriesId,
                         seasonId = seasonId,
                         fields = seasonEpisodeFields,
                         offline = downloadsOnly,
                     )
-                val seriesSeasons =
-                    if (includeSeriesSeasons) {
-                        repository.getSeasons(season.seriesId, offline = downloadsOnly)
-                    } else {
-                        emptyList()
-                    }
-                _state.emit(
-                    _state.value.copy(
-                        season = season,
+                _state.update { state ->
+                    state.copy(
                         episodes = episodes,
-                        seriesSeasons = seriesSeasons,
                         episodeDownloadProgress =
                             buildDownloadProgressMap(episodes, downloadQueue.entries.value),
                     )
-                )
+                }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                _state.emit(_state.value.copy(error = e))
+                Timber.e(e, "Failed to refresh the season's episodes")
             }
+        }
+    }
+
+    /** Marks the season favourite or not and updates the page in place (#252). */
+    private fun setFavorite(favorite: Boolean) {
+        viewModelScope.launch {
+            try {
+                if (favorite) repository.markAsFavorite(seasonId)
+                else repository.unmarkAsFavorite(seasonId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.e(
+                    e,
+                    if (favorite) "Failed to mark as favorite" else "Failed to unmark as favorite",
+                )
+                return@launch
+            }
+            _state.update { state -> state.copy(season = state.season?.copy(favorite = favorite)) }
         }
     }
 
@@ -224,46 +317,10 @@ constructor(
     fun onAction(action: SeasonAction) {
         when (action) {
             is SeasonAction.OnRetryClick -> loadSeason(seasonId)
-            is SeasonAction.MarkAsPlayed -> {
-                viewModelScope.launch {
-                    try {
-                        repository.markAsPlayed(seasonId)
-                    } catch (e: Exception) {
-                        Timber.e(e, "Failed to mark as played")
-                    }
-                    loadSeason(seasonId)
-                }
-            }
-            is SeasonAction.UnmarkAsPlayed -> {
-                viewModelScope.launch {
-                    try {
-                        repository.markAsUnplayed(seasonId)
-                    } catch (e: Exception) {
-                        Timber.e(e, "Failed to unmark as played")
-                    }
-                    loadSeason(seasonId)
-                }
-            }
-            is SeasonAction.MarkAsFavorite -> {
-                viewModelScope.launch {
-                    try {
-                        repository.markAsFavorite(seasonId)
-                    } catch (e: Exception) {
-                        Timber.e(e, "Failed to mark as favorite")
-                    }
-                    loadSeason(seasonId)
-                }
-            }
-            is SeasonAction.UnmarkAsFavorite -> {
-                viewModelScope.launch {
-                    try {
-                        repository.unmarkAsFavorite(seasonId)
-                    } catch (e: Exception) {
-                        Timber.e(e, "Failed to unmark as favorite")
-                    }
-                    loadSeason(seasonId)
-                }
-            }
+            is SeasonAction.MarkAsPlayed -> setPlayed(true)
+            is SeasonAction.UnmarkAsPlayed -> setPlayed(false)
+            is SeasonAction.MarkAsFavorite -> setFavorite(true)
+            is SeasonAction.UnmarkAsFavorite -> setFavorite(false)
             is SeasonAction.DownloadEpisode -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     val episode = action.episode

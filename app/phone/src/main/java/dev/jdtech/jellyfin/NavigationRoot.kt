@@ -577,6 +577,7 @@ private fun EntryProviderScope<NavKey>.mainEntries(
     entry<SeasonRoute> { key ->
         SeasonScreen(
             seasonId = UUID.fromString(key.seasonId),
+            seriesId = key.seriesId?.let(UUID::fromString),
             downloadsOnly = key.downloadsOnly,
             navigateBack = dropUnlessResumed { navigator.goBack() },
             navigateHome = dropUnlessResumed { navigator.navigateHome() },
@@ -674,7 +675,11 @@ private fun navigateToItem(
         is FindroidMovie -> navigator.navigate(MovieRoute(movieId = item.id.toString()))
         is FindroidShow -> navigator.navigate(ShowRoute(showId = item.id.toString(), downloadsOnly = downloadsOnly))
         is FindroidSeason -> navigator.navigate(
-                SeasonRoute(seasonId = item.id.toString(), downloadsOnly = downloadsOnly)
+                SeasonRoute(
+                    seasonId = item.id.toString(),
+                    downloadsOnly = downloadsOnly,
+                    seriesId = item.seriesId.toString(),
+                )
             )
         is FindroidEpisode -> navigator.navigate(EpisodeRoute(episodeId = item.id.toString()))
         is FindroidCollection ->

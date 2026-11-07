@@ -45,8 +45,13 @@ data class ShowRoute(val showId: String, val downloadsOnly: Boolean = false) : N
 
 @Serializable data class DownloadedShowRoute(val showId: String, val showName: String) : NavKey
 
+/** [seriesId] lets the season page request everything at once (#252); null when not known. */
 @Serializable
-data class SeasonRoute(val seasonId: String, val downloadsOnly: Boolean = false) : NavKey
+data class SeasonRoute(
+    val seasonId: String,
+    val downloadsOnly: Boolean = false,
+    val seriesId: String? = null,
+) : NavKey
 
 @Serializable data class PersonRoute(val personId: String) : NavKey
 

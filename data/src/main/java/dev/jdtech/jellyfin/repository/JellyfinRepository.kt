@@ -116,9 +116,10 @@ interface JellyfinRepository {
 
     suspend fun getNextUp(seriesId: UUID? = null): List<FindroidEpisode>
 
+    /** The episodes of one season, or with a null [seasonId] (CE, #252) of the whole series. */
     suspend fun getEpisodes(
         seriesId: UUID,
-        seasonId: UUID,
+        seasonId: UUID?,
         fields: List<ItemFields>? = null,
         startItemId: UUID? = null,
         limit: Int? = null,
