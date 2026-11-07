@@ -4,16 +4,210 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ephyra</title>
+  <meta name="description" content="Ephyra is a Jellyfin client for Android phones, tablets and Android TV, forked from Findroid. Resumable downloads with a quality per download, Dolby Vision, subtitle styling, and a TV app built for the remote.">
+  <meta name="theme-color" content="#070B16" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F3FBFF" media="(prefers-color-scheme: light)">
+  <link rel="icon" href="images/branding/ephyra-icon-rounded.png" type="image/png">
+  <link rel="apple-touch-icon" href="images/branding/ephyra-icon-rounded.png">
+  <link rel="canonical" href="https://midasvo.nl/ephyra/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Ephyra">
+  <meta property="og:description" content="A Jellyfin client for your phone and your TV.">
+  <meta property="og:url" content="https://midasvo.nl/ephyra/">
+  <meta property="og:image" content="https://midasvo.nl/ephyra/images/branding/ephyra-feature-graphic.png">
+  <meta property="og:image:width" content="1024">
+  <meta property="og:image:height" content="500">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main>
-    <h1>Ephyra</h1>
-    <p>A native Jellyfin client for Android phones, tablets and Android TV, forked from Findroid.</p>
-    <ul>
-      <li><a href="https://github.com/midasvo/ephyra">Source code and downloads</a></li>
-      <li><a href="privacy.html">Privacy policy</a></li>
-    </ul>
-  </main>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><img src="images/branding/ephyra-mark.svg" alt="" width="28" height="28">Ephyra</a>
+    <nav aria-label="Sections">
+      <a href="#phone">Phone</a>
+      <a href="#tv">TV</a>
+      <a href="#install">Install</a>
+      <a class="optional" href="https://github.com/midasvo/ephyra">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="specks" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="hero-copy">
+        <img class="hero-mark" src="images/branding/ephyra-mark.svg" alt="" width="96" height="96">
+        <h1 id="hero-title">A Jellyfin client for your phone and your TV.</h1>
+        <p class="lead">Ephyra plays your Jellyfin library on Android phones, tablets and Android TV. It is forked from Findroid and adds downloads worth using, Dolby Vision, and a TV app built for the remote.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="https://github.com/midasvo/ephyra/releases/latest">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Download
+          </a>
+          <a class="btn btn-secondary" href="https://github.com/midasvo/ephyra">Source on GitHub</a>
+        </div>
+        <p class="meta">Free, GPLv3. Needs a Jellyfin server and Android 10 or newer.</p>
+      </div>
+      <div class="hero-shots">
+        <div class="tv"><img src="images/screenshots/tv-home.webp" alt="TV Home with a large artwork hero for the focused item and a Suggestions row below it" width="1280" height="720" fetchpriority="high"></div>
+        <div class="phone"><img src="images/screenshots/downloads.webp" alt="Downloads screen with a storage bar, two active downloads with progress rings, and a downloaded movie" width="540" height="1095"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="phone" aria-labelledby="phone-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2 id="phone-title">On the phone</h2>
+        <p>Everything Findroid does, and these things on top. Findroid's own changes are merged in regularly.</p>
+      </div>
+
+      <div class="feature reveal">
+        <div>
+          <h3>Downloads</h3>
+          <ul>
+            <li><strong>Resumable, with SD card support.</strong> Built on OkHttp, not Android's DownloadManager.</li>
+            <li><strong>A quality per download:</strong> the original, or a server conversion from 4K down to 360p.</li>
+            <li>Whole seasons or series at once, with a limit on concurrent downloads.</li>
+            <li>A Downloads screen with progress per episode and per show, a storage breakdown, multi-select and undo.</li>
+            <li><strong>Smart Downloads</strong> (opt-in) keeps the next episodes of what you're watching and removes them once watched.</li>
+          </ul>
+        </div>
+        <div class="shots four">
+          <figure><img src="images/screenshots/downloads.webp" alt="Downloads screen with a storage bar, two active downloads with progress rings, and a downloaded movie" width="540" height="1095" loading="lazy"><figcaption>Downloads, with a storage breakdown</figcaption></figure>
+          <figure><img src="images/screenshots/season.webp" alt="Season episode list showing downloaded, downloading and not yet downloaded episodes" width="540" height="1095" loading="lazy"><figcaption>Download progress per episode</figcaption></figure>
+          <figure><img src="images/screenshots/download-quality.webp" alt="Download quality dialog listing original quality and bitrates from 4K down" width="540" height="1095" loading="lazy"><figcaption>Every download asks for a quality</figcaption></figure>
+          <figure><img src="images/screenshots/downloaded-show.webp" alt="Downloaded show page listing episodes by season with their sizes" width="540" height="1095" loading="lazy"><figcaption>A page per downloaded show</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="feature reveal">
+        <div>
+          <h3>Playback</h3>
+          <ul>
+            <li><strong>Dolby Vision</strong> direct play where the device supports it, transcoding where it doesn't. Dolby Vision downloads can be converted to a device-compatible copy.</li>
+            <li>Platform decoder first (Atmos), ffmpeg if a decoder fails.</li>
+            <li>PGS, VobSub and DVB subtitles without transcoding. Subtitle colour, outline, font and size.</li>
+            <li>Version picker before playing, quality switch during playback.</li>
+            <li>Audio and subtitle choice remembered per series and per user.</li>
+            <li>Plays on into the next season. Chapter list. Skip, ask or ignore per media segment type. "Still watching?" after a run of autoplayed episodes.</li>
+            <li>Background audio with lock screen controls (opt-in).</li>
+          </ul>
+        </div>
+        <div class="shots two">
+          <figure><img src="images/screenshots/subtitle-style.webp" alt="Subtitle style screen with a live preview of yellow subtitles" width="540" height="1095" loading="lazy"><figcaption>Subtitle styling, with a live preview</figcaption></figure>
+          <figure class="landscape wide"><img src="images/screenshots/player-quality.webp" alt="Video quality dialog open over the player" width="1080" height="486" loading="lazy"><figcaption>Change the video quality during playback</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="feature reveal">
+        <div>
+          <h3>Library</h3>
+          <ul>
+            <li>Favorites tab.</li>
+            <li>Home rows you choose and reorder.</li>
+            <li>Hide-watched filter, kept across libraries.</li>
+            <li>Offline mode switches on by itself without a connection.</li>
+            <li>Error screens with Retry, and real empty states.</li>
+            <li>Long-press to copy text on detail screens. Option to hide cast and crew.</li>
+          </ul>
+        </div>
+        <div class="shots two">
+          <figure><img src="images/screenshots/home-rows.webp" alt="Home rows setting listing the Home rows with arrows to reorder them and switches to hide them" width="540" height="1095" loading="lazy"><figcaption>Choose and order the Home rows</figcaption></figure>
+        </div>
+      </div>
+
+      <p class="meta">All artwork shown belongs to its respective owners.</p>
+    </div>
+  </section>
+
+  <section id="tv" aria-labelledby="tv-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2 id="tv-title">On Android TV</h2>
+        <p>A separate app, built for the remote. Same login and server as the phone app, same releases.</p>
+      </div>
+
+      <figure class="tv tv-hero reveal"><img src="images/screenshots/tv-home.webp" alt="TV Home with a large artwork hero for the focused item, a Suggestions row below it and a collapsed side drawer" width="1280" height="720" loading="lazy"><figcaption>Home, with a hero and a glow for the focused item</figcaption></figure>
+
+      <div class="tv-grid reveal">
+        <figure class="tv"><img src="images/screenshots/tv-library.webp" alt="TV shows library grid with Hide watched and Sort by buttons, an A to Z bar on the right and a 4 of 44 counter" width="1280" height="720" loading="lazy"><figcaption>Library grid with an A to Z jump bar</figcaption></figure>
+        <figure class="tv"><img src="images/screenshots/tv-season.webp" alt="Bluey season 3 with season tabs, the details of the focused episode and a row of episodes" width="1280" height="720" loading="lazy"><figcaption>Episodes open in their season</figcaption></figure>
+        <figure class="tv"><img src="images/screenshots/tv-player.webp" alt="Player overlay with the series name, episode title, ends-at time, previous and next buttons and an Up next header" width="1280" height="720" loading="lazy"><figcaption>Player overlay with the next episodes</figcaption></figure>
+        <figure class="tv"><img src="images/screenshots/tv-trickplay.webp" alt="A trickplay thumbnail above the seek time while skipping forward" width="1280" height="720" loading="lazy"><figcaption>Trickplay thumbnails while seeking</figcaption></figure>
+      </div>
+
+      <ul class="tv-list reveal">
+        <li>Side drawer: Search, Home, Favorites, your libraries, Settings.</li>
+        <li>Home with a hero for the focused item. Rows stay put; you choose and order them.</li>
+        <li>Library grid with an A to Z jump bar, a counter and the hide-watched filter.</li>
+        <li>Episodes open in their season, details first. Cast rows and person pages.</li>
+        <li>Player: D-pad seeking, media keys, trickplay thumbnails, an overlay with the series, end time, previous, next and the queue.</li>
+        <li>Refresh rate switching to match the video.</li>
+        <li>Continue Watching and Next Up in the Android TV home screen's Watch Next row.</li>
+        <li>Screensaver with your library's artwork. Optional theme music on show pages.</li>
+        <li>Collections, trailers and settings all reachable with the remote.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="install" aria-labelledby="install-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2 id="install-title">Install</h2>
+        <p>Phones and tablets use the <code>-libre-&lt;abi&gt;.apk</code> files, Android TV the <code>-libre-tv-&lt;abi&gt;.apk</code> files. Nearly everything is <code>arm64-v8a</code>; 32-bit TV boxes such as the Xiaomi Mi Box need <code>armeabi-v7a</code>.</p>
+      </div>
+
+      <div class="cards reveal">
+        <div class="card">
+          <h3>Obtainium</h3>
+          <p>Add <code>https://github.com/midasvo/ephyra</code> in <a href="https://github.com/ImranR98/Obtainium">Obtainium</a>. Leave <strong>Include prereleases</strong> off and set <strong>Filter APKs by regular expression</strong>:</p>
+          <table>
+            <tr><th>Phone or tablet</th><td><code>-libre-arm64-v8a\.apk$</code></td></tr>
+            <tr><th>Android TV, 64-bit</th><td><code>.*-tv-arm64-v8a\.apk</code></td></tr>
+            <tr><th>Android TV, 32-bit</th><td><code>.*-tv-armeabi-v7a\.apk</code></td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <h3>Releases page</h3>
+          <p>Download the APK from <a href="https://github.com/midasvo/ephyra/releases">Releases</a> on GitHub. Each release lists what changed; the full history is in the <a href="https://github.com/midasvo/ephyra/blob/main/CHANGELOG.md">changelog</a>.</p>
+          <p>Ephyra has its own application ID, so it installs next to Findroid. Coming from Findroid CE, the update installs over it and keeps your login, settings and downloads.</p>
+        </div>
+        <div class="card">
+          <h3>F-Droid</h3>
+          <p><a href="https://gitlab.com/fdroid/fdroiddata/-/merge_requests/56048">Submitted</a>, waiting for review. The build is reproducible and verified against the GitHub APKs, so once listed you can switch sources without reinstalling.</p>
+        </div>
+        <div class="card">
+          <h3>Beta</h3>
+          <p>Every push to <code>main</code> publishes a prerelease. It installs as a separate app, <strong>Ephyra Beta</strong>, with its own data. Untested; expect bugs.</p>
+          <p>In Obtainium, add the repository again with <strong>Include prereleases</strong> on, filter release titles by <code>^Beta</code> and APKs by <code>-beta\.\d+-libre-arm64-v8a\.apk$</code>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <p>Ephyra collects nothing and only talks to the Jellyfin servers you add. <a href="privacy.html">Privacy policy</a>.</p>
+      <p>Forked from <a href="https://github.com/jarnedemeulemeester/findroid">Findroid</a> by Jarne Demeulemeester and its contributors. Licensed under the <a href="https://github.com/midasvo/ephyra/blob/main/LICENSE">GPLv3</a>.</p>
+      <p>An ephyra is a young jellyfish, the animal in the Jellyfin logo.</p>
+    </div>
+    <nav aria-label="Links">
+      <a href="https://github.com/midasvo/ephyra">Source code</a>
+      <a href="https://github.com/midasvo/ephyra/releases">Releases</a>
+      <a href="https://github.com/midasvo/ephyra/issues">Report a bug</a>
+      <a href="privacy.html">Privacy policy</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="site.js" defer></script>
 </body>
 </html>

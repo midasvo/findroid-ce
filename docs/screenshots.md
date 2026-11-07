@@ -7,6 +7,10 @@ all fair game.
 The files live in `images/screenshots/`, not `fastlane/`: the fastlane images are upstream's, and
 replacing them would cause binary conflicts on sync. TV shots are named `tv-*.webp`.
 
+The website (`site/`, published to https://midasvo.nl/ephyra/) shows the same shots from its own
+copy in `site/images/screenshots/`, because GitHub Pages deploys only that folder. After replacing a
+shot here, copy it there too (`cp images/screenshots/*.webp site/images/screenshots/`).
+
 Take them on your own server, logged in on the device you capture from. Check every shot for
 personal data such as user names or server names and addresses. The TV drawer shows the user and
 server name at the top, for example, so it isn't in the README.
