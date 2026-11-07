@@ -85,7 +85,8 @@ fun EpisodeScreen(
     val isOfflineMode = LocalOfflineMode.current
 
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val downloaderState by downloaderViewModel.state.collectAsStateWithLifecycle()
+    // Not read here: a progress tick must only recompose the download card.
+    val downloaderState = downloaderViewModel.state.collectAsStateWithLifecycle()
 
     ReloadOnResume { viewModel.loadEpisode(episodeId = episodeId) }
 
@@ -115,7 +116,7 @@ fun EpisodeScreen(
 
     EpisodeScreenLayout(
         state = state,
-        downloaderState = downloaderState,
+        downloaderState = { downloaderState.value },
         onAction = { action ->
             when (action) {
                 is EpisodeAction.Play -> {
@@ -141,7 +142,7 @@ fun EpisodeScreen(
 @Composable
 private fun EpisodeScreenLayout(
     state: EpisodeState,
-    downloaderState: DownloaderState,
+    downloaderState: () -> DownloaderState,
     onAction: (EpisodeAction) -> Unit,
     onDownloaderAction: (DownloaderAction) -> Unit,
 ) {
@@ -247,7 +248,7 @@ private fun EpisodeScreenLayout(
                     }
                     ItemButtonsBar(
                         item = episode,
-                        downloaderState = downloaderState,
+                        downloaderStateProvider = downloaderState,
                         onPlayClick = { startFromBeginning ->
                             onAction(EpisodeAction.Play(startFromBeginning = startFromBeginning))
                         },
@@ -357,7 +358,7 @@ private fun EpisodeScreenLayoutPreview() {
     FindroidTheme {
         EpisodeScreenLayout(
             state = EpisodeState(episode = dummyEpisode, videoMetadata = dummyVideoMetadata),
-            downloaderState = DownloaderState(),
+            downloaderState = { DownloaderState() },
             onAction = {},
             onDownloaderAction = {},
         )

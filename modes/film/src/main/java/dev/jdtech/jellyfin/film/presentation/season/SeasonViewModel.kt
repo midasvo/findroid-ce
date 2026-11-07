@@ -18,7 +18,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jellyfin.sdk.model.api.ItemFields
 import timber.log.Timber
@@ -48,14 +51,28 @@ constructor(
     init {
         // Observe queue entries and merge into per-episode progress map.
         viewModelScope.launch {
-            downloadQueue.entries.collect { entries ->
+            downloadQueue.entries
+                // Only this season's entries matter, and only their id, state and progress:
+                // the queue also re-emits for other downloads and for speed changes.
+                .map { entries ->
+                    val ids = _state.value.episodes.mapTo(HashSet()) { it.id }
+                    entries.filter { it.id in ids }
+                }
+                .distinctUntilChanged { old, new ->
+                    old.size == new.size &&
+                        old.indices.all {
+                            old[it].id == new[it].id &&
+                                old[it].state == new[it].state &&
+                                old[it].progress == new[it].progress
+                        }
+                }
+                .collect { entries ->
                 val episodes = _state.value.episodes
                 if (episodes.isEmpty()) return@collect
-                _state.emit(
-                    _state.value.copy(
-                        episodeDownloadProgress = buildDownloadProgressMap(episodes, entries)
-                    )
-                )
+                val progressMap = buildDownloadProgressMap(episodes, entries)
+                if (progressMap != _state.value.episodeDownloadProgress) {
+                    _state.update { it.copy(episodeDownloadProgress = progressMap) }
+                }
                 // Refresh season data once all of this season's downloads have settled,
                 // so episode.sources gets the new LOCAL entry. Firing per-episode would
                 // cause N network roundtrips.

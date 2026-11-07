@@ -90,9 +90,11 @@ suspend fun BaseItemDto.toFindroidEpisode(
 suspend fun FindroidEpisodeDto.toFindroidEpisode(
     database: ServerDatabaseDao,
     userId: UUID,
+    /** This episode's source rows when the caller already has them, to skip the query. */
+    sourceDtos: List<FindroidSourceDto>? = null,
 ): FindroidEpisode {
     val userData = database.getUserDataOrCreateNew(id, userId)
-    val sources = database.getSources(id).map { it.toFindroidSource(database) }
+    val sources = (sourceDtos ?: database.getSources(id)).map { it.toFindroidSource(database) }
     val trickplayInfos = mutableMapOf<String, FindroidTrickplayInfo>()
     for (source in sources) {
         database.getTrickplayInfo(source.id)?.toFindroidTrickplayInfo()?.let {

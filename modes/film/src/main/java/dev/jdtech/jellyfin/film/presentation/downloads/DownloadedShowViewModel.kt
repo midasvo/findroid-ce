@@ -7,6 +7,7 @@ import dev.jdtech.jellyfin.core.presentation.downloader.DownloadQueue
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidSourceType
+import dev.jdtech.jellyfin.models.getSourcesGroupedByItem
 import dev.jdtech.jellyfin.models.toFindroidEpisode
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.utils.Downloader
@@ -38,20 +39,32 @@ constructor(
                 withContext(Dispatchers.IO) {
                     val userId = repository.getUserId()
                     // Episodes with only a `.download` source are still in progress.
+                    val allEpisodes = database.getEpisodesByShowId(showId)
+                    // One query for every episode's sources, reused for the filter, the
+                    // conversion and the sizes.
+                    val sourcesByEpisode =
+                        database.getSourcesGroupedByItem(allEpisodes.map { it.id })
                     val episodes =
-                        database
-                            .getEpisodesByShowId(showId)
+                        allEpisodes
                             .filter { ep ->
-                                database.getSources(ep.id).any { !it.path.endsWith(".download") }
+                                sourcesByEpisode[ep.id].orEmpty().any {
+                                    !it.path.endsWith(".download")
+                                }
                             }
-                            .map { it.toFindroidEpisode(database, userId) }
+                            .map {
+                                it.toFindroidEpisode(
+                                    database,
+                                    userId,
+                                    sourcesByEpisode[it.id].orEmpty(),
+                                )
+                            }
                             .sortedWith(
                                 compareBy({ it.parentIndexNumber }, { it.indexNumber })
                             )
                     val sizes =
                         episodes.associate { ep ->
                             ep.id to
-                                database.getSources(ep.id).sumOf { src ->
+                                sourcesByEpisode[ep.id].orEmpty().sumOf { src ->
                                     File(src.path).takeIf { it.exists() }?.length() ?: 0L
                                 }
                         }

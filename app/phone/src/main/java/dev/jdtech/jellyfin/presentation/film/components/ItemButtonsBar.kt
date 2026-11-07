@@ -54,12 +54,16 @@ fun ItemButtonsBar(
     onTrailerClick: (uri: String) -> Unit,
     modifier: Modifier = Modifier,
     downloaderState: DownloaderState? = null,
+    downloaderStateProvider: (() -> DownloaderState)? = null,
     canPlay: Boolean = true,
     canDownload: Boolean = item.canDownload,
     isDownloaded: Boolean = item.isDownloaded(),
     onPlayVersionClick: ((startFromBeginning: Boolean, mediaSourceId: String) -> Unit)? = null,
     hasMoreToDownload: Boolean = false,
 ) {
+    // Read inside this composable so a progress tick only recomposes the buttons bar, not the
+    // screen that hosts it.
+    val currentDownloaderState = downloaderStateProvider?.invoke() ?: downloaderState
     val context = LocalContext.current
     val isOfflineMode = LocalOfflineMode.current
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
@@ -169,7 +173,7 @@ fun ItemButtonsBar(
                         }
                     }
                 }
-                if (downloaderState != null && !downloaderState.isDownloading) {
+                if (currentDownloaderState != null && !currentDownloaderState.isDownloading) {
                     if (canDownload && !isOfflineMode && (!isDownloaded || hasMoreToDownload)) {
                         FilledTonalIconButton(onClick = onDownloadClick) {
                             Icon(
@@ -188,11 +192,11 @@ fun ItemButtonsBar(
                     }
                 }
             }
-            if (downloaderState != null) {
-                AnimatedVisibility(downloaderState.isDownloading) {
+            if (currentDownloaderState != null) {
+                AnimatedVisibility(currentDownloaderState.isDownloading) {
                     Column {
                         DownloaderCard(
-                            state = downloaderState,
+                            state = currentDownloaderState,
                             onCancelClick = { cancelDownloadDialogOpen = true },
                             onRetryClick = onDownloadClick,
                         )
@@ -200,7 +204,7 @@ fun ItemButtonsBar(
                     }
                 }
             }
-            if (downloaderState != null && !downloaderState.isDownloading && isDownloaded) {
+            if (currentDownloaderState != null && !currentDownloaderState.isDownloading && isDownloaded) {
                 val localSource =
                     item.sources.firstOrNull {
                         it.type == FindroidSourceType.LOCAL && !it.path.endsWith(".download")

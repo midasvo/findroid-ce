@@ -14,11 +14,14 @@ import dev.jdtech.jellyfin.core.presentation.downloader.DownloadQueue
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadStatus
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
 import dev.jdtech.jellyfin.models.CollectionSection
+import dev.jdtech.jellyfin.models.FindroidEpisodeDto
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidMovie
 import dev.jdtech.jellyfin.models.FindroidShow
 import dev.jdtech.jellyfin.models.toFindroidEpisode
+import dev.jdtech.jellyfin.models.FindroidSourceDto
 import dev.jdtech.jellyfin.models.FindroidSourceType
+import dev.jdtech.jellyfin.models.getSourcesGroupedByItem
 import dev.jdtech.jellyfin.models.UiText
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
@@ -26,12 +29,15 @@ import dev.jdtech.jellyfin.utils.Downloader
 import java.io.File
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -57,6 +63,21 @@ constructor(
 
     private var wasBusy = false
 
+    /** The load in flight; a new load cancels it so two never run side by side. */
+    private var loadJob: Job? = null
+
+    /** Pending debounced reload requested by the queue. */
+    private var reloadJob: Job? = null
+
+    /** What the last load read, kept so a sort change can re-sort without reading again. */
+    private var loaded: LoadedLibrary? = null
+
+    /** Result of the last directory walk, reused until downloads change. */
+    private var cachedWalk: StorageWalk? = null
+
+    /** Set when a download finished or was deleted, so the next load walks the directories. */
+    @Volatile private var storageDirty = true
+
     /** Completed queue entries already scheduled to move into the library. */
     private val handledCompletions = mutableSetOf<UUID>()
 
@@ -64,14 +85,16 @@ constructor(
     private val speedAverages = mutableMapOf<UUID, Double>()
 
     init {
-        // Load library sections on first open.
-        loadItems()
+        // The first load comes from the screen's ON_RESUME, which also refreshes the list
+        // whenever the user returns to the tab.
 
         // Observe queue entries -> queueItems
         viewModelScope.launch {
             downloadQueue.entries.collect { entries ->
                 val items = entries.map { it.toActiveDownload() }
-                _state.emit(_state.value.copy(queueItems = items))
+                // Rows only change when something they show changes, so an unchanged
+                // list does not need to reach the screen.
+                _state.update { if (it.queueItems == items) it else it.copy(queueItems = items) }
 
                 // Finished downloads move into the library on their own: reload so they
                 // show up there, and drop the queue entry once its row has had a moment
@@ -83,7 +106,8 @@ constructor(
                             handledCompletions.add(it.id)
                     }
                 if (newlyCompleted.isNotEmpty()) {
-                    loadItems()
+                    storageDirty = true
+                    scheduleReload()
                     viewModelScope.launch {
                         delay(COMPLETED_LINGER_MS)
                         newlyCompleted.forEach { downloadQueue.remove(it.id) }
@@ -103,44 +127,73 @@ constructor(
                     wasBusy = true
                 } else if (wasBusy) {
                     wasBusy = false
-                    loadItems()
+                    storageDirty = true
+                    scheduleReload()
                 }
             }
         }
     }
 
-    fun loadItems() {
-        viewModelScope.launch {
-            _state.emit(_state.value.copy(isLoading = true, error = null))
-            try {
-                reconcileStuckDownloads()
-                val items = repository.getDownloads()
-                val itemSizes = computeItemSizes(items)
-                val library = buildCompletedSections(items, itemSizes)
-                val storageInfo = calculateStorageInfo()
-                fun sectionBytes(id: Int) =
-                    library.sections
-                        .firstOrNull { it.id == id }
-                        ?.items
-                        ?.sumOf { itemSizes[it.id] ?: 0L } ?: 0L
-                _state.emit(
-                    _state.value.copy(
-                        isLoading = false,
-                        sections = library.sections,
-                        itemSizes = itemSizes,
-                        episodeCounts = library.episodeCounts,
-                        moviesBytes = sectionBytes(Constants.FAVORITE_TYPE_MOVIES),
-                        showsBytes = sectionBytes(Constants.FAVORITE_TYPE_SHOWS),
-                        storageUsedBytes = storageInfo.usedBytes,
-                        storageFreeBytes = storageInfo.freeBytes,
-                        storageTotalBytes = storageInfo.totalBytes,
-                        storageIsExternal = storageInfo.isExternal,
-                    )
-                )
-            } catch (e: Exception) {
-                _state.emit(_state.value.copy(isLoading = false, error = e))
+    /**
+     * Reload requested by the queue. A completion and the busy-to-idle transition arrive
+     * together, so wait a moment and run one load for both.
+     */
+    private fun scheduleReload() {
+        reloadJob?.cancel()
+        reloadJob =
+            viewModelScope.launch {
+                delay(RELOAD_DEBOUNCE_MS)
+                loadItems()
             }
-        }
+    }
+
+    fun loadItems() {
+        loadJob?.cancel()
+        loadJob =
+            viewModelScope.launch {
+                // Only the very first load shows the spinner; later ones refresh in place.
+                _state.update { it.copy(isLoading = loaded == null, error = null) }
+                try {
+                    reconcileStuckDownloads()
+                    val library = readLibrary()
+                    loaded = library
+                    val sections =
+                        withContext(Dispatchers.IO) { buildSections(library, _state.value.sortOrder) }
+                    _state.update { it.withLibrary(library, sections) }
+
+                    // The directory walk is the slow part, so the list goes out first.
+                    val storageInfo = calculateStorageInfo(library.sizeSignature)
+                    _state.update {
+                        it.copy(
+                            storageUsedBytes = storageInfo.usedBytes,
+                            storageFreeBytes = storageInfo.freeBytes,
+                            storageTotalBytes = storageInfo.totalBytes,
+                            storageIsExternal = storageInfo.isExternal,
+                        )
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    _state.update { it.copy(isLoading = false, error = e) }
+                }
+            }
+    }
+
+    private fun DownloadsState.withLibrary(
+        library: LoadedLibrary,
+        sections: List<CollectionSection>,
+    ): DownloadsState {
+        fun sectionBytes(id: Int) =
+            sections.firstOrNull { it.id == id }?.items?.sumOf { library.itemSizes[it.id] ?: 0L }
+                ?: 0L
+        return copy(
+            isLoading = false,
+            sections = sections,
+            itemSizes = library.itemSizes,
+            episodeCounts = library.episodeCounts,
+            moviesBytes = sectionBytes(Constants.FAVORITE_TYPE_MOVIES),
+            showsBytes = sectionBytes(Constants.FAVORITE_TYPE_SHOWS),
+        )
     }
 
     /**
@@ -178,9 +231,15 @@ constructor(
 
 
     fun setSortOrder(order: DownloadSortOrder) {
+        _state.update { it.copy(sortOrder = order) }
+        val library = loaded
+        if (library == null) {
+            // Nothing read yet; the load in progress or the first one picks up the order.
+            return
+        }
         viewModelScope.launch {
-            _state.emit(_state.value.copy(sortOrder = order))
-            loadItems()
+            val sections = withContext(Dispatchers.IO) { buildSections(library, order) }
+            _state.update { it.withLibrary(library, sections) }
         }
     }
 
@@ -198,6 +257,7 @@ constructor(
                     deleteLocalCopy(item)
                 }
             }
+            storageDirty = true
             loadItems()
         }
     }
@@ -246,10 +306,21 @@ constructor(
         )
     }
 
-    private class CompletedLibrary(
-        val sections: List<CollectionSection>,
+    /** Everything one load read, enough to build the sections for any sort order. */
+    private class LoadedLibrary(
+        val movies: List<FindroidMovie>,
+        val shows: List<FindroidShow>,
+        val episodesByShow: Map<UUID, List<FindroidEpisodeDto>>,
+        val sourcesByItem: Map<UUID, List<FindroidSourceDto>>,
+        val itemSizes: Map<UUID, Long>,
         val episodeCounts: Map<UUID, Int>,
-    )
+    ) {
+        /** Changes when files were added or removed, whoever did it. */
+        val sizeSignature: Long = itemSizes.values.sum() * 31 + itemSizes.size
+
+        /** Newest file modification time per item, filled in when sorting by date. */
+        val mtimes = java.util.concurrent.ConcurrentHashMap<UUID, Long>()
+    }
 
     private class StorageInfo(
         val usedBytes: Long,
@@ -258,97 +329,110 @@ constructor(
         val isExternal: Boolean,
     )
 
-    private suspend fun buildCompletedSections(
-        items: List<FindroidItem>,
-        itemSizes: Map<java.util.UUID, Long>,
-    ): CompletedLibrary =
+    private class StorageWalk(val signature: Long, val usedBytes: Long)
+
+    private suspend fun readLibrary(): LoadedLibrary =
         withContext(Dispatchers.IO) {
-            val sortOrder = _state.value.sortOrder
-            // A movie/show with ONLY a .download source is still being downloaded
-            // and belongs in the Queue tab, not the Library tab. Filter by
-            // completed-source presence before sorting.
-            val filteredMovies = items
-                .filterIsInstance<FindroidMovie>()
-                .filter { hasCompletedSource(it.id) }
-            val sortedMovies = when (sortOrder) {
-                DownloadSortOrder.NAME -> filteredMovies.sortedBy { it.name.lowercase() }
-                DownloadSortOrder.DATE -> {
-                    val mtimes = filteredMovies.associate { it.id to maxSourceMtime(it.id) }
-                    filteredMovies.sortedByDescending { mtimes.getValue(it.id) }
-                }
-                DownloadSortOrder.SIZE -> filteredMovies.sortedByDescending { itemSizes[it.id] ?: 0L }
-            }
+            val items = repository.getDownloads()
             val shows = items.filterIsInstance<FindroidShow>()
-            // Fetch each show's episode list once and reuse it for both the
-            // filter and sort passes below, instead of re-querying the DB.
-            val episodesByShow = shows.associateWith { database.getEpisodesByShowId(it.id) }
+            val episodesByShow = shows.associate { it.id to database.getEpisodesByShowId(it.id) }
+            // One batched read for every movie and episode instead of a query per item
+            // (and per pass).
+            val sourcesByItem =
+                database.getSourcesGroupedByItem(
+                    items.filter { it !is FindroidShow }.map { it.id } +
+                        episodesByShow.values.flatten().map { it.id }
+                )
+
+            fun sizeOf(id: UUID): Long =
+                sourcesByItem[id].orEmpty().sumOf { src ->
+                    val f = File(src.path)
+                    if (f.exists()) f.length() else 0L
+                }
+            val itemSizes = mutableMapOf<UUID, Long>()
+            for (item in items) {
+                val bytes =
+                    if (item is FindroidShow) {
+                        episodesByShow.getValue(item.id).sumOf { sizeOf(it.id) }
+                    } else {
+                        sizeOf(item.id)
+                    }
+                if (bytes > 0) itemSizes[item.id] = bytes
+            }
+            for (episodes in episodesByShow.values) {
+                for (ep in episodes) {
+                    val bytes = sizeOf(ep.id)
+                    if (bytes > 0) itemSizes[ep.id] = bytes
+                }
+            }
+
+            fun hasCompletedSource(id: UUID) =
+                sourcesByItem[id].orEmpty().any { !it.path.endsWith(".download") }
+            // A movie/show with ONLY a .download source is still being downloaded
+            // and belongs in the Queue tab, not the Library tab.
+            val movies = items.filterIsInstance<FindroidMovie>().filter { hasCompletedSource(it.id) }
             val episodeCounts =
                 shows.associate { show ->
-                    show.id to episodesByShow.getValue(show).count { hasCompletedSource(it.id) }
+                    show.id to episodesByShow.getValue(show.id).count { hasCompletedSource(it.id) }
                 }
-            val filteredShows = shows.filter { show -> episodeCounts.getValue(show.id) > 0 }
-            val sortedShows = when (sortOrder) {
-                DownloadSortOrder.NAME -> filteredShows.sortedBy { it.name.lowercase() }
-                DownloadSortOrder.DATE -> {
-                    val mtimes = filteredShows.associateWith { show ->
-                        episodesByShow.getValue(show).maxOfOrNull { maxSourceMtime(it.id) } ?: 0L
-                    }
-                    filteredShows.sortedByDescending { mtimes.getValue(it) }
-                }
-                DownloadSortOrder.SIZE -> filteredShows.sortedByDescending { show ->
-                    episodesByShow.getValue(show)
-                        .sumOf { ep -> itemSizes[ep.id] ?: 0L }
-                }
+            LoadedLibrary(
+                movies = movies,
+                shows = shows.filter { episodeCounts.getValue(it.id) > 0 },
+                episodesByShow = episodesByShow,
+                sourcesByItem = sourcesByItem,
+                itemSizes = itemSizes,
+                episodeCounts = episodeCounts,
+            )
+        }
+
+    private fun buildSections(
+        library: LoadedLibrary,
+        sortOrder: DownloadSortOrder,
+    ): List<CollectionSection> {
+        val itemSizes = library.itemSizes
+
+        fun mtimeOf(id: UUID): Long =
+            library.mtimes.getOrPut(id) {
+                library.sourcesByItem[id].orEmpty().maxOfOrNull { File(it.path).lastModified() }
+                    ?: 0L
             }
-            val sections = mutableListOf<CollectionSection>()
-            CollectionSection(
+        val sortedMovies =
+            when (sortOrder) {
+                DownloadSortOrder.NAME -> library.movies.sortedBy { it.name.lowercase() }
+                DownloadSortOrder.DATE -> library.movies.sortedByDescending { mtimeOf(it.id) }
+                DownloadSortOrder.SIZE ->
+                    library.movies.sortedByDescending { itemSizes[it.id] ?: 0L }
+            }
+        val sortedShows =
+            when (sortOrder) {
+                DownloadSortOrder.NAME -> library.shows.sortedBy { it.name.lowercase() }
+                DownloadSortOrder.DATE ->
+                    library.shows.sortedByDescending { show ->
+                        library.episodesByShow.getValue(show.id).maxOfOrNull { mtimeOf(it.id) }
+                            ?: 0L
+                    }
+                DownloadSortOrder.SIZE ->
+                    library.shows.sortedByDescending { show ->
+                        library.episodesByShow.getValue(show.id).sumOf { itemSizes[it.id] ?: 0L }
+                    }
+            }
+        val sections = mutableListOf<CollectionSection>()
+        CollectionSection(
                 Constants.FAVORITE_TYPE_MOVIES,
                 UiText.StringResource(CoreR.string.movies_label),
                 sortedMovies,
             )
-                .let { if (it.items.isNotEmpty()) sections.add(it) }
-            CollectionSection(
+            .let { if (it.items.isNotEmpty()) sections.add(it) }
+        CollectionSection(
                 Constants.FAVORITE_TYPE_SHOWS,
                 UiText.StringResource(CoreR.string.shows_label),
                 sortedShows,
             )
-                .let { if (it.items.isNotEmpty()) sections.add(it) }
-            CompletedLibrary(sections, episodeCounts)
-        }
-
-    private suspend fun maxSourceMtime(itemId: java.util.UUID): Long =
-        database.getSources(itemId).maxOfOrNull { File(it.path).lastModified() } ?: 0L
-
-    private suspend fun hasCompletedSource(itemId: java.util.UUID): Boolean =
-        database.getSources(itemId).any { !it.path.endsWith(".download") }
-
-    private suspend fun computeItemSizes(
-        items: List<FindroidItem>,
-    ): Map<java.util.UUID, Long> = withContext(Dispatchers.IO) {
-        val sizes = mutableMapOf<java.util.UUID, Long>()
-        for (item in items) {
-            if (item is FindroidShow) {
-                val episodes = database.getEpisodesByShowId(item.id)
-                val totalBytes = episodes.sumOf { ep ->
-                    database.getSources(ep.id).sumOf { src ->
-                        val f = File(src.path)
-                        if (f.exists()) f.length() else 0L
-                    }
-                }
-                if (totalBytes > 0) sizes[item.id] = totalBytes
-            } else {
-                val sources = database.getSources(item.id)
-                val totalBytes = sources.sumOf { src ->
-                    val f = File(src.path)
-                    if (f.exists()) f.length() else 0L
-                }
-                if (totalBytes > 0) sizes[item.id] = totalBytes
-            }
-        }
-        sizes
+            .let { if (it.items.isNotEmpty()) sections.add(it) }
+        return sections
     }
 
-    private suspend fun calculateStorageInfo(): StorageInfo =
+    private suspend fun calculateStorageInfo(signature: Long): StorageInfo =
         withContext(Dispatchers.IO) {
             val storageIndex =
                 appPreferences.getValue(appPreferences.downloadStorageIndex)?.toIntOrNull() ?: 0
@@ -361,13 +445,24 @@ constructor(
             if (storageDir == null) return@withContext StorageInfo(0L, 0L, 0L, false)
 
             val isExternal = Environment.isExternalStorageRemovable(storageDir)
-            // Media files live in external storage, but trickplay tiles and
-            // cached images live under the app's internal filesDir. Count both
-            // so the reported usage matches what the user is actually storing.
-            val videoBytes = File(storageDir, "downloads").sizeBytesRecursive()
-            val trickplayBytes = File(context.filesDir, "trickplay").sizeBytesRecursive()
-            val imagesBytes = File(context.filesDir, "images").sizeBytesRecursive()
-            val usedBytes = videoBytes + trickplayBytes + imagesBytes
+            // Walking the directories (trickplay can be thousands of files) is only worth
+            // repeating when a download finished, was deleted, or the files on disk changed.
+            val walk = cachedWalk
+            val usedBytes =
+                if (!storageDirty && walk != null && walk.signature == signature) {
+                    walk.usedBytes
+                } else {
+                    storageDirty = false
+                    // Media files live in external storage, but trickplay tiles and
+                    // cached images live under the app's internal filesDir. Count both
+                    // so the reported usage matches what the user is actually storing.
+                    val videoBytes = File(storageDir, "downloads").sizeBytesRecursive()
+                    val trickplayBytes = File(context.filesDir, "trickplay").sizeBytesRecursive()
+                    val imagesBytes = File(context.filesDir, "images").sizeBytesRecursive()
+                    (videoBytes + trickplayBytes + imagesBytes).also {
+                        cachedWalk = StorageWalk(signature, it)
+                    }
+                }
 
             val stats = StatFs(storageDir.path)
 
@@ -393,6 +488,9 @@ constructor(
     private companion object {
         /** How long a finished download stays in the queue showing its check mark. */
         const val COMPLETED_LINGER_MS = 1_500L
+
+        /** Quiet time before a queue-triggered reload, so one completion loads once. */
+        const val RELOAD_DEBOUNCE_MS = 300L
 
         /** Weight of the newest speed sample; lower is steadier but slower to react. */
         const val SPEED_SMOOTHING = 0.2
