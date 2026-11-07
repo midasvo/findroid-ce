@@ -63,4 +63,25 @@ class DownloadSpeedTest {
         assertEquals(4_000_000L, result.bytesPerSecond)
         assertFalse(result.advanced)
     }
+
+    @Test
+    fun `small speed fluctuations are not significant`() {
+        assertFalse(isSignificantSpeedChange(2_000_000L, 2_000_000L))
+        assertFalse(isSignificantSpeedChange(2_000_000L, 2_100_000L))
+    }
+
+    @Test
+    fun `large speed changes and zero crossings are significant`() {
+        assertTrue(isSignificantSpeedChange(2_000_000L, 2_200_000L))
+        assertTrue(isSignificantSpeedChange(2_000_000L, 1_000_000L))
+        assertTrue(isSignificantSpeedChange(0L, 500L))
+        assertTrue(isSignificantSpeedChange(500L, 0L))
+    }
+
+    @Test
+    fun `polls every two seconds only with several active downloads`() {
+        assertEquals(1_000L, pollIntervalMs(0))
+        assertEquals(1_000L, pollIntervalMs(1))
+        assertEquals(2_000L, pollIntervalMs(2))
+    }
 }

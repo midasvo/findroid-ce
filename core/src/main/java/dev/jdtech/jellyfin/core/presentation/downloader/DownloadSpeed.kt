@@ -1,5 +1,7 @@
 package dev.jdtech.jellyfin.core.presentation.downloader
 
+import dev.jdtech.jellyfin.core.Constants
+
 /** Outcome of one download-speed sample. */
 internal data class SpeedSample(
     /** Transfer rate in bytes/sec to display. */
@@ -36,3 +38,23 @@ internal fun nextDownloadSpeed(
         SpeedSample(previousSpeed, advanced = false)
     }
 }
+
+/** Relative speed change below which a speed-only difference is not worth an emission. */
+private const val SPEED_EMIT_PERCENT = 10L
+
+/**
+ * Whether a new speed differs enough from the displayed one to justify re-emitting the queue
+ * when nothing else (state, progress, bytes) changed. The speed is shown in the UI, so it is
+ * never frozen: any change of at least 10%, or to/from zero, is emitted, and the latest speed
+ * rides along with every other emission.
+ */
+internal fun isSignificantSpeedChange(previous: Long, current: Long): Boolean {
+    if (previous == current) return false
+    if (previous <= 0L || current <= 0L) return true
+    return kotlin.math.abs(current - previous) * 100L >= previous * SPEED_EMIT_PERCENT
+}
+
+/** Poll every 2 s when several downloads are active, otherwise at the base interval. */
+internal fun pollIntervalMs(activeDownloads: Int): Long =
+    if (activeDownloads > 1) Constants.DOWNLOAD_POLL_INTERVAL_MS * 2
+    else Constants.DOWNLOAD_POLL_INTERVAL_MS

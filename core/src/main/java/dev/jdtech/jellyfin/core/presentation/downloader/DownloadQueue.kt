@@ -7,7 +7,6 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dev.jdtech.jellyfin.core.Constants
 import dev.jdtech.jellyfin.core.R as CoreR
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
 import dev.jdtech.jellyfin.models.FindroidEpisode
@@ -564,7 +563,7 @@ constructor(
                         snapshot.bytesDownloaded != entry.bytesDownloaded ||
                             effectiveTotal != entry.totalBytes ||
                             estimating != entry.totalBytesEstimated
-                    val speedChanged = speed != entry.bytesPerSecond
+                    val speedChanged = isSignificantSpeedChange(entry.bytesPerSecond, speed)
                     if (
                         newState != null ||
                             newProgress != entry.progress ||
@@ -696,7 +695,7 @@ constructor(
                     }
                 }
             if (shouldExit) return
-            delay(Constants.DOWNLOAD_POLL_INTERVAL_MS)
+            delay(pollIntervalMs(_entries.value.count { it.state is EntryState.Downloading }))
         }
     }
 
