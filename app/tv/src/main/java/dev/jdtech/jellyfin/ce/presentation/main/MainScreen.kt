@@ -109,16 +109,24 @@ fun MainScreen(
     val mainState by mainViewModel.state.collectAsState()
     val mediaState by mediaViewModel.state.collectAsState()
 
-    // Runs on every return to this screen (#257): load only what isn't there yet. A user or server
-    // switch comes back here with the same ViewModels, so "there" means loaded for the user that
-    // is signed in now.
+    // Runs on every return to this screen (#257). A user or server switch comes back here with
+    // the same ViewModels, so the server and user load again only when the loaded user isn't the
+    // one signed in now. The libraries load as before the first time; after that they refresh in
+    // the background, keeping the list on screen, when the user changed or the last load is older
+    // than LIBRARIES_REFRESH_NANOS, so a library added on the server still shows up.
     val context = LocalContext.current
     LaunchedEffect(true) {
         val loadedUser = (mainViewModel.uiState.value as? MainViewModel.UiState.Normal)?.user?.id
         val sameUser =
             loadedUser != null && loadedUser == JellyfinApi.getInstance(context).userId
         if (!sameUser) mainViewModel.loadServerAndUser()
-        if (!sameUser || mediaViewModel.state.value.libraries.isEmpty()) mediaViewModel.loadData()
+        val loadedAt = mediaViewModel.librariesLoadedAtNanos
+        when {
+            loadedAt == null || mediaViewModel.state.value.libraries.isEmpty() ->
+                mediaViewModel.loadData()
+            !sameUser || System.nanoTime() - loadedAt > LIBRARIES_REFRESH_NANOS ->
+                mediaViewModel.loadData(silent = true)
+        }
     }
 
     var user: User? = null
@@ -177,6 +185,9 @@ const val DESTINATION_HOME = "home"
 const val DESTINATION_SEARCH = "search"
 const val DESTINATION_FAVORITES = "favorites"
 fun libraryDestinationKey(libraryId: UUID): String = "library:$libraryId"
+
+/** How old the drawer's libraries may get before a return to Main refreshes them (#257). */
+private const val LIBRARIES_REFRESH_NANOS = 5 * 60 * 1_000_000_000L
 
 private const val ITEM_PROFILE = "profile"
 private const val ITEM_SETTINGS = "settings"
