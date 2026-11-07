@@ -55,7 +55,7 @@ constructor(
                                 it.toFindroidEpisode(
                                     database,
                                     userId,
-                                    sourcesByEpisode[it.id].orEmpty(),
+                                    sourcesByEpisode,
                                 )
                             }
                             .sortedWith(
