@@ -92,8 +92,10 @@ fun ActiveDownloadRow(
                         else -> stringResource(CoreR.string.cancel_download)
                     },
                 stateDescription =
+                    // The target, not the animated value: reading that here recomposes every
+                    // frame.
                     if (controlState == DownloadControlState.DOWNLOADING) {
-                        "${(animatedProgress * 100).roundToInt()}%"
+                        "${(activeDownload.progress.progress * 100).roundToInt()}%"
                     } else null,
                 onClick =
                     when (controlState) {

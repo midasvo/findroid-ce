@@ -127,8 +127,9 @@ private fun EpisodeDownloadControl(
                 else -> stringResource(CoreR.string.cancel_download)
             },
         stateDescription =
+            // The target, not the animated value: reading that here recomposes every frame.
             if (controlState == DownloadControlState.DOWNLOADING) {
-                "${(animatedProgress * 100).roundToInt()}%"
+                "${((downloadProgress?.progress ?: 0f) * 100).roundToInt()}%"
             } else null,
         onClick =
             when (controlState) {
