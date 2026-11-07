@@ -38,7 +38,7 @@ okhttp = "5.5.1"
 # CE-owned: JVM Compose UI tests for app/tv (focus restore, #125).
 robolectric = "4.17"
 timber = "5.0.1"
-zxing = "3.5.3"
+zxing = "3.5.4"
 slf4j = "2.0.20"
 slf4j-android = "2.0.20-0"
 
