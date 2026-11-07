@@ -29,6 +29,13 @@ full profile the device must already be logged in:** use your phone.
 ./gradlew :app:phone:generateLibreReleaseBaselineProfile
 ```
 
+With more than one device attached (an emulator next to the phone), set `ANDROID_SERIAL=<phone
+serial>` first: connected tasks otherwise run on every device. The release app the journey needs
+logged in is `nl.midasvo.findroid.ce` signed with your local debug key, so it can't be installed
+over a GitHub or Play install of the same package. Add
+`-Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true` to keep that install (and its
+login) when the run ends.
+
 The profile is written to `app/phone/src/libreRelease/generated/baselineProfiles/`; commit it.
 `profileinstaller` then installs it on first run (the phone manifest keeps its initializer).
 
