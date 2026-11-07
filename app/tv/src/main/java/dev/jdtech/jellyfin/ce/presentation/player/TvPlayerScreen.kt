@@ -83,6 +83,7 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import dagger.hilt.android.EntryPointAccessors
 import dev.jdtech.jellyfin.ce.ui.focus.EphyraFocusScale
+import dev.jdtech.jellyfin.ce.ui.focus.ephyraButtonBorder
 import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedBorder
 import dev.jdtech.jellyfin.ce.ui.focus.ephyraFocusedGlow
 import dev.jdtech.jellyfin.core.R as CoreR
@@ -223,8 +224,10 @@ fun TvPlayerScreen(
     val queueFocus = remember { FocusRequester() }
     val dialogOpenerFocus = remember { PlayerDialog.entries.associateWith { FocusRequester() } }
 
+    // CE (#271): the skip button shows on its own, with focus, in its first seconds in a segment,
+    // and above the overlay whenever the overlay is shown, as on phone.
     val segment = uiState.currentSegment
-    val skipButtonShown = segment != null && !controlsVisible
+    val skipButtonShown = segment != null && uiState.skipButtonInWindow && !controlsVisible
     val currentSkipButtonShown by rememberUpdatedState(skipButtonShown)
 
     // Hide the controls after a few seconds without a key, unless paused or a dialog is open.
@@ -423,13 +426,18 @@ fun TvPlayerScreen(
             }
         }
 
-        if (segment != null && !controlsVisible) {
+        if (skipButtonShown && segment != null) {
             val skipFocus = remember { FocusRequester() }
-            SkipButton(
-                stringRes = uiState.currentSkipButtonStringRes,
-                onClick = { viewModel.skipSegment(segment) },
-                focusRequester = skipFocus,
-            )
+            Box(
+                modifier = Modifier.fillMaxSize().padding(MaterialTheme.spacings.large).zIndex(1f),
+                contentAlignment = Alignment.BottomEnd,
+            ) {
+                SkipButton(
+                    stringRes = uiState.currentSkipButtonStringRes,
+                    onClick = { viewModel.skipSegment(segment) },
+                    modifier = Modifier.focusRequester(skipFocus),
+                )
+            }
             LaunchedEffect(segment) { focusWhenReady(skipFocus) }
         }
 
@@ -448,35 +456,54 @@ fun TvPlayerScreen(
             exit = fadeOut(),
             modifier = Modifier.align(Alignment.BottomCenter),
         ) {
-            val item = uiState.currentItem
-            PlayerControls(
-                seriesName = item?.seriesName,
-                title = item?.let { episodeLine(it.parentIndexNumber, it.indexNumber, it.indexNumberEnd, it.name) }
-                    ?: uiState.currentItemTitle,
-                playbackSpeed = viewModel.playbackSpeed,
-                queue = queue,
-                queueOpen = queueOpen,
-                queueFocus = queueFocus,
-                positionMs = positionMs,
-                durationMs = durationMs,
-                isPlaying = isPlaying,
-                pendingSeekMs = pendingSeekMs,
-                trickplay = uiState.currentTrickplay,
-                seekSettings = seekSettings,
-                chapterMarkers =
-                    remember(uiState.currentChapters, durationMs) {
-                        val duration = durationMs
-                        if (duration > 0) {
-                            uiState.currentChapters.map { it.startPosition.toFloat() / duration }
-                        } else {
-                            emptyList()
-                        }
-                    },
-                hasChapters = uiState.currentChapters.isNotEmpty(),
-                playPauseFocus = playPauseFocus,
-                dialogOpenerFocus = dialogOpenerFocus,
-                callbacks = callbacks,
-            )
+            Column(horizontalAlignment = Alignment.End) {
+                // With the overlay shown the button sits above it, reachable with Up from the seek
+                // bar; focus stays on Play/Pause.
+                if (segment != null) {
+                    SkipButton(
+                        stringRes = uiState.currentSkipButtonStringRes,
+                        onClick = {
+                            viewModel.skipSegment(segment)
+                            playPauseFocus.requestFocus()
+                        },
+                        modifier =
+                            Modifier.padding(
+                                    end = MaterialTheme.spacings.default * 2,
+                                    bottom = MaterialTheme.spacings.medium,
+                                )
+                                .onFocusChanged { if (it.isFocused) interactions++ },
+                    )
+                }
+                val item = uiState.currentItem
+                PlayerControls(
+                    seriesName = item?.seriesName,
+                    title = item?.let { episodeLine(it.parentIndexNumber, it.indexNumber, it.indexNumberEnd, it.name) }
+                        ?: uiState.currentItemTitle,
+                    playbackSpeed = viewModel.playbackSpeed,
+                    queue = queue,
+                    queueOpen = queueOpen,
+                    queueFocus = queueFocus,
+                    positionMs = positionMs,
+                    durationMs = durationMs,
+                    isPlaying = isPlaying,
+                    pendingSeekMs = pendingSeekMs,
+                    trickplay = uiState.currentTrickplay,
+                    seekSettings = seekSettings,
+                    chapterMarkers =
+                        remember(uiState.currentChapters, durationMs) {
+                            val duration = durationMs
+                            if (duration > 0) {
+                                uiState.currentChapters.map { it.startPosition.toFloat() / duration }
+                            } else {
+                                emptyList()
+                            }
+                        },
+                    hasChapters = uiState.currentChapters.isNotEmpty(),
+                    playPauseFocus = playPauseFocus,
+                    dialogOpenerFocus = dialogOpenerFocus,
+                    callbacks = callbacks,
+                )
+            }
         }
     }
 
@@ -1117,26 +1144,15 @@ private fun SeekIndicatorView(indicator: SeekIndicator, durationMs: Long, modifi
 }
 
 @Composable
-private fun SkipButton(stringRes: Int, onClick: () -> Unit, focusRequester: FocusRequester) {
-    Box(
-        modifier = Modifier.fillMaxSize().padding(MaterialTheme.spacings.large).zIndex(1f),
-        contentAlignment = Alignment.BottomEnd,
-    ) {
-        Button(
-            onClick = onClick,
-            modifier = Modifier.focusRequester(focusRequester),
-            glow =
-                ButtonDefaults.glow(
-                    focusedGlow = Glow(elevationColor = Color.Gray, elevation = 20.dp)
-                ),
-        ) {
-            Icon(
-                painter = painterResource(id = CoreR.drawable.ic_skip_forward),
-                contentDescription = null,
-            )
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text(text = stringResource(stringRes), color = Color.Black)
-        }
+private fun SkipButton(stringRes: Int, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    // CE (#271): a pill with the Ephyra focus ring (VISION §5), like the other player buttons.
+    Button(onClick = onClick, modifier = modifier, border = ephyraButtonBorder()) {
+        Icon(
+            painter = painterResource(id = CoreR.drawable.ic_skip_forward),
+            contentDescription = null,
+        )
+        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+        Text(text = stringResource(stringRes))
     }
 }
 

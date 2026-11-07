@@ -162,66 +162,59 @@ class SettingsTreeVariantTest {
         )
     }
 
-    @Test
-    fun `TV variant deduplicates media segment settings`() = runTest {
-        val tvViewModel = SettingsViewModel(context, appPreferences, AppVariant.TV)
-        tvViewModel.loadPreferences(listOf(SettingsR.string.settings_category_player))
-
-        val mediaSegmentsGroup =
-            tvViewModel.state.value.preferenceGroups.first {
-                it.nameStringResource == SettingsR.string.media_segments
-            }
-        val names = mediaSegmentsGroup.preferences.map { it.nameStringResource }
-
-        // Legacy global toggles must be absent on TV
-        assertFalse(names.contains(SettingsR.string.pref_player_media_segments_skip_button))
-        assertFalse(names.contains(SettingsR.string.pref_player_media_segments_skip_button_type))
-        assertFalse(names.contains(SettingsR.string.pref_player_media_segments_skip_button_duration))
-        assertFalse(names.contains(SettingsR.string.pref_player_media_segments_auto_skip))
-        assertFalse(names.contains(SettingsR.string.pref_player_media_segments_auto_skip_mode))
-        assertFalse(names.contains(SettingsR.string.pref_player_media_segments_auto_skip_type))
-
-        // The next-episode threshold has no per-type replacement, so TV keeps it
-        assertTrue(
-            names.contains(SettingsR.string.pref_player_media_segments_next_episode_threshold)
+    /** CE (#271): the old global switches and type lists, migrated into the per-type actions. */
+    private val removedSegmentSettings =
+        listOf(
+            SettingsR.string.pref_player_media_segments_skip_button,
+            SettingsR.string.pref_player_media_segments_skip_button_type,
+            SettingsR.string.pref_player_media_segments_auto_skip,
+            SettingsR.string.pref_player_media_segments_auto_skip_type,
         )
 
-        // Per-type actions must be present on TV
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_action_intro))
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_action_outro))
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_action_recap))
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_action_preview))
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_action_commercial))
+    private val perTypeSegmentActions =
+        listOf(
+            SettingsR.string.pref_player_media_segments_action_intro,
+            SettingsR.string.pref_player_media_segments_action_outro,
+            SettingsR.string.pref_player_media_segments_action_recap,
+            SettingsR.string.pref_player_media_segments_action_preview,
+            SettingsR.string.pref_player_media_segments_action_commercial,
+        )
+
+    private suspend fun mediaSegmentSettings(variant: AppVariant): List<Int> {
+        val viewModel = SettingsViewModel(context, appPreferences, variant)
+        viewModel.loadPreferences(listOf(SettingsR.string.settings_category_player))
+        return viewModel.state.value.preferenceGroups
+            .first { it.nameStringResource == SettingsR.string.media_segments }
+            .preferences
+            .map { it.nameStringResource }
     }
 
     @Test
-    fun `Phone variant keeps all media segment settings`() = runTest {
-        val phoneViewModel = SettingsViewModel(context, appPreferences, AppVariant.PHONE)
-        phoneViewModel.loadPreferences(listOf(SettingsR.string.settings_category_player))
+    fun `TV variant shows one action per segment type and the shared settings`() = runTest {
+        val names = mediaSegmentSettings(AppVariant.TV)
 
-        val mediaSegmentsGroup =
-            phoneViewModel.state.value.preferenceGroups.first {
-                it.nameStringResource == SettingsR.string.media_segments
-            }
-        val names = mediaSegmentsGroup.preferences.map { it.nameStringResource }
-
-        // All legacy toggles present
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_skip_button))
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_skip_button_type))
+        removedSegmentSettings.forEach { assertFalse(names.contains(it)) }
+        perTypeSegmentActions.forEach { assertTrue(names.contains(it)) }
+        // Shared with phone; TV shows the duration read-only.
         assertTrue(names.contains(SettingsR.string.pref_player_media_segments_skip_button_duration))
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_auto_skip))
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_auto_skip_mode))
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_auto_skip_type))
         assertTrue(
             names.contains(SettingsR.string.pref_player_media_segments_next_episode_threshold)
         )
+        // Picture-in-picture is phone-only.
+        assertFalse(names.contains(SettingsR.string.pref_player_media_segments_auto_skip_mode))
+    }
 
-        // All per-type actions present
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_action_intro))
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_action_outro))
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_action_recap))
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_action_preview))
-        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_action_commercial))
+    @Test
+    fun `Phone variant shows one action per segment type and the shared settings`() = runTest {
+        val names = mediaSegmentSettings(AppVariant.PHONE)
+
+        removedSegmentSettings.forEach { assertFalse(names.contains(it)) }
+        perTypeSegmentActions.forEach { assertTrue(names.contains(it)) }
+        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_skip_button_duration))
+        assertTrue(names.contains(SettingsR.string.pref_player_media_segments_auto_skip_mode))
+        assertTrue(
+            names.contains(SettingsR.string.pref_player_media_segments_next_episode_threshold)
+        )
     }
 
     @Test
