@@ -194,9 +194,33 @@ class JellyfinRepositoryOfflineImpl(
         filters: List<ItemFilter>?,
         startIndex: Int?,
         limit: Int?,
-    ): List<FindroidItem> {
+    ): List<FindroidItem> =
+        getItemsPage(
+                parentId,
+                includeTypes,
+                recursive,
+                sortBy,
+                sortOrder,
+                filters,
+                startIndex,
+                limit,
+                includeTotal = false,
+            )
+            .items
+
+    override suspend fun getItemsPage(
+        parentId: UUID?,
+        includeTypes: List<BaseItemKind>?,
+        recursive: Boolean,
+        sortBy: SortBy,
+        sortOrder: SortOrder,
+        filters: List<ItemFilter>?,
+        startIndex: Int?,
+        limit: Int?,
+        includeTotal: Boolean,
+    ): ItemsPage {
         return withContext(Dispatchers.IO) {
-            val serverId = currentServerId() ?: return@withContext emptyList()
+            val serverId = currentServerId() ?: return@withContext ItemsPage(emptyList(), 0)
             val entries = mutableListOf<LibraryEntry>()
             val wantMovies = parentId == VIRTUAL_VIEW_MOVIES ||
                 includeTypes?.contains(BaseItemKind.MOVIE) == true
@@ -227,7 +251,10 @@ class JellyfinRepositoryOfflineImpl(
             val ordered = if (sortOrder == SortOrder.DESCENDING) sorted.reversed() else sorted
             val result = ordered.drop(startIndex ?: 0)
             val page = if (limit != null) result.take(limit) else result
-            mapEntries(page.map { it.dto })
+            ItemsPage(
+                items = mapEntries(page.map { it.dto }),
+                totalRecordCount = if (includeTotal) ordered.size else null,
+            )
         }
     }
 

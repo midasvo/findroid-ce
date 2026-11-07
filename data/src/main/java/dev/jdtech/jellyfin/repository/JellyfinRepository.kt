@@ -53,6 +53,24 @@ interface JellyfinRepository {
     ): List<FindroidItem>
 
     /**
+     * CE: like [getItems], but with the number of items that match in total (ignoring
+     * [startIndex] and [limit]) when [includeTotal] is set, so a pager gets its length from its
+     * first page instead of a separate [getItemCount]. The server counts only when asked, so leave
+     * [includeTotal] off for later pages.
+     */
+    suspend fun getItemsPage(
+        parentId: UUID? = null,
+        includeTypes: List<BaseItemKind>? = null,
+        recursive: Boolean = false,
+        sortBy: SortBy = SortBy.defaultValue,
+        sortOrder: SortOrder = SortOrder.ASCENDING,
+        filters: List<ItemFilter>? = null,
+        startIndex: Int? = null,
+        limit: Int? = null,
+        includeTotal: Boolean = false,
+    ): ItemsPage
+
+    /**
      * CE (#140): up to [limit] items of [includeTypes] from all libraries, in random order, that
      * have a backdrop. Online the server picks them; the default (offline) shuffles local items.
      */
@@ -196,3 +214,6 @@ interface JellyfinRepository {
 
     fun getUserId(): UUID
 }
+
+/** One page of items. [totalRecordCount] is null unless the caller asked for it. */
+data class ItemsPage(val items: List<FindroidItem>, val totalRecordCount: Int? = null)
