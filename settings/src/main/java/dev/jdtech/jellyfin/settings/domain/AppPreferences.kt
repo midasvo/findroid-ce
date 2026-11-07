@@ -104,27 +104,32 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val playerTvMatchRefreshRate = Preference("pref_player_tv_match_refresh_rate", false)
 
     // Player - Media Segments
+    //
+    // CE (#271): the old global switches and type lists below are no longer in the settings UI.
+    // migrateMediaSegmentActions reads them once to fill in the per-type actions.
     val playerMediaSegmentsSkipButton
         get() = Preference("pref_player_media_segments_skip_button", true)
 
     val playerMediaSegmentsSkipButtonType
         get() = Preference("pref_player_media_segments_skip_button_type", setOf("INTRO", "OUTRO"))
 
-    val playerMediaSegmentsSkipButtonDuration
-        get() = Preference("pref_player_media_segments_skip_button_duration", 5L)
-
     val playerMediaSegmentsAutoSkip
         get() = Preference("pref_player_media_segments_auto_skip", false)
 
+    val playerMediaSegmentsAutoSkipType
+        get() = Preference("pref_player_media_segments_auto_skip_type", setOf("INTRO", "OUTRO"))
+
+    /** How long the skip button shows after entering a segment, in seconds. Phone and TV. */
+    val playerMediaSegmentsSkipButtonDuration
+        get() = Preference("pref_player_media_segments_skip_button_duration", 5L)
+
+    /** Auto-skip always, or only in picture-in-picture (phone). */
     val playerMediaSegmentsAutoSkipMode
         get() =
             Preference(
                 "pref_player_media_segments_auto_skip_mode",
                 Constants.PlayerMediaSegmentsAutoSkip.ALWAYS,
             )
-
-    val playerMediaSegmentsAutoSkipType
-        get() = Preference("pref_player_media_segments_auto_skip_type", setOf("INTRO", "OUTRO"))
 
     val playerMediaSegmentsNextEpisodeThreshold
         get() = Preference("pref_player_media_segments_next_episode_threshold", 5_000L)
@@ -141,31 +146,40 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val playerAutoPlayNext =
         Preference<String?>("pref_player_autoplay_next", Constants.PlayerAutoPlayNext.SERVER)
 
-    // Player - Media Segments per-type action (SKIP / ASK / IGNORE)
-    //
-    // Stored as nullable strings. The default is null on purpose: an absent
-    // value means "the user has not picked a per-type action yet, fall back to
-    // the legacy global toggles" (issue #12 / PR #20 review). Without that
-    // sentinel the new per-type defaults would override existing users'
-    // configured auto-skip / skip-button preferences on first launch after
-    // upgrade, silently changing playback behaviour.
-    //
-    // PlayerViewModel.resolveSegmentAction handles null by consulting the
-    // legacy toggles, then falls back to IGNORE.
+    // Player - Media Segments per-type action (MediaSegmentsMigration.SKIP / ASK / IGNORE).
+    // CE (#271): always set. Existing installs get their values from the old switches through
+    // migrateMediaSegmentActions; the defaults are what a fresh install had before.
     val playerMediaSegmentsIntroAction
-        get() = Preference<String?>("pref_player_media_segments_intro_action", null)
+        get() = Preference("pref_player_media_segments_intro_action", MediaSegmentsMigration.ASK)
 
     val playerMediaSegmentsOutroAction
-        get() = Preference<String?>("pref_player_media_segments_outro_action", null)
+        get() = Preference("pref_player_media_segments_outro_action", MediaSegmentsMigration.ASK)
 
     val playerMediaSegmentsRecapAction
-        get() = Preference<String?>("pref_player_media_segments_recap_action", null)
+        get() =
+            Preference("pref_player_media_segments_recap_action", MediaSegmentsMigration.IGNORE)
 
     val playerMediaSegmentsPreviewAction
-        get() = Preference<String?>("pref_player_media_segments_preview_action", null)
+        get() =
+            Preference("pref_player_media_segments_preview_action", MediaSegmentsMigration.IGNORE)
 
     val playerMediaSegmentsCommercialAction
-        get() = Preference<String?>("pref_player_media_segments_commercial_action", null)
+        get() =
+            Preference(
+                "pref_player_media_segments_commercial_action",
+                MediaSegmentsMigration.IGNORE,
+            )
+
+    /** The per-type action preferences, keyed by segment type name (`INTRO`, `OUTRO`, ...). */
+    val playerMediaSegmentsActions: Map<String, Preference<String>>
+        get() =
+            mapOf(
+                MediaSegmentsMigration.INTRO to playerMediaSegmentsIntroAction,
+                MediaSegmentsMigration.OUTRO to playerMediaSegmentsOutroAction,
+                MediaSegmentsMigration.RECAP to playerMediaSegmentsRecapAction,
+                MediaSegmentsMigration.PREVIEW to playerMediaSegmentsPreviewAction,
+                MediaSegmentsMigration.COMMERCIAL to playerMediaSegmentsCommercialAction,
+            )
 
     // Player - trickplay
     val playerTrickplay = Preference("pref_player_trickplay", true)
@@ -253,6 +267,40 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     val mpvMigrated = Preference("mpv_migrated", false)
 
     val mpvAoAaudioMigrated = Preference("pref_player_mpv_ao_aaudio_migrated", false)
+
+    val mediaSegmentActionsMigrated =
+        Preference("pref_player_media_segments_actions_migrated", false)
+
+    /**
+     * CE (#271): one-shot move from the old global media segment switches (show skip button,
+     * auto skip, and their type lists) to one stored action per segment type, so the settings
+     * show every type's effective value. An action the user already picked per type is kept. See
+     * [MediaSegmentsMigration.actions] for the mapping.
+     */
+    fun migrateMediaSegmentActions() {
+        if (getValue(mediaSegmentActionsMigrated)) return
+        val preferences = playerMediaSegmentsActions
+        val explicit =
+            preferences.mapValues { (_, preference) ->
+                // Read without the default: an absent value is "never picked".
+                try {
+                    sharedPreferences.getString(preference.backendName, null)
+                } catch (_: ClassCastException) {
+                    null
+                }
+            }
+        val actions =
+            MediaSegmentsMigration.actions(
+                explicit = explicit,
+                autoSkip = getValue(playerMediaSegmentsAutoSkip),
+                autoSkipTypes = getValue(playerMediaSegmentsAutoSkipType),
+                skipButton = getValue(playerMediaSegmentsSkipButton),
+                skipButtonTypes = getValue(playerMediaSegmentsSkipButtonType),
+            )
+        Timber.i("Migrating media segment settings to per-type actions: %s", actions)
+        preferences.forEach { (type, preference) -> setValue(preference, actions.getValue(type)) }
+        setValue(mediaSegmentActionsMigrated, true)
+    }
 
     /**
      * One-shot move off the broken "aaudio" audio output (issue #52).

@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.os.StatFs
 import android.text.format.Formatter
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,6 +13,7 @@ import dev.jdtech.jellyfin.settings.R
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.settings.domain.Constants
 import dev.jdtech.jellyfin.settings.domain.models.PermissionDefinitions
+import dev.jdtech.jellyfin.settings.domain.models.Preference as PreferenceBackend
 import dev.jdtech.jellyfin.settings.presentation.enums.AppVariant
 import dev.jdtech.jellyfin.settings.presentation.enums.DeviceType
 import dev.jdtech.jellyfin.settings.presentation.models.PreferenceAppLanguage
@@ -652,69 +654,48 @@ class SettingsViewModel @Inject constructor(
                                         nameStringResource = R.string.media_segments,
                                         preferences =
                                             listOf(
-                                                PreferenceSwitch(
-                                                    nameStringResource =
-                                                        R.string
-                                                            .pref_player_media_segments_skip_button,
-                                                    descriptionStringRes =
-                                                        R.string
-                                                            .pref_player_media_segments_skip_button_summary,
-                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
-                                                    backendPreference =
-                                                        appPreferences.playerMediaSegmentsSkipButton,
+                                                // CE (#271): one action per segment type is the
+                                                // only per-type control. The old global switches
+                                                // and type lists were migrated into these once
+                                                // (AppPreferences.migrateMediaSegmentActions).
+                                                mediaSegmentActionSelect(
+                                                    R.string.pref_player_media_segments_action_intro,
+                                                    appPreferences.playerMediaSegmentsIntroAction,
                                                 ),
-                                                PreferenceMultiSelect(
-                                                    nameStringResource =
-                                                        R.string
-                                                            .pref_player_media_segments_skip_button_type,
-                                                    dependencies =
-                                                        listOf(
-                                                            appPreferences
-                                                                .playerMediaSegmentsSkipButton
-                                                        ),
-                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
-                                                    backendPreference =
-                                                        appPreferences
-                                                            .playerMediaSegmentsSkipButtonType,
-                                                    options = R.array.media_segments_type,
-                                                    optionValues =
-                                                        R.array.media_segments_type_values,
+                                                mediaSegmentActionSelect(
+                                                    R.string.pref_player_media_segments_action_outro,
+                                                    appPreferences.playerMediaSegmentsOutroAction,
                                                 ),
+                                                mediaSegmentActionSelect(
+                                                    R.string.pref_player_media_segments_action_recap,
+                                                    appPreferences.playerMediaSegmentsRecapAction,
+                                                ),
+                                                mediaSegmentActionSelect(
+                                                    R.string
+                                                        .pref_player_media_segments_action_preview,
+                                                    appPreferences.playerMediaSegmentsPreviewAction,
+                                                ),
+                                                mediaSegmentActionSelect(
+                                                    R.string
+                                                        .pref_player_media_segments_action_commercial,
+                                                    appPreferences
+                                                        .playerMediaSegmentsCommercialAction,
+                                                ),
+                                                // Shared by phone and TV; TV shows it read-only,
+                                                // like its other number settings.
                                                 PreferenceLongInput(
                                                     nameStringResource =
                                                         R.string
                                                             .pref_player_media_segments_skip_button_duration,
-                                                    dependencies =
-                                                        listOf(
-                                                            appPreferences
-                                                                .playerMediaSegmentsSkipButton
-                                                        ),
-                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences
                                                             .playerMediaSegmentsSkipButtonDuration,
                                                     suffixRes = R.string.seconds,
                                                 ),
-                                                PreferenceSwitch(
-                                                    nameStringResource =
-                                                        R.string
-                                                            .pref_player_media_segments_auto_skip,
-                                                    descriptionStringRes =
-                                                        R.string
-                                                            .pref_player_media_segments_auto_skip_summary,
-                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
-                                                    backendPreference =
-                                                        appPreferences.playerMediaSegmentsAutoSkip,
-                                                ),
                                                 PreferenceSelect(
                                                     nameStringResource =
                                                         R.string
                                                             .pref_player_media_segments_auto_skip_mode,
-                                                    dependencies =
-                                                        listOf(
-                                                            appPreferences
-                                                                .playerMediaSegmentsAutoSkip
-                                                        ),
                                                     supportedDeviceTypes = listOf(DeviceType.PHONE),
                                                     backendPreference =
                                                         appPreferences
@@ -722,23 +703,6 @@ class SettingsViewModel @Inject constructor(
                                                     options = R.array.media_segments_auto_skip,
                                                     optionValues =
                                                         R.array.media_segments_auto_skip_values,
-                                                ),
-                                                PreferenceMultiSelect(
-                                                    nameStringResource =
-                                                        R.string
-                                                            .pref_player_media_segments_auto_skip_type,
-                                                    dependencies =
-                                                        listOf(
-                                                            appPreferences
-                                                                .playerMediaSegmentsAutoSkip
-                                                        ),
-                                                    supportedDeviceTypes = listOf(DeviceType.PHONE),
-                                                    backendPreference =
-                                                        appPreferences
-                                                            .playerMediaSegmentsAutoSkipType,
-                                                    options = R.array.media_segments_type,
-                                                    optionValues =
-                                                        R.array.media_segments_type_values,
                                                 ),
                                                 PreferenceLongInput(
                                                     nameStringResource =
@@ -748,65 +712,6 @@ class SettingsViewModel @Inject constructor(
                                                         appPreferences
                                                             .playerMediaSegmentsNextEpisodeThreshold,
                                                     suffixRes = R.string.ms,
-                                                ),
-                                                // Per-type tri-state action (issue #12). Lives in
-                                                // the same group as the legacy global toggles so
-                                                // users find both in one place; the per-type
-                                                // choice wins when both are set.
-                                                PreferenceSelect(
-                                                    nameStringResource =
-                                                        R.string
-                                                            .pref_player_media_segments_action_intro,
-                                                    backendPreference =
-                                                        appPreferences
-                                                            .playerMediaSegmentsIntroAction,
-                                                    options = R.array.media_segments_action,
-                                                    optionValues =
-                                                        R.array.media_segments_action_values,
-                                                ),
-                                                PreferenceSelect(
-                                                    nameStringResource =
-                                                        R.string
-                                                            .pref_player_media_segments_action_outro,
-                                                    backendPreference =
-                                                        appPreferences
-                                                            .playerMediaSegmentsOutroAction,
-                                                    options = R.array.media_segments_action,
-                                                    optionValues =
-                                                        R.array.media_segments_action_values,
-                                                ),
-                                                PreferenceSelect(
-                                                    nameStringResource =
-                                                        R.string
-                                                            .pref_player_media_segments_action_recap,
-                                                    backendPreference =
-                                                        appPreferences
-                                                            .playerMediaSegmentsRecapAction,
-                                                    options = R.array.media_segments_action,
-                                                    optionValues =
-                                                        R.array.media_segments_action_values,
-                                                ),
-                                                PreferenceSelect(
-                                                    nameStringResource =
-                                                        R.string
-                                                            .pref_player_media_segments_action_preview,
-                                                    backendPreference =
-                                                        appPreferences
-                                                            .playerMediaSegmentsPreviewAction,
-                                                    options = R.array.media_segments_action,
-                                                    optionValues =
-                                                        R.array.media_segments_action_values,
-                                                ),
-                                                PreferenceSelect(
-                                                    nameStringResource =
-                                                        R.string
-                                                            .pref_player_media_segments_action_commercial,
-                                                    backendPreference =
-                                                        appPreferences
-                                                            .playerMediaSegmentsCommercialAction,
-                                                    options = R.array.media_segments_action,
-                                                    optionValues =
-                                                        R.array.media_segments_action_values,
                                                 ),
                                             ),
                                     ),
@@ -1446,4 +1351,16 @@ class SettingsViewModel @Inject constructor(
             else -> Unit
         }
     }
+
+    /** A Skip automatically / Ask to skip / Do nothing select for one media segment type. */
+    private fun mediaSegmentActionSelect(
+        @StringRes nameStringResource: Int,
+        backendPreference: PreferenceBackend<String>,
+    ) =
+        PreferenceSelect(
+            nameStringResource = nameStringResource,
+            backendPreference = backendPreference,
+            options = R.array.media_segments_action,
+            optionValues = R.array.media_segments_action_values,
+        )
 }

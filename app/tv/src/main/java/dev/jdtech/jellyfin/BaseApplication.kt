@@ -45,6 +45,8 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
 
         // Issue #52: correct an "aaudio" value left in preferences by the old default.
         appPreferences.migrateMpvAudioOutput()
+        // CE (#271): the old media segment switches become one action per segment type.
+        appPreferences.migrateMediaSegmentActions()
         appPreferences.useTvImageCacheSize()
 
         // CE (#138): Continue Watching and Next Up on the launcher's Watch Next row.
