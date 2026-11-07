@@ -148,8 +148,14 @@ interface JellyfinRepository {
      * asks for the original file and is shared with the downloader), this sends an
      * honest device profile so the server transcodes anything the player cannot
      * direct-play — notably Dolby Vision on hardware without a working DV pipeline.
+     *
+     * When a downloaded copy exists and [mediaSourceId] is null or names it, the server is not
+     * asked: the player plays the local copy then anyway, and waiting on the server only delays it.
      */
-    suspend fun getPlaybackSources(itemId: UUID): List<FindroidSource>
+    suspend fun getPlaybackSources(
+        itemId: UUID,
+        mediaSourceId: String? = null,
+    ): List<FindroidSource>
 
     suspend fun getStreamUrl(itemId: UUID, mediaSourceId: String): String
 
