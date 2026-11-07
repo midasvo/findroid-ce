@@ -328,6 +328,9 @@ fun TvPlayerScreen(
                 .background(Color.Black)
                 .onPreviewKeyEvent { event ->
                     val native = event.nativeKeyEvent
+                    // Any key means someone is watching, as a touch does on phone: it resets the
+                    // still-watching counters.
+                    if (event.type == KeyEventType.KeyDown) viewModel.markUserInteraction()
                     keyHandler.onKeyEvent(event.key.nativeKeyCode, native.action, native.repeatCount)
                 }
                 .focusRequester(rootFocus)
@@ -468,6 +471,30 @@ fun TvPlayerScreen(
             message = error.message?.takeIf { it.isNotBlank() } ?: error.errorCodeName,
             onExit = navigateBack,
         )
+    }
+
+    // #238: at the end of an item the ViewModel pauses on its last frame and waits for this
+    // prompt (by default after three episodes in a row) instead of advancing. Without it the TV
+    // player sat paused with nothing on screen.
+    if (uiState.showStillWatching) {
+        StillWatchingDialog(
+            timeoutSeconds = uiState.stillWatchingTimeoutSeconds,
+            onContinue = viewModel::acknowledgeStillWatching,
+            onStop = viewModel::dismissStillWatching,
+        )
+    }
+    // Stopped, or timed out: the player stays paused on the finished item, so show the controls.
+    var stillWatchingShown by remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.showStillWatching) {
+        if (uiState.showStillWatching) {
+            stillWatchingShown = true
+        } else if (stillWatchingShown) {
+            stillWatchingShown = false
+            if (player.playWhenReady) return@LaunchedEffect
+            controlsVisible = true
+            interactions++
+            focusWhenReady(playPauseFocus)
+        }
     }
 
     dialog?.let { open ->
@@ -912,6 +939,54 @@ private fun PlaybackErrorDialog(message: String, onExit: () -> Unit) {
                 LaunchedEffect(Unit) { focusWhenReady(focusRequester) }
                 Button(onClick = onExit, modifier = Modifier.focusRequester(focusRequester)) {
                     Text(text = stringResource(PlayerR.string.player_controls_exit))
+                }
+            }
+        }
+    }
+}
+
+/**
+ * "Are you still watching?", with the phone dialog's strings. The ViewModel owns the timeout and
+ * closes the prompt itself; the countdown here only shows it. Back counts as Stop.
+ */
+@Composable
+private fun StillWatchingDialog(timeoutSeconds: Int, onContinue: () -> Unit, onStop: () -> Unit) {
+    val remaining by
+        produceState(timeoutSeconds) {
+            while (value > 1) {
+                delay(1_000L)
+                value--
+            }
+        }
+    Dialog(onDismissRequest = onStop) {
+        Surface(
+            modifier = Modifier.width(560.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = SurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium),
+                modifier = Modifier.padding(MaterialTheme.spacings.large),
+            ) {
+                Text(
+                    text = stringResource(PlayerR.string.still_watching_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = stringResource(PlayerR.string.still_watching_message, remaining),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                val focusRequester = remember { FocusRequester() }
+                LaunchedEffect(Unit) { focusWhenReady(focusRequester) }
+                Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacings.medium)) {
+                    Button(onClick = onContinue, modifier = Modifier.focusRequester(focusRequester)) {
+                        Text(text = stringResource(PlayerR.string.still_watching_continue))
+                    }
+                    Button(onClick = onStop) {
+                        Text(text = stringResource(PlayerR.string.still_watching_pause))
+                    }
                 }
             }
         }
