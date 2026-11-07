@@ -102,4 +102,18 @@ object Layout {
             WidthClass.Medium -> 160.dp
             WidthClass.Expanded -> 200.dp
         }
+
+    /**
+     * Height of the backdrop hero on item pages at Medium and Expanded width (4-design.md §6): as
+     * close to 16:9 as the window allows, never more than 55 % of its height, never below 320 dp.
+     */
+    fun heroHeight(width: Dp, windowHeight: Dp): Dp =
+        maxOf(320.dp, minOf(width * 9f / 16f, windowHeight * 0.55f))
 }
+
+/**
+ * True when an item page (Movie, Show, Episode) should use its wide hero layout: Medium or
+ * Expanded width with room in height. A phone in landscape keeps the compact layout.
+ */
+@Composable
+fun useWideItemLayout(): Boolean = currentWidthClass() != WidthClass.Compact && !isCompactHeight()

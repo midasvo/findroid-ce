@@ -32,6 +32,7 @@ import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidSeason
 import dev.jdtech.jellyfin.presentation.theme.spacings
+import dev.jdtech.jellyfin.presentation.utils.drawTopScrimOverArt
 import dev.jdtech.jellyfin.presentation.utils.parallaxLayoutModifier
 
 @Composable
@@ -157,6 +158,7 @@ private fun ItemHeaderBase(
                             startY = 0f,
                         )
                 )
+                drawTopScrimOverArt()
             }
             content()
             if (showLogo) {
