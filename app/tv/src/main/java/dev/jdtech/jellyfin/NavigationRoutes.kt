@@ -35,7 +35,8 @@ data class CollectionRoute(
 
 @Serializable data class ShowRoute(val itemId: String) : NavKey
 
-@Serializable data class SeasonRoute(val seasonId: String) : NavKey
+/** [seriesId] lets the season page request everything at once (#252); null when not known. */
+@Serializable data class SeasonRoute(val seasonId: String, val seriesId: String? = null) : NavKey
 
 /** CE (#130): an episode opens on the season page of its season, with that episode focused. */
 @Serializable data class EpisodeRoute(val episodeId: String) : NavKey

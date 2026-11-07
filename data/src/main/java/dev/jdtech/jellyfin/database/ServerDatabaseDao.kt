@@ -18,6 +18,7 @@ import dev.jdtech.jellyfin.models.FindroidUserDataDto
 import dev.jdtech.jellyfin.models.PendingDownloadDto
 import dev.jdtech.jellyfin.models.Server
 import dev.jdtech.jellyfin.models.ServerAddress
+import dev.jdtech.jellyfin.models.SeasonEpisodeCounts
 import dev.jdtech.jellyfin.models.SeriesTrackPreferenceDto
 import dev.jdtech.jellyfin.models.ServerWithAddressAndUser
 import dev.jdtech.jellyfin.models.ServerWithAddresses
@@ -248,6 +249,20 @@ interface ServerDatabaseDao {
 
     @Query("SELECT * FROM episodes WHERE seasonId = :seasonId ORDER BY indexNumber ASC")
     suspend fun getEpisodesBySeasonId(seasonId: UUID): List<FindroidEpisodeDto>
+
+    /**
+     * CE (#252): per season of [seriesId], how many episodes are stored and how many of them are
+     * downloaded, in one query. Downloaded means what `FindroidItem.isDownloaded()` means: a LOCAL
+     * source that is not a partial `.download` file.
+     */
+    @Query(
+        "SELECT episodes.seasonId AS seasonId, COUNT(*) AS total, " +
+            "SUM(CASE WHEN EXISTS (SELECT 1 FROM sources WHERE sources.itemId = episodes.id " +
+            "AND sources.type = 'LOCAL' AND sources.path NOT LIKE '%.download') " +
+            "THEN 1 ELSE 0 END) AS downloaded " +
+            "FROM episodes WHERE episodes.seriesId = :seriesId GROUP BY episodes.seasonId"
+    )
+    suspend fun getSeasonEpisodeCounts(seriesId: UUID): List<SeasonEpisodeCounts>
 
     @Query(
         "SELECT * FROM episodes WHERE serverId = :serverId ORDER BY seriesName ASC, parentIndexNumber ASC, indexNumber ASC"

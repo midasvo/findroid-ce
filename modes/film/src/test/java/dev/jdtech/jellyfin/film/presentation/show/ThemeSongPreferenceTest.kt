@@ -69,6 +69,7 @@ class ThemeSongPreferenceTest {
                     database = unused<ServerDatabaseDao>(),
                     context = ContextWrapper(null) as Context,
                 ),
+            database = unused(),
         )
     }
 

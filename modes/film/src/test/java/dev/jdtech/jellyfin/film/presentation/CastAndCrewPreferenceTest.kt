@@ -126,6 +126,7 @@ class CastAndCrewPreferenceTest {
                         database = unused<ServerDatabaseDao>(),
                         context = ContextWrapper(null) as Context,
                     ),
+                database = noDownloads(),
             )
         viewModel.loadShow(itemId)
         withTimeout(5_000) { viewModel.state.first { it.show != null } }
@@ -156,7 +157,8 @@ class CastAndCrewPreferenceTest {
                 "getShow" -> show()
                 "getEpisode" -> episode()
                 "getNextUp",
-                "getSeasons" -> emptyList<Any>()
+                "getSeasons",
+                "getEpisodes" -> emptyList<Any>()
                 else -> throw NotImplementedError("JellyfinRepository.${method.name}")
             }
         } as JellyfinRepository
@@ -263,6 +265,18 @@ class CastAndCrewPreferenceTest {
             } as SharedPreferences
         return AppPreferences(preferences)
     }
+
+    /** A database with nothing downloaded, for the show page's download counts. */
+    private fun noDownloads(): ServerDatabaseDao =
+        Proxy.newProxyInstance(
+            ServerDatabaseDao::class.java.classLoader,
+            arrayOf(ServerDatabaseDao::class.java),
+        ) { _, method, _ ->
+            when (method.name) {
+                "getSeasonEpisodeCounts" -> emptyList<Any>()
+                else -> throw NotImplementedError("ServerDatabaseDao.${method.name}")
+            }
+        } as ServerDatabaseDao
 
     private inline fun <reified T : Any> unused(): T =
         Proxy.newProxyInstance(T::class.java.classLoader, arrayOf(T::class.java)) { _, method, _ ->

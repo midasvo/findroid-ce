@@ -358,7 +358,13 @@ private fun EntryProviderScope<NavKey>.tvEntries(
             navigateToItem =
                 resumedAction { item ->
                     when (item) {
-                        is FindroidSeason -> navigate(SeasonRoute(seasonId = item.id.toString()))
+                        is FindroidSeason ->
+                            navigate(
+                                SeasonRoute(
+                                    seasonId = item.id.toString(),
+                                    seriesId = item.seriesId.toString(),
+                                )
+                            )
                         else -> Unit
                     }
                 },
@@ -391,6 +397,7 @@ private fun EntryProviderScope<NavKey>.tvEntries(
     entry<SeasonRoute> { key ->
         SeasonScreen(
             seasonId = UUID.fromString(key.seasonId),
+            seriesId = key.seriesId?.let(UUID::fromString),
             episodeId = null,
             navigateToPlayer = episodePlayerAction(navigate),
         )

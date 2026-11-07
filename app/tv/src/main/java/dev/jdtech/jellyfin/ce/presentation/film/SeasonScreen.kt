@@ -107,6 +107,7 @@ fun SeasonScreen(
     seasonId: UUID?,
     episodeId: UUID?,
     navigateToPlayer: (itemId: UUID, mediaSourceId: String?, startFromBeginning: Boolean) -> Unit,
+    seriesId: UUID? = null,
     seasonViewModel: SeasonViewModel = hiltViewModel(),
     episodeViewModel: EpisodeViewModel = hiltViewModel(),
 ) {
@@ -127,7 +128,12 @@ fun SeasonScreen(
     // Runs again on each return to the screen, so watch progress is up to date.
     LaunchedEffect(currentSeasonId) {
         currentSeasonId?.let {
-            seasonViewModel.loadSeason(UUID.fromString(it), includeSeriesSeasons = true)
+            // Every season chip is of the same series, so [seriesId] holds for all of them.
+            seasonViewModel.loadSeason(
+                UUID.fromString(it),
+                includeSeriesSeasons = true,
+                seriesId = seriesId ?: episodeState.episode?.seriesId,
+            )
         }
     }
 

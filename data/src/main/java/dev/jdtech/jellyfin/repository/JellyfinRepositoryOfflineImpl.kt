@@ -360,17 +360,17 @@ class JellyfinRepositoryOfflineImpl(
 
     override suspend fun getEpisodes(
         seriesId: UUID,
-        seasonId: UUID,
+        seasonId: UUID?,
         fields: List<ItemFields>?,
         startItemId: UUID?,
         limit: Int?,
         offline: Boolean,
     ): List<FindroidEpisode> =
         withContext(Dispatchers.IO) {
-            val items =
-                database.getEpisodesBySeasonId(seasonId).map {
-                    it.toFindroidEpisode(database, currentUserId)
-                }
+            val episodes =
+                if (seasonId != null) database.getEpisodesBySeasonId(seasonId)
+                else database.getEpisodesByShowId(seriesId)
+            val items = episodes.map { it.toFindroidEpisode(database, currentUserId) }
             if (startItemId != null) return@withContext items.dropWhile { it.id != startItemId }
             items
         }

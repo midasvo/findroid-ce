@@ -372,7 +372,7 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getEpisodes(
         seriesId: UUID,
-        seasonId: UUID,
+        seasonId: UUID?,
         fields: List<ItemFields>?,
         startItemId: UUID?,
         limit: Int?,
@@ -393,9 +393,10 @@ class JellyfinRepositoryImpl(
                     .items
                     .mapNotNull { it.toFindroidEpisode(this@JellyfinRepositoryImpl, database) }
             } else {
-                database.getEpisodesBySeasonId(seasonId).map {
-                    it.toFindroidEpisode(database, currentUserId)
-                }
+                val episodes =
+                    if (seasonId != null) database.getEpisodesBySeasonId(seasonId)
+                    else database.getEpisodesByShowId(seriesId)
+                episodes.map { it.toFindroidEpisode(database, currentUserId) }
             }
         }
 
