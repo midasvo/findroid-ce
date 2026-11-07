@@ -166,12 +166,18 @@ private fun DownloadsScreenLayout(
                 state.sections.flatMap { section -> section.items.map { it.id } }
         )
     }
-    val queueItems = state.queueItems.filterNot { it.item.id in undo.hiddenIds }
+    val hiddenIds = undo.hiddenIds
+    val queueItems =
+        remember(state.queueItems, hiddenIds) {
+            state.queueItems.filterNot { it.item.id in hiddenIds }
+        }
     val sections =
-        state.sections
-            .map { section -> section.copy(items = section.items.filterNot { it.id in undo.hiddenIds }) }
-            .filter { it.items.isNotEmpty() }
-    val libraryItems = sections.flatMap { it.items }
+        remember(state.sections, hiddenIds) {
+            state.sections
+                .map { section -> section.copy(items = section.items.filterNot { it.id in hiddenIds }) }
+                .filter { it.items.isNotEmpty() }
+        }
+    val libraryItems = remember(sections) { sections.flatMap { it.items } }
 
     val cancelDownload: (ActiveDownload) -> Unit = { download ->
         undo.run(
@@ -276,7 +282,7 @@ private fun DownloadsScreenLayout(
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             if (state.storageUsedBytes > 0 || state.storageFreeBytes > 0) {
-                item(key = "storage") {
+                item(key = "storage", contentType = "storage") {
                     StorageSummary(
                         moviesBytes = state.moviesBytes,
                         showsBytes = state.showsBytes,
@@ -300,7 +306,7 @@ private fun DownloadsScreenLayout(
             }
 
             for (section in sections) {
-                item(key = "section:${section.id}") {
+                item(key = "section:${section.id}", contentType = "section:header") {
                     SectionHeader(
                         title = section.name.asString(),
                         modifier = Modifier.animateItem(),
@@ -309,6 +315,7 @@ private fun DownloadsScreenLayout(
                 itemsIndexed(
                     items = section.items,
                     key = { _, item -> "library:${item.id}" },
+                    contentType = { _, item -> item::class },
                 ) { index, item ->
                     val selected = item.id in selectedIds
                     fun toggle() {
@@ -350,7 +357,7 @@ private fun LazyListScope.downloadingSection(
     onDismissDownload: (ActiveDownload) -> Unit,
     onRetryDownload: (ActiveDownload) -> Unit,
 ) {
-    item(key = "downloading:header") {
+    item(key = "downloading:header", contentType = "downloading:header") {
         val context = LocalContext.current
         val bytesPerSecond =
             queueItems
@@ -364,7 +371,7 @@ private fun LazyListScope.downloadingSection(
             modifier = Modifier.animateItem(),
         )
     }
-    item(key = "downloading:rows") {
+    item(key = "downloading:rows", contentType = "downloading:rows") {
         // One item holding the whole group, so "Show all" can expand it in place.
         var showAll by rememberSaveable { mutableStateOf(false) }
         val collapsible = queueItems.size > COLLAPSED_QUEUE_SIZE + 1
