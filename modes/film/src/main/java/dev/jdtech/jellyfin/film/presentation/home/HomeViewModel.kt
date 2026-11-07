@@ -112,11 +112,7 @@ constructor(
             val stored = homeRowsStore.read(HomeRowsProfile.of(server))
             val legacy = homeRowsStore.legacy()
             val layout = HomeRows.resolve(stored, null, legacy)
-            // Resolved without the libraries, so cached rows keep the order of the last full load
-            // until loadLatest resolves it again; replacing it now moves the Latest rows about.
-            _state.update {
-                if (it.rowOrder.isEmpty()) it.copy(rowOrder = layout.map { row -> row.key }) else it
-            }
+            _state.update { it.copy(rowOrder = layout.map { row -> row.key }) }
             fun show(type: HomeRowType) = layout.any { it.type == type && it.visible }
 
             // coroutineScope { } is required here: without it, a failure
