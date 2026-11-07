@@ -1,6 +1,6 @@
 name: Pages
 
-# Publishes site/ (the privacy policy that Google Play links to) to GitHub Pages at
+# Publishes site/ (the landing page and the privacy policy that Google Play links to) to GitHub Pages at
 # https://midasvo.nl/ephyra/ (the custom domain of midasvo.github.io). Needs Settings → Pages →
 # Source set to "GitHub Actions".
 

@@ -1,42 +1,727 @@
-:root {
-  color-scheme: light dark;
-  --bg: #ffffff;
-  --fg: #1b1b1f;
-  --muted: #5d5e66;
-  --link: #6b4fd8;
+/* Ephyra site. Colours, type, shape and motion follow docs/identity/VISION.md ("Bioluminescence").
+   Every colour is a token from §3; there are no other hex values in this file. */
+
+@font-face {
+  font-family: "Outfit";
+  src: url("fonts/outfit.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
 }
 
-@media (prefers-color-scheme: dark) {
+:root {
+  color-scheme: dark light;
+
+  /* §3.1 dark scheme (the brand scheme, default) */
+  --primary: #4FD8F0;
+  --on-primary: #00303A;
+  --primary-container: #0E4F5C;
+  --on-primary-container: #BDF4FF;
+  --secondary-container: #232E66;
+  --on-secondary-container: #DDE1FF;
+  --tertiary: #B9A3FF;
+  --surface: #070B16;
+  --on-surface: #E4FBFF;
+  --on-surface-variant: #9FB3C8;
+  --surface-container-lowest: #03060D;
+  --surface-container-low: #0D1322;
+  --surface-container: #121A2C;
+  --surface-container-high: #182238;
+  --surface-container-highest: #1F2B45;
+  --outline: #5A6B85;
+  --outline-variant: #2A3650;
+  --scrim: #000000;
+
+  /* §3.3 brand tokens */
+  --glow: rgb(79 216 240 / 0.45);
+  --speck: var(--on-surface);
+
+  /* §4 type */
+  --display: "Outfit", system-ui, Roboto, sans-serif;
+  --body: system-ui, Roboto, "Segoe UI", sans-serif;
+
+  /* §5 shape */
+  --r-xs: 8px;
+  --r-s: 12px;
+  --r-m: 16px;
+  --r-l: 24px;
+
+  /* §6 motion */
+  --t-short: 200ms;
+  --t-medium: 350ms;
+  --t-long: 700ms;
+  --ease-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 0.8, 0.15);
+
+  --gutter: 16px;
+  --measure: 1100px;
+}
+
+@media (prefers-color-scheme: light) {
   :root {
-    --bg: #111318;
-    --fg: #e3e2e9;
-    --muted: #a3a4ad;
-    --link: #b9a6ff;
+    /* §3.2 light scheme */
+    --primary: #007A8E;
+    --on-primary: #FFFFFF;
+    --primary-container: #BDF4FF;
+    --on-primary-container: #00303A;
+    --secondary-container: #DDE1FF;
+    --on-secondary-container: #0A1560;
+    --tertiary: #6B4FD1;
+    --surface: #F3FBFF;
+    --on-surface: #0B1326;
+    --on-surface-variant: #3F4F64;
+    --surface-container-lowest: #FFFFFF;
+    --surface-container-low: #E9F5FA;
+    --surface-container: #DFEFF5;
+    --surface-container-high: #D4E8EF;
+    --surface-container-highest: #C8E0E9;
+    --outline: #6B7A90;
+    --outline-variant: #BCC9D8;
+
+    /* §6: no glow in light, nothing to glow against */
+    --glow: transparent;
   }
+}
+
+/* ---------- base ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font: 16px/1.6 system-ui, sans-serif;
+  background: var(--surface);
+  color: var(--on-surface);
+  font: 400 1rem/1.5 var(--body);
+  overflow-x: hidden;
 }
 
-main {
-  max-width: 42rem;
-  margin: 0 auto;
-  padding: 2rem 16px 4rem;
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  margin: 0;
+  color: var(--on-surface);
+}
+
+h1 {
+  font-size: clamp(2.5rem, 2rem + 2.5vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
 }
 
 h2 {
-  margin-top: 2rem;
-  font-size: 1.2rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+p {
+  margin: 0 0 1em;
 }
 
 a {
-  color: var(--link);
+  color: var(--on-surface);
+  text-decoration: underline;
+  text-decoration-color: var(--outline);
+  text-underline-offset: 0.15em;
+  transition: color var(--t-short) var(--ease-enter), text-decoration-color var(--t-short) var(--ease-enter);
+}
+
+a:hover {
+  color: var(--primary);
+  text-decoration-color: var(--primary);
+}
+
+/* The web's focus ring: the TV focus ring with its glow (§6, item 1 of three). */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 10px 0 var(--glow);
+  border-radius: var(--r-xs);
+}
+
+code {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 0.875em;
+  background: var(--surface-container-high);
+  color: var(--on-surface-variant);
+  padding: 0.1em 0.4em;
+  border-radius: var(--r-xs);
+  white-space: nowrap;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+ul {
+  margin: 0 0 1em;
+  padding-left: 1.2em;
+}
+
+li {
+  margin: 0.35em 0;
+}
+
+li::marker {
+  color: var(--on-surface-variant);
+}
+
+.wrap {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.muted {
+  color: var(--on-surface-variant);
 }
 
 .meta {
-  color: var(--muted);
+  font: 500 0.875rem/1.5 var(--body);
+  color: var(--on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- pills (§5) ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  font: 500 0.9375rem/1 var(--body);
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: box-shadow var(--t-short) var(--ease-enter), background-color var(--t-short) var(--ease-enter), color var(--t-short) var(--ease-enter);
+}
+
+.btn svg {
+  width: 1.125em;
+  height: 1.125em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Play is the one thing that sits on a primary fill (§7); on the web, that is Download. */
+.btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  color: var(--on-primary);
+  box-shadow: 0 0 10px 0 var(--glow);
+}
+
+.btn-secondary {
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+  border-color: var(--outline-variant);
+}
+
+.btn-secondary:hover {
+  color: var(--on-surface);
+  background: var(--surface-container-highest);
+}
+
+/* ---------- header ---------- */
+
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.top .wrap {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 56px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font: 600 1.125rem/1 var(--display);
+  text-decoration: none;
+  color: var(--on-surface);
+}
+
+.brand img {
+  width: 28px;
+  height: 28px;
+}
+
+.top nav {
+  margin-left: auto;
+  display: flex;
+  gap: 1.25rem;
+  font: 500 0.875rem/1 var(--body);
+}
+
+.top nav a {
+  text-decoration: none;
+  color: var(--on-surface-variant);
+}
+
+.top nav a:hover {
+  color: var(--primary);
+}
+
+@media (max-width: 600px) {
+  .top nav .optional {
+    display: none;
+  }
+}
+
+/* ---------- hero ---------- */
+
+.hero {
+  position: relative;
+  padding: clamp(3rem, 8vw, 6rem) 0 clamp(2rem, 6vw, 4rem);
+  overflow: hidden;
+}
+
+.hero .wrap {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 3rem;
+  align-items: center;
+}
+
+.hero-copy {
+  max-width: 34rem;
+}
+
+.hero-mark {
+  width: 96px;
+  height: 96px;
+  margin-bottom: 1.5rem;
+  /* §10.5: the one brand moment. The mark with its glow on surface. */
+  filter: drop-shadow(0 0 10px var(--glow));
+}
+
+.hero p.lead {
+  font-size: 1.25rem;
+  color: var(--on-surface-variant);
+  margin: 1rem 0 1.75rem;
+  max-width: 28rem;
+}
+
+.hero .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.hero-shots {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+  align-items: end;
+}
+
+.hero-shots .tv {
+  border-radius: var(--r-l);
+  overflow: hidden;
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+}
+
+.hero-shots .phone {
+  border-radius: var(--r-m);
+  overflow: hidden;
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+}
+
+/* Bioluminescent specks (§9): sparse, slow, dimmer than the mark, hero only. */
+.specks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.specks span {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--speck);
+  opacity: 0;
+  animation: drift var(--d, 40s) linear var(--delay, 0s) infinite;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: var(--o, 0.35);
+  }
+  85% {
+    opacity: var(--o, 0.35);
+  }
+  100% {
+    transform: translate3d(var(--dx, 10px), -60px, 0);
+    opacity: 0;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .specks {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .hero .wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-shots {
+    max-width: 36rem;
+  }
+}
+
+/* ---------- sections ---------- */
+
+section {
+  padding: clamp(2.5rem, 6vw, 5rem) 0;
+  scroll-margin-top: 56px;
+}
+
+section + section {
+  border-top: 1px solid var(--outline-variant);
+}
+
+.section-head {
+  max-width: 40rem;
+  margin-bottom: 2rem;
+}
+
+.section-head p {
+  color: var(--on-surface-variant);
+  margin-top: 0.5rem;
+}
+
+.feature {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 2rem 3rem;
+  align-items: start;
+  padding: 2rem 0;
+}
+
+.feature + .feature {
+  border-top: 1px solid var(--outline-variant);
+}
+
+.feature h3 {
+  margin-bottom: 0.75rem;
+}
+
+.feature ul {
+  color: var(--on-surface-variant);
+}
+
+.feature li strong {
+  color: var(--on-surface);
+  font-weight: 500;
+}
+
+.shots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.shots.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.shots.four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.shots .wide {
+  grid-column: 1 / -1;
+}
+
+figure {
+  margin: 0;
+}
+
+figure img {
+  width: 100%;
+  border-radius: var(--r-s);
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+}
+
+figure.landscape img,
+figure.tv img {
+  border-radius: var(--r-m);
+}
+
+figcaption {
+  margin-top: 0.5rem;
+  font: 400 0.875rem/1.4 var(--body);
+  color: var(--on-surface-variant);
+}
+
+@media (max-width: 860px) {
+  .feature {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .shots,
+  .shots.four {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- tv ---------- */
+
+.tv-hero img {
+  width: 100%;
+  border-radius: var(--r-l);
+}
+
+.tv-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin: 1.25rem 0 2rem;
+}
+
+.tv-grid figure img {
+  border-radius: var(--r-m);
+}
+
+.tv-list {
+  columns: 2;
+  column-gap: 3rem;
+  color: var(--on-surface-variant);
+  max-width: 60rem;
+}
+
+.tv-list li {
+  break-inside: avoid;
+}
+
+@media (max-width: 640px) {
+  .tv-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tv-list {
+    columns: 1;
+  }
+}
+
+/* ---------- install ---------- */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--r-m);
+  padding: 1.5rem;
+}
+
+.card h3 {
+  margin-bottom: 0.5rem;
+}
+
+.card p:last-child,
+.card ul:last-child,
+.card table:last-child {
+  margin-bottom: 0;
+}
+
+.card p,
+.card li {
+  color: var(--on-surface-variant);
+}
+
+.card strong {
+  color: var(--on-surface);
+  font-weight: 500;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--outline-variant);
+  vertical-align: top;
+  color: var(--on-surface-variant);
+}
+
+th {
+  font-weight: 500;
+  color: var(--on-surface);
+}
+
+tr:first-child th,
+tr:first-child td {
+  border-top: 0;
+}
+
+td code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- footer ---------- */
+
+footer {
+  border-top: 1px solid var(--outline-variant);
+  padding: 2.5rem 0 3rem;
+  color: var(--on-surface-variant);
+  font-size: 0.9375rem;
+}
+
+footer .wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 2rem;
+}
+
+footer nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+footer nav a {
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  footer .wrap {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- prose pages (privacy) ---------- */
+
+.prose {
+  max-width: 42rem;
+  padding: 3rem var(--gutter) 4rem;
+  margin: 0 auto;
+}
+
+.prose h1 {
+  font-size: 2.5rem;
+}
+
+.prose h2 {
+  font-size: 1.25rem;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose .meta {
+  margin: 0.5rem 0 2rem;
+}
+
+.prose p,
+.prose li {
+  color: var(--on-surface-variant);
+}
+
+.prose strong {
+  color: var(--on-surface);
+  font-weight: 500;
+}
+
+/* ---------- motion (§6) ---------- */
+
+/* Enter: fade plus an 8 px upward drift, EmphasizedDecelerate. Only when JS can observe. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--t-medium) var(--ease-enter), transform var(--t-medium) var(--ease-enter);
+}
+
+.js .reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .specks span {
+    animation: none;
+    opacity: var(--o, 0.35);
+    transform: none;
+  }
+
+  .btn,
+  a {
+    transition: none;
+  }
 }
