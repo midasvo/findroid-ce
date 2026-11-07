@@ -44,6 +44,9 @@ import dev.jdtech.jellyfin.player.local.PlaybackSessionStore
 import dev.jdtech.jellyfin.player.local.R
 import dev.jdtech.jellyfin.player.local.domain.AudioDecoderFallback
 import dev.jdtech.jellyfin.player.local.domain.PlaylistManager
+import dev.jdtech.jellyfin.player.local.domain.SegmentDecision
+import dev.jdtech.jellyfin.player.local.domain.SegmentTracker
+import dev.jdtech.jellyfin.player.local.domain.SkipTarget
 import dev.jdtech.jellyfin.player.local.domain.StoredChoice
 import dev.jdtech.jellyfin.player.local.domain.StillWatchingTracker
 import dev.jdtech.jellyfin.player.local.domain.TrackCandidate
@@ -166,8 +169,14 @@ constructor(
         /** The item currently loaded in the player. `null` until the first transition fires. */
         val currentItemId: UUID?,
         val currentItemTitle: String,
+        /** The segment the skip button is for, while playback is in one set to ask. */
         val currentSegment: FindroidSegment?,
         val currentSkipButtonStringRes: Int,
+        /**
+         * CE (#271): the skip button's first seconds in [currentSegment]. After that the UI shows
+         * it only while the controls are visible.
+         */
+        val skipButtonInWindow: Boolean = false,
         val currentTrickplay: Trickplay?,
         val currentChapters: List<PlayerChapter>,
         val fileLoaded: Boolean,
@@ -204,27 +213,18 @@ constructor(
     var playWhenReady = true
     private var currentMediaItemIndex = savedStateHandle["mediaItemIndex"] ?: 0
     private var playbackPosition: Long = savedStateHandle["position"] ?: 0
-    private var currentMediaItemSegments: List<FindroidSegment> = emptyList()
+    // CE (#271): which segment playback is in and what to do about it. Built from the settings
+    // in init.
+    private var segmentTracker =
+        SegmentTracker(
+            actions = emptyMap(),
+            buttonDurationMs = 0L,
+            nextEpisodeThresholdMs = 0L,
+            autoSkipOnlyInPip = false,
+        )
 
-    // Segments preferences
-    var segmentsSkipButton: Boolean = false
-    private var segmentsSkipButtonTypes: Set<String> = emptySet()
+    /** Seconds the skip button shows after entering a segment. */
     var segmentsSkipButtonDuration: Long = 0L
-    var segmentsAutoSkip: Boolean = false
-    private var segmentsAutoSkipTypes: Set<String> = emptySet()
-    private var segmentsAutoSkipMode: String = "always"
-
-    // Per-type tri-state action (SKIP / ASK / IGNORE) — issue #12. This is the
-    // primary input to updateCurrentSegment; the legacy global toggles above
-    // are still honoured as a fallback so users who only customised those keep
-    // their existing behaviour after upgrading.
-    //
-    // Values are nullable: a null entry means "the user has not configured a
-    // per-type action for this segment type", which lets resolveSegmentAction
-    // fall through to the legacy toggles. Storing a non-null default here
-    // would always win against legacy and silently reset existing users'
-    // playback behaviour on upgrade.
-    private var segmentsActions: Map<FindroidSegmentType, MediaSegmentAction?> = emptyMap()
 
     var playbackSpeed: Float = 1f
 
@@ -313,37 +313,32 @@ constructor(
                 .coerceAtLeast(5)
         _uiState.update { it.copy(stillWatchingTimeoutSeconds = stillWatchingPromptTimeoutSeconds) }
 
-        segmentsSkipButton = appPreferences.getValue(appPreferences.playerMediaSegmentsSkipButton)
-        segmentsSkipButtonTypes =
-            appPreferences.getValue(appPreferences.playerMediaSegmentsSkipButtonType)
         segmentsSkipButtonDuration =
             appPreferences.getValue(appPreferences.playerMediaSegmentsSkipButtonDuration)
-        segmentsAutoSkip = appPreferences.getValue(appPreferences.playerMediaSegmentsAutoSkip)
-        segmentsAutoSkipTypes =
-            appPreferences.getValue(appPreferences.playerMediaSegmentsAutoSkipType)
-        segmentsAutoSkipMode =
-            appPreferences.getValue(appPreferences.playerMediaSegmentsAutoSkipMode)
-
-        // Resolve the per-type tri-state preference. fromPreferenceValueOrNull
-        // returns null when the value is absent or corrupted, so the legacy
-        // global toggles remain reachable in resolveSegmentAction.
-        segmentsActions = mapOf(
-            FindroidSegmentType.INTRO to MediaSegmentAction.fromPreferenceValueOrNull(
-                appPreferences.getValue(appPreferences.playerMediaSegmentsIntroAction),
-            ),
-            FindroidSegmentType.OUTRO to MediaSegmentAction.fromPreferenceValueOrNull(
-                appPreferences.getValue(appPreferences.playerMediaSegmentsOutroAction),
-            ),
-            FindroidSegmentType.RECAP to MediaSegmentAction.fromPreferenceValueOrNull(
-                appPreferences.getValue(appPreferences.playerMediaSegmentsRecapAction),
-            ),
-            FindroidSegmentType.PREVIEW to MediaSegmentAction.fromPreferenceValueOrNull(
-                appPreferences.getValue(appPreferences.playerMediaSegmentsPreviewAction),
-            ),
-            FindroidSegmentType.COMMERCIAL to MediaSegmentAction.fromPreferenceValueOrNull(
-                appPreferences.getValue(appPreferences.playerMediaSegmentsCommercialAction),
-            ),
-        )
+        segmentTracker =
+            SegmentTracker(
+                actions =
+                    appPreferences.playerMediaSegmentsActions
+                        .mapNotNull { (type, preference) ->
+                            val segmentType =
+                                FindroidSegmentType.entries.firstOrNull { it.name == type }
+                                    ?: return@mapNotNull null
+                            segmentType to
+                                MediaSegmentAction.fromPreferenceValue(
+                                    appPreferences.getValue(preference),
+                                    default = MediaSegmentAction.IGNORE,
+                                )
+                        }
+                        .toMap(),
+                buttonDurationMs = segmentsSkipButtonDuration * 1000L,
+                nextEpisodeThresholdMs =
+                    appPreferences.getValue(
+                        appPreferences.playerMediaSegmentsNextEpisodeThreshold
+                    ),
+                autoSkipOnlyInPip =
+                    appPreferences.getValue(appPreferences.playerMediaSegmentsAutoSkipMode) ==
+                        Constants.PlayerMediaSegmentsAutoSkip.PIP,
+            )
 
         val audioAttributes =
             AudioAttributes.Builder()
@@ -723,107 +718,51 @@ constructor(
      * configured action for any segment it has entered. Suspends rather than
      * launching its own coroutine so the activity's per-second poll loop can
      * call it directly without paying for an extra `viewModelScope.launch`
-     * each tick (PR #20 review).
+     * each tick (PR #20 review). The decisions are [SegmentTracker]'s (#271).
      */
     suspend fun updateCurrentSegment() = withContext(Dispatchers.Main) {
-        Timber.d("Updating current segment")
         refreshPlayingSnapshot()
-        if (currentMediaItemSegments.isEmpty()) {
-            return@withContext
-        }
-
-        val milliSeconds = player.currentPosition
-
-        // Get current segment, - 100 milliseconds to avoid showing button after segment ends
-        val currentSegment =
-            currentMediaItemSegments.find { segment ->
-                milliSeconds in segment.startTicks..<(segment.endTicks - 100L)
-            }
-
-        if (currentSegment == null) {
-            // Remove button if not pressed and there is no current segment
-            if (_uiState.value.currentSegment != null) {
-                _uiState.update { it.copy(currentSegment = null) }
-            }
-            return@withContext
-        }
-
-        Timber.tag("SegmentInfo").d("currentSegment: %s", currentSegment)
-
-        when (resolveSegmentAction(currentSegment)) {
-            MediaSegmentAction.SKIP -> {
-                // Auto Skip segment. The legacy `auto skip mode` (always vs
-                // PIP-only) is still respected — if the user picked PIP-only
-                // and we are not in PiP, fall back to showing the ASK
-                // button instead of nothing, since they clearly want to
-                // skip the segment in some form.
-                val pipOnly =
-                    segmentsAutoSkipMode == Constants.PlayerMediaSegmentsAutoSkip.PIP
-                if (!pipOnly || isInPictureInPictureMode) {
-                    skipSegmentAutomatically(currentSegment)
-                } else {
-                    _uiState.update {
-                        it.copy(
-                            currentSegment = currentSegment,
-                            currentSkipButtonStringRes =
-                                getSkipButtonTextStringId(currentSegment),
-                        )
-                    }
+        val decision =
+            segmentTracker.update(
+                positionMs = player.currentPosition,
+                durationMs = player.duration,
+                hasNextItem = player.hasNextMediaItem(),
+                inPictureInPicture = isInPictureInPictureMode,
+            )
+        when (decision) {
+            SegmentDecision.None -> {
+                if (_uiState.value.currentSegment != null) {
+                    _uiState.update { it.copy(currentSegment = null, skipButtonInWindow = false) }
                 }
             }
-            MediaSegmentAction.ASK -> {
-                // Show the skip button; the UI handles its own auto-hide
-                // after `segmentsSkipButtonDuration` seconds.
+            is SegmentDecision.Ask -> {
+                Timber.tag("SegmentInfo").d("Asking to skip %s", decision.segment)
                 _uiState.update {
                     it.copy(
-                        currentSegment = currentSegment,
-                        currentSkipButtonStringRes = getSkipButtonTextStringId(currentSegment),
+                        currentSegment = decision.segment,
+                        currentSkipButtonStringRes = skipButtonText(decision.segment, decision.target),
+                        skipButtonInWindow = decision.inButtonWindow,
                     )
                 }
             }
-            MediaSegmentAction.IGNORE -> {
-                if (_uiState.value.currentSegment != null) {
-                    _uiState.update { it.copy(currentSegment = null) }
-                }
+            is SegmentDecision.AutoSkip -> {
+                Timber.tag("SegmentInfo").d("Skipping %s", decision.segment)
+                val target =
+                    if (decision.target == SkipTarget.NextItem) {
+                        SegmentTracker.autoSkipTarget(decision.target, autoPlayNext.await())
+                    } else {
+                        decision.target
+                    }
+                skipTo(target)
             }
         }
     }
 
     /**
-     * Resolve the configured [MediaSegmentAction] for the segment that the
-     * player is currently inside.
-     *
-     * Priority:
-     *  1. The per-type preference (issue #12).
-     *  2. Legacy global toggles — autoSkip+type set, then skipButton+type set —
-     *     for users who never touched the new per-type controls.
-     *  3. [MediaSegmentAction.IGNORE] as the safe default.
-     *
-     * The actual logic lives on [MediaSegmentAction.Companion.resolve] so it
-     * can be unit-tested without the PlayerViewModel's Android dependencies.
-     */
-    private fun resolveSegmentAction(segment: FindroidSegment): MediaSegmentAction =
-        MediaSegmentAction.resolve(
-            segmentType = segment.type,
-            perTypeActions = segmentsActions,
-            legacyAutoSkipEnabled = segmentsAutoSkip,
-            legacyAutoSkipTypes = segmentsAutoSkipTypes,
-            legacySkipButtonEnabled = segmentsSkipButton,
-            legacySkipButtonTypes = segmentsSkipButtonTypes,
-        )
-
-    /**
-     * True if at least one segment type is set to SKIP or ASK — used by the
+     * True if at least one segment type is set to skip or ask; used by the
      * activity to decide whether to start the per-second segment poller.
-     *
-     * `segmentsActions` entries may be null (the user has not picked a per-type
-     * action) so we only short-circuit on non-null non-IGNORE values; null
-     * entries fall back to the legacy toggles, which we test separately.
      */
-    fun shouldPollSegments(): Boolean {
-        if (segmentsAutoSkip || segmentsSkipButton) return true
-        return segmentsActions.values.any { it != null && it != MediaSegmentAction.IGNORE }
-    }
+    fun shouldPollSegments(): Boolean = segmentTracker.isActive
 
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
         Timber.d("Playing MediaItem: ${mediaItem?.mediaId}")
@@ -884,6 +823,7 @@ constructor(
                             Timber.e(e)
                         }
 
+                        segmentTracker.setSegments(emptyList())
                         if (shouldPollSegments()) {
                             getSegments(item.itemId)
                         }
@@ -1343,12 +1283,14 @@ constructor(
     }
 
     private suspend fun getSegments(itemId: UUID) {
-        try {
-            currentMediaItemSegments = repository.getSegments(itemId)
-        } catch (e: Exception) {
-            currentMediaItemSegments = emptyList()
-            Timber.e(e)
-        }
+        val segments =
+            try {
+                repository.getSegments(itemId)
+            } catch (e: Exception) {
+                Timber.e(e)
+                emptyList()
+            }
+        segmentTracker.setSegments(segments)
     }
 
     private suspend fun getTrickplay(item: PlayerItem) {
@@ -1413,63 +1355,40 @@ constructor(
         viewModelScope.launch { loader.prefetch(item.playbackPosition) }
     }
 
+    /** The skip button was pressed for [segment]. */
     fun skipSegment(segment: FindroidSegment) {
         markUserInteraction()
-        if (shouldSkipToNextEpisode(segment)) {
-            // Exact position for the stop report onMediaItemTransition sends for this item. Past
-            // 90 % of the runtime, that report marks the item as played (#31).
-            refreshPlayingSnapshot()
-            player.seekToNextMediaItem()
+        skipTo(segmentTracker.skipTarget(segment, player.duration, player.hasNextMediaItem()))
+    }
+
+    private fun skipTo(target: SkipTarget) {
+        _uiState.update { it.copy(currentSegment = null, skipButtonInWindow = false) }
+        when (target) {
+            is SkipTarget.SeekTo -> player.seekTo(target.positionMs)
+            SkipTarget.NextItem -> {
+                // Exact position for the stop report onMediaItemTransition sends for this item.
+                // Past 90 % of the runtime, that report marks the item as played (#31).
+                refreshPlayingSnapshot()
+                player.seekToNextMediaItem()
+            }
+            // An automatic outro skip with autoplay off: end the item and close the player.
+            SkipTarget.EndItem -> endItemWithoutAdvancing()
+        }
+    }
+
+    private fun skipButtonText(segment: FindroidSegment, target: SkipTarget): Int =
+        if (target == SkipTarget.NextItem) {
+            R.string.player_controls_next_episode
         } else {
-            player.seekTo(segment.endTicks)
+            when (segment.type) {
+                FindroidSegmentType.INTRO -> R.string.player_controls_skip_intro
+                FindroidSegmentType.OUTRO -> R.string.player_controls_skip_outro
+                FindroidSegmentType.RECAP -> R.string.player_controls_skip_recap
+                FindroidSegmentType.COMMERCIAL -> R.string.player_controls_skip_commercial
+                FindroidSegmentType.PREVIEW -> R.string.player_controls_skip_preview
+                FindroidSegmentType.UNKNOWN -> R.string.player_controls_skip_unknown
+            }
         }
-        _uiState.update { it.copy(currentSegment = null) }
-    }
-
-    /**
-     * Skip [segment] because its action is [MediaSegmentAction.SKIP]. Skipping an outro that runs
-     * to the end of the item would start the next one, which is autoplay; with autoplay off, end
-     * the item and close the player instead. A tap on "Next episode" goes through [skipSegment]
-     * and always moves on.
-     */
-    private suspend fun skipSegmentAutomatically(segment: FindroidSegment) {
-        if (shouldSkipToNextEpisode(segment) && !autoPlayNext.await()) {
-            _uiState.update { it.copy(currentSegment = null) }
-            endItemWithoutAdvancing()
-            return
-        }
-        skipSegment(segment)
-    }
-
-    // Check if the outro segment's end time is within n milliseconds of the player's total duration
-    private fun shouldSkipToNextEpisode(segment: FindroidSegment): Boolean {
-        return if (segment.type == FindroidSegmentType.OUTRO && player.hasNextMediaItem()) {
-            val segmentEndTimeMillis = segment.endTicks
-            val playerDurationMillis = player.duration
-            val thresholdMillis =
-                playerDurationMillis -
-                    appPreferences.getValue(appPreferences.playerMediaSegmentsNextEpisodeThreshold)
-
-            segmentEndTimeMillis > thresholdMillis
-        } else {
-            false
-        }
-    }
-
-    private fun getSkipButtonTextStringId(segment: FindroidSegment): Int {
-        return when (shouldSkipToNextEpisode(segment)) {
-            true -> R.string.player_controls_next_episode
-            false ->
-                when (segment.type) {
-                    FindroidSegmentType.INTRO -> R.string.player_controls_skip_intro
-                    FindroidSegmentType.OUTRO -> R.string.player_controls_skip_outro
-                    FindroidSegmentType.RECAP -> R.string.player_controls_skip_recap
-                    FindroidSegmentType.COMMERCIAL -> R.string.player_controls_skip_commercial
-                    FindroidSegmentType.PREVIEW -> R.string.player_controls_skip_preview
-                    else -> R.string.player_controls_skip_unknown
-                }
-        }
-    }
 
     /**
      * Get chapters of current item
