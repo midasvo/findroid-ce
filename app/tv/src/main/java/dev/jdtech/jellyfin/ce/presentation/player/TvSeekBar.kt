@@ -35,11 +35,13 @@ import dev.jdtech.jellyfin.ce.ui.focus.EphyraFocusGlowAlpha
  * pending position by the seek steps (faster while held, see [TvPlayerKeyHandler.holdSeekMs]), and
  * OK seeks there. Leaving the bar without OK drops the pending position.
  *
+ * @param positionMs the playback position. Read only while drawing and on a key, so the bar redraws
+ *   with each progress tick without recomposing (#257).
  * @param pendingMs the position being picked, or null; hoisted so the time label can show it.
  */
 @Composable
 fun TvSeekBar(
-    positionMs: Long,
+    positionMs: () -> Long,
     durationMs: Long,
     backStepMs: Long,
     forwardStepMs: Long,
@@ -58,8 +60,6 @@ fun TvSeekBar(
 
     LaunchedEffect(isFocused) { if (!isFocused) onPendingChange(null) }
 
-    val shown = pendingMs ?: positionMs
-    val fraction = if (durationMs > 0) (shown.toFloat() / durationMs).coerceIn(0f, 1f) else 0f
     // Progress is alive: the played track and the thumb are primary (VISION §1, §3.4).
     val color = MaterialTheme.colorScheme.primary
     // The thumb's halo (VISION §6): primary at EphyraFocusGlowAlpha, blurred 20 dp.
@@ -117,7 +117,7 @@ fun TvSeekBar(
                             )
                         }
                     lastRepeat = time
-                    val from = pendingMs ?: positionMs
+                    val from = pendingMs ?: positionMs()
                     val target = from + if (forward) delta else -delta
                     onPendingChange(
                         if (durationMs > 0) target.coerceIn(0L, durationMs)
@@ -127,6 +127,8 @@ fun TvSeekBar(
                 }
                 .focusable(interactionSource = interactionSource)
     ) {
+        val shown = pendingMs ?: positionMs()
+        val fraction = if (durationMs > 0) (shown.toFloat() / durationMs).coerceIn(0f, 1f) else 0f
         val y = size.height / 2
         val stroke = size.height / 2
         drawLine(

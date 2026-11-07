@@ -156,7 +156,7 @@ private fun ShowScreenLayout(state: ShowState, onAction: (ShowAction) -> Unit) {
                     }
             ) {
                 AsyncImage(
-                    model = show.images.backdrop,
+                    model = rememberDetailBackdrop(show.images.backdrop),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),

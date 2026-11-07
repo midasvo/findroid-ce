@@ -109,9 +109,16 @@ fun MainScreen(
     val mainState by mainViewModel.state.collectAsState()
     val mediaState by mediaViewModel.state.collectAsState()
 
+    // Runs on every return to this screen (#257): load only what isn't there yet. A user or server
+    // switch comes back here with the same ViewModels, so "there" means loaded for the user that
+    // is signed in now.
+    val context = LocalContext.current
     LaunchedEffect(true) {
-        mainViewModel.loadServerAndUser()
-        mediaViewModel.loadData()
+        val loadedUser = (mainViewModel.uiState.value as? MainViewModel.UiState.Normal)?.user?.id
+        val sameUser =
+            loadedUser != null && loadedUser == JellyfinApi.getInstance(context).userId
+        if (!sameUser) mainViewModel.loadServerAndUser()
+        if (!sameUser || mediaViewModel.state.value.libraries.isEmpty()) mediaViewModel.loadData()
     }
 
     var user: User? = null
@@ -219,7 +226,6 @@ fun MainScreenLayout(
         requestFocusWhenReady(requester)
     }
 
-    val isDrawerOpen = drawerState.currentValue == DrawerValue.Open
     val isHome = activeDestinationKey == DESTINATION_HOME
 
     // Shows [key] and moves focus into it, so focus never stays on a node that just left the
@@ -242,6 +248,10 @@ fun MainScreenLayout(
     }
 
     BackHandler(enabled = true) {
+        // Read here, on Back, not while composing: the drawer opens and closes with every
+        // Left/Right into the rail, and a read in composition recomposed the whole layout and its
+        // content each time (#257).
+        val isDrawerOpen = drawerState.currentValue == DrawerValue.Open
         when {
             !isHome && isDrawerOpen -> {
                 activeDestinationKey = DESTINATION_HOME
