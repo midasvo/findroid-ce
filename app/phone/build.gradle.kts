@@ -3,6 +3,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.androidx.baselineprofile)
     alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
@@ -22,6 +23,12 @@ val keystoreProps: Properties? =
 // CE-owned: beta channel. .github/workflows/beta.yml sets BETA_BUILD to its run number, which
 // marks the staging build as a beta and keeps its versionCode increasing across branches.
 val betaBuild: Int? = System.getenv("BETA_BUILD")?.toIntOrNull()
+
+composeCompiler {
+    stabilityConfigurationFiles.add(
+        rootProject.layout.projectDirectory.file("compose_stability.conf")
+    )
+}
 
 java { toolchain { languageVersion = Versions.JAVA } }
 
@@ -137,7 +144,13 @@ androidComponents {
     }
 }
 
+// CE-owned (#249): the profile is generated on demand (see baselineprofile/README.md) and
+// committed under src/libreRelease/generated/baselineProfiles; it never runs as part of a build.
+baselineProfile { automaticGenerationDuringBuild = false }
+
 dependencies {
+    baselineProfile(projects.baselineprofile)
+    implementation(libs.androidx.profileinstaller)
     implementation(projects.core)
     implementation(projects.data)
     implementation(projects.player.core)

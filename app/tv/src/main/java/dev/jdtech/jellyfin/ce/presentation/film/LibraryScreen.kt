@@ -267,9 +267,10 @@ internal fun LibraryScreenLayout(
                             direction = Direction.VERTICAL,
                             onClick = { onAction(LibraryAction.OnItemClick(item)) },
                             showYear = true,
+                            // No animateItem() (#257): the grid pages and jumps, and placement
+                            // animations there only cost bookkeeping while a key is held.
                             modifier =
-                                Modifier.animateItem()
-                                    .focusPosition(focusPosition, ROW_ITEMS, i, item.id.toString())
+                                Modifier.focusPosition(focusPosition, ROW_ITEMS, i, item.id.toString())
                                     .onFocusChanged { if (it.hasFocus) focusedIndex.intValue = i }
                                     .testTag(libraryCardTag(item.id)),
                         )

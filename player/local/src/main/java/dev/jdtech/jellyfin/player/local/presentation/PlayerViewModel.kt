@@ -522,6 +522,10 @@ constructor(
             player.setMediaItems(mediaItems, 0, startPosition)
             player.prepare()
             player.play()
+
+            // The first item started without the episode list; fetch it now, while the player
+            // buffers. The neighbour lookups wait for it either way.
+            launch { playlistManager.loadQueue() }
         }
     }
 
@@ -874,40 +878,66 @@ constructor(
                         // auto-advance code did. A stop that reaches the server after the start
                         // can clear the session's now-playing item.
                         stopJob?.join()
-                        repository.postPlaybackStart(item.itemId)
+                        try {
+                            repository.postPlaybackStart(item.itemId)
+                        } catch (e: Exception) {
+                            Timber.e(e)
+                        }
 
                         if (shouldPollSegments()) {
                             getSegments(item.itemId)
                         }
 
-                        if (appPreferences.getValue(appPreferences.playerTrickplay)) {
-                            getTrickplay(item)
-                        }
-
                         playlistManager.setCurrentMediaItemIndex(item.itemId)
 
-                        val previousItem = playlistManager.getPreviousPlayerItem()
-                        if (previousItem != null) {
-                            items.add(player.currentMediaItemIndex, previousItem)
-                            player.addMediaItem(
-                                player.currentMediaItemIndex,
-                                previousItem.toMediaItem(),
-                            )
+                        // Trickplay and the neighbouring items are not needed to show the first
+                        // frame, so they wait for the player to be ready. When it already is (an
+                        // auto-advance), they start now.
+                        deferredWork = item
+                        if (player.playbackState == ExoPlayer.STATE_READY) {
+                            runDeferredWork()
                         }
-
-                        val nextItem = playlistManager.getNextPlayerItem()
-                        if (nextItem != null) {
-                            items.add(player.currentMediaItemIndex + 1, nextItem)
-                            player.addMediaItem(
-                                player.currentMediaItemIndex + 1,
-                                nextItem.toMediaItem(),
-                            )
-                        }
-
-                        _queue.value = playlistManager.upcomingItems()
-
-                        Timber.tag("PlayerItems").d(items.map { it.indexNumber }.toString())
                     }
+            } catch (e: Exception) {
+                Timber.e(e)
+            }
+        }
+    }
+
+    /** The item whose trickplay and neighbour queueing wait for the first ready state. */
+    private var deferredWork: PlayerItem? = null
+
+    /** Runs the work [onMediaItemTransition] left for the ready state, once per item. */
+    private fun runDeferredWork() {
+        val item = deferredWork ?: return
+        if (item.itemId.toString() != player.currentMediaItem?.mediaId) return
+        deferredWork = null
+
+        viewModelScope.launch {
+            try {
+                if (appPreferences.getValue(appPreferences.playerTrickplay)) {
+                    getTrickplay(item)
+                }
+            } catch (e: Exception) {
+                Timber.e(e)
+            }
+
+            try {
+                val previousItem = playlistManager.getPreviousPlayerItem()
+                if (previousItem != null) {
+                    items.add(player.currentMediaItemIndex, previousItem)
+                    player.addMediaItem(player.currentMediaItemIndex, previousItem.toMediaItem())
+                }
+
+                val nextItem = playlistManager.getNextPlayerItem()
+                if (nextItem != null) {
+                    items.add(player.currentMediaItemIndex + 1, nextItem)
+                    player.addMediaItem(player.currentMediaItemIndex + 1, nextItem.toMediaItem())
+                }
+
+                _queue.value = playlistManager.upcomingItems()
+
+                Timber.tag("PlayerItems").d(items.map { it.indexNumber }.toString())
             } catch (e: Exception) {
                 Timber.e(e)
             }
@@ -1066,6 +1096,7 @@ constructor(
             ExoPlayer.STATE_READY -> {
                 stateString = "ExoPlayer.STATE_READY     -"
                 _uiState.update { it.copy(fileLoaded = true) }
+                runDeferredWork()
             }
             ExoPlayer.STATE_ENDED -> {
                 stateString = "ExoPlayer.STATE_ENDED     -"
@@ -1328,68 +1359,22 @@ constructor(
         val trickplayInfo = item.trickplayInfo ?: return
         Timber.d("Trickplay Resolution: ${trickplayInfo.width}")
 
-        // Developer-toggled lazy path: hand the consumer a loader instead of eagerly
-        // decoding the whole strip. The legacy path stays the default because it has
-        // had more bake time.
-        if (appPreferences.getValue(appPreferences.developerEnableTrickplay)) {
-            val loader =
-                TrickplayLoader(
-                    repository = repository,
-                    itemId = item.itemId,
-                    width = trickplayInfo.width,
-                    height = trickplayInfo.height,
-                    tileWidth = trickplayInfo.tileWidth,
-                    tileHeight = trickplayInfo.tileHeight,
-                    thumbnailCount = trickplayInfo.thumbnailCount,
-                    interval = trickplayInfo.interval,
-                )
-            _uiState.update {
-                it.copy(
-                    currentTrickplay = Trickplay(trickplayInfo.interval, loader = loader),
-                )
-            }
-            return
-        }
-
-        withContext(Dispatchers.Default) {
-            val maxIndex =
-                ceil(
-                        trickplayInfo.thumbnailCount
-                            .toDouble()
-                            .div(trickplayInfo.tileWidth * trickplayInfo.tileHeight)
-                    )
-                    .toInt()
-            val bitmaps = mutableListOf<Bitmap>()
-
-            for (i in 0..maxIndex) {
-                repository.getTrickplayData(item.itemId, trickplayInfo.width, i)?.let { byteArray ->
-                    val fullBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-                    try {
-                        for (offsetY in
-                            0..<trickplayInfo.height * trickplayInfo.tileHeight step
-                                trickplayInfo.height) {
-                            for (offsetX in
-                                0..<trickplayInfo.width * trickplayInfo.tileWidth step
-                                    trickplayInfo.width) {
-                                val bitmap =
-                                    Bitmap.createBitmap(
-                                        fullBitmap,
-                                        offsetX,
-                                        offsetY,
-                                        trickplayInfo.width,
-                                        trickplayInfo.height,
-                                    )
-                                bitmaps.add(bitmap)
-                            }
-                        }
-                    } finally {
-                        fullBitmap.recycle()
-                    }
-                }
-            }
-            _uiState.update {
-                it.copy(currentTrickplay = Trickplay(trickplayInfo.interval, bitmaps))
-            }
+        // Hand the consumer a loader instead of decoding the whole strip: a long film is
+        // hundreds of bitmaps, which is a lot of memory and network while the player is starting.
+        _uiState.value.currentTrickplay?.loader?.release()
+        val loader =
+            TrickplayLoader(
+                repository = repository,
+                itemId = item.itemId,
+                width = trickplayInfo.width,
+                height = trickplayInfo.height,
+                tileWidth = trickplayInfo.tileWidth,
+                tileHeight = trickplayInfo.tileHeight,
+                thumbnailCount = trickplayInfo.thumbnailCount,
+                interval = trickplayInfo.interval,
+            )
+        _uiState.update {
+            it.copy(currentTrickplay = Trickplay(trickplayInfo.interval, loader = loader))
         }
     }
 

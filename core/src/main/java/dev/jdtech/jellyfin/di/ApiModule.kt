@@ -30,22 +30,26 @@ object ApiModule {
                 socketTimeout = appPreferences.getValue(appPreferences.socketTimeout),
             )
 
-        val serverId = appPreferences.getValue(appPreferences.currentServer) ?: return jellyfinApi
-
-        // Temporary wrapped in runBlocking to support `database.getServerWithAddressAndUser`
-        // suspend function.
-        // TODO: move this logic somewhere else.
-        runBlocking {
-            val serverWithAddressAndUser =
-                database.getServerWithAddressAndUser(serverId) ?: return@runBlocking jellyfinApi
-            val serverAddress = serverWithAddressAndUser.address ?: return@runBlocking jellyfinApi
-            val user = serverWithAddressAndUser.user
-
-            jellyfinApi.apply {
-                api.update(baseUrl = serverAddress.address, accessToken = user?.accessToken)
-                userId = user?.id
+        // CE (#250): the session comes from the copy in preferences, which are already in memory,
+        // so whichever thread first asks for the client (often Main, through HomeViewModel) does
+        // not wait for Room to open.
+        val serverId = appPreferences.getValue(appPreferences.currentServer)
+        val saved = appPreferences.savedApiSession()
+        val initial =
+            when {
+                serverId == null -> null
+                saved?.serverId == serverId -> saved
+                // No copy for this server yet: the first start after updating to a version that
+                // keeps one, or the app was stopped between a server switch and the copy. Read Room
+                // once, as every start used to.
+                else ->
+                    runBlocking {
+                        database.getServerWithAddressAndUser(serverId).toApiSession(serverId)
+                    }
             }
-        }
+        initial?.let { jellyfinApi.applySession(it) }
+
+        mirrorApiSession(jellyfinApi, appPreferences, database, initial)
 
         return jellyfinApi
     }

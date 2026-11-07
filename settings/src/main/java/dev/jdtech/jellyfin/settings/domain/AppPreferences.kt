@@ -11,6 +11,12 @@ import timber.log.Timber
 class AppPreferences @Inject constructor(val sharedPreferences: SharedPreferences) {
     // Server
     val currentServer = Preference<String?>("pref_current_server", null)
+    // CE (#250): the session the API client starts with, a copy of what the database says for
+    // [currentServer], so the client is built without waiting for Room. Not a user setting.
+    val sessionServerId = Preference<String?>("pref_session_server_id", null)
+    val sessionBaseUrl = Preference<String?>("pref_session_base_url", null)
+    val sessionAccessToken = Preference<String?>("pref_session_access_token", null)
+    val sessionUserId = Preference<String?>("pref_session_user_id", null)
 
     // Language
     val preferredAudioLanguage = Preference<String?>("pref_audio_language", null)

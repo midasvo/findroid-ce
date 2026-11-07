@@ -80,6 +80,15 @@ class HeroImagesTest {
     }
 
     @Test
+    fun `a detail page's placeholder is the hero's cached backdrop`() {
+        val hero = images.backdrop(movie)!!
+        val key = images.backdropCacheKey(movie.images.backdrop)!!
+        assertEquals(hero.memoryCacheKey, key.key)
+        assertEquals(hero.memoryCacheKeyExtras, key.extras)
+        assertNull(images.backdropCacheKey(null))
+    }
+
+    @Test
     fun `the backdrop is decoded at the size it is shown`() {
         val request = images.backdrop(movie)!!
         assertEquals(Size(1344, 756), request.size())

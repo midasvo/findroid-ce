@@ -70,10 +70,19 @@
             </intent-filter>
         </receiver>
 
+        <!-- WorkManager is set up by BaseApplication, with the Hilt worker factory. Only its
+             initializer is removed: dropping the whole provider (#249) also dropped
+             ProfileInstaller, so sideloaded APKs never got the AndroidX baseline profiles. -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
-            tools:node="remove" />
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
     </application>
 
 </manifest>

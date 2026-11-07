@@ -25,7 +25,7 @@ object DownloaderModule {
         serverDatabase: ServerDatabaseDao,
         jellyfinRepositoryProvider: Provider<JellyfinRepository>,
         appPreferences: AppPreferences,
-        workManager: WorkManager,
+        workManagerProvider: Provider<WorkManager>,
         engine: MediaDownloadEngine,
     ): Downloader {
         return DownloaderImpl(
@@ -33,7 +33,7 @@ object DownloaderModule {
             serverDatabase,
             jellyfinRepositoryProvider,
             appPreferences,
-            workManager,
+            workManagerProvider,
             engine,
         )
     }

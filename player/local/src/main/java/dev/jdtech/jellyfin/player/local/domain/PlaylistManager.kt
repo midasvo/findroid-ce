@@ -6,6 +6,7 @@ import dev.jdtech.jellyfin.models.FindroidChapter
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.FindroidMovie
+import dev.jdtech.jellyfin.models.FindroidSource
 import dev.jdtech.jellyfin.models.FindroidSourceType
 import dev.jdtech.jellyfin.models.FindroidSources
 import dev.jdtech.jellyfin.player.core.domain.models.ExternalSubtitle
@@ -15,6 +16,11 @@ import dev.jdtech.jellyfin.player.core.domain.models.TrickplayInfo
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.jellyfin.sdk.model.api.BaseItemKind
 import org.jellyfin.sdk.model.api.ItemFields
 import org.jellyfin.sdk.model.api.MediaStreamType
@@ -26,6 +32,29 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
     private val playerItems: MutableList<PlayerItem> = mutableListOf()
     var currentItemIndex: Int = 0
 
+    private var currentItemId: UUID? = null
+
+    /**
+     * Fetches the full episode list for the queue. Set when the first item could start playing
+     * without it (an episode already knows its season); run by [loadQueue].
+     */
+    private var queueLoader: (suspend () -> List<FindroidItem>)? = null
+    private val queueMutex = Mutex()
+
+    private suspend fun fetchEpisodes(seriesId: UUID, seasonId: UUID): List<FindroidEpisode> =
+        repository
+            .getEpisodes(
+                seriesId = seriesId,
+                seasonId = seasonId,
+                fields = listOf(ItemFields.CHAPTERS, ItemFields.TRICKPLAY),
+            )
+            .filter { !it.missing }
+
+    /**
+     * Resolves the item to start playing. For a movie or episode, the item and its playback
+     * sources are fetched concurrently, and the episode list for the queue is not fetched at all:
+     * call [loadQueue] after the player is prepared (the neighbour lookups also wait for it).
+     */
     suspend fun getInitialItem(
         itemId: UUID,
         itemKind: BaseItemKind,
@@ -35,10 +64,20 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
     ): PlayerItem? {
         Timber.d("Retrieving initial player item")
 
+        queueLoader = null
+        // Playback sources fetched while the item itself was still loading.
+        var prefetchedSources: List<FindroidSource>? = null
+
         val initialItem =
             when (itemKind) {
                 BaseItemKind.MOVIE -> {
-                    val movie = repository.getMovie(itemId)
+                    val (movie, sources) =
+                        coroutineScope {
+                            val movie = async { repository.getMovie(itemId) }
+                            val sources = async { repository.getPlaybackSources(itemId, mediaSourceId) }
+                            movie.await() to sources.await()
+                        }
+                    prefetchedSources = sources
 
                     items = listOf(movie)
                     movie
@@ -49,15 +88,7 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
                         val seasons = allSeasons.filter { it.indexNumber != 0 }.ifEmpty { allSeasons }
                         val episodes =
                             seasons
-                                .flatMap { season ->
-                                    repository
-                                        .getEpisodes(
-                                            seriesId = itemId,
-                                            seasonId = season.id,
-                                            fields = listOf(ItemFields.CHAPTERS, ItemFields.TRICKPLAY),
-                                        )
-                                        .filter { !it.missing }
-                                }
+                                .flatMap { season -> fetchEpisodes(itemId, season.id) }
                                 .shuffled()
 
                         if (episodes.isEmpty()) {
@@ -70,46 +101,32 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
                     } else {
                         val nextUpEpisode = repository.getNextUp(itemId).firstOrNull()
 
-                    val season =
                         if (nextUpEpisode != null) {
-                            repository.getSeason(nextUpEpisode.seasonId)
+                            // The next-up episode is enough to start; the season's list only fills
+                            // the queue.
+                            val seasonId = nextUpEpisode.seasonId
+                            items = listOf(nextUpEpisode)
+                            queueLoader = { fetchEpisodes(itemId, seasonId) }
+                            nextUpEpisode
                         } else {
                             val seasons = repository.getSeasons(itemId)
                             if (seasons.isEmpty()) {
                                 return null
                             }
-                            seasons.first()
+
+                            val episodes = fetchEpisodes(itemId, seasons.first().id)
+                            if (episodes.isEmpty()) {
+                                return null
+                            }
+
+                            items = episodes
+                            episodes.first()
                         }
-
-                    val episodes =
-                        repository
-                            .getEpisodes(
-                                seriesId = itemId,
-                                seasonId = season.id,
-                                fields = listOf(ItemFields.CHAPTERS, ItemFields.TRICKPLAY),
-                            )
-                            .filter { !it.missing }
-
-                    if (episodes.isEmpty()) {
-                        return null
-                    }
-
-                    val episode = nextUpEpisode ?: episodes.first()
-
-                    items = episodes
-                    episode
                     }
                 }
                 BaseItemKind.SEASON -> {
                     val season = repository.getSeason(itemId)
-                    val episodes =
-                        repository
-                            .getEpisodes(
-                                seriesId = season.seriesId,
-                                seasonId = season.id,
-                                fields = listOf(ItemFields.CHAPTERS, ItemFields.TRICKPLAY),
-                            )
-                            .filter { !it.missing }
+                    val episodes = fetchEpisodes(season.seriesId, season.id)
 
                     if (episodes.isEmpty()) {
                         return null
@@ -121,18 +138,16 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
                     episode
                 }
                 BaseItemKind.EPISODE -> {
-                    val episode = repository.getEpisode(itemId)
+                    val (episode, sources) =
+                        coroutineScope {
+                            val episode = async { repository.getEpisode(itemId) }
+                            val sources = async { repository.getPlaybackSources(itemId, mediaSourceId) }
+                            episode.await() to sources.await()
+                        }
+                    prefetchedSources = sources
 
-                    val episodes =
-                        repository
-                            .getEpisodes(
-                                seriesId = episode.seriesId,
-                                seasonId = episode.seasonId,
-                                fields = listOf(ItemFields.CHAPTERS, ItemFields.TRICKPLAY),
-                            )
-                            .filter { !it.missing }
-
-                    items = episodes
+                    items = listOf(episode)
+                    queueLoader = { fetchEpisodes(episode.seriesId, episode.seasonId) }
                     episode
                 }
                 else -> null
@@ -143,20 +158,43 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
         }
 
         startItem = initialItem
+        currentItemId = initialItem.id
 
         currentItemIndex = items.indexOfFirst { it.id == initialItem.id }
 
         val playbackPosition =
             if (shuffle || startFromBeginning) 0L else initialItem.playbackPositionTicks.div(10000)
-        val playerItem = initialItem.toPlayerItem(mediaSourceId, playbackPosition)
+        val playerItem = initialItem.toPlayerItem(mediaSourceId, playbackPosition, prefetchedSources)
         playerItems.add(playerItem)
 
         return playerItem
     }
 
+    /**
+     * Fetches the episode list that [getInitialItem] left out, so the queue (previous and next
+     * episodes) works. Safe to call any number of times, also concurrently: it loads once. A
+     * failure leaves the queue as just the playing item, and the next call tries again.
+     */
+    suspend fun loadQueue() {
+        queueMutex.withLock {
+            val loader = queueLoader ?: return
+            try {
+                val episodes = loader()
+                items = episodes
+                currentItemIndex = items.indexOfFirst { it.id == currentItemId }
+                queueLoader = null
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.e("Failed to retrieve the episode queue: $e")
+            }
+        }
+    }
+
     suspend fun getPreviousPlayerItem(): PlayerItem? {
         Timber.d("Retrieving previous player item")
 
+        loadQueue()
         val itemIndex = currentItemIndex - 1
         val playerItem =
             when (startItem) {
@@ -191,6 +229,7 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
     suspend fun getNextPlayerItem(): PlayerItem? {
         Timber.d("Retrieving next player item")
 
+        loadQueue()
         val itemIndex = currentItemIndex + 1
         val playerItem =
             when (startItem) {
@@ -266,6 +305,7 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
     }
 
     fun setCurrentMediaItemIndex(itemId: UUID) {
+        currentItemId = itemId
         currentItemIndex = items.indexOfFirst { it.id == itemId }
     }
 
@@ -305,12 +345,13 @@ class PlaylistManager @Inject internal constructor(private val repository: Jelly
     private suspend fun FindroidItem.toPlayerItem(
         mediaSourceId: String?,
         playbackPosition: Long,
+        prefetchedSources: List<FindroidSource>? = null,
     ): PlayerItem {
         Timber.d("Converting FindroidItem ${this.id} to PlayerItem")
 
         // A downloaded copy shares its id with the server version, so it wins for that version too.
         val mediaSources =
-            repository.getPlaybackSources(id).let { sources ->
+            (prefetchedSources ?: repository.getPlaybackSources(id, mediaSourceId)).let { sources ->
                 sources.filter { it.id == mediaSourceId }.ifEmpty { sources }
             }
         val mediaSource =
