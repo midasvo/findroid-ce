@@ -31,6 +31,7 @@ import dev.jdtech.jellyfin.models.toFindroidSource
 import dev.jdtech.jellyfin.models.toFindroidSourceDto
 import dev.jdtech.jellyfin.models.toFindroidTrickplayInfoDto
 import dev.jdtech.jellyfin.models.toFindroidUserDataDto
+import dev.jdtech.jellyfin.repository.DataChangeEvents
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.download.DownloadStatus
@@ -88,6 +89,7 @@ class DownloaderImpl(
     // not set up WorkManager; it is only needed once an image download is started (#250).
     private val workManagerProvider: Provider<WorkManager>,
     private val engine: MediaDownloadEngine,
+    private val dataChanges: DataChangeEvents = DataChangeEvents(),
 ) : Downloader {
 
     companion object {
@@ -362,6 +364,11 @@ class DownloaderImpl(
     }
 
     override suspend fun deleteItem(item: FindroidItem, source: FindroidSource) {
+        deleteItemRows(item, source)
+        dataChanges.onChanged()
+    }
+
+    private suspend fun deleteItemRows(item: FindroidItem, source: FindroidSource) {
         when (item) {
             is FindroidMovie -> {
                 database.deleteMovie(item.id)

@@ -78,7 +78,7 @@ fun HomeScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    ReloadOnResume { viewModel.loadData(silent = true) }
+    ReloadOnResume(shouldReload = { viewModel.shouldReload(stopEventFollows = true) }) { viewModel.loadData(silent = true) }
 
     HomeScreenLayout(
         state = state,

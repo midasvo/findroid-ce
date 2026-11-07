@@ -7,6 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dev.jdtech.jellyfin.database.ServerDatabaseDao
+import dev.jdtech.jellyfin.repository.DataChangeEvents
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.Downloader
@@ -27,6 +28,7 @@ object DownloaderModule {
         appPreferences: AppPreferences,
         workManagerProvider: Provider<WorkManager>,
         engine: MediaDownloadEngine,
+        dataChanges: DataChangeEvents,
     ): Downloader {
         return DownloaderImpl(
             application,
@@ -35,6 +37,7 @@ object DownloaderModule {
             appPreferences,
             workManagerProvider,
             engine,
+            dataChanges,
         )
     }
 }

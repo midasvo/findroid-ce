@@ -11,6 +11,7 @@ import dev.jdtech.jellyfin.player.DeviceProfileBuilder
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import dev.jdtech.jellyfin.repository.JellyfinRepositoryImpl
 import dev.jdtech.jellyfin.repository.JellyfinRepositoryOfflineImpl
+import dev.jdtech.jellyfin.repository.DataChangeEvents
 import dev.jdtech.jellyfin.repository.PlaybackEvents
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.NetworkConnectivity
@@ -28,7 +29,12 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun providePlaybackEvents(): PlaybackEvents = PlaybackEvents()
+    fun provideDataChangeEvents(): DataChangeEvents = DataChangeEvents()
+
+    @Singleton
+    @Provides
+    fun providePlaybackEvents(dataChanges: DataChangeEvents): PlaybackEvents =
+        PlaybackEvents(dataChanges)
 
     @Singleton
     @Provides

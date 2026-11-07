@@ -82,7 +82,7 @@ fun ShowScreen(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(true) { viewModel.loadShow(showId) }
+    LaunchedEffect(true) { if (viewModel.shouldReload(showId)) viewModel.loadShow(showId) }
 
     ShowScreenLayout(
         state = state,

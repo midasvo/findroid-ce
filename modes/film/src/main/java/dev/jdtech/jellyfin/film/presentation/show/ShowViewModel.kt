@@ -12,13 +12,16 @@ import dev.jdtech.jellyfin.models.FindroidSourceType
 import dev.jdtech.jellyfin.models.SeasonEpisodeCounts
 import dev.jdtech.jellyfin.models.isDownloaded
 import dev.jdtech.jellyfin.models.mergeDuplicateRoles
+import dev.jdtech.jellyfin.repository.DataChangeEvents
 import dev.jdtech.jellyfin.repository.JellyfinRepository
+import dev.jdtech.jellyfin.repository.ReloadPolicy
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.Downloader
 import java.util.UUID
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -40,6 +43,7 @@ constructor(
     private val downloader: Downloader,
     private val downloadQueue: DownloadQueue,
     private val database: ServerDatabaseDao,
+    dataChanges: DataChangeEvents = DataChangeEvents(),
 ) : ViewModel() {
     private val _state = MutableStateFlow(ShowState())
     val state = _state.asStateFlow()
@@ -49,6 +53,19 @@ constructor(
 
     private lateinit var showId: UUID
     private var downloadsOnly: Boolean = false
+    private val reloadPolicy = ReloadPolicy(dataChanges)
+    private var loadJob: Job? = null
+
+    /** Whether coming back to the page needs a load (#251), see [ReloadPolicy]. */
+    fun shouldReload(
+        showId: UUID,
+        downloadsOnly: Boolean = this.downloadsOnly,
+        stopEventFollows: Boolean = false,
+    ): Boolean =
+        !::showId.isInitialized ||
+            this.showId != showId ||
+            this.downloadsOnly != downloadsOnly ||
+            reloadPolicy.shouldReload(stopEventFollows)
 
     /**
      * Loads the page in two steps (#252): the show, its seasons, next up and cast first, all
@@ -58,7 +75,9 @@ constructor(
     fun loadShow(showId: UUID, downloadsOnly: Boolean = this.downloadsOnly) {
         this.showId = showId
         this.downloadsOnly = downloadsOnly
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            val token = reloadPolicy.begin()
             _state.emit(_state.value.copy(error = null))
             try {
                 // coroutineScope { } is required: without it a failure inside an async { }
@@ -124,6 +143,7 @@ constructor(
                         )
                     )
                 }
+                reloadPolicy.complete(token)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -251,6 +271,7 @@ constructor(
                 Timber.e(e, if (played) "Failed to mark as played" else "Failed to unmark as played")
                 return@launch
             }
+            reloadPolicy.changedHere()
             _state.update { state -> state.copy(show = state.show?.copy(played = played)) }
             try {
                 coroutineScope {
@@ -284,6 +305,7 @@ constructor(
                 )
                 return@launch
             }
+            reloadPolicy.changedHere()
             _state.update { state -> state.copy(show = state.show?.copy(favorite = favorite)) }
         }
     }

@@ -10,12 +10,15 @@ import dev.jdtech.jellyfin.film.presentation.downloads.downloadDeletionScope
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.FindroidSourceType
 import dev.jdtech.jellyfin.models.isDownloaded
+import dev.jdtech.jellyfin.repository.DataChangeEvents
 import dev.jdtech.jellyfin.repository.JellyfinRepository
+import dev.jdtech.jellyfin.repository.ReloadPolicy
 import dev.jdtech.jellyfin.utils.Downloader
 import java.util.UUID
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -38,6 +41,7 @@ constructor(
     private val repository: JellyfinRepository,
     private val downloader: Downloader,
     private val downloadQueue: DownloadQueue,
+    dataChanges: DataChangeEvents = DataChangeEvents(),
 ) : ViewModel() {
     private val _state = MutableStateFlow(SeasonState())
     val state = _state.asStateFlow()
@@ -50,6 +54,19 @@ constructor(
     private var includeSeriesSeasons: Boolean = false
 
     private var wasBusy = false
+    private val reloadPolicy = ReloadPolicy(dataChanges)
+    private var loadJob: Job? = null
+
+    /** Whether coming back to the page needs a load (#251), see [ReloadPolicy]. */
+    fun shouldReload(
+        seasonId: UUID,
+        downloadsOnly: Boolean = this.downloadsOnly,
+        stopEventFollows: Boolean = false,
+    ): Boolean =
+        !::seasonId.isInitialized ||
+            this.seasonId != seasonId ||
+            this.downloadsOnly != downloadsOnly ||
+            reloadPolicy.shouldReload(stopEventFollows)
 
     init {
         // Observe queue entries and merge into per-episode progress map.
@@ -112,7 +129,9 @@ constructor(
         this.seasonId = seasonId
         this.downloadsOnly = downloadsOnly
         this.includeSeriesSeasons = includeSeriesSeasons
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            val token = reloadPolicy.begin()
             val previous = _state.value
             _state.emit(previous.copy(error = null))
             // Another season of the same series (TV season chips) shares the series id.
@@ -162,6 +181,7 @@ constructor(
                         )
                     )
                 }
+                reloadPolicy.complete(token)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -186,6 +206,7 @@ constructor(
                 Timber.e(e, if (played) "Failed to mark as played" else "Failed to unmark as played")
                 return@launch
             }
+            reloadPolicy.changedHere()
             _state.update { state -> state.copy(season = state.season?.copy(played = played)) }
             val seriesId = _state.value.season?.takeIf { it.id == seasonId }?.seriesId ?: return@launch
             try {
@@ -226,6 +247,7 @@ constructor(
                 )
                 return@launch
             }
+            reloadPolicy.changedHere()
             _state.update { state -> state.copy(season = state.season?.copy(favorite = favorite)) }
         }
     }

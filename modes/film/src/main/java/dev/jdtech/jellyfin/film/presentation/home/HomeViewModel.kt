@@ -12,11 +12,15 @@ import dev.jdtech.jellyfin.film.domain.homerows.HomeRowsProfile
 import dev.jdtech.jellyfin.film.domain.homerows.HomeRowsStore
 import dev.jdtech.jellyfin.film.domain.homerows.LegacyHomeSwitches
 import dev.jdtech.jellyfin.film.domain.homerows.homeLibraries
+import dev.jdtech.jellyfin.models.FindroidItem
 import dev.jdtech.jellyfin.models.HomeItem
 import dev.jdtech.jellyfin.models.HomeSection
 import dev.jdtech.jellyfin.models.Server
 import dev.jdtech.jellyfin.models.UiText
+import dev.jdtech.jellyfin.repository.DataChangeEvents
 import dev.jdtech.jellyfin.repository.JellyfinRepository
+import dev.jdtech.jellyfin.repository.JellyfinRepositoryOfflineImpl
+import dev.jdtech.jellyfin.repository.ReloadPolicy
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import dev.jdtech.jellyfin.utils.toView
 import java.util.UUID
@@ -31,6 +35,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jellyfin.sdk.model.api.BaseItemDto
 import timber.log.Timber
 
 @HiltViewModel
@@ -40,6 +45,8 @@ constructor(
     private val repository: JellyfinRepository,
     private val appPreferences: AppPreferences,
     private val database: ServerDatabaseDao,
+    dataChanges: DataChangeEvents = DataChangeEvents(),
+    private val homeCache: HomeCache? = null,
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
@@ -58,39 +65,66 @@ constructor(
 
     private val homeRowsStore = HomeRowsStore(appPreferences, database)
 
+    private val reloadPolicy = ReloadPolicy(dataChanges)
+    private var loadJob: Job? = null
+    private var cachedLibraries: List<BaseItemDto>? = null
+    private var cachedLibrariesKey: Pair<String?, UUID?>? = null
+    private var cacheChecked = false
+
     /**
      * With [silent] the refresh indicator stays hidden, for reloads the user didn't ask for. The
      * returned job ends once every row has loaded, for screens that wait for that (TV Home puts focus
-     * back only then, so it lands on the item in its new place).
+     * back only then, so it lands on the item in its new place). A load that starts while another
+     * is running replaces it (#251).
      */
     fun loadData(silent: Boolean = false): Job {
         Timber.i("Loading data")
-        return viewModelScope.launch(Dispatchers.Default) {
-            if (!silent) _state.update { it.copy(isLoading = true, error = null) }
-            try {
-                val server =
-                    appPreferences.getValue(appPreferences.currentServer)?.let { serverId ->
-                        loadServerName(serverId)
-                    }
-                if (server != null) {
-                    logFailure("user image") { repository.refreshCurrentUserImage() }
-                    val user = logFailure("user") { database.getServerCurrentUser(server.id) }
-                    _state.update { it.copy(user = user.getOrNull()) }
-                }
-                // CE (#142): the rows this user chose for this server, in their order.
-                val stored = homeRowsStore.read(HomeRowsProfile.of(server))
-                val legacy = homeRowsStore.legacy()
-                val layout = HomeRows.resolve(stored, null, legacy)
-                _state.update { it.copy(rowOrder = layout.map { row -> row.key }) }
-                fun show(type: HomeRowType) = layout.any { it.type == type && it.visible }
+        loadJob?.cancel()
+        val job = viewModelScope.launch(Dispatchers.Default) { runLoad(silent) }
+        loadJob = job
+        return job
+    }
 
-                // coroutineScope { } is required here: without it, a failure
-                // inside any async { } child propagates straight to viewModelScope
-                // and crashes the app, even with this try/catch around awaitAll.
-                // See BUGREPORT_ANALYSIS.md. Each row catches its own failures, so one
-                // row can't cancel the others; this stays for whatever gets past that.
-                val rows =
-                    coroutineScope {
+    /** Whether coming back to Home needs a load (#251), see [ReloadPolicy]. */
+    fun shouldReload(stopEventFollows: Boolean = false): Boolean =
+        reloadPolicy.shouldReload(stopEventFollows)
+
+    /** [loadData] when [shouldReload] says so, else a job that is already done. */
+    fun loadDataIfNeeded(silent: Boolean = false): Job =
+        if (shouldReload(stopEventFollows = false)) loadData(silent) else Job().apply { complete() }
+
+    private suspend fun runLoad(silent: Boolean) {
+        val token = reloadPolicy.begin()
+        if (!silent) _state.update { it.copy(isLoading = true, error = null) }
+        var server: Server? = null
+        var loaded = false
+        try {
+            server =
+                appPreferences.getValue(appPreferences.currentServer)?.let { serverId ->
+                    loadServerName(serverId)
+                }
+            if (server != null) {
+                val user = logFailure("user") { database.getServerCurrentUser(server.id) }
+                _state.update { it.copy(user = user.getOrNull()) }
+                showCachedRows(server.id, user.getOrNull()?.id)
+            }
+            // CE (#142): the rows this user chose for this server, in their order.
+            val stored = homeRowsStore.read(HomeRowsProfile.of(server))
+            val legacy = homeRowsStore.legacy()
+            val layout = HomeRows.resolve(stored, null, legacy)
+            _state.update { it.copy(rowOrder = layout.map { row -> row.key }) }
+            fun show(type: HomeRowType) = layout.any { it.type == type && it.visible }
+
+            // coroutineScope { } is required here: without it, a failure
+            // inside any async { } child propagates straight to viewModelScope
+            // and crashes the app, even with this try/catch around awaitAll.
+            // See BUGREPORT_ANALYSIS.md. Each row catches its own failures, so one
+            // row can't cancel the others; this stays for whatever gets past that.
+            val rows =
+                coroutineScope {
+                    // The user image only feeds the avatar: it must not hold the rows back.
+                    val avatar = server?.let { s -> async { refreshUserImage(s.id) } }
+                    val results =
                         awaitAll(
                             async {
                                 logFailure("suggestions") {
@@ -109,15 +143,65 @@ constructor(
                             },
                             async { logFailure("views") { loadViews(stored, legacy) } },
                         )
-                    }
-                _state.update { it.copy(error = errorIfAllFailed(rows)) }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                _state.update { it.copy(error = e) }
-            }
-            _state.update { it.copy(isLoading = false) }
+                    avatar?.await()
+                    results
+                }
+            val error = errorIfAllFailed(rows)
+            _state.update { it.copy(error = error) }
+            loaded = error == null
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            _state.update { it.copy(error = e) }
         }
+        _state.update { it.copy(isLoading = false) }
+        if (loaded) {
+            reloadPolicy.complete(token)
+            saveRows(server)
+        }
+    }
+
+    /** The avatar's image tag changes on the server; Room holds it, so read the user again. */
+    private suspend fun refreshUserImage(serverId: String) {
+        logFailure("user image") {
+            repository.refreshCurrentUserImage()
+            database.getServerCurrentUser(serverId)?.let { user ->
+                _state.update { it.copy(user = user) }
+            }
+        }
+    }
+
+    /**
+     * Cold start (#251): the rows of the last full load, on screen before the network answers. Only
+     * when nothing is on screen yet; the load that follows replaces them.
+     */
+    private suspend fun showCachedRows(serverId: String, userId: UUID?) {
+        val cache = homeCache ?: return
+        if (userId == null || cacheChecked || !_state.value.isEmpty) return
+        cacheChecked = true
+        val rows = cache.read(serverId, userId) ?: return
+        _state.update {
+            if (!it.isEmpty) {
+                it
+            } else {
+                it.copy(
+                    suggestionsSection = rows.suggestions,
+                    resumeSection = rows.resume,
+                    nextUpSection = rows.nextUp,
+                    views = rows.views,
+                    rowOrder = rows.rowOrder,
+                    isLoading = false,
+                )
+            }
+        }
+    }
+
+    /** Offline, the rows are the downloads: not worth showing on the next online start. */
+    private suspend fun saveRows(server: Server?) {
+        val cache = homeCache ?: return
+        val user = _state.value.user ?: return
+        if (server == null || repository is JellyfinRepositoryOfflineImpl) return
+        cache.write(server.id, user.id, _state.value)
     }
 
     /** Runs [block], turning a failure into a logged result. A row keeps what it showed. */
@@ -224,42 +308,79 @@ constructor(
             return false
         }
 
-        val libraries = repository.homeLibraries()
+        // The library list rarely changes: later loads start the Latest rows from the last list
+        // right away and check the list alongside (#251).
+        val key = _state.value.server?.id to _state.value.user?.id
+        val known = cachedLibraries?.takeIf { cachedLibrariesKey == key }
+        coroutineScope {
+            val fresh = async { logFailure("libraries") { repository.homeLibraries() } }
+            val libraries = known ?: fresh.await().getOrThrow()
+            cachedLibraries = libraries
+            cachedLibrariesKey = key
+            loadLatest(libraries, stored, legacy)
+            if (known != null) {
+                val now = fresh.await().getOrNull()
+                if (now != null && now.map { it.id } != known.map { it.id }) {
+                    cachedLibraries = now
+                    loadLatest(now, stored, legacy)
+                }
+            }
+        }
+        return true
+    }
+
+    /**
+     * The Latest row of each library. Every row shows as soon as it arrives, in the order of the
+     * libraries, so the slowest library holds back none of the others (#251).
+     */
+    private suspend fun loadLatest(
+        libraries: List<BaseItemDto>,
+        stored: List<HomeRowConfig>?,
+        legacy: LegacyHomeSwitches,
+    ) {
         // CE (#142): now that the libraries are known, new ones get their place and hidden ones go.
         val layout = HomeRows.resolve(stored, libraries.map { it.id }, legacy)
         _state.update { it.copy(rowOrder = layout.map { row -> row.key }) }
         val shown = layout.filter { it.visible }.mapNotNullTo(mutableSetOf()) { it.libraryId }
         val views = libraries.filter { it.id in shown }
 
-        val results =
-            coroutineScope {
-                views
-                    .map { view ->
-                        async {
+        val current = _state.value.views
+        val results = arrayOfNulls<Result<List<FindroidItem>>>(views.size)
+        // Rows that haven't arrived keep what they showed; the order is that of [views].
+        fun items() =
+            views.indices.mapNotNull { i ->
+                val view = views[i]
+                val result = results[i]
+                when {
+                    result == null -> current.firstOrNull { it.id == view.id }
+                    result.isSuccess ->
+                        result.getOrThrow().let { latest ->
+                            if (latest.isEmpty()) null else HomeItem.ViewItem(view.toView(latest))
+                        }
+                    else -> current.firstOrNull { it.id == view.id }
+                }
+            }
+
+        coroutineScope {
+            views
+                .mapIndexed { i, view ->
+                    async {
+                        val result =
                             logFailure("library ${view.id}") { repository.getLatestMedia(view.id) }
+                        synchronized(results) {
+                            results[i] = result
+                            _state.update { it.copy(views = items()) }
                         }
                     }
-                    .awaitAll()
-            }
-        // With nothing loaded, this is the row failing as a whole.
-        if (results.isNotEmpty() && results.all { it.isFailure }) {
-            throw results.first().exceptionOrNull()!!
+                }
+                .awaitAll()
         }
-
-        val current = _state.value.views
-        val items =
-            views.zip(results).mapNotNull { (view, result) ->
-                result.fold(
-                    onSuccess = { latest ->
-                        if (latest.isEmpty()) null else HomeItem.ViewItem(view.toView(latest))
-                    },
-                    onFailure = { current.firstOrNull { it.id == view.id } },
-                )
-            }
-
-        _state.update { it.copy(views = items) }
-        return true
+        // With nothing loaded, this is the row failing as a whole.
+        if (results.isNotEmpty() && results.all { it?.isFailure == true }) {
+            throw results.first()!!.exceptionOrNull()!!
+        }
     }
+
 
     fun onAction(action: HomeAction) {
         when (action) {

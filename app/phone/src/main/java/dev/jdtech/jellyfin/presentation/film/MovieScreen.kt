@@ -84,7 +84,9 @@ fun MovieScreen(
     // Not read here: a progress tick must only recompose the download card.
     val downloaderState = downloaderViewModel.state.collectAsStateWithLifecycle()
 
-    ReloadOnResume { viewModel.loadMovie(movieId = movieId) }
+    ReloadOnResume(shouldReload = { viewModel.shouldReload(movieId, stopEventFollows = true) }) {
+        viewModel.loadMovie(movieId = movieId)
+    }
 
     LaunchedEffect(state.movie) { state.movie?.let { movie -> downloaderViewModel.update(movie) } }
 

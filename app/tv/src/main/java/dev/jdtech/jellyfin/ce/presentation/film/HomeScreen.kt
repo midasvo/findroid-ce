@@ -111,7 +111,7 @@ fun HomeScreen(
     var refreshed by remember { mutableStateOf(false) }
 
     LaunchedEffect(true) {
-        val job = viewModel.loadData(silent = !initialLoad)
+        val job = viewModel.loadDataIfNeeded(silent = !initialLoad)
         if (initialLoad) {
             initialLoad = false
             job.join()

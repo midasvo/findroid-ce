@@ -70,7 +70,7 @@ fun MovieScreen(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(true) { viewModel.loadMovie(movieId = movieId) }
+    LaunchedEffect(true) { if (viewModel.shouldReload(movieId)) viewModel.loadMovie(movieId = movieId) }
 
     MovieScreenLayout(
         state = state,

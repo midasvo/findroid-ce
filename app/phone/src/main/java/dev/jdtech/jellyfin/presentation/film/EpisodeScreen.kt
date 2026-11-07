@@ -88,7 +88,9 @@ fun EpisodeScreen(
     // Not read here: a progress tick must only recompose the download card.
     val downloaderState = downloaderViewModel.state.collectAsStateWithLifecycle()
 
-    ReloadOnResume { viewModel.loadEpisode(episodeId = episodeId) }
+    ReloadOnResume(shouldReload = { viewModel.shouldReload(episodeId, stopEventFollows = true) }) {
+        viewModel.loadEpisode(episodeId = episodeId)
+    }
 
     LaunchedEffect(state.episode) {
         state.episode?.let { episode -> downloaderViewModel.update(episode) }

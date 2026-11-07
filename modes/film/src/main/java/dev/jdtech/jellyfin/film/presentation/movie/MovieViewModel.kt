@@ -7,11 +7,15 @@ import dev.jdtech.jellyfin.film.domain.VideoMetadataParser
 import dev.jdtech.jellyfin.models.FindroidItemPerson
 import dev.jdtech.jellyfin.models.FindroidMovie
 import dev.jdtech.jellyfin.models.mergeDuplicateRoles
+import dev.jdtech.jellyfin.repository.DataChangeEvents
 import dev.jdtech.jellyfin.repository.JellyfinRepository
+import dev.jdtech.jellyfin.repository.ReloadPolicy
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
@@ -26,15 +30,26 @@ constructor(
     private val repository: JellyfinRepository,
     private val appPreferences: AppPreferences,
     private val videoMetadataParser: VideoMetadataParser,
+    dataChanges: DataChangeEvents = DataChangeEvents(),
 ) : ViewModel() {
     private val _state = MutableStateFlow(MovieState())
     val state = _state.asStateFlow()
 
     private lateinit var movieId: UUID
+    private val reloadPolicy = ReloadPolicy(dataChanges)
+    private var loadJob: Job? = null
+
+    /** Whether coming back to the screen needs a load (#251), see [ReloadPolicy]. */
+    fun shouldReload(movieId: UUID, stopEventFollows: Boolean = false): Boolean =
+        !::movieId.isInitialized ||
+            this.movieId != movieId ||
+            reloadPolicy.shouldReload(stopEventFollows)
 
     fun loadMovie(movieId: UUID) {
         this.movieId = movieId
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            val token = reloadPolicy.begin()
             _state.emit(_state.value.copy(error = null))
             try {
                 val movie = repository.getMovie(movieId)
@@ -54,6 +69,9 @@ constructor(
                         displayExtraInfo = displayExtraInfo,
                     )
                 )
+                reloadPolicy.complete(token)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _state.emit(_state.value.copy(error = e))
             }
@@ -85,6 +103,7 @@ constructor(
                 viewModelScope.launch {
                     try {
                         repository.markAsPlayed(movieId)
+                        reloadPolicy.changedHere()
                     } catch (e: Exception) {
                         Timber.e(e, "Failed to mark as played")
                     }
@@ -95,6 +114,7 @@ constructor(
                 viewModelScope.launch {
                     try {
                         repository.markAsUnplayed(movieId)
+                        reloadPolicy.changedHere()
                     } catch (e: Exception) {
                         Timber.e(e, "Failed to unmark as played")
                     }
@@ -105,6 +125,7 @@ constructor(
                 viewModelScope.launch {
                     try {
                         repository.markAsFavorite(movieId)
+                        reloadPolicy.changedHere()
                     } catch (e: Exception) {
                         Timber.e(e, "Failed to mark as favorite")
                     }
@@ -115,6 +136,7 @@ constructor(
                 viewModelScope.launch {
                     try {
                         repository.unmarkAsFavorite(movieId)
+                        reloadPolicy.changedHere()
                     } catch (e: Exception) {
                         Timber.e(e, "Failed to unmark as favorite")
                     }
