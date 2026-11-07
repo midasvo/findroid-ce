@@ -73,18 +73,14 @@
 
     <Button
         android:id="@+id/btn_skip_segment"
-        style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+        style="@style/Widget.Ephyra.Player.SkipSegmentButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="64dp"
-        android:textColor="@android:color/white"
         android:visibility="gone"
-        app:backgroundTint="@color/player_background"
         app:icon="@drawable/ic_skip_forward"
-        app:iconTint="@android:color/white"
-        app:strokeColor="@android:color/white"
         tools:text="@string/player_controls_skip_intro"
         tools:visibility="visible" />
 

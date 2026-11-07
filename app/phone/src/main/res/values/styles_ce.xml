@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- CE (#271): the player's skip button, an action on artwork (docs/identity/VISION.md):
+         a full pill, white text and icon over the 60 % end of scrimOverArt, a white-at-70 %
+         hairline so it holds on bright frames. No cyan (it isn't progress) and no glow. -->
+    <color name="ephyra_scrim_over_art_strong">#99000000</color>
+    <color name="ephyra_on_art_secondary">#B3FFFFFF</color>
+
+    <style name="Widget.Ephyra.Player.SkipSegmentButton" parent="Widget.Material3.Button.OutlinedButton.Icon">
+        <item name="android:textAppearance">@style/TextAppearance.Material3.LabelLarge</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="backgroundTint">@color/ephyra_scrim_over_art_strong</item>
+        <item name="iconTint">@android:color/white</item>
+        <item name="iconPadding">8dp</item>
+        <item name="strokeColor">@color/ephyra_on_art_secondary</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="rippleColor">@color/ephyra_on_art_secondary</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Full</item>
+    </style>
+</resources>

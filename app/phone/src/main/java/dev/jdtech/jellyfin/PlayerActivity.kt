@@ -11,8 +11,6 @@ import android.graphics.Rect
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.os.Process
 import android.util.Rational
 import android.view.SurfaceView
@@ -72,7 +70,6 @@ class PlayerActivity : BasePlayerActivity() {
     }
     private var previewScrubListener: PreviewScrubListener? = null
     private var wasZoom: Boolean = false
-    private var skipButtonTimeoutExpired: Boolean = true
 
     private lateinit var skipSegmentButton: Button
 
@@ -93,12 +90,17 @@ class PlayerActivity : BasePlayerActivity() {
         ) == AppOpsManager.MODE_ALLOWED
     }
 
-    private val handler = Handler(Looper.getMainLooper())
-    private val skipButtonTimeout = Runnable {
-        if (!binding.playerView.isControllerFullyVisible) {
-            skipSegmentButton.isVisible = false
-            skipButtonTimeoutExpired = true
-        }
+    /**
+     * CE (#271): the skip button shows in its first seconds in a segment (the ViewModel's
+     * [PlayerViewModel.UiState.skipButtonInWindow]) and, for the rest of the segment, whenever the
+     * controls are visible. Never in picture-in-picture.
+     */
+    private fun updateSkipSegmentButton(uiState: PlayerViewModel.UiState) {
+        val segment = uiState.currentSegment
+        skipSegmentButton.isVisible =
+            segment != null &&
+                !isInPictureInPictureMode &&
+                (uiState.skipButtonInWindow || binding.playerView.isControllerFullyVisible)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -127,6 +129,7 @@ class PlayerActivity : BasePlayerActivity() {
                 if (visibility == View.GONE) {
                     hideSystemUI()
                 }
+                updateSkipSegmentButton(viewModel.uiState.value)
             }
         )
 
@@ -179,34 +182,15 @@ class PlayerActivity : BasePlayerActivity() {
                             // Title
                             videoNameTextView.text = currentItemTitle
 
-                            // Media segment
+                            // Media segment (#271)
                             currentSegment?.let { segment ->
-                                // Skip Button - text
                                 skipSegmentButton.text = getString(currentSkipButtonStringRes)
-                                // Skip Button - visibility
-                                skipSegmentButton.isVisible = !isInPictureInPictureMode
-                                if (skipSegmentButton.isVisible) {
-                                    skipButtonTimeoutExpired = false
-                                    handler.removeCallbacks(skipButtonTimeout)
-                                    handler.postDelayed(
-                                        skipButtonTimeout,
-                                        viewModel.segmentsSkipButtonDuration * 1000,
-                                    )
-                                }
-                                // Skip Button - onClick
                                 skipSegmentButton.setOnClickListener {
                                     viewModel.skipSegment(segment)
                                     skipSegmentButton.isVisible = false
                                 }
-                            } ?: run { skipSegmentButton.isVisible = false }
-
-                            binding.playerView.setControllerVisibilityListener(
-                                PlayerView.ControllerVisibilityListener { visibility ->
-                                    if (skipButtonTimeoutExpired && currentSegment != null) {
-                                        skipSegmentButton.visibility = visibility
-                                    }
-                                }
-                            )
+                            }
+                            updateSkipSegmentButton(this)
 
                             // Trickplay
                             previewScrubListener?.let { it.currentTrickplay = currentTrickplay }
@@ -452,7 +436,6 @@ class PlayerActivity : BasePlayerActivity() {
         } catch (e: Exception) {
             Timber.e(e)
         }
-        handler.removeCallbacks(skipButtonTimeout)
         finish()
     }
 

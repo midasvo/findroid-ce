@@ -223,9 +223,6 @@ constructor(
             autoSkipOnlyInPip = false,
         )
 
-    /** Seconds the skip button shows after entering a segment. */
-    var segmentsSkipButtonDuration: Long = 0L
-
     var playbackSpeed: Float = 1f
 
     /** Bitrate cap in bits per second, 0 = original quality. Mirrors [AppPreferences.playerMaxBitrate]. */
@@ -313,8 +310,6 @@ constructor(
                 .coerceAtLeast(5)
         _uiState.update { it.copy(stillWatchingTimeoutSeconds = stillWatchingPromptTimeoutSeconds) }
 
-        segmentsSkipButtonDuration =
-            appPreferences.getValue(appPreferences.playerMediaSegmentsSkipButtonDuration)
         segmentTracker =
             SegmentTracker(
                 actions =
@@ -330,7 +325,10 @@ constructor(
                                 )
                         }
                         .toMap(),
-                buttonDurationMs = segmentsSkipButtonDuration * 1000L,
+                buttonDurationMs =
+                    appPreferences.getValue(
+                        appPreferences.playerMediaSegmentsSkipButtonDuration
+                    ) * 1000L,
                 nextEpisodeThresholdMs =
                     appPreferences.getValue(
                         appPreferences.playerMediaSegmentsNextEpisodeThreshold
