@@ -242,7 +242,9 @@ class AppPreferences @Inject constructor(val sharedPreferences: SharedPreference
     // Cache
     val imageCache = Preference("pref_image_cache", true)
     val imageCacheSize = Preference("pref_image_cache_size", 20)
-    val imageDisplaySize = Preference("pref_image_display_size", false)
+    // CE (#254): on by default. A cold Home load fetched ~70 % fewer image bytes with it on
+    // (1.4-1.7 MB vs 5.1-5.9 MB) at the same time to first poster; a slow server can turn it off.
+    val imageDisplaySize = Preference("pref_image_display_size", true)
     // CE (#251): Home shows the rows of the last visit while the server answers.
     val homeCache = Preference("pref_home_cache", true)
 
