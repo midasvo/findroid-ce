@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">跳过章节</string>
     <string name="player_gestures_hold_disabled">已禁用</string>
     <string name="player_gestures_hold_speed">2 倍速</string>
-    <string name="pref_developer_enable_trickplay">按需加载预览缩略图（实验性）</string>
-    <string name="pref_developer_enable_trickplay_summary">按需解码进度条预览缩略图，而不是预先加载所有图块。可减少长视频的内存占用，但在拖动至新的雪碧图时可能会短暂丢失首帧。默认关闭。</string>
     <string name="pref_download_internal_storage">内部存储（剩余 %s）</string>
     <string name="pref_download_max_concurrent">最大并发下载数</string>
     <string name="pref_download_sd_card">SD 卡 %1$d（剩余 %2$s）</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">在没有点击、进度跳转或暂停的情况下经过此分钟数后显示确认提示。设为 0 可禁用。</string>
     <string name="pref_player_still_watching_prompt_timeout">提示超时时间</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">暂停播放前等待确认的秒数。</string>
-    <string name="settings_category_developer">开发者选项</string>
-    <string name="settings_category_developer_experimental">实验性功能</string>
     <string name="subtitle_background_color">背景颜色</string>
     <string name="subtitle_color_black">黑色</string>
     <string name="subtitle_color_cyan">青色</string>

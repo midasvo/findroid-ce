@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Bỏ qua chương</string>
     <string name="player_gestures_hold_disabled">Đã tắt</string>
     <string name="player_gestures_hold_speed">Tốc độ 2x</string>
-    <string name="pref_developer_enable_trickplay">Tải trickplay lười (thử nghiệm)</string>
-    <string name="pref_developer_enable_trickplay_summary">Giải mã hình thu nhỏ xem trước trên thanh tua theo yêu cầu thay vì tải trước toàn bộ. Giảm mức sử dụng bộ nhớ trên video dài nhưng có thể tạm thời lỡ khung hình đầu khi tua vào trang sprite mới. Mặc định tắt.</string>
     <string name="pref_download_internal_storage">Bộ nhớ trong (trống %s)</string>
     <string name="pref_download_max_concurrent">Số lượng tải về đồng thời tối đa</string>
     <string name="pref_download_sd_card">Thẻ SD %1$d (trống %2$s)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Hiện xác nhận sau bấy nhiêu phút không chạm, tua hoặc tạm dừng. Đặt thành 0 để tắt.</string>
     <string name="pref_player_still_watching_prompt_timeout">Thời gian chờ lời nhắc</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Số giây chờ xác nhận trước khi tạm dừng phát.</string>
-    <string name="settings_category_developer">Tuỳ chọn cho nhà phát triển</string>
-    <string name="settings_category_developer_experimental">Thử nghiệm</string>
     <string name="subtitle_background_color">Màu nền</string>
     <string name="subtitle_color_black">Đen</string>
     <string name="subtitle_color_cyan">Xanh lơ</string>

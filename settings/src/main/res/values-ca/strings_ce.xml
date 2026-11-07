@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Salta el capítol</string>
     <string name="player_gestures_hold_disabled">Inhabilitat</string>
     <string name="player_gestures_hold_speed">Velocitat 2x</string>
-    <string name="pref_developer_enable_trickplay">Carregador mandrós de trickplay (experimental)</string>
-    <string name="pref_developer_enable_trickplay_summary">Descodifica les miniatures de previsualització de la barra de cerca sota demanda en comptes de precarregar cada mosaic per avançat. Redueix l\'ús de memòria en vídeos llargs, però pot perdre breument el primer fotograma en desplaçar-se a un nou full d\'sprites. Inhabilitat per defecte.</string>
     <string name="pref_download_internal_storage">Emmagatzematge intern (%s lliure)</string>
     <string name="pref_download_max_concurrent">Màx. baixades simultànies</string>
     <string name="pref_download_sd_card">Targeta SD %1$d (%2$s lliure)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Mostra una confirmació després d\'aquest nombre de minuts sense tocar, cercar o posar en pausa. Estableix a 0 per inhabilitar.</string>
     <string name="pref_player_still_watching_prompt_timeout">Temps d\'espera de la sol·licitud</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Segons d\'espera de confirmació abans de posar en pausa la reproducció.</string>
-    <string name="settings_category_developer">Opcions de desenvolupador</string>
-    <string name="settings_category_developer_experimental">Experimental</string>
     <string name="subtitle_background_color">Color de fons</string>
     <string name="subtitle_color_black">Negre</string>
     <string name="subtitle_color_cyan">Cian</string>

@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Pomiń rozdział</string>
     <string name="player_gestures_hold_disabled">Wyłączone</string>
     <string name="player_gestures_hold_speed">Prędkość 2x</string>
-    <string name="pref_developer_enable_trickplay">Leniwe ładowanie Trickplay (eksperymentalne)</string>
-    <string name="pref_developer_enable_trickplay_summary">Dekoduj miniatury podglądu osi czasu na żądanie zamiast wstępnego ładowania całego arkusza. Zmniejsza zużycie pamięci przy długich filmach, ale może powodować chwilowy brak pierwszej klatki przy przewijaniu do nowego arkusza. Domyślnie wyłączone.</string>
     <string name="pref_download_internal_storage">Pamięć wewnętrzna (%s wolne)</string>
     <string name="pref_download_max_concurrent">Maks. liczba jednoczesnych pobierań</string>
     <string name="pref_download_sd_card">Karta SD %1$d (%2$s wolne)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Wyświetlaj potwierdzenie po tylu minutach bez dotknięcia, przewijania lub pauzy. Ustaw 0, aby wyłączyć.</string>
     <string name="pref_player_still_watching_prompt_timeout">Czas oczekiwania na odpowiedź</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Liczba sekund oczekiwania na potwierdzenie przed zatrzymaniem odtwarzania.</string>
-    <string name="settings_category_developer">Opcje programistyczne</string>
-    <string name="settings_category_developer_experimental">Eksperymentalne</string>
     <string name="subtitle_background_color">Kolor tła</string>
     <string name="subtitle_color_black">Czarny</string>
     <string name="subtitle_color_cyan">Cyjan</string>

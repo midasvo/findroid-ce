@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Saltar capítulo</string>
     <string name="player_gestures_hold_disabled">Desactivado</string>
     <string name="player_gestures_hold_speed">Velocidad 2x</string>
-    <string name="pref_developer_enable_trickplay">Cargador diferido de trickplay (experimental)</string>
-    <string name="pref_developer_enable_trickplay_summary">Decodifica miniaturas de vista previa bajo demanda en lugar de precargar cada mosaico por adelantado. Reduce el uso de memoria en vídeos largos, pero puede perder brevemente el primer fotograma al desplazarse a una nueva hoja de sprites. Desactivado por defecto.</string>
     <string name="pref_download_internal_storage">Almacenamiento interno (%s libre)</string>
     <string name="pref_download_max_concurrent">Máx. descargas simultáneas</string>
     <string name="pref_download_sd_card">Tarjeta SD %1$d (%2$s libre)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Muestra una confirmación después de tantos minutos sin tocar, avanzar o retroceder, o pausar. Establece en 0 para desactivar.</string>
     <string name="pref_player_still_watching_prompt_timeout">Tiempo de espera del aviso</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Segundos de espera para la confirmación antes de pausar la reproducción.</string>
-    <string name="settings_category_developer">Opciones de desarrollo</string>
-    <string name="settings_category_developer_experimental">Experimental</string>
     <string name="subtitle_background_color">Color de fondo</string>
     <string name="subtitle_color_black">Negro</string>
     <string name="subtitle_color_cyan">Cian</string>

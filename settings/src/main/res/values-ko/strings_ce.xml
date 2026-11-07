@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">챕터 건너뛰기</string>
     <string name="player_gestures_hold_disabled">사용 안 함</string>
     <string name="player_gestures_hold_speed">2배속</string>
-    <string name="pref_developer_enable_trickplay">지연 트릭플레이 로더 (실험용)</string>
-    <string name="pref_developer_enable_trickplay_summary">모든 타일을 미리 로드하지 않고 필요할 때 스크러버 미리보기 섬네일을 디코딩합니다. 긴 동영상에서 메모리 사용량을 줄이지만 새 스프라이트 시트로 스크러빙할 때 첫 프레임을 잠시 놓칠 수 있습니다. 기본적으로 꺼져 있습니다.</string>
     <string name="pref_download_internal_storage">내부 저장소 (%s 여유)</string>
     <string name="pref_download_max_concurrent">최대 동시 다운로드 수</string>
     <string name="pref_download_sd_card">SD 카드 %1$d (%2$s 여유)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">탭, 탐색 또는 일시정지 없이 이 시간(분)이 지나면 확인 메시지를 표시합니다. 비활성화하려면 0으로 설정하세요.</string>
     <string name="pref_player_still_watching_prompt_timeout">확인 메시지 시간 초과</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">재생을 일시정지하기 전에 확인을 기다리는 시간(초)입니다.</string>
-    <string name="settings_category_developer">개발자 옵션</string>
-    <string name="settings_category_developer_experimental">실험용</string>
     <string name="subtitle_background_color">배경 색상</string>
     <string name="subtitle_color_black">검은색</string>
     <string name="subtitle_color_cyan">청록색</string>

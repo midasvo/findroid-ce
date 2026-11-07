@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Preskočiť kapitolu</string>
     <string name="player_gestures_hold_disabled">Vypnuté</string>
     <string name="player_gestures_hold_speed">Rýchlosť 2x</string>
-    <string name="pref_developer_enable_trickplay">Lenivé načítavanie Trickplay (experimentálne)</string>
-    <string name="pref_developer_enable_trickplay_summary">Dekóduje miniatúry náhľadu pri posúvaní na požiadanie namiesto načítania celej mriežky vopred. Znižuje využitie pamäte pri dlhých videách, ale pri prechode na nový hárok môže krátko vynechať prvý snímok. Predvolene vypnuté.</string>
     <string name="pref_download_internal_storage">Vnútorné úložisko (%s voľných)</string>
     <string name="pref_download_max_concurrent">Max. počet súbežných stahovaní</string>
     <string name="pref_download_sd_card">SD karta %1$d (%2$s voľných)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Zobraziť potvrdenie po toľkých minútach bez ťuknutia, posunu alebo pozastavenia. Nastavte na 0 na vypnutie.</string>
     <string name="pref_player_still_watching_prompt_timeout">Časový limit výzvy</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Počet sekúnd čakania na potvrdenie pred pozastavením prehrávania.</string>
-    <string name="settings_category_developer">Možnosti pre vývojárov</string>
-    <string name="settings_category_developer_experimental">Experimentálne</string>
     <string name="subtitle_background_color">Farba pozadia</string>
     <string name="subtitle_color_black">Čierna</string>
     <string name="subtitle_color_cyan">Azúrová</string>

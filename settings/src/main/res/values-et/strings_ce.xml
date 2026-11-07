@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Jäta peatükk vahele</string>
     <string name="player_gestures_hold_disabled">Keelatud</string>
     <string name="player_gestures_hold_speed">2x kiirus</string>
-    <string name="pref_developer_enable_trickplay">Laisk trickplay laadur (eksperimentaalne)</string>
-    <string name="pref_developer_enable_trickplay_summary">Dekodeeri kerimisriba eelvaate pisipildid nõudmisel, mitte ära laadi kõiki kaadreid ette. Vähendab mälukasutust pikkade videote puhul, kuid võib uuele kaadrilehele kerides esimese kaadri lühidalt vahele jätta. Vaikimisi väljas.</string>
     <string name="pref_download_internal_storage">Sisemälu (%s vaba)</string>
     <string name="pref_download_max_concurrent">Maksimaalselt samaaegseid allalaadimisi</string>
     <string name="pref_download_sd_card">SD-kaart %1$d (%2$s vaba)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Kuva kinnitus, kui on möödunud nii mitu minutit ilma puudutuse, kerimise või pausita. Keelamiseks määra väärtuseks 0.</string>
     <string name="pref_player_still_watching_prompt_timeout">Teavituse ajalõpp</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Mitu sekundit oodatakse kinnitust enne esituse peatamist.</string>
-    <string name="settings_category_developer">Arendaja valikud</string>
-    <string name="settings_category_developer_experimental">Eksperimentaalne</string>
     <string name="subtitle_background_color">Taustavärv</string>
     <string name="subtitle_color_black">Must</string>
     <string name="subtitle_color_cyan">Tsüaan</string>

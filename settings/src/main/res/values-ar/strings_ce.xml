@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">تخطي الفصل</string>
     <string name="player_gestures_hold_disabled">معطل</string>
     <string name="player_gestures_hold_speed">سرعة 2x</string>
-    <string name="pref_developer_enable_trickplay">محمل المعاينة السريعة الكسول (تجريبي)</string>
-    <string name="pref_developer_enable_trickplay_summary">فك ترميز الصور المصغرة لمعاينة شريط التمرير عند الطلب بدلاً من تحميل جميع الصور مسبقًا. يقلل من استخدام الذاكرة في مقاطع الفيديو الطويلة ولكنه قد يفقد الإطار الأول لفترة وجيزة عند التمرير إلى مجموعة صور جديدة. معطل افتراضيًا.</string>
     <string name="pref_download_internal_storage">وحدة التخزين الداخلية (%s متاح)</string>
     <string name="pref_download_max_concurrent">الحد الأقصى للتنزيلات المتزامنة</string>
     <string name="pref_download_sd_card">بطاقة SD رقم %1$d (%2$s متاح)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">إظهار تأكيد بعد هذا العدد من الدقائق دون نقر أو تقديم/ترجيع أو إيقاف مؤقت. عيّنه على 0 للتعطيل.</string>
     <string name="pref_player_still_watching_prompt_timeout">مهلة المطالبة</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">عدد الثواني للانتظار للتأكيد قبل إيقاف التشغيل مؤقتًا.</string>
-    <string name="settings_category_developer">خيارات المطور</string>
-    <string name="settings_category_developer_experimental">تجريبي</string>
     <string name="subtitle_background_color">لون الخلفية</string>
     <string name="subtitle_color_black">أسود</string>
     <string name="subtitle_color_cyan">سماوي</string>

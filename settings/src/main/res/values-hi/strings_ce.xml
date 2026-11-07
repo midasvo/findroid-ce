@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">अध्याय छोड़ें</string>
     <string name="player_gestures_hold_disabled">अक्षम</string>
     <string name="player_gestures_hold_speed">2x गति</string>
-    <string name="pref_developer_enable_trickplay">लेज़ी ट्रिकप्ले लोडर (प्रायोगिक)</string>
-    <string name="pref_developer_enable_trickplay_summary">सभी टाइलों को पहले से लोड करने के बजाय मांग पर स्क्रबर पूर्वावलोकन थंबनेल डिकोड करें। लंबे वीडियो पर मेमोरी का उपयोग कम करता है लेकिन नई स्प्राइट-शीट में स्क्रब करते समय पहला फ़्रेम संक्षेप में छूट सकता है। डिफ़ॉल्ट रूप से बंद।</string>
     <string name="pref_download_internal_storage">आंतरिक संग्रहण (%s खाली)</string>
     <string name="pref_download_max_concurrent">अधिकतम एक साथ डाउनलोड</string>
     <string name="pref_download_sd_card">एसडी कार्ड %1$d (%2$s खाली)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">बिना किसी टैप, सीक या पॉज़ के इतने मिनट बाद पुष्टि दिखाएं। अक्षम करने के लिए 0 पर सेट करें।</string>
     <string name="pref_player_still_watching_prompt_timeout">संकेत टाइमआउट</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">प्लेबैक रोकने से पहले पुष्टि की प्रतीक्षा करने के सेकंड।</string>
-    <string name="settings_category_developer">डेवलपर विकल्प</string>
-    <string name="settings_category_developer_experimental">प्रायोगिक</string>
     <string name="subtitle_background_color">पृष्ठभूमि का रंग</string>
     <string name="subtitle_color_black">काला</string>
     <string name="subtitle_color_cyan">सियान</string>

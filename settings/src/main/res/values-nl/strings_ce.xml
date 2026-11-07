@@ -19,8 +19,6 @@
     <string name="player_gestures_hold_chapter">Hoofdstuk overslaan</string>
     <string name="player_gestures_hold_disabled">Uitgeschakeld</string>
     <string name="player_gestures_hold_speed">2x snelheid</string>
-    <string name="pref_developer_enable_trickplay">Luie trickplay-lader (experimenteel)</string>
-    <string name="pref_developer_enable_trickplay_summary">Decodeer scrubber-miniatuurweergaven op aanvraag in plaats van elke tegel vooraf in te laden. Vermindert geheugengebruik bij lange video\'s, maar mist mogelijk kort het eerste beeldje bij het scrollen naar een nieuw sprite-blad. Standaard uitgeschakeld.</string>
     <string name="pref_download_internal_storage">Interne opslag (%s vrij)</string>
     <string name="pref_download_max_concurrent">Max. gelijktijdige downloads</string>
     <string name="pref_download_sd_card">SD-kaart %1$d (%2$s vrij)</string>
@@ -48,8 +46,6 @@
     <string name="pref_player_still_watching_after_minutes_summary">Toon een bevestiging na zoveel minuten zonder tikken, spoelen of pauzeren. Stel in op 0 om uit te schakelen.</string>
     <string name="pref_player_still_watching_prompt_timeout">Time-out prompt</string>
     <string name="pref_player_still_watching_prompt_timeout_summary">Seconden wachten op bevestiging voordat het afspelen wordt gepauzeerd.</string>
-    <string name="settings_category_developer">Opties voor ontwikkelaars</string>
-    <string name="settings_category_developer_experimental">Experimenteel</string>
     <string name="subtitle_background_color">Achtergrondkleur</string>
     <string name="subtitle_color_black">Zwart</string>
     <string name="subtitle_color_cyan">Cyaan</string>
