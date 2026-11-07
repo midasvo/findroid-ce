@@ -51,3 +51,11 @@ These are stop-gaps. They make the pages readable; the design in [4-design.md](4
 **R4** (rows, grids, search bar, Downloads): cards, grid cells and the Downloads grid take their sizes from the `Layout` tokens (320 dp cards and 180 dp cells at expanded, unchanged on a phone), the Media search bar is capped at 720 dp, and Downloads puts its title at the top like Favorites on wide windows. Verified on the 1280 by 800 dp tablet AVD and a 411 dp phone window.
 
 ![](screenshots/home-r4-landscape.jpg) ![](screenshots/media-r4-landscape.jpg)
+
+**R2 (T12).** `ItemHeader` and the new hero draw `scrimOverArt` from the top as well (10 % → 0 over 96 dp), and Movie, Show and Episode ask for light status-bar icons while the backdrop is behind the status bar, in both themes. Once the top bar has faded to the solid background the theme's default icons come back. This is the one change a phone shows (D7). Season still has T12; it is left to R5, which rewrites that page.
+
+**R3 (T4, T5).** At medium and expanded width (but not at compact height, so a phone in landscape keeps the compact page) Movie, Show and Episode use the hero layout of [4-design.md](4-design.md) §6: a full-width backdrop cropped from the top centre, `max(320 dp, min(width × 9/16, window height × 0.55))` tall, with the poster (an episode's still) and the text column, capped at 720 dp, in its bottom part. Next Up, seasons and cast run below at full width. The R0 width caps on these three pages are gone. Landscape gets a 440 dp hero with a 200 dp poster; portrait gets 450 dp with 160 dp.
+
+![](screenshots/movie-hero-landscape.jpg) ![](screenshots/movie-hero-portrait.jpg)
+
+![](screenshots/show-hero-landscape.jpg) ![](screenshots/episode-hero-landscape.jpg)
