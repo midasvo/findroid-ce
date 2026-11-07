@@ -43,6 +43,7 @@ import dev.jdtech.jellyfin.player.local.PlaybackService
 import dev.jdtech.jellyfin.player.local.PlaybackSessionStore
 import dev.jdtech.jellyfin.player.local.R
 import dev.jdtech.jellyfin.player.local.domain.AudioDecoderFallback
+import dev.jdtech.jellyfin.player.local.domain.DebugSegments
 import dev.jdtech.jellyfin.player.local.domain.PlaylistManager
 import dev.jdtech.jellyfin.player.local.domain.SegmentDecision
 import dev.jdtech.jellyfin.player.local.domain.SegmentTracker
@@ -1283,7 +1284,8 @@ constructor(
     private suspend fun getSegments(itemId: UUID) {
         val segments =
             try {
-                repository.getSegments(itemId)
+                // Debuggable builds can fake segments for testing (#271).
+                DebugSegments.read(application) ?: repository.getSegments(itemId)
             } catch (e: Exception) {
                 Timber.e(e)
                 emptyList()
