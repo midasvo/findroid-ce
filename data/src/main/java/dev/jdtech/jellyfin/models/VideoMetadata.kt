@@ -11,6 +11,8 @@ data class VideoMetadata(
     val audioChannels: List<AudioChannel>,
     val audioCodecs: List<AudioCodec?>,
     val isAtmos: List<Boolean>,
+    /** CE: spatial audio formats, one entry per audio stream that carries one. */
+    val spatialAudio: List<SpatialAudio> = emptyList(),
 )
 
 enum class Resolution(val raw: String) {
@@ -41,6 +43,12 @@ enum class AudioChannel(val raw: String) {
     CH_2_1("2.1"),
     CH_5_1("5.1"),
     CH_7_1("7.1"),
+}
+
+/** CE: object-based audio, read from the stream's codec profile. */
+enum class SpatialAudio(val raw: String) {
+    ATMOS("Atmos"),
+    DTS_X("DTS:X"),
 }
 
 enum class AudioCodec(val raw: String) {
