@@ -28,7 +28,6 @@ import dagger.hilt.android.HiltAndroidApp
 import dev.jdtech.jellyfin.core.presentation.downloader.DownloadQueue
 import dev.jdtech.jellyfin.core.presentation.downloader.SmartDownloads
 import dev.jdtech.jellyfin.settings.domain.AppPreferences
-import dev.jdtech.jellyfin.utils.Downloader
 import dev.jdtech.jellyfin.utils.JellyfinImageSizeInterceptor
 import dev.jdtech.jellyfin.work.MpvCleanupWorker
 import dev.jdtech.jellyfin.work.OrphanSweepWorker
@@ -50,8 +49,6 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
     @Inject lateinit var workerFactory: HiltWorkerFactory
 
     @Inject lateinit var downloadQueue: DownloadQueue
-
-    @Inject lateinit var downloader: Downloader
 
     @Inject lateinit var smartDownloads: SmartDownloads
 
@@ -83,34 +80,30 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
         // Issue #52: correct an "aaudio" value left in preferences by the old default.
         appPreferences.migrateMpvAudioOutput()
 
-        val workManager = WorkManager.getInstance(applicationContext)
-
-        scheduleUserDataSync(workManager)
-
-        if (!appPreferences.getValue(appPreferences.mpvMigrated)) {
-            scheduleMpvCleanup(workManager)
-        }
-
-        // Schedule daily orphan sweep to clean up stale downloads.
-        workManager.enqueueUniquePeriodicWork(
-            "orphan-sweep",
-            ExistingPeriodicWorkPolicy.KEEP,
-            PeriodicWorkRequestBuilder<OrphanSweepWorker>(1, TimeUnit.DAYS).build(),
-        )
-
         // Smart Downloads reacts to the player reporting a stop, which can happen at any time.
         smartDownloads.start()
 
-        // Re-attach any downloads that were in-flight before process death. The OkHttp
-        // engine is in-process and does not survive, so partials are resumed via Range.
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            try {
-                // Drop DB rows and files left behind by crashes / external deletions
-                // before restoring active downloads.
-                downloader.sweepOrphans()
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to sweep orphan downloads")
+            // CE (#250): WorkManager is set up here, off the main thread, rather than in onCreate.
+            val workManager = WorkManager.getInstance(applicationContext)
+
+            scheduleUserDataSync(workManager)
+
+            if (!appPreferences.getValue(appPreferences.mpvMigrated)) {
+                scheduleMpvCleanup(workManager)
             }
+
+            // Daily sweep of DB rows and files left behind by crashes or external deletions. It
+            // no longer also runs at every start (#250): restoring does not need it, a partial
+            // whose file is gone is downloaded again from the start.
+            workManager.enqueueUniquePeriodicWork(
+                "orphan-sweep",
+                ExistingPeriodicWorkPolicy.KEEP,
+                PeriodicWorkRequestBuilder<OrphanSweepWorker>(1, TimeUnit.DAYS).build(),
+            )
+
+            // Re-attach any downloads that were in-flight before process death. The OkHttp
+            // engine is in-process and does not survive, so partials are resumed via Range.
             try {
                 downloadQueue.restoreAll()
             } catch (e: Exception) {
@@ -155,6 +148,8 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
             OneTimeWorkRequestBuilder<SyncWorker>()
                 .setConstraints(constraints)
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+                // CE (#250): leave the first seconds to the Home screen's own requests.
+                .setInitialDelay(SYNC_INITIAL_DELAY_SECONDS, TimeUnit.SECONDS)
                 .build()
 
         workManager.enqueueUniqueWork(
@@ -174,3 +169,5 @@ class BaseApplication : Application(), Configuration.Provider, SingletonImageLoa
         )
     }
 }
+
+private const val SYNC_INITIAL_DELAY_SECONDS = 10L
