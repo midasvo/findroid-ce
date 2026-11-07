@@ -36,6 +36,7 @@ class PersonViewModel @Inject internal constructor(private val repository: Jelly
                             personIds = listOf(personId),
                             includeTypes = listOf(BaseItemKind.MOVIE, BaseItemKind.SERIES),
                             recursive = true,
+                            limit = PERSON_ITEMS_LIMIT,
                         )
                     }
                     val person = personAsync.await()
@@ -61,3 +62,9 @@ class PersonViewModel @Inject internal constructor(private val repository: Jelly
         }
     }
 }
+
+/**
+ * The most titles asked for on a person's page (#252). A person with more is cut off at the limit:
+ * the page shows those and has no "load more", as a cast member with over 100 titles is rare.
+ */
+internal const val PERSON_ITEMS_LIMIT = 100

@@ -260,6 +260,7 @@ class JellyfinRepositoryOfflineImpl(
         personIds: List<UUID>,
         includeTypes: List<BaseItemKind>?,
         recursive: Boolean,
+        limit: Int?,
     ): List<FindroidItem> {
         TODO("Not yet implemented")
     }
