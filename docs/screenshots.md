@@ -48,7 +48,7 @@ setting came from the `ce_phone` emulator (1080×2400).
 
 Portrait shots lose the status bar and navigation bar, which removes notifications and keeps the
 files small. These crop values are for a 1080×2374 screen; on a 1080×2400 screen, use
-`crop=1080:2122:0:130`.
+`crop=1080:2190:0:130`.
 
 ```bash
 # Portrait

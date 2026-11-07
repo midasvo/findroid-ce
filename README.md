@@ -119,7 +119,7 @@ is in the [changelog](CHANGELOG.md).
 
 <table>
   <tr>
-    <td colspan="2" align="center"><img src="images/screenshots/tv-home.webp" alt="TV Home with a large artwork hero for the focused item, a Suggestions row below it and a collapsed side drawer"><br><sub>Home, with a hero for the focused item</sub></td>
+    <td colspan="2" align="center"><img src="images/screenshots/tv-home.webp" alt="TV Home with a large artwork hero for the focused item, a Suggestions row below it and a collapsed side drawer"><br><sub>Home, with a hero and a glow for the focused item</sub></td>
   </tr>
   <tr>
     <td width="50%" align="center"><img src="images/screenshots/tv-library.webp" alt="TV shows library grid with Hide watched and Sort by buttons, an A to Z bar on the right and a 4 of 44 counter"><br><sub>Library grid with an A to Z jump bar</sub></td>
