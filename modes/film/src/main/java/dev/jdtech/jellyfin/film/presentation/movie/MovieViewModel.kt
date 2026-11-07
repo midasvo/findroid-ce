@@ -18,6 +18,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -52,13 +55,17 @@ constructor(
             val token = reloadPolicy.begin()
             _state.emit(_state.value.copy(error = null))
             try {
-                val movie = repository.getMovie(movieId)
+                // The preferences don't depend on the movie, so they are read while it loads.
+                val (movie, displayCastAndCrew, displayExtraInfo) = coroutineScope {
+                    val movieAsync = async { repository.getMovie(movieId) }
+                    val castAsync = async { appPreferences.getValue(appPreferences.displayCastAndCrew) }
+                    val extraAsync = async { appPreferences.getValue(appPreferences.displayExtraInfo) }
+                    Triple(movieAsync.await(), castAsync.await(), extraAsync.await())
+                }
                 val videoMetadata = movie.sources.firstOrNull()?.let { videoMetadataParser.parse(it) }
-                val displayCastAndCrew = appPreferences.getValue(appPreferences.displayCastAndCrew)
                 val actors = if (displayCastAndCrew) getActors(movie) else emptyList()
                 val director = if (displayCastAndCrew) getDirector(movie) else null
                 val writers = if (displayCastAndCrew) getWriters(movie) else emptyList()
-                val displayExtraInfo = appPreferences.getValue(appPreferences.displayExtraInfo)
                 _state.emit(
                     _state.value.copy(
                         movie = movie,
@@ -96,53 +103,48 @@ constructor(
         }
     }
 
+    /** Marks the movie played or unplayed and updates the page in place (#252), no full load. */
+    private fun setPlayed(played: Boolean) {
+        viewModelScope.launch {
+            try {
+                if (played) repository.markAsPlayed(movieId) else repository.markAsUnplayed(movieId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.e(e, if (played) "Failed to mark as played" else "Failed to unmark as played")
+                return@launch
+            }
+            reloadPolicy.changedHere()
+            _state.update { state -> state.copy(movie = state.movie?.copy(played = played)) }
+        }
+    }
+
+    /** Marks the movie favourite or not and updates the page in place (#252), no full load. */
+    private fun setFavorite(favorite: Boolean) {
+        viewModelScope.launch {
+            try {
+                if (favorite) repository.markAsFavorite(movieId) else repository.unmarkAsFavorite(movieId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.e(
+                    e,
+                    if (favorite) "Failed to mark as favorite" else "Failed to unmark as favorite",
+                )
+                return@launch
+            }
+            reloadPolicy.changedHere()
+            _state.update { state -> state.copy(movie = state.movie?.copy(favorite = favorite)) }
+        }
+    }
+
     fun onAction(action: MovieAction) {
         when (action) {
             is MovieAction.OnRetryClick -> loadMovie(movieId)
-            is MovieAction.MarkAsPlayed -> {
-                viewModelScope.launch {
-                    try {
-                        repository.markAsPlayed(movieId)
-                        reloadPolicy.changedHere()
-                    } catch (e: Exception) {
-                        Timber.e(e, "Failed to mark as played")
-                    }
-                    loadMovie(movieId)
-                }
-            }
-            is MovieAction.UnmarkAsPlayed -> {
-                viewModelScope.launch {
-                    try {
-                        repository.markAsUnplayed(movieId)
-                        reloadPolicy.changedHere()
-                    } catch (e: Exception) {
-                        Timber.e(e, "Failed to unmark as played")
-                    }
-                    loadMovie(movieId)
-                }
-            }
-            is MovieAction.MarkAsFavorite -> {
-                viewModelScope.launch {
-                    try {
-                        repository.markAsFavorite(movieId)
-                        reloadPolicy.changedHere()
-                    } catch (e: Exception) {
-                        Timber.e(e, "Failed to mark as favorite")
-                    }
-                    loadMovie(movieId)
-                }
-            }
-            is MovieAction.UnmarkAsFavorite -> {
-                viewModelScope.launch {
-                    try {
-                        repository.unmarkAsFavorite(movieId)
-                        reloadPolicy.changedHere()
-                    } catch (e: Exception) {
-                        Timber.e(e, "Failed to unmark as favorite")
-                    }
-                    loadMovie(movieId)
-                }
-            }
+            is MovieAction.MarkAsPlayed -> setPlayed(true)
+            is MovieAction.UnmarkAsPlayed -> setPlayed(false)
+            is MovieAction.MarkAsFavorite -> setFavorite(true)
+            is MovieAction.UnmarkAsFavorite -> setFavorite(false)
             else -> Unit
         }
     }

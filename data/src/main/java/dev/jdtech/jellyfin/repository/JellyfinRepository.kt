@@ -92,6 +92,7 @@ interface JellyfinRepository {
         personIds: List<UUID>,
         includeTypes: List<BaseItemKind>? = null,
         recursive: Boolean = true,
+        limit: Int? = null,
     ): List<FindroidItem>
 
     suspend fun getFavoriteItems(): List<FindroidItem>

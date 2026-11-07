@@ -77,7 +77,7 @@ fun EpisodeScreen(
     navigateBack: () -> Unit,
     navigateHome: () -> Unit,
     navigateToPerson: (personId: UUID) -> Unit,
-    navigateToSeason: (seasonId: UUID) -> Unit,
+    navigateToSeason: (seasonId: UUID, seriesId: UUID) -> Unit,
     viewModel: EpisodeViewModel = hiltViewModel(),
     downloaderViewModel: DownloaderViewModel = hiltViewModel(),
 ) {
@@ -132,7 +132,7 @@ fun EpisodeScreen(
                 is EpisodeAction.OnBackClick -> navigateBack()
                 is EpisodeAction.OnHomeClick -> navigateHome()
                 is EpisodeAction.NavigateToPerson -> navigateToPerson(action.personId)
-                is EpisodeAction.NavigateToSeason -> navigateToSeason(action.seasonId)
+                is EpisodeAction.NavigateToSeason -> navigateToSeason(action.seasonId, action.seriesId)
                 else -> Unit
             }
             viewModel.onAction(action)
@@ -320,7 +320,7 @@ private fun EpisodeScreenLayout(
             Spacer(modifier = Modifier.width(MaterialTheme.spacings.extraSmall))
             state.episode?.let { episode ->
                 Button(
-                    onClick = { onAction(EpisodeAction.NavigateToSeason(episode.seasonId)) },
+                    onClick = { onAction(EpisodeAction.NavigateToSeason(episode.seasonId, episode.seriesId)) },
                     colors =
                         ButtonDefaults.buttonColors(
                             containerColor = Color.Black.copy(alpha = 0.5f),

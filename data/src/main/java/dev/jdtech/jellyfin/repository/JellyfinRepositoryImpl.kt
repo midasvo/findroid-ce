@@ -236,6 +236,7 @@ class JellyfinRepositoryImpl(
         personIds: List<UUID>,
         includeTypes: List<BaseItemKind>?,
         recursive: Boolean,
+        limit: Int?,
     ): List<FindroidItem> =
         withContext(Dispatchers.IO) {
             jellyfinApi.libraryApi
@@ -244,6 +245,7 @@ class JellyfinRepositoryImpl(
                     personIds = personIds,
                     includeItemTypes = includeTypes,
                     recursive = recursive,
+                    limit = limit,
                     enableTotalRecordCount = false,
                 )
                 .content
