@@ -20,8 +20,11 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-# Keep class names of all classes for easy debugging (and fix navigation route checking)
--keepnames class dev.jdtech.jellyfin.** { *; }
+# Navigation 3 routes are @Serializable NavKeys and the back stack is saved and restored by
+# class name, so the route classes keep theirs. The rest of the app may be renamed, merged and
+# inlined by R8 (#249). Member names are not read by name: the generated serializers and
+# kotlinx.serialization's consumer rules cover the fields.
+-keepnames class * implements androidx.navigation3.runtime.NavKey
 
 # These classes are from okhttp and are not used in Android
 -dontwarn org.bouncycastle.jsse.BCSSLSocket
